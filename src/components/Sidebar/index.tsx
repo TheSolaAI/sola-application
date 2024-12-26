@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import SidebarLinkGroup from './SidebarLinkGroup';
+import { usePrivy } from '@privy-io/react-auth';
+import { Users, MoreVertical } from 'react-feather';
 
 interface SidebarProps {
   sidebarOpen: boolean;
@@ -8,6 +10,7 @@ interface SidebarProps {
 }
 
 const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
+  const { user, logout } = usePrivy();
   const location = useLocation();
   const { pathname } = location;
 
@@ -18,6 +21,12 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
   const [sidebarExpanded, setSidebarExpanded] = useState(
     storedSidebarExpanded === null ? false : storedSidebarExpanded === 'true',
   );
+  const [isLogoutVisible, setLogoutVisible] = useState(false);
+
+  const toggleLogout = () => {
+    console.log(isLogoutVisible);
+    setLogoutVisible(!isLogoutVisible);
+  };
 
   // close on click outside
   useEffect(() => {
@@ -66,8 +75,9 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
         <NavLink to="/" className="text-bodydark1 font-semibold">
           Sola AI
         </NavLink>
-        <div className="bg-bodydark1 text-gray-2 py-2 px-4 text-sm rounded-lg">ALPHA</div>
-
+        <div className="bg-bodydark1 text-gray-2 py-2 px-4 text-sm rounded-lg">
+          ALPHA
+        </div>
 
         <button
           ref={trigger}
@@ -93,7 +103,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
       </div>
       {/* <!-- SIDEBAR HEADER --> */}
 
-      <div className="no-scrollbar flex flex-col overflow-y-auto duration-300 ease-linear">
+      <div className="no-scrollbar flex flex-col justify-between h-screen overflow-y-auto duration-300 ease-linear">
         {/* <!-- Sidebar Menu --> */}
         <nav className="mt-5 py-4 px-4 lg:mt-9 lg:px-6">
           {/* <!-- Menu Group --> */}
@@ -281,6 +291,35 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
           </div>
         </nav>
         {/* <!-- Sidebar Menu --> */}
+
+        {/* <!-- Sidebar Footer --> */}
+        <div className=" relative flex flex-col items-center w-full gap-2 px-6 py-5.5 lg:py-6.5 ">
+          {isLogoutVisible && (
+            <div className="flex items-center justify-between w-full gap-2 p-2 text-base font-bold bg-boxdark-2 rounded-md hover:bg-boxdark ease-in-out">
+              <button
+                onClick={logout}
+                className="text-center text-bodydark w-full"
+              >
+                Logout
+              </button>
+            </div>
+          )}
+          <div
+            className={`flex items-center justify-between w-full gap-2 p-2 cursor-pointer hover:bg-graydark dark:hover:bg-meta-4 ${
+              isLogoutVisible && 'bg-graydark'
+            }`}
+            onClick={toggleLogout}
+          >
+            <div className="flex-shrink-0">
+              <Users className="text-bodydark1 w-6 h-6" />
+            </div>
+            <div className="flex-1 text-sm font-medium text-bodydark2 overflow-hidden text-ellipsis whitespace-nowrap">
+              @{user?.email ? user.email.address.split('@')[0] : 'Anonymous'}
+            </div>
+            <MoreVertical className="text-bodydark2 text-sm flex-shrink-0" />
+          </div>
+        </div>
+        {/* <!-- Sidebar Footer --> */}
       </div>
     </aside>
   );

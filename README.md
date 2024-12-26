@@ -13,7 +13,10 @@ This application provides a seamless interaction between the user, OpenAI, and b
 *   **Blockchain Data Filtering:** Microservices filter and process blockchain data according to user queries, significantly reducing client-side overhead and improving performance.
 *   **Blockchain Interactions:** The application Solana on-chain interactions (like transfer, swap etc..) from the client side. 
 
-> Previous version of Sola AI used a centralized server to manage the conncetion b/w client and Openai. The previous app can be found here https://github.com/The-SolaAI/sola-application/tree/Previous-Application.
+> Centralized Server Migration (Previous Version): <br>
+The previous version of Sola AI leveraged a centralized server to manage the connection between the client application and OpenAI. You can find the code for this version here: [Previous Application](https://github.com/The-SolaAI/sola-application/tree/Previous-Application).
+
+**Important Note:** Blockchain interactions from the previous application haven't been fully migrated to the current version yet. This functionality is under development and will be integrated in a future update.
 
 ## Local Development
 
@@ -24,7 +27,8 @@ To setup local development, first clone this repo.
 create a .env file in the root folder of the project to store openai api key.
 
 ```
-OPENAI_API_KEY=<YOUR_OPENAI_API_KEY>
+OPEN_AI_API_KEY = <>
+PRVI_APP_ID = <>
 ```
 
 > During production you will have to 3rd party services to keep the key secure. Refer Cloudflare tools.
