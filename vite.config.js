@@ -7,7 +7,8 @@ export default defineConfig(({ mode }) => {
   return {
     define: {
       'process.env.OPEN_AI_API_KEY': JSON.stringify(env.OPEN_AI_API_KEY),
-      'process.env.PRVI_APP_ID' : JSON.stringify(env.PRVI_APP_ID)
+      'process.env.PRVI_APP_ID' : JSON.stringify(env.PRVI_APP_ID),
+      'process.env.HELIUS_API_KEY' : JSON.stringify(env.HELIUS_API_KEY),
     },
     plugins: [react()],
   }

@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { LiveAudioVisualizer } from 'react-audio-visualize';
 import SessionControls from '../components/SessionControls';
+import WalletUi from '../components/wallet/WalletUi';
 
 const functionDescription = `Call this function when a user asks for a test`;
 
@@ -15,8 +16,7 @@ const sessionUpdate = {
         parameters: {
           type: 'object',
           strict: true,
-          properties: {
-          },
+          properties: {},
 
           required: [],
         },
@@ -29,6 +29,7 @@ const sessionUpdate = {
 
 const Conversation = () => {
   const [isSessionActive, setIsSessionActive] = useState(false);
+  const [isWalletVisible, setIsWalletVisible] = useState(false);
   const [events, setEvents] = useState<any[]>([]);
   const [dataChannel, setDataChannel] = useState<RTCDataChannel | null>(null);
   const peerConnection = useRef<RTCPeerConnection | null>(null);
@@ -48,7 +49,7 @@ const Conversation = () => {
         if (audioElement.current) {
           audioElement.current.srcObject = stream;
         }
-        
+
         if (MediaRecorder.isTypeSupported('audio/webm')) {
           const recorder = new MediaRecorder(stream, {
             mimeType: 'audio/webm',
@@ -152,6 +153,12 @@ const Conversation = () => {
     sendClientEvent({ type: 'response.create' });
   }
 
+  function toggleWallet() {
+    setIsWalletVisible(!isWalletVisible);
+  }
+
+  
+
   useEffect(() => {
     if (dataChannel) {
       // Append new server events to the list
@@ -210,12 +217,16 @@ const Conversation = () => {
 
   return (
     <>
-      <main className="absolute top-16 left-0 right-0 bottom-0 flex flex-col">
+      <main className="absolute h-screen top-0 left-0 right-0 bottom-0 flex flex-col">
+        <section className="absolute right-0 p-4">
+          <WalletUi toggleWallet={toggleWallet} isWalletVisible={isWalletVisible}/>
+        </section>
+
         <section className="flex items-center justify-center h-full">
           <section className="flex items-center justify-center">
             {mediaRecorder && (
               <LiveAudioVisualizer
-              barColor='#1D1D1F'
+                barColor="#1D1D1F"
                 mediaRecorder={mediaRecorder}
                 width={400}
                 height={200}
