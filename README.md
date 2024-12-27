@@ -29,6 +29,8 @@ create a .env file in the root folder of the project to store openai api key.
 ```
 OPEN_AI_API_KEY = <>
 PRVI_APP_ID = <>
+HELIUS_API_KEY = <>
+SOLANA_RPC = <>
 ```
 
 > During production you will have to 3rd party services to keep the key secure. Refer Cloudflare tools.

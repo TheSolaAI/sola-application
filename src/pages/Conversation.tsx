@@ -1,7 +1,10 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { LiveAudioVisualizer } from 'react-audio-visualize';
+import { useSolanaWallets } from '@privy-io/react-auth/solana';
+import { Connection } from '@solana/web3.js';
 import SessionControls from '../components/SessionControls';
 import WalletUi from '../components/wallet/WalletUi';
+import { transferSolTx } from '../lib/solana/transferSol';
 
 const functionDescription = `Call this function when a user asks for a test`;
 
@@ -35,6 +38,34 @@ const Conversation = () => {
   const peerConnection = useRef<RTCPeerConnection | null>(null);
   const audioElement = useRef<HTMLAudioElement | null>(null);
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder>();
+
+  const { wallets } = useSolanaWallets();
+  const solanaWallet = wallets[0];
+
+  const rpc = process.env.SOLANA_RPC;
+
+  const transferSol = async () => {
+    if (!rpc) return;
+
+    const connection = new Connection(rpc);
+    const { blockhash, lastValidBlockHeight } =
+      await connection.getLatestBlockhash();
+
+    //TODO : Get the built Tx from microservice
+    const transaction = await transferSolTx(wallets[0].address, connection);
+    const signedTransaction = await solanaWallet.signTransaction(transaction);
+    const signature = await connection.sendRawTransaction(
+      signedTransaction.serialize(),
+    );
+    console.log(signature);
+    console.log(
+      await connection.confirmTransaction({
+        blockhash,
+        lastValidBlockHeight,
+        signature,
+      }),
+    );
+  };
 
   const startSession = async () => {
     try {
@@ -157,8 +188,6 @@ const Conversation = () => {
     setIsWalletVisible(!isWalletVisible);
   }
 
-  
-
   useEffect(() => {
     if (dataChannel) {
       // Append new server events to the list
@@ -219,7 +248,10 @@ const Conversation = () => {
     <>
       <main className="absolute h-screen top-0 left-0 right-0 bottom-0 flex flex-col">
         <section className="absolute right-0 p-4">
-          <WalletUi toggleWallet={toggleWallet} isWalletVisible={isWalletVisible}/>
+          <WalletUi
+            toggleWallet={toggleWallet}
+            isWalletVisible={isWalletVisible}
+          />
         </section>
 
         <section className="flex items-center justify-center h-full">
