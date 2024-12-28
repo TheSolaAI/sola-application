@@ -2,37 +2,14 @@ import { useState, useRef, useCallback, useEffect } from 'react';
 import { LiveAudioVisualizer } from 'react-audio-visualize';
 import { useSolanaWallets } from '@privy-io/react-auth/solana';
 import { Connection } from '@solana/web3.js';
-import SessionControls from '../components/SessionControls';
-import WalletUi from '../components/wallet/WalletUi';
 import { transferSolTx } from '../lib/solana/transferSol';
 import { MessageCard } from '../types/messageCard';
-import MessageList from '../components/ui/MessageList';
 import { SwapParams } from '../types/swap';
 import { swapTx } from '../lib/solana/swapTx';
-
-const functionDescription = `Call this function when a user asks for a test`;
-
-const sessionUpdate = {
-  type: 'session.update',
-  session: {
-    tools: [
-      {
-        type: 'function',
-        name: 'test',
-        description: functionDescription,
-        parameters: {
-          type: 'object',
-          strict: true,
-          properties: {},
-
-          required: [],
-        },
-      },
-    ],
-
-    tool_choice: 'auto',
-  },
-};
+import { tools } from '../tools/tools';
+import SessionControls from '../components/SessionControls';
+import WalletUi from '../components/wallet/WalletUi';
+import MessageList from '../components/ui/MessageList';
 
 const Conversation = () => {
   const [isSessionActive, setIsSessionActive] = useState(false);
@@ -113,9 +90,9 @@ const Conversation = () => {
 
     const transaction = await swapTx(params);
     if (!transaction) return;
-    console.log(transaction)
+    console.log(transaction);
     const signedTransaction = await solanaWallet.signTransaction(transaction);
-    console.log(signedTransaction)
+    console.log(signedTransaction);
     const signature = await connection.sendRawTransaction(
       signedTransaction.serialize(),
     );
@@ -282,7 +259,7 @@ const Conversation = () => {
       firstEvent.type === 'session.created' &&
       !events.some((e) => e.type === 'session.update')
     ) {
-      sendClientEvent(sessionUpdate);
+      sendClientEvent(tools);
     }
 
     const mostRecentEvent = events[0];
@@ -293,23 +270,31 @@ const Conversation = () => {
     ) {
       mostRecentEvent.response.output.forEach((output: any) => {
         if (
-          output.type === 'function_call' &&
-          output.name === 'display_color_palette' &&
-          !events.some((e) => e.type === 'response.create')
+          output.type === 'function_call'
         ) {
           console.log('function called');
-          console.log('pallet');
 
-          setTimeout(() => {
-            sendClientEvent({
-              type: 'response.create',
+          if (output.name === 'toggleWallet') {
+            const { action } = JSON.parse(output.arguments);
+            console.log(action)
+            if (action == 'open' && !isWalletVisible) {
+              console.log("open", isWalletVisible)
+              toggleWallet();
+            } else if (action == 'close' && isWalletVisible) {
+              console.log("close",isWalletVisible)
+              toggleWallet();
+            }
 
-              response: {
-                instructions: `ask for feedback about the color palette - don't repeat
-                the colors, just ask if they like the colors.`,
-              },
-            });
-          }, 500);
+            setTimeout(() => {
+              sendClientEvent({
+                type: 'response.create',
+
+                response: {
+                  instructions: 'Ask what the user wants to do next.',
+                },
+              });
+            }, 500);
+          }
         }
       });
     }
