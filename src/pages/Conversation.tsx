@@ -5,6 +5,8 @@ import { Connection } from '@solana/web3.js';
 import SessionControls from '../components/SessionControls';
 import WalletUi from '../components/wallet/WalletUi';
 import { transferSolTx } from '../lib/solana/transferSol';
+import { MessageCard } from '../types/messageCard';
+import MessageList from '../components/ui/MessageList';
 
 const functionDescription = `Call this function when a user asks for a test`;
 
@@ -38,6 +40,7 @@ const Conversation = () => {
   const peerConnection = useRef<RTCPeerConnection | null>(null);
   const audioElement = useRef<HTMLAudioElement | null>(null);
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder>();
+  const [messageList, setMessageList] = useState<MessageCard[]>();
 
   const { wallets } = useSolanaWallets();
   const solanaWallet = wallets[0];
@@ -46,6 +49,14 @@ const Conversation = () => {
 
   const transferSol = async () => {
     if (!rpc) return;
+
+    setMessageList((prev) => [
+      ...(prev || []),
+      {
+        type: 'agent',
+        message: `Agent is performing the transaction`,
+      },
+    ]);
 
     const connection = new Connection(rpc);
     const { blockhash, lastValidBlockHeight } =
@@ -58,6 +69,15 @@ const Conversation = () => {
       signedTransaction.serialize(),
     );
     console.log(signature);
+    setMessageList((prev) => [
+      ...(prev || []),
+      {
+        type: 'message',
+        message: 'Your transfer is success. ',
+        link: `https://solscan.io/tx/${signature}`,
+      },
+    ]);
+
     console.log(
       await connection.confirmTransaction({
         blockhash,
@@ -247,26 +267,46 @@ const Conversation = () => {
   return (
     <>
       <main className="absolute h-screen top-0 left-0 right-0 bottom-0 flex flex-col">
+        {/* Start of wallet */}
         <section className="absolute right-0 p-4">
           <WalletUi
             toggleWallet={toggleWallet}
             isWalletVisible={isWalletVisible}
           />
         </section>
+        {/* End of wallet */}
 
-        <section className="flex items-center justify-center h-full">
-          <section className="flex items-center justify-center">
-            {mediaRecorder && (
-              <LiveAudioVisualizer
-                barColor="#1D1D1F"
-                mediaRecorder={mediaRecorder}
-                width={400}
-                height={200}
-              />
-            )}
-          </section>
+        <div>
+          <button onClick={transferSol}>test</button>
+        </div>
+
+        {/* Start of Visualizer Section */}
+        <section
+          className={`flex items-center justify-center ${
+            messageList ? 'h-1/2' : 'h-full'
+          }`}
+        >
+          {mediaRecorder && (
+            <LiveAudioVisualizer
+              barColor="#1D1D1F"
+              mediaRecorder={mediaRecorder}
+              width={400}
+              height={200}
+            />
+          )}
         </section>
-        <section className="h-32 flex items-center justify-center p-4">
+        {/* End of Visualizer Section */}
+
+        {/* Start of Message display Section */}
+        {messageList && (
+          <section className="flex justify-center items-center">
+            <MessageList messageList={messageList} />
+          </section>
+        )}
+        {/* End of Message display Section */}
+
+        {/* Start of Session Controls Section */}
+        <section className="absolute bottom-0 left-1/2 transform -translate-x-1/2 p-4">
           <SessionControls
             startSession={startSession}
             stopSession={stopSession}
@@ -274,6 +314,7 @@ const Conversation = () => {
             isSessionActive={isSessionActive}
           />
         </section>
+        {/* End of Session Controls Section */}
       </main>
     </>
   );
