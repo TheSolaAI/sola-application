@@ -10,6 +10,7 @@ import { tools } from '../tools/tools';
 import SessionControls from '../components/SessionControls';
 import WalletUi from '../components/wallet/WalletUi';
 import MessageList from '../components/ui/MessageList';
+import { tokenList } from '../store/tokens/tokenMapping';
 
 const Conversation = () => {
   const [isSessionActive, setIsSessionActive] = useState(false);
@@ -66,8 +67,15 @@ const Conversation = () => {
     );
   };
 
-  const handleSwap = async () => {
+  const handleSwap = async (
+    quantity: number,
+    tokenA: "SOL" | "SEND" | "USDC",
+    tokenB: "SOL" | "SEND" | "USDC",
+  ) => {
     if (!rpc) return;
+    if (!tokenList[tokenA] || !tokenList[tokenB]) return
+
+    console.log(quantity* 10**tokenList[tokenA].DECIMALS,tokenA,tokenB)
 
     setMessageList((prev) => [
       ...(prev || []),
@@ -78,10 +86,11 @@ const Conversation = () => {
     ]);
 
     const params: SwapParams = {
-      input_mint: 'So11111111111111111111111111111111111111112',
-      output_mint: 'CSmVx8guiujGZuLovb91Ft5TLi8td3iprMY8LBdYpump',
+      input_mint: tokenList[tokenA].MINT,
+      output_mint: tokenList[tokenB].MINT,
       public_key: `${wallets[0].address}`,
-      amount: 1000,
+      amount: quantity* 10**tokenList[tokenA].DECIMALS,
+      // amount: 1,
     };
 
     const connection = new Connection(rpc);
@@ -90,9 +99,8 @@ const Conversation = () => {
 
     const transaction = await swapTx(params);
     if (!transaction) return;
-    console.log(transaction);
+
     const signedTransaction = await solanaWallet.signTransaction(transaction);
-    console.log(signedTransaction);
     const signature = await connection.sendRawTransaction(
       signedTransaction.serialize(),
     );
@@ -106,13 +114,15 @@ const Conversation = () => {
       },
     ]);
 
-    console.log(
-      await connection.confirmTransaction({
-        blockhash,
-        lastValidBlockHeight,
-        signature,
-      }),
-    );
+    // console.log(
+    //   await connection.confirmTransaction({
+    //     blockhash,
+    //     lastValidBlockHeight,
+    //     signature,
+    //   }),
+    // );
+
+    return
   };
 
   const startSession = async () => {
@@ -253,51 +263,66 @@ const Conversation = () => {
 
   useEffect(() => {
     if (!events || events.length === 0) return;
-    const firstEvent = events[events.length - 1];
 
-    if (
-      firstEvent.type === 'session.created' &&
-      !events.some((e) => e.type === 'session.update')
-    ) {
-      sendClientEvent(tools);
-    }
+    const handleEvents = async () => {
+      const firstEvent = events[events.length - 1];
 
-    const mostRecentEvent = events[0];
+      if (
+        firstEvent.type === 'session.created' &&
+        !events.some((e) => e.type === 'session.update')
+      ) {
+        sendClientEvent(tools);
+      }
 
-    if (
-      mostRecentEvent.type === 'response.done' &&
-      mostRecentEvent.response.output
-    ) {
-      mostRecentEvent.response.output.forEach((output: any) => {
-        if (
-          output.type === 'function_call'
-        ) {
-          console.log('function called');
+      const mostRecentEvent = events[0];
 
-          if (output.name === 'toggleWallet') {
-            const { action } = JSON.parse(output.arguments);
-            console.log(action)
-            if (action == 'open' && !isWalletVisible) {
-              console.log("open", isWalletVisible)
-              toggleWallet();
-            } else if (action == 'close' && isWalletVisible) {
-              console.log("close",isWalletVisible)
-              toggleWallet();
+      if (
+        mostRecentEvent.type === 'response.done' &&
+        mostRecentEvent.response.output
+      ) {
+        for (const output of mostRecentEvent.response.output) {
+          if (output.type === 'function_call') {
+            console.log('function called');
+
+            if (output.name === 'toggleWallet') {
+              const { action } = JSON.parse(output.arguments);
+              console.log(action);
+
+              if (action === 'open' && !isWalletVisible) {
+                console.log('open', isWalletVisible);
+                toggleWallet();
+              } else if (action === 'close' && isWalletVisible) {
+                console.log('close', isWalletVisible);
+                toggleWallet();
+              }
+
+              setTimeout(() => {
+                sendClientEvent({
+                  type: 'response.create',
+                  response: {
+                    instructions: 'Ask what the user wants to do next.',
+                  },
+                });
+              }, 500);
+            } else if (output.name === 'swapTokens') {
+              const { quantity, tokenA, tokenB } = JSON.parse(output.arguments);
+              await handleSwap(quantity, tokenA, tokenB);
+
+              setTimeout(() => {
+                sendClientEvent({
+                  type: 'response.create',
+                  response: {
+                    instructions: 'Ask what the user wants to do next.',
+                  },
+                });
+              }, 500);
             }
-
-            setTimeout(() => {
-              sendClientEvent({
-                type: 'response.create',
-
-                response: {
-                  instructions: 'Ask what the user wants to do next.',
-                },
-              });
-            }, 500);
           }
         }
-      });
-    }
+      }
+    };
+
+    handleEvents();
   }, [events, sendClientEvent]);
 
   return (
@@ -311,10 +336,6 @@ const Conversation = () => {
           />
         </section>
         {/* End of wallet */}
-
-        <div>
-          <button onClick={handleSwap}>test</button>
-        </div>
 
         {/* Start of Visualizer Section */}
         <section
