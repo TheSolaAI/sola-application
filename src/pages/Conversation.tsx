@@ -7,6 +7,8 @@ import WalletUi from '../components/wallet/WalletUi';
 import { transferSolTx } from '../lib/solana/transferSol';
 import { MessageCard } from '../types/messageCard';
 import MessageList from '../components/ui/MessageList';
+import { SwapParams } from '../types/swap';
+import { swapTx } from '../lib/solana/swapTx';
 
 const functionDescription = `Call this function when a user asks for a test`;
 
@@ -74,6 +76,55 @@ const Conversation = () => {
       {
         type: 'message',
         message: 'Your transfer is success. ',
+        link: `https://solscan.io/tx/${signature}`,
+      },
+    ]);
+
+    console.log(
+      await connection.confirmTransaction({
+        blockhash,
+        lastValidBlockHeight,
+        signature,
+      }),
+    );
+  };
+
+  const handleSwap = async () => {
+    if (!rpc) return;
+
+    setMessageList((prev) => [
+      ...(prev || []),
+      {
+        type: 'agent',
+        message: `Agent is performing the swap`,
+      },
+    ]);
+
+    const params: SwapParams = {
+      input_mint: 'So11111111111111111111111111111111111111112',
+      output_mint: 'CSmVx8guiujGZuLovb91Ft5TLi8td3iprMY8LBdYpump',
+      public_key: `${wallets[0].address}`,
+      amount: 1000,
+    };
+
+    const connection = new Connection(rpc);
+    const { blockhash, lastValidBlockHeight } =
+      await connection.getLatestBlockhash();
+
+    const transaction = await swapTx(params);
+    if (!transaction) return;
+    console.log(transaction)
+    const signedTransaction = await solanaWallet.signTransaction(transaction);
+    console.log(signedTransaction)
+    const signature = await connection.sendRawTransaction(
+      signedTransaction.serialize(),
+    );
+    console.log(signature);
+    setMessageList((prev) => [
+      ...(prev || []),
+      {
+        type: 'message',
+        message: 'Swap is success. ',
         link: `https://solscan.io/tx/${signature}`,
       },
     ]);
@@ -277,7 +328,7 @@ const Conversation = () => {
         {/* End of wallet */}
 
         <div>
-          <button onClick={transferSol}>test</button>
+          <button onClick={handleSwap}>test</button>
         </div>
 
         {/* Start of Visualizer Section */}
