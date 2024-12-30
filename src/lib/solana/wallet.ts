@@ -1,7 +1,10 @@
 const helius_api_key = process.env.HELIUS_API_KEY;
 const url = `https://mainnet.helius-rpc.com/?api-key=${helius_api_key}`;
 
-export const fetchFilteredAssets = async (key: string, ownerAddress: string) => {
+export const fetchFilteredAssets = async (
+  key: string,
+  ownerAddress: string,
+) => {
   if (!ownerAddress) {
     console.log('No address provided');
     return [];
@@ -34,6 +37,15 @@ export const fetchFilteredAssets = async (key: string, ownerAddress: string) => 
 
   const { result } = await response.json();
 
+  const nativeSolToken = {
+    imageLink: '/Solana_logo.png',
+    symbol: 'SOL',
+    balance: result.nativeBalance.lamports,
+    decimals: 9,
+    pricePerToken: result.nativeBalance.price_per_sol,
+    totalPrice: result.nativeBalance.total_price,
+  };
+
   const filteredAssets = result.items
     .filter((item: any) => item.interface === 'FungibleToken')
     .map((item: any) => {
@@ -61,5 +73,11 @@ export const fetchFilteredAssets = async (key: string, ownerAddress: string) => 
       };
     });
 
-  return filteredAssets;
+  filteredAssets.push(nativeSolToken);
+
+  const sortedAssets = filteredAssets.sort(
+    (a: any, b: any) => b.totalPrice - a.totalPrice,
+  );
+
+  return sortedAssets;
 };

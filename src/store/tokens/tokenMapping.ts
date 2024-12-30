@@ -11,4 +11,8 @@ export const tokenList = {
     MINT: 'CSmVx8guiujGZuLovb91Ft5TLi8td3iprMY8LBdYpump',
     DECIMALS: 6,
   },
+  JUP: {
+    MINT: 'JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN',
+    DECIMALS: 6,
+  },
 };
