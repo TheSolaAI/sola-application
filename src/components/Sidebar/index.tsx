@@ -180,7 +180,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
             <ul className="mb-6 flex flex-col gap-1.5">
               {/* <!-- Menu Item Ui Elements --> */}
               <SidebarLinkGroup
-                activeCondition={pathname === '/ui' || pathname.includes('ui')}
+                activeCondition={pathname === '/settings' || pathname.includes('settings')}
               >
                 {(handleClick, open) => {
                   return (
@@ -188,7 +188,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                       <NavLink
                         to="#"
                         className={`group relative flex items-center gap-2.5 rounded-sm px-4 py-2 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${
-                          (pathname === '/ui' || pathname.includes('ui')) &&
+                          (pathname === '/settings' || pathname.includes('settings')) &&
                           'bg-graydark dark:bg-meta-4'
                         }`}
                         onClick={(e) => {
@@ -259,10 +259,10 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                         <ul className="mb-5.5 mt-4 flex flex-col gap-2.5 pl-6">
                           <li>
                             <NavLink
-                              to="/settings"
+                              to="/settings/wallet"
                               className={({ isActive }) =>
-                                'group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white ' +
-                                (isActive && '!text-white')
+                                'group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:bg-graydark ' +
+                                (isActive && 'bg-graydark dark:bg-meta-4')
                               }
                             >
                               Wallet
@@ -270,13 +270,13 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                           </li>
                           <li>
                             <NavLink
-                              to="/settings"
+                              to="/settings/configuration"
                               className={({ isActive }) =>
-                                'group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white ' +
-                                (isActive && '!text-white')
+                                'group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:bg-graydark ' +
+                                (isActive && 'bg-graydark dark:bg-meta-4')
                               }
                             >
-                              AI Behaviour
+                              Configuration
                             </NavLink>
                           </li>
                         </ul>

@@ -11,6 +11,8 @@ import SessionControls from '../components/SessionControls';
 import WalletUi from '../components/wallet/WalletUi';
 import MessageList from '../components/ui/MessageList';
 import { tokenList } from '../store/tokens/tokenMapping';
+import { fetchMagicEdenLaunchpadCollections } from '../lib/solana/magiceden';
+import { addCalenderEventFunction } from '../tools/functions/addCalenderEvent';
 
 const Conversation = () => {
   const [isSessionActive, setIsSessionActive] = useState(false);
@@ -69,13 +71,13 @@ const Conversation = () => {
 
   const handleSwap = async (
     quantity: number,
-    tokenA: "SOL" | "SEND" | "USDC",
-    tokenB: "SOL" | "SEND" | "USDC",
+    tokenA: 'SOL' | 'SEND' | 'USDC',
+    tokenB: 'SOL' | 'SEND' | 'USDC',
   ) => {
     if (!rpc) return;
-    if (!tokenList[tokenA] || !tokenList[tokenB]) return
+    if (!tokenList[tokenA] || !tokenList[tokenB]) return;
 
-    console.log(quantity* 10**tokenList[tokenA].DECIMALS,tokenA,tokenB)
+    console.log(quantity * 10 ** tokenList[tokenA].DECIMALS, tokenA, tokenB);
 
     setMessageList((prev) => [
       ...(prev || []),
@@ -89,8 +91,7 @@ const Conversation = () => {
       input_mint: tokenList[tokenA].MINT,
       output_mint: tokenList[tokenB].MINT,
       public_key: `${wallets[0].address}`,
-      amount: quantity* 10**tokenList[tokenA].DECIMALS,
-      // amount: 1,
+      amount: quantity * 10 ** tokenList[tokenA].DECIMALS,
     };
 
     const connection = new Connection(rpc);
@@ -122,8 +123,44 @@ const Conversation = () => {
     //   }),
     // );
 
-    return
+    return;
   };
+
+  const handleLaunchpadCollections = async () => {
+    setMessageList((prev) => [
+      ...(prev || []),
+      {
+        type: 'agent',
+        message: `Fetching upcoming NFT launches`,
+      },
+    ]);
+    try {
+      const data = await fetchMagicEdenLaunchpadCollections();
+
+      const formattedData: MessageCard[] = data.map((collection) => ({
+        type: 'nftcards',
+        card: {
+          title: collection.name,
+          descirption: collection.description,
+          image: collection.image,
+          price: collection.price,
+          size: collection.size,
+          date: collection.launchDatetime,
+        },
+      }));
+
+      setMessageList((prevMessageList) => [
+        ...(prevMessageList || []),
+        ...formattedData,
+      ]);
+
+      return data;
+    } catch (error) {
+      console.error('Error fetching and processing collections:', error);
+      return;
+    }
+  };
+
 
   const startSession = async () => {
     try {
@@ -316,6 +353,39 @@ const Conversation = () => {
                   },
                 });
               }, 500);
+            } else if (output.name === 'getNFTLaunchpad') {
+              const data = await handleLaunchpadCollections();
+
+              setTimeout(() => {
+                sendClientEvent({
+                  type: 'response.create',
+                  response: {
+                    result: data,
+                  },
+                });
+              }, 500);
+            } else if (output.name === 'addCalenderEvent') {
+              // TODO: Implement calender event addition logic
+              const { summary, description, dateTime, timeZone } = JSON.parse(
+                output.arguments,
+              );
+              setMessageList((prev) => [
+                ...(prev || []),
+                {
+                  type: 'agent',
+                  message: `Agent is adding details to your calender`,
+                },
+              ]);
+              await addCalenderEventFunction();
+
+              setTimeout(() => {
+                sendClientEvent({
+                  type: 'response.create',
+                  response: {
+                    instructions: 'The event has been successfully added to calender.',
+                  },
+                });
+              }, 500);
             }
           }
         }
@@ -327,7 +397,7 @@ const Conversation = () => {
 
   return (
     <>
-      <main className="absolute h-screen top-0 left-0 right-0 bottom-0 flex flex-col">
+      <main className="h-screen flex flex-col relative">
         {/* Start of wallet */}
         <section className="absolute right-0 p-4">
           <WalletUi
@@ -340,7 +410,7 @@ const Conversation = () => {
         {/* Start of Visualizer Section */}
         <section
           className={`flex items-center justify-center ${
-            messageList ? 'h-1/2' : 'h-full'
+            messageList ? 'h-1/4' : 'h-1/2'
           }`}
         >
           {mediaRecorder && (
@@ -356,14 +426,14 @@ const Conversation = () => {
 
         {/* Start of Message display Section */}
         {messageList && (
-          <section className="flex justify-center items-center">
+          <section className="flex-grow flex justify-center items-start overflow-y-auto">
             <MessageList messageList={messageList} />
           </section>
         )}
         {/* End of Message display Section */}
 
         {/* Start of Session Controls Section */}
-        <section className="absolute bottom-0 left-1/2 transform -translate-x-1/2 p-4">
+        <section className="fixed bottom-0 left-1/2  transform -translate-x-4 p-4 flex justify-center">
           <SessionControls
             startSession={startSession}
             stopSession={stopSession}

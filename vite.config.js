@@ -13,5 +13,14 @@ export default defineConfig(({ mode }) => {
       'process.env.SOLANA_RPC': JSON.stringify(env.SOLANA_RPC),
     },
     plugins: [react(), nodePolyfills()],
+    server: {
+      proxy: {
+        '/api': {
+          target: 'https://api-mainnet.magiceden.dev',
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/api/, ''),
+        },
+      },
+    },
   };
 });

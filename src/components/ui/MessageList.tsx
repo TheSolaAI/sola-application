@@ -3,6 +3,7 @@ import {
   MessageCard,
   SingleCard,
   MultipleCards,
+  NFTCard,
 } from '../../types/messageCard';
 
 interface Props {
@@ -69,6 +70,40 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
               <div key={index} className="mb-4 flex items-center gap-3">
                 <span className="w-2 h-2 bg-green-500 rounded-full" />
                 <span className="text-bodydark2">{item.message}</span>
+              </div>
+            );
+
+          case 'nftcards':
+            const nftCards = item.card as NFTCard;
+            return (
+              <div
+                key={index}
+                className="mb-4 bg-graydark rounded-xl shadow-md overflow-hidden"
+              >
+                <img
+                  src={nftCards.image}
+                  alt={nftCards.title} 
+                  className="w-full h-40 object-cover rounded-lg"
+                />
+                <div className="p-4">
+                  <h4 className="mb-2 text-lg font-semibold text-bodydark1">
+                    {nftCards.title}
+                  </h4>
+                  <p className="text-gray-500 text-sm">
+                    {nftCards.descirption}
+                  </p>
+                  <div className="flex items-center justify-between mt-2">
+                    <p className="text-gray-700 text-sm">
+                      Price: {nftCards.price}
+                    </p>
+                    <p className="text-gray-700 text-sm">
+                      Size: {nftCards.size}
+                    </p>
+                    <p className="text-gray-700 text-sm">
+                      Date: {nftCards.date}
+                    </p>
+                  </div>
+                </div>
               </div>
             );
 
