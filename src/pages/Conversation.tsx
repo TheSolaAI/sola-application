@@ -13,6 +13,8 @@ import MessageList from '../components/ui/MessageList';
 import { tokenList } from '../store/tokens/tokenMapping';
 import { fetchMagicEdenLaunchpadCollections } from '../lib/solana/magiceden';
 import { addCalenderEventFunction } from '../tools/functions/addCalenderEvent';
+import { AssetsParams, DepositParams, WithdrawParams } from '../types/lulo';
+import { depositLulo, getAssetsLulo, withdrawLulo } from '../lib/solana/lulo';
 
 const Conversation = () => {
   const [isSessionActive, setIsSessionActive] = useState(false);
@@ -95,9 +97,6 @@ const Conversation = () => {
     };
 
     const connection = new Connection(rpc);
-    const { blockhash, lastValidBlockHeight } =
-      await connection.getLatestBlockhash();
-
     const transaction = await swapTx(params);
     if (!transaction) return;
 
@@ -126,6 +125,121 @@ const Conversation = () => {
     return;
   };
 
+  const handleUserAssetsLulo = async () => {
+    if (!rpc) return;
+  
+    setMessageList((prev) => [
+      ...(prev || []),
+      {
+        type: 'agent',
+        message: `Agent is fetching Lulo Assets`,
+      },
+    ]);
+
+    const params: AssetsParams = {
+      owner: `${wallets[0].address}`,
+    };
+    const assets = await getAssetsLulo(params);
+    if (!assets) return;
+    let assets_string = JSON.stringify(assets) 
+    setMessageList((prev) => [
+      ...(prev || []),
+      {
+        type: 'message',
+        message: `Successfully fetched Lulo Assets: ${assets_string}`,
+      },
+    ]);
+    return;
+  };
+
+  const handleDepositLulo = async (
+    amount: number,
+    token: 'USDT' | 'USDS' | 'USDC',
+  ) => {
+    if (!rpc) return;
+    setMessageList((prev) => [
+      ...(prev || []),
+      {
+        type: 'agent',
+        message: `Agent is depositing the asset`,
+      },
+    ]);
+    const params: DepositParams = {
+      owner: `${wallets[0].address}`,
+      depositAmount: amount,
+      mintAddress: tokenList[token].MINT,
+    };
+    
+    const connection = new Connection(rpc);
+    
+    const transaction_array = await depositLulo(params);
+    if (!transaction_array) return;
+    let count = 0
+    for (const transaction in transaction_array) { 
+      count += 1;
+      const signedTransaction = await solanaWallet.signTransaction(
+        transaction_array[transaction],
+      );
+      console.log(signedTransaction);
+      // const signature = await connection.sendRawTransaction(
+      //   signedTransaction.serialize(),
+      // );
+      // console.log(signature);
+      setMessageList((prev) => [
+        ...(prev || []),
+        {
+          type: 'message',
+          message: `Deposit ${count} is success. `,
+          link: `https://solscan.io/tx/${signedTransaction}`,
+        },
+      ]);
+    }
+  }
+  
+  const handleWithdrawLulo = async (
+    amount: number,
+    all: boolean,
+    token: 'USDT' | 'USDS' | 'USDC',
+  ) => {
+    if (!rpc) return;
+    setMessageList((prev) => [
+      ...(prev || []),
+      {
+        type: 'agent',
+        message: `Agent is withdrawing the asset`,
+      },
+    ]);
+    const params: WithdrawParams = {
+      public_key: `${wallets[0].address}`,
+      amount: amount,
+      mint: tokenList[token].MINT,
+      withdraw_all: all,
+    };
+    
+    const connection = new Connection(rpc);
+    
+    const transaction_array = await withdrawLulo(params);
+    if (!transaction_array) return;
+    let count = 0
+    for (const transaction in transaction_array) { 
+      count += 1;
+      const signedTransaction = await solanaWallet.signTransaction(
+        transaction_array[transaction],
+      );
+      const signature = await connection.sendRawTransaction(
+        signedTransaction.serialize(),
+      );
+      console.log(signature);
+      setMessageList((prev) => [
+        ...(prev || []),
+        {
+          type: 'message',
+          message: `Deposit ${count} is success. `,
+          link: `https://solscan.io/tx/${signature}`,
+        },
+      ]);
+    }
+}
   const handleLaunchpadCollections = async () => {
     setMessageList((prev) => [
       ...(prev || []),
@@ -353,7 +467,48 @@ const Conversation = () => {
                   },
                 });
               }, 500);
-            } else if (output.name === 'getNFTLaunchpad') {
+            } else if (output.name === 'getLuloAssets') {
+              
+              await handleUserAssetsLulo();
+
+              setTimeout(() => {
+                sendClientEvent({
+                  type: 'response.create',
+                  response: {
+                    instructions: 'Ask what the user wants to do next.',
+                  },
+                });
+              }, 500);
+            }
+            else if (output.name === 'depositLulo') {
+              const { amount,token} = JSON.parse(output.arguments);
+              await handleDepositLulo(amount, token);
+
+              setTimeout(() => {
+                sendClientEvent({
+                  type: 'response.create',
+                  response: {
+                    instructions: 'Ask what the user wants to do next.',
+                  },
+                });
+              }, 500);
+            }
+            else if (output.name === 'withdrawLulo') {
+              {
+                const { amount, all, token } = JSON.parse(output.arguments);
+                await handleWithdrawLulo(amount, all, token);
+
+                setTimeout(() => {
+                  sendClientEvent({
+                    type: 'response.create',
+                    response: {
+                      instructions: 'Ask what the user wants to do next.',
+                    },
+                  });
+                }, 500);
+              }
+            }
+            else if (output.name === 'getNFTLaunchpad') {
               const data = await handleLaunchpadCollections();
 
               setTimeout(() => {
@@ -448,3 +603,4 @@ const Conversation = () => {
 };
 
 export default Conversation;
+

@@ -7,7 +7,7 @@ import PageTitle from './components/PageTitle';
 import Conversaction from './pages/Conversation';
 import DefaultLayout from './layout/DefaultLayout';
 import Onbording from './pages/Onbording';
-import Settings from './pages/Settings';
+// import Settings from './pages/Settings';
 
 function App() {
   const { authenticated } = usePrivy();
@@ -65,7 +65,7 @@ function App() {
               element={
                 <>
                   <PageTitle title="Settings" />
-                  <Settings />
+                  {/* <Settings /> */}
                 </>
               }
             />

@@ -7,7 +7,7 @@ export async function swapTx(
 ): Promise<VersionedTransaction | null> {
   try {
     const response = await axios.post<any>(
-      'http://127.0.0.1:5000/api/swap',
+      process.env.WALLET_SERVICE_URL +'/api/swap',
       params,
       {
         headers: {
@@ -19,8 +19,8 @@ export async function swapTx(
     const swapTransaction = response.data['transaction'];
     const transactionBuffer = Buffer.from(swapTransaction, 'base64');
     const transaction = VersionedTransaction.deserialize(transactionBuffer);
-
     return transaction;
+
   } catch (error) {
     console.error('Error during swap:', error);
     return null;

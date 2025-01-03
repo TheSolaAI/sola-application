@@ -1,4 +1,4 @@
-import { addEventToCalendar } from '../../pages/Settings';
+// import { addEventToCalendar } from '../../pages/Settings';
 import { EventDetails } from '../../types/eventDetails';
 
 const functionDescription =
@@ -44,6 +44,6 @@ export async function addCalenderEventFunction() {
       },
     };
 
-  addEventToCalendar('shreeharan2003@gmail.com');
+  // addEventToCalendar('shreeharan2003@gmail.com');
   return;
 }
