@@ -28,10 +28,8 @@ function App() {
     const initializeWallet = async () => {
       setLoading(true);
       try {
-        if (wallets.length <= 0) {
-          await createWallet();
-          console.log('A wallet has been created.');
-        }
+        await createWallet();
+        console.log('A wallet has been created.');
       } catch (error) {
         console.error('Error creating wallet:', error);
       } finally {
