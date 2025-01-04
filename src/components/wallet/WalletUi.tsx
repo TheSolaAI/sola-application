@@ -4,6 +4,7 @@ import { fetchFilteredAssets } from '../../lib/solana/wallet';
 import { useState, useEffect } from 'react';
 import useSWR from 'swr';
 import Button from '../Button';
+import useAppState from '../../store/zustand/AppState';
 
 interface WalletUiProps {
   toggleWallet: () => void;
@@ -20,12 +21,13 @@ interface Asset {
 }
 
 function WalletUi({ toggleWallet, isWalletVisible }: WalletUiProps) {
+  const { appWallet} = useAppState()
   const { wallets } = useSolanaWallets();
   const [ownerAddress, setOwnerAddress] = useState<string>('');
 
   function viewWalletInExplorer() {
-    if (wallets.length > 0) {
-      window.open(`https://solscan.io/account/${wallets[0].address}`);
+    if (appWallet) {
+      window.open(`https://solscan.io/account/${appWallet.address}`);
     }
   }
 
@@ -44,10 +46,10 @@ function WalletUi({ toggleWallet, isWalletVisible }: WalletUiProps) {
   );
 
   useEffect(() => {
-    if (wallets.length > 0) {
-      setOwnerAddress(wallets[0].address);
+    if (appWallet) {
+      setOwnerAddress(appWallet.address);
     }
-  }, [wallets]);
+  }, [appWallet]);
 
   return (
     <div className="flex flex-col items-end gap-2">
@@ -56,7 +58,7 @@ function WalletUi({ toggleWallet, isWalletVisible }: WalletUiProps) {
         onClick={toggleWallet}
         className={`w-fit ${isWalletVisible ? 'bg-opacity-80' : ''}`}
       ></Button>
-      {wallets.length > 0 && (
+      {appWallet && (
         <section
           className={`
             bg-black h-72 w-64 overflow-x-hidden overflow-y-scroll  no-scrollbar rounded-xl p-4 text-white sm:w-72 md:w-80 lg:w-80
@@ -72,8 +74,8 @@ function WalletUi({ toggleWallet, isWalletVisible }: WalletUiProps) {
             className="z-999999 w-full flex justify-center items-center bg-boxdark gap-2 p-2 rounded-full hover:bg-opacity-80 cursor-pointer"
             onClick={viewWalletInExplorer}
           >
-            {wallets[0].address.slice(0, 4)}...
-            {wallets[0].address.slice(-4)}
+            {appWallet.address.slice(0, 4)}...
+            {appWallet.address.slice(-4)}
             <ExternalLink height={16} />
           </div>
           <div className="flex justify-between items-center my-4">

@@ -8,13 +8,22 @@ import Conversaction from './pages/Conversation';
 import DefaultLayout from './layout/DefaultLayout';
 import Onbording from './pages/Onbording';
 import Settings from './pages/Settings';
+import WalletManagement from './pages/WalletManagement';
+import useAppState from './store/zustand/AppState';
 
 function App() {
   const { authenticated } = usePrivy();
   const { createWallet, wallets } = useSolanaWallets();
+  const { setWallet } = useAppState();
 
   const [loading, setLoading] = useState<boolean>(true);
   const { pathname } = useLocation();
+
+  useEffect(() => {
+    if (wallets.length > 0) {
+      setWallet(wallets[0]);
+    }
+  }, [wallets]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -50,7 +59,7 @@ function App() {
         <DefaultLayout>
           <Routes>
             <Route
-              path="/"
+              path="/home"
               element={
                 <>
                   <PageTitle title="Home" />
@@ -64,6 +73,15 @@ function App() {
                 <>
                   <PageTitle title="Settings" />
                   <Settings />
+                </>
+              }
+            />
+            <Route
+              path="/wallet"
+              element={
+                <>
+                  <PageTitle title="Wallet Management" />
+                  <WalletManagement />
                 </>
               }
             />
