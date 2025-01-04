@@ -113,12 +113,12 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
             </h3>
 
             <ul className="mb-6 flex flex-col gap-1.5">
-              {/* <!-- Menu Item Calendar --> */}
+              {/* <!-- Menu Item Conversation --> */}
               <li>
                 <NavLink
-                  to="/"
+                  to="/home"
                   className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${
-                    pathname.includes('') && 'bg-graydark dark:bg-meta-4'
+                    pathname.includes('home') && 'bg-graydark dark:bg-meta-4'
                   }`}
                 >
                   <svg
@@ -137,14 +137,14 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                   Main Conversation
                 </NavLink>
               </li>
-              {/* <!-- Menu Item Calendar --> */}
+              {/* <!-- Menu Item Conversation --> */}
 
-              {/* <!-- Menu Item Profile --> */}
+              {/* <!-- Menu Item Wallet --> */}
               <li>
                 <NavLink
-                  to="/profile"
+                  to="/wallet"
                   className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${
-                    pathname.includes('profile') && 'bg-graydark dark:bg-meta-4'
+                    pathname.includes('wallet') && 'bg-graydark dark:bg-meta-4'
                   }`}
                 >
                   <svg
@@ -164,10 +164,10 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                       fill=""
                     />
                   </svg>
-                  Profile
+                  Wallet Management
                 </NavLink>
               </li>
-              {/* <!-- Menu Item Profile --> */}
+              {/* <!-- Menu Item Wallet --> */}
             </ul>
           </div>
 

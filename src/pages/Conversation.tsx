@@ -26,7 +26,7 @@ const Conversation = () => {
   const [messageList, setMessageList] = useState<MessageCard[]>();
 
   // Use this variable.
-  const { appWallet, setWallet } = useAppState();
+  const { appWallet } = useAppState();
 
   const { wallets } = useSolanaWallets();
   // Igonere this variable and use appWallet variable.
@@ -286,11 +286,6 @@ const Conversation = () => {
   function toggleWallet() {
     setIsWalletVisible(!isWalletVisible);
   }
-
-  useEffect(() => {
-    console.log('Wallets:', wallets);
-    setWallet(solanaWallet);
-  }, []);
 
   useEffect(() => {
     if (dataChannel) {
