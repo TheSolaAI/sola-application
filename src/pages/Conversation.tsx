@@ -13,6 +13,7 @@ import MessageList from '../components/ui/MessageList';
 import { tokenList } from '../store/tokens/tokenMapping';
 import { fetchMagicEdenLaunchpadCollections } from '../lib/solana/magiceden';
 import { addCalenderEventFunction } from '../tools/functions/addCalenderEvent';
+import useAppState from '../store/zustand/AppState';
 
 const Conversation = () => {
   const [isSessionActive, setIsSessionActive] = useState(false);
@@ -24,7 +25,11 @@ const Conversation = () => {
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder>();
   const [messageList, setMessageList] = useState<MessageCard[]>();
 
+  // Use this variable.
+  const { appWallet, setWallet } = useAppState();
+
   const { wallets } = useSolanaWallets();
+  // Igonere this variable and use appWallet variable.
   const solanaWallet = wallets[0];
 
   const rpc = process.env.SOLANA_RPC;
@@ -161,7 +166,6 @@ const Conversation = () => {
     }
   };
 
-
   const startSession = async () => {
     try {
       // Create a peer connection
@@ -284,6 +288,11 @@ const Conversation = () => {
   }
 
   useEffect(() => {
+    console.log('Wallets:', wallets);
+    setWallet(solanaWallet);
+  }, []);
+
+  useEffect(() => {
     if (dataChannel) {
       // Append new server events to the list
       dataChannel.addEventListener('message', (e) => {
@@ -382,7 +391,8 @@ const Conversation = () => {
                 sendClientEvent({
                   type: 'response.create',
                   response: {
-                    instructions: 'The event has been successfully added to calender.',
+                    instructions:
+                      'The event has been successfully added to calender.',
                   },
                 });
               }, 500);
