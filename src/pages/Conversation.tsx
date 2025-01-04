@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { LiveAudioVisualizer } from 'react-audio-visualize';
 import { useSolanaWallets } from '@privy-io/react-auth/solana';
-import { Connection } from '@solana/web3.js';
+import { Connection, PublicKey } from '@solana/web3.js';
 import { transferSolTx } from '../lib/solana/transferSol';
 import { MessageCard } from '../types/messageCard';
 import { SwapParams } from '../types/swap';
@@ -31,23 +31,58 @@ const Conversation = () => {
 
   const rpc = process.env.SOLANA_RPC;
 
-  const transferSol = async () => {
-    if (!rpc) return;
+  const successResponse = () => { 
+    let msg = {
+      type: 'response.create',
+      response: {
+        instructions: 'Ask what the user wants to do next.',
+      },
+    }
+    return msg;
+  }
+  const errorResponse = (message:String) => {
+    let msg = {
+      type: 'response.error',
+      response: {
+        instructions: 'Error performing'+message,
+      },
+    };
+    return msg;
+  };
 
+  const transferSol = async (
+    amount: number,
+    to: string,
+  ) => {
+    console.log('transferSol', amount, to);
+    if (!rpc) return;
+    const LAMPORTS_PER_SOL = 10**9;
     setMessageList((prev) => [
       ...(prev || []),
       {
         type: 'agent',
-        message: `Agent is performing the transaction`,
+        message: `Agent is transferring ${amount} SOL to ${to}`,
       },
     ]);
 
     const connection = new Connection(rpc);
-    const { blockhash, lastValidBlockHeight } =
-      await connection.getLatestBlockhash();
-
-    //TODO : Get the built Tx from microservice
-    const transaction = await transferSolTx(wallets[0].address, connection);
+    let balance = await connection.getBalance(
+      new PublicKey(wallets[0].address),
+    );
+    if ((balance/LAMPORTS_PER_SOL)-0.01  < amount ) {
+      setMessageList((prev) => [
+        ...(prev || []),
+        {
+          type: 'message',
+          message: 'Insufficient balance. Please maintain 0.01 balance minimum',
+        },
+      ]);
+      return errorResponse('transfer');
+    }
+    
+    const transaction = await transferSolTx(wallets[0].address, to, amount*LAMPORTS_PER_SOL);
+    const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
+    transaction.recentBlockhash = blockhash;
     const signedTransaction = await solanaWallet.signTransaction(transaction);
     const signature = await connection.sendRawTransaction(
       signedTransaction.serialize(),
@@ -57,18 +92,20 @@ const Conversation = () => {
       ...(prev || []),
       {
         type: 'message',
-        message: 'Your transfer is success. ',
+        message: 'Your transfer is successful. ',
         link: `https://solscan.io/tx/${signature}`,
       },
     ]);
 
-    console.log(
-      await connection.confirmTransaction({
-        blockhash,
-        lastValidBlockHeight,
-        signature,
-      }),
-    );
+    return successResponse();
+
+    // console.log(
+    //   await connection.confirmTransaction({
+    //     blockhash,
+    //     lastValidBlockHeight,
+    //     signature,
+    //   }),
+    // );
   };
 
   const handleSwap = async (
@@ -98,8 +135,16 @@ const Conversation = () => {
 
     const connection = new Connection(rpc);
     const transaction = await swapTx(params);
-    if (!transaction) return;
-
+    if (!transaction) { 
+      setMessageList((prev) => [
+        ...(prev || []),
+        {
+          type: 'message',
+          message: `Error during Swap.`,
+        },
+      ]);
+      return errorResponse('Swap');
+    }
     const signedTransaction = await solanaWallet.signTransaction(transaction);
     const signature = await connection.sendRawTransaction(
       signedTransaction.serialize(),
@@ -122,7 +167,7 @@ const Conversation = () => {
     //   }),
     // );
 
-    return;
+    return successResponse();
   };
 
   const handleUserAssetsLulo = async () => {
@@ -149,7 +194,7 @@ const Conversation = () => {
         message: `Successfully fetched Lulo Assets: ${assets_string}`,
       },
     ]);
-    return;
+    return successResponse();
   };
 
   const handleDepositLulo = async (
@@ -173,7 +218,16 @@ const Conversation = () => {
     const connection = new Connection(rpc);
     
     const transaction_array = await depositLulo(params);
-    if (!transaction_array) return;
+    if (!transaction_array) { 
+      setMessageList((prev) => [
+        ...(prev || []),
+        {
+          type: 'message',
+          message: `Deposit failed. Check your balance.`,
+        },
+      ]);
+      return errorResponse('Deposit');
+    }
     let count = 0
     for (const transaction in transaction_array) { 
       count += 1;
@@ -189,16 +243,16 @@ const Conversation = () => {
         ...(prev || []),
         {
           type: 'message',
-          message: `Deposit ${count} is success. `,
+          message: `Deposit ${count} is success ${signedTransaction.signatures}. `,
           link: `https://solscan.io/tx/${signedTransaction}`,
         },
       ]);
     }
+    return successResponse();
   }
   
   const handleWithdrawLulo = async (
     amount: number,
-    all: boolean,
     token: 'USDT' | 'USDS' | 'USDC',
   ) => {
     if (!rpc) return;
@@ -210,35 +264,46 @@ const Conversation = () => {
       },
     ]);
     const params: WithdrawParams = {
-      public_key: `${wallets[0].address}`,
-      amount: amount,
-      mint: tokenList[token].MINT,
-      withdraw_all: all,
+      owner: `${wallets[0].address}`,
+      withdrawAmount: amount,
+      mintAddress: tokenList[token].MINT,
+      withdrawAll: false,
     };
     
     const connection = new Connection(rpc);
     
     const transaction_array = await withdrawLulo(params);
-    if (!transaction_array) return;
+    
+    if (!transaction_array) { 
+      setMessageList((prev) => [
+        ...(prev || []),
+        {
+          type: 'message',
+          message: `Withdrawal failed. Check your balance.`,
+        },
+      ]);
+      return errorResponse('Withdraw');
+    }
     let count = 0
     for (const transaction in transaction_array) { 
       count += 1;
       const signedTransaction = await solanaWallet.signTransaction(
         transaction_array[transaction],
       );
-      const signature = await connection.sendRawTransaction(
-        signedTransaction.serialize(),
-      );
-      console.log(signature);
+      // const signature = await connection.sendRawTransaction(
+      //   signedTransaction.serialize(),
+      // );
+      // console.log(signature);
       setMessageList((prev) => [
         ...(prev || []),
         {
           type: 'message',
-          message: `Deposit ${count} is success. `,
-          link: `https://solscan.io/tx/${signature}`,
+          message: `Deposit ${count} is success ${signedTransaction}. `,
+          link: `https://solscan.io/tx/${signedTransaction}`,
         },
       ]);
     }
+    return successResponse();
 }
   const handleLaunchpadCollections = async () => {
     setMessageList((prev) => [
@@ -434,6 +499,8 @@ const Conversation = () => {
         for (const output of mostRecentEvent.response.output) {
           if (output.type === 'function_call') {
             console.log('function called');
+            console.log(output.arguements);
+            console.log(output);
 
             if (output.name === 'toggleWallet') {
               const { action } = JSON.parse(output.arguments);
@@ -455,56 +522,44 @@ const Conversation = () => {
                   },
                 });
               }, 500);
-            } else if (output.name === 'swapTokens') {
-              const { quantity, tokenA, tokenB } = JSON.parse(output.arguments);
-              await handleSwap(quantity, tokenA, tokenB);
+            } else if (output.name === 'transferSolTx') {
+              const { quantity, address } = JSON.parse(output.arguments);
+              let response = await transferSol(quantity, address);
 
               setTimeout(() => {
-                sendClientEvent({
-                  type: 'response.create',
-                  response: {
-                    instructions: 'Ask what the user wants to do next.',
-                  },
-                });
+                sendClientEvent(response);
+              }, 500);
+            
+            } else if (output.name === 'swapTokens') {
+              const { quantity, tokenA, tokenB } = JSON.parse(output.arguments);
+              let response = await handleSwap(quantity, tokenA, tokenB);
+
+              setTimeout(() => {
+                sendClientEvent(response);
               }, 500);
             } else if (output.name === 'getLuloAssets') {
               
-              await handleUserAssetsLulo();
+              let response = await handleUserAssetsLulo();
 
               setTimeout(() => {
-                sendClientEvent({
-                  type: 'response.create',
-                  response: {
-                    instructions: 'Ask what the user wants to do next.',
-                  },
-                });
+                sendClientEvent(response);
               }, 500);
             }
             else if (output.name === 'depositLulo') {
               const { amount,token} = JSON.parse(output.arguments);
-              await handleDepositLulo(amount, token);
+              let response = await handleDepositLulo(amount, token);
 
               setTimeout(() => {
-                sendClientEvent({
-                  type: 'response.create',
-                  response: {
-                    instructions: 'Ask what the user wants to do next.',
-                  },
-                });
+                sendClientEvent(response);
               }, 500);
             }
             else if (output.name === 'withdrawLulo') {
               {
-                const { amount, all, token } = JSON.parse(output.arguments);
-                await handleWithdrawLulo(amount, all, token);
+                const { amount, token } = JSON.parse(output.arguments);
+                let response = await handleWithdrawLulo(amount, token);
 
                 setTimeout(() => {
-                  sendClientEvent({
-                    type: 'response.create',
-                    response: {
-                      instructions: 'Ask what the user wants to do next.',
-                    },
-                  });
+                  sendClientEvent(response);
                 }, 500);
               }
             }

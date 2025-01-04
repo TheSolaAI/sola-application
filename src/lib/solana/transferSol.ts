@@ -1,23 +1,24 @@
 import {
-  Connection,
+
   Transaction,
   SystemProgram,
   PublicKey,
 } from '@solana/web3.js';
 
-export async function transferSolTx(address: string, connection: Connection) {
-  const { blockhash, lastValidBlockHeight } =
-    await connection.getLatestBlockhash();
-
+export async function transferSolTx(
+  senderAddress: string,
+  recipientAddress: string,
+  amount: number,
+) {
+  
   const transaction = new Transaction().add(
     SystemProgram.transfer({
-      fromPubkey: new PublicKey(address),
-      toPubkey: new PublicKey('HvkuF3RXZ4kkWr8icix6Tvk1XzGFKbgPg2WpHz2DQMTy'),
-      lamports: 100000,
+      fromPubkey: new PublicKey(senderAddress),
+      toPubkey: new PublicKey(recipientAddress),
+      lamports: amount,
     }),
   );
-  transaction.recentBlockhash = blockhash;
-  transaction.feePayer = new PublicKey(address);
 
+  transaction.feePayer = new PublicKey(senderAddress);
   return transaction;
 }

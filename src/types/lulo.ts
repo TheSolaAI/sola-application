@@ -4,13 +4,13 @@ interface TokenBalance {
     usdValue: number;
 }
 
-interface DepositTransaction {
+export interface DepositTransaction {
     protocol: string;
     totalDeposit: number;
     transaction: string;
 }
 
-interface WithdrawTransaction {
+export interface WithdrawTransaction {
     protocol: string;
     transaction: string;
 }
@@ -34,18 +34,18 @@ export type DepositParams = {
 };
 
 export type DepositResponse = {
-    transaction: DepositTransaction[][]
+    transactions: DepositTransaction[][]
 };
 
 export type WithdrawParams = {
-    owner: string;
-    amount: number;
-    mint: string;
-    withdraw_all: boolean;
+    owner: String,
+    mintAddress: String,
+    withdrawAmount: number,
+    withdrawAll: boolean,
 };
 
 export type WithdrawResponse = {
-    transaction: WithdrawTransaction[][]
+    transactions: WithdrawTransaction[][]
 };
 
 

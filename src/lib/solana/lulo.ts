@@ -1,6 +1,6 @@
 import axios, { AxiosRequestConfig } from "axios";
-import { DepositParams, DepositResponse, WithdrawParams, WithdrawResponse, AssetsParams, AssetsResponse } from '../../types/lulo';
-import { Transaction } from "@solana/web3.js";
+import { DepositParams, DepositResponse, WithdrawParams, WithdrawResponse, AssetsParams, AssetsResponse, WithdrawTransaction } from '../../types/lulo';
+import { VersionedTransaction } from "@solana/web3.js";
 
 const wallet_service_url = process.env.WALLET_SERVICE_URL;
 export async function getAssetsLulo(
@@ -30,7 +30,7 @@ export async function getAssetsLulo(
 
 export async function depositLulo(
     params: DepositParams,
-  ): Promise<Transaction[] | null> {
+  ): Promise<VersionedTransaction[] | null> {
     try {
       const response = await axios.post<any>(
         wallet_service_url +'api/wallet/lulo/deposit',
@@ -41,15 +41,18 @@ export async function depositLulo(
           },
         },
       );
-        const result: DepositResponse = response.data;
-        const deposit_transactions = result.transaction[0]
-        let transactions = [];
-        for (const transaction in deposit_transactions){ 
-            const transactionBuffer = Buffer.from(transaction, 'base64');
-            const final_tx = Transaction.from(transactionBuffer);
-            transactions.push(final_tx);
-        }
-        return transactions;
+      const result: DepositResponse = response.data;
+      
+      const deposit_transactions = result['transactions'][0]
+      
+      let transactions = [];
+      for (let i in deposit_transactions) {
+          const transaction = deposit_transactions[i].transaction;
+          const transactionBuffer = Buffer.from(transaction, 'base64');
+          const final_tx = VersionedTransaction.deserialize(transactionBuffer);
+          transactions.push(final_tx);
+      }
+      return transactions;
         
     } catch (error) {
       console.error('Error during deposit:', error);
@@ -58,7 +61,7 @@ export async function depositLulo(
 }
 export async function withdrawLulo(
   params: WithdrawParams,
-): Promise<Transaction[] | null> {
+): Promise<VersionedTransaction[] | null> {
   try {
     const response = await axios.post<any>(
       wallet_service_url + 'api/wallet/lulo/withdraw',
@@ -70,11 +73,15 @@ export async function withdrawLulo(
       },
     );
     const result: WithdrawResponse = response.data;
-    const withdraw_transactions = result.transaction[0];
+    const withdraw_transactions: WithdrawTransaction[] | null = result.transactions[0];
+    if (!withdraw_transactions) {
+      return null;
+    }
     let transactions = [];
-    for (const transaction in withdraw_transactions) {
+    for (let i in withdraw_transactions) {
+      const transaction = withdraw_transactions[i].transaction;
       const transactionBuffer = Buffer.from(transaction, 'base64');
-      const final_tx = Transaction.from(transactionBuffer);
+      const final_tx = VersionedTransaction.deserialize(transactionBuffer);
       transactions.push(final_tx);
     }
     return transactions;
