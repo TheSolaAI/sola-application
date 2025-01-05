@@ -1,9 +1,22 @@
 export type MessageCard = {
-  type: 'message' | 'card' | 'cards' | 'nftcards' | 'agent';
+  type:
+    | 'message'
+    | 'card'
+    | 'cards'
+    | 'nftcards'
+    | 'agent'
+    | 'tokenCards'
+    | 'transaction';
   message?: string;
-  card?: SingleCard | MultipleCards | NFTCards;
+  card?: SingleCard | MultipleCards | NFTCard[] | TokenCard[] | TransactionCard;
   link?: string;
 };
+
+export interface TransactionCard {
+  title: string;
+  status: string;
+  link: string;
+}
 
 export type SingleCard = {
   title: string;
@@ -18,18 +31,19 @@ export type MultipleCards = {
 
 export type NFTCard = {
   title: string;
-  descirption: string;
+  description: string;
   image: string;
   price: string;
   size: string;
   date: string;
 };
 
-export type NFTCards = {
-  title: string;
-  descirption: string;
-  image: string;
-  price: string;
-  size: string;
-  date: string;
-}[];
+export interface TokenCard {
+  address: string;
+  name: string;
+  image?: string;
+  change: number;
+  marketCap?: string;
+  holdersCount?: number;
+  listedAt?: string;
+}

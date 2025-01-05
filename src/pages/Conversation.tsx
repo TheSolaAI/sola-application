@@ -26,8 +26,35 @@ const Conversation = () => {
   const audioElement = useRef<HTMLAudioElement | null>(null);
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder>();
   const [messageList, setMessageList] = useState<MessageCard[]>();
+  // const [messageList, setMessageList] = useState<MessageCard[]>([
+  //   {
+  //     type: 'tokenCards',
+  //     card: [
+  //       {
+  //         address: '0xTokenAddress1',
+  //         name: 'Token A',
+  //         image: 'https://via.placeholder.com/100',
+  //         change: 5.23,
+  //         marketCap: '1,000,000',
+  //         holdersCount: 50000,
+  //         listedAt: '2023-12-01',
+  //       },
+  //       {
+  //         address: '0xTokenAddress2',
+  //         name: 'Token B',
+  //         image: 'https://via.placeholder.com/100',
+  //         change: -3.45,
+  //         marketCap: '500,000',
+  //         holdersCount: 20000,
+  //         listedAt: '2023-11-20',
+  //       },
+  //     ],
+  //   },
+  // ]);
 
   // Use this variable.
+
+
   const { appWallet } = useAppState();
   if (!appWallet) {
     return <div>Connect your wallet</div>;
@@ -97,9 +124,12 @@ const Conversation = () => {
     setMessageList((prev) => [
       ...(prev || []),
       {
-        type: 'message',
-        message: 'Your transfer is successful. ',
-        link: `https://solscan.io/tx/${signature}`,
+        type: 'transaction',
+        card: {
+          title: 'Transaction',
+          status: 'Pending',
+          link: `https://solscan.io/tx/${signature}`,
+        },
       },
     ]);
 
