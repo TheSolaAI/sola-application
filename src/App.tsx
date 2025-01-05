@@ -58,6 +58,15 @@ function App() {
       {authenticated ? (
         <DefaultLayout>
           <Routes>
+          <Route
+              path="/"
+              element={
+                <>
+                  <PageTitle title="Home" />
+                  <Conversaction />
+                </>
+              }
+            />
             <Route
               path="/home"
               element={
