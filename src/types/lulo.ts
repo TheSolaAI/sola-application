@@ -1,4 +1,4 @@
-interface TokenBalance {
+export interface TokenBalance {
     balance: number;
     mint: string;
     usdValue: number;

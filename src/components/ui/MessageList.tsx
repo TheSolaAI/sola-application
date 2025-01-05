@@ -4,6 +4,9 @@ import {
   SingleCard,
   MultipleCards,
   NFTCard,
+  TransactionCard,
+  TokenCard,
+  LuloCard,
 } from '../../types/messageCard';
 
 interface Props {
@@ -27,6 +30,32 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                     Solscan Link
                   </a>
                 )}
+              </div>
+            );
+
+          case 'transaction':
+            const transactionCard = item.card as TransactionCard;
+            return (
+              <div
+                key={index}
+                className="flex items-center justify-between mb-4 p-4 bg-[#F5F5F5] border rounded-lg"
+              >
+                <div>
+                  <h4 className="text-lg font-semibold">
+                    {transactionCard.title}
+                  </h4>
+                  <p className="text-xs">
+                    Confirmation : {transactionCard.status}
+                  </p>
+                  <a
+                    href={transactionCard.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-500 hover:underline text-sm"
+                  >
+                    View details on Solscan ↗
+                  </a>
+                </div>
               </div>
             );
 
@@ -73,6 +102,79 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
               </div>
             );
 
+          case 'tokenCards':
+            const tokens = item.card as TokenCard[];
+            return (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 my-4">
+                {tokens.map((token, tokenIndex) => (
+                  <a
+                    key={tokenIndex}
+                    href={`https://dexscreener.com/solana/${token.address}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group relative block rounded-xl bg-[#F5F5F5] border p-3"
+                  >
+                    <div className="flex items-center gap-3">
+                      <img
+                        src={token.image || '/placeholder.png'}
+                        alt={token.metadata?.name || 'Token'}
+                        className="h-10 w-10 rounded-lg bg-gray-200"
+                      />
+                      <div>
+                        <h3 className="truncate text-sm font-medium">
+                          {token.metadata?.name || 'Unknown'}
+                        </h3>
+                        <p className={`mt-1 text-xs font-medium`}>
+                          {token.price}
+                        </p>
+                      </div>
+                    </div>
+                    <p className="text-xs text-gray-500">
+                      Market Cap: {token.marketCap || 'Unknown'}
+                    </p>
+                  </a>
+                ))}
+              </div>
+            );
+
+          case 'luloCard':
+            const lulo = item.card as LuloCard;
+            const tokenBalance = lulo.tokenBalance;
+            return (
+              <>
+                <div className="mb-4 bg-[#F5F5F5] p-3 rounded-lg leading-relaxed overflow-auto no-scrollbar transition-opacity duration-500 opacity-100 transform">
+                  <p className='text-base font-medium'>Deposit Value : {lulo.depositValue}</p>
+                  <p className='text-sm'>Interest Earned : {lulo.interestEarned}</p>
+                  <p className='text-sm'>Total Value : {lulo.totalValue}</p>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 my-4">
+                  {tokenBalance.map((token, tokenIndex) => (
+                    <a
+                      key={tokenIndex}
+                      href={`https://dexscreener.com/solana/${token.mint}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group relative block rounded-xl bg-[#F5F5F5] border p-3"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div>
+                          <h3 className="truncate text-sm font-medium">
+                            Balance : {token.balance || 'Unknown'}
+                          </h3>
+                          <p className={`mt-1 text-xs font-medium`}>
+                            Mint : {token.mint.substring(0, 3)}...
+                            {token.mint.substring(-1, -4)}
+                          </p>
+                        </div>
+                      </div>
+                      <p className="text-xs text-gray-500">
+                        Value : {token.usdValue}
+                      </p>
+                    </a>
+                  ))}
+                </div>
+              </>
+            );
           case 'nftcards':
             const nftCards = item.card as NFTCard;
             return (
@@ -82,7 +184,7 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
               >
                 <img
                   src={nftCards.image}
-                  alt={nftCards.title} 
+                  alt={nftCards.title}
                   className="w-full h-40 object-cover rounded-lg"
                 />
                 <div className="p-4">
