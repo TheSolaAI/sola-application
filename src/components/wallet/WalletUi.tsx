@@ -52,7 +52,7 @@ function WalletUi({ toggleWallet, isWalletVisible }: WalletUiProps) {
   }, [appWallet]);
 
   return (
-    <div className="flex flex-col items-end gap-2">
+    <div className="flex flex-col items-end gap-2 z-999999">
       <Button
         icon={<CreditCard />}
         onClick={toggleWallet}

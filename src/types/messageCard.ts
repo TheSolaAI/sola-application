@@ -1,3 +1,5 @@
+import { TokenBalance } from "./lulo";
+
 export type MessageCard = {
   type:
     | 'message'
@@ -6,9 +8,11 @@ export type MessageCard = {
     | 'nftcards'
     | 'agent'
     | 'tokenCards'
-    | 'transaction';
+    | 'transaction'
+    | 'transactions'
+    | 'luloCard';
   message?: string;
-  card?: SingleCard | MultipleCards | NFTCard[] | TokenCard[] | TransactionCard;
+  card?: SingleCard | MultipleCards | NFTCard[] | TokenCard[] | LuloCard | TransactionCard;
   link?: string;
 };
 
@@ -29,6 +33,13 @@ export type MultipleCards = {
   value: string;
 }[];
 
+export type LuloCard = {
+    depositValue: number;
+    interestEarned: number;
+    tokenBalance: TokenBalance[];
+    totalValue: number
+}
+
 export type NFTCard = {
   title: string;
   description: string;
@@ -40,10 +51,13 @@ export type NFTCard = {
 
 export interface TokenCard {
   address: string;
-  name: string;
   image?: string;
-  change: number;
+  metadata?: {
+    description: string;
+    name: string;
+    symbol: string;
+    token_standard: string;
+  };
+  price?: string;
   marketCap?: string;
-  holdersCount?: number;
-  listedAt?: string;
 }
