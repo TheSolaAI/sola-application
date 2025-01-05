@@ -53,55 +53,57 @@ function App() {
     }
   }, [authenticated]);
 
+  const AuthenticatedRoutes = () => (
+    <DefaultLayout>
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <>
+              <PageTitle title="Home" />
+              <Conversaction />
+            </>
+          }
+        />
+        <Route
+          path="/home"
+          element={
+            <>
+              <PageTitle title="Home" />
+              <Conversaction />
+            </>
+          }
+        />
+        <Route
+          path="/settings/configuration"
+          element={
+            <>
+              <PageTitle title="Settings" />
+              <Settings />
+            </>
+          }
+        />
+        <Route
+          path="/wallet"
+          element={
+            <>
+              <PageTitle title="Wallet Management" />
+              <WalletManagement />
+            </>
+          }
+        />
+      </Routes>
+    </DefaultLayout>
+  );
+
+  const UnauthenticatedRoutes = () => <Onbording />;
+
   return loading ? (
     <Loader />
+  ) : authenticated ? (
+    <AuthenticatedRoutes />
   ) : (
-    <>
-      {authenticated ? (
-        <DefaultLayout>
-          <Routes>
-          <Route
-              path="/"
-              element={
-                <>
-                  <PageTitle title="Home" />
-                  <Conversaction />
-                </>
-              }
-            />
-            <Route
-              path="/home"
-              element={
-                <>
-                  <PageTitle title="Home" />
-                  <Conversaction />
-                </>
-              }
-            />
-            <Route
-              path="/settings/configuration"
-              element={
-                <>
-                  <PageTitle title="Settings" />
-                  {/* <Settings /> */}
-                </>
-              }
-            />
-            <Route
-              path="/wallet"
-              element={
-                <>
-                  <PageTitle title="Wallet Management" />
-                  <WalletManagement />
-                </>
-              }
-            />
-          </Routes>
-        </DefaultLayout>
-      ) : (
-        <Onbording />
-      )}
-    </>
+    <UnauthenticatedRoutes />
   );
 }
 
