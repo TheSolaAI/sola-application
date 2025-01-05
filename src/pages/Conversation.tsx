@@ -26,6 +26,7 @@ const Conversation = () => {
   const audioElement = useRef<HTMLAudioElement | null>(null);
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder>();
   const [messageList, setMessageList] = useState<MessageCard[]>();
+  const [luloTotal, setLuloTotal] = useState(0);
   // const [messageList, setMessageList] = useState<MessageCard[]>([
   //   {
   //     type: 'tokenCards',
@@ -56,9 +57,8 @@ const Conversation = () => {
 
 
   const { appWallet } = useAppState();
-  if (!appWallet) {
-    return <div>Connect your wallet</div>;
-  }
+  if (!appWallet) return null;
+
 
   const { wallets } = useSolanaWallets();
   
@@ -221,6 +221,9 @@ const Conversation = () => {
       owner: `${appWallet.address}`,
     };
     const assets = await getAssetsLulo(params);
+    let total = assets?.totalValue;
+    if (!total) total = 0;
+    setLuloTotal(total)
     if (!assets) return;
     let assets_string = JSON.stringify(assets) 
     setMessageList((prev) => [
@@ -305,12 +308,26 @@ const Conversation = () => {
         message: `Agent is withdrawing the asset`,
       },
     ]);
+    let all = false;
+    console.log(luloTotal);
+    if (luloTotal - amount<100){ 
+      all = true;
+      setMessageList((prev) => [
+        ...(prev || []),
+        {
+          type: 'agent',
+          message: `Lulo total must be greater than 100. Withdrawing all aseets`,
+        },
+      ]);
+    }
+    
     const params: WithdrawParams = {
       owner: `${appWallet.address}`,
       withdrawAmount: amount,
       mintAddress: tokenList[token].MINT,
-      withdrawAll: false,
+      withdrawAll: all,
     };
+    console.log(params);
     
     const connection = new Connection(rpc);
     
@@ -329,9 +346,16 @@ const Conversation = () => {
     let count = 0
     for (const transaction in transaction_array) { 
       count += 1;
+      let tx = transaction_array[transaction]
+      let { blockhash, lastValidBlockHeight } =
+        await connection.getLatestBlockhash();
+      tx.message.recentBlockhash = blockhash;
+      
       const signedTransaction = await appWallet.signTransaction(
         transaction_array[transaction],
       );
+      console.log(signedTransaction);
+      
       const signature = await connection.sendRawTransaction(
         signedTransaction.serialize(),
       );
@@ -340,7 +364,7 @@ const Conversation = () => {
         ...(prev || []),
         {
           type: 'message',
-          message: `Deposit ${count} is success. `,
+          message: `Withdrawal ${count} is success. `,
           link: `https://solscan.io/tx/${signature}`,
         },
       ]);
