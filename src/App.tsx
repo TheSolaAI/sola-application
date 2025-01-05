@@ -7,13 +7,11 @@ import PageTitle from './components/PageTitle';
 import Conversaction from './pages/Conversation';
 import DefaultLayout from './layout/DefaultLayout';
 import Onbording from './pages/Onbording';
-<<<<<<< HEAD
-// import Settings from './pages/Settings';
-=======
-import Settings from './pages/Settings';
 import WalletManagement from './pages/WalletManagement';
 import useAppState from './store/zustand/AppState';
->>>>>>> 415e10012cda8478aa444c0a2e0013959a7b87e8
+import Settings from './pages/Settings';
+
+
 
 function App() {
   const { authenticated } = usePrivy();

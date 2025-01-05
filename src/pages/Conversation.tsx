@@ -29,11 +29,12 @@ const Conversation = () => {
 
   // Use this variable.
   const { appWallet } = useAppState();
+  if (!appWallet) {
+    return <div>Connect your wallet</div>;
+  }
 
   const { wallets } = useSolanaWallets();
-  // Igonere this variable and use appWallet variable.
-  const solanaWallet = wallets[0];
-
+  
   const rpc = process.env.SOLANA_RPC;
 
   const successResponse = () => { 
@@ -69,10 +70,10 @@ const Conversation = () => {
         message: `Agent is transferring ${amount} SOL to ${to}`,
       },
     ]);
-
+    
     const connection = new Connection(rpc);
     let balance = await connection.getBalance(
-      new PublicKey(wallets[0].address),
+      new PublicKey(appWallet.address),
     );
     if ((balance/LAMPORTS_PER_SOL)-0.01  < amount ) {
       setMessageList((prev) => [
@@ -85,10 +86,10 @@ const Conversation = () => {
       return errorResponse('transfer');
     }
     
-    const transaction = await transferSolTx(wallets[0].address, to, amount*LAMPORTS_PER_SOL);
+    const transaction = await transferSolTx(appWallet.address, to, amount*LAMPORTS_PER_SOL);
     const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
     transaction.recentBlockhash = blockhash;
-    const signedTransaction = await solanaWallet.signTransaction(transaction);
+    const signedTransaction = await appWallet.signTransaction(transaction);
     const signature = await connection.sendRawTransaction(
       signedTransaction.serialize(),
     );
@@ -134,7 +135,7 @@ const Conversation = () => {
     const params: SwapParams = {
       input_mint: tokenList[tokenA].MINT,
       output_mint: tokenList[tokenB].MINT,
-      public_key: `${wallets[0].address}`,
+      public_key: `${appWallet.address}`,
       amount: quantity * 10 ** tokenList[tokenA].DECIMALS,
     };
 
@@ -150,7 +151,7 @@ const Conversation = () => {
       ]);
       return errorResponse('Swap');
     }
-    const signedTransaction = await solanaWallet.signTransaction(transaction);
+    const signedTransaction = await appWallet.signTransaction(transaction);
     const signature = await connection.sendRawTransaction(
       signedTransaction.serialize(),
     );
@@ -187,7 +188,7 @@ const Conversation = () => {
     ]);
 
     const params: AssetsParams = {
-      owner: `${wallets[0].address}`,
+      owner: `${appWallet.address}`,
     };
     const assets = await getAssetsLulo(params);
     if (!assets) return;
@@ -215,7 +216,7 @@ const Conversation = () => {
       },
     ]);
     const params: DepositParams = {
-      owner: `${wallets[0].address}`,
+      owner: `${appWallet.address}`,
       depositAmount: amount,
       mintAddress: tokenList[token].MINT,
     };
@@ -236,20 +237,26 @@ const Conversation = () => {
     let count = 0
     for (const transaction in transaction_array) { 
       count += 1;
-      const signedTransaction = await solanaWallet.signTransaction(
+      let tx = transaction_array[transaction]
+      let { blockhash, lastValidBlockHeight } =
+        await connection.getLatestBlockhash();
+      tx.message.recentBlockhash = blockhash;
+      
+      const signedTransaction = await appWallet.signTransaction(
         transaction_array[transaction],
       );
       console.log(signedTransaction);
-      // const signature = await connection.sendRawTransaction(
-      //   signedTransaction.serialize(),
-      // );
-      // console.log(signature);
+      
+      const signature = await connection.sendRawTransaction(
+        signedTransaction.serialize(),
+      );
+      console.log(signature);
       setMessageList((prev) => [
         ...(prev || []),
         {
           type: 'message',
-          message: `Deposit ${count} is success ${signedTransaction.signatures}. `,
-          link: `https://solscan.io/tx/${signedTransaction}`,
+          message: `Deposit ${count} is successful`,
+          link: `https://solscan.io/tx/${signature}`,
         },
       ]);
     }
@@ -269,7 +276,7 @@ const Conversation = () => {
       },
     ]);
     const params: WithdrawParams = {
-      owner: `${wallets[0].address}`,
+      owner: `${appWallet.address}`,
       withdrawAmount: amount,
       mintAddress: tokenList[token].MINT,
       withdrawAll: false,
@@ -292,19 +299,19 @@ const Conversation = () => {
     let count = 0
     for (const transaction in transaction_array) { 
       count += 1;
-      const signedTransaction = await solanaWallet.signTransaction(
+      const signedTransaction = await appWallet.signTransaction(
         transaction_array[transaction],
       );
-      // const signature = await connection.sendRawTransaction(
-      //   signedTransaction.serialize(),
-      // );
-      // console.log(signature);
+      const signature = await connection.sendRawTransaction(
+        signedTransaction.serialize(),
+      );
+      console.log(signature);
       setMessageList((prev) => [
         ...(prev || []),
         {
           type: 'message',
-          message: `Deposit ${count} is success ${signedTransaction}. `,
-          link: `https://solscan.io/tx/${signedTransaction}`,
+          message: `Deposit ${count} is success. `,
+          link: `https://solscan.io/tx/${signature}`,
         },
       ]);
     }
@@ -386,6 +393,7 @@ const Conversation = () => {
 
       const baseUrl = 'https://api.openai.com/v1/realtime';
       const model = 'gpt-4o-realtime-preview-2024-12-17';
+      console.log(model);
 
       const sdpResponse = await fetch(`${baseUrl}?model=${model}`, {
         method: 'POST',
@@ -395,6 +403,7 @@ const Conversation = () => {
           'Content-Type': 'application/sdp',
         },
       });
+      console.log(sdpResponse);
 
       if (!sdpResponse.ok) {
         throw new Error('Failed to fetch SDP response');
@@ -405,6 +414,8 @@ const Conversation = () => {
         sdp: await sdpResponse.text(),
       };
 
+      console.log(answer);
+
       await pc.setRemoteDescription(answer);
       peerConnection.current = pc;
       setIsSessionActive(true);
@@ -414,6 +425,7 @@ const Conversation = () => {
   };
 
   function stopSession() {
+    console.log('Stopping session');
     if (dataChannel) {
       dataChannel.close();
     }
@@ -431,7 +443,10 @@ const Conversation = () => {
       if (dataChannel) {
         message.event_id = message.event_id || crypto.randomUUID();
         dataChannel.send(JSON.stringify(message));
+        console.log('Message sent using datachannel:', message);
+        console.log(events)
         setEvents((prev) => [message, ...prev]);
+        console.log(events)
       } else {
         console.error(
           'Failed to send message - no data channel available',
@@ -444,6 +459,7 @@ const Conversation = () => {
   );
 
   function sendTextMessage(message: any) {
+
     const event = {
       type: 'conversation.item.create',
       item: {

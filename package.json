@@ -13,7 +13,6 @@
   "dependencies": {
     "@privy-io/react-auth": "^1.98.4",
     "@solana/web3.js": "^1.98.0",
-    "apexcharts": "^3.41.0",
     "axios": "^1.7.9",
     "flatpickr": "^4.6.13",
     "headlessui": "^0.0.0",

@@ -5,9 +5,9 @@ import { PrivyProvider } from '@privy-io/react-auth';
 import { toSolanaWalletConnectors } from '@privy-io/react-auth/solana';
 import App from './App';
 import './css/style.css';
-import './css/satoshi.css';
-import 'jsvectormap/dist/css/jsvectormap.css';
-import 'flatpickr/dist/flatpickr.min.css';
+// import './css/satoshi.css';
+// import 'jsvectormap/dist/css/jsvectormap.css';
+// import 'flatpickr/dist/flatpickr.min.css';
 
 const solanaConnectors = toSolanaWalletConnectors({
   shouldAutoConnect: false,

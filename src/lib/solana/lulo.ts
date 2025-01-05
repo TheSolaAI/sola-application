@@ -49,7 +49,7 @@ export async function depositLulo(
       for (let i in deposit_transactions) {
           const transaction = deposit_transactions[i].transaction;
           const transactionBuffer = Buffer.from(transaction, 'base64');
-          const final_tx = VersionedTransaction.deserialize(transactionBuffer);
+        const final_tx = VersionedTransaction.deserialize(transactionBuffer);
           transactions.push(final_tx);
       }
       return transactions;
