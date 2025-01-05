@@ -11,6 +11,7 @@ export default defineConfig(({ mode }) => {
       'process.env.PRVI_APP_ID': JSON.stringify(env.PRVI_APP_ID),
       'process.env.HELIUS_API_KEY': JSON.stringify(env.HELIUS_API_KEY),
       'process.env.SOLANA_RPC': JSON.stringify(env.SOLANA_RPC),
+      'process.env.WALLET_SERVICE_URL': JSON.stringify(env.WALLET_SERVICE_URL),
     },
     plugins: [react(), nodePolyfills()],
     server: {

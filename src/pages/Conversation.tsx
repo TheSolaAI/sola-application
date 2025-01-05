@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { LiveAudioVisualizer } from 'react-audio-visualize';
 import { useSolanaWallets } from '@privy-io/react-auth/solana';
-import { Connection } from '@solana/web3.js';
+import { Connection, PublicKey } from '@solana/web3.js';
 import { transferSolTx } from '../lib/solana/transferSol';
 import { MessageCard } from '../types/messageCard';
 import { SwapParams } from '../types/swap';
@@ -13,6 +13,8 @@ import MessageList from '../components/ui/MessageList';
 import { tokenList } from '../store/tokens/tokenMapping';
 import { fetchMagicEdenLaunchpadCollections } from '../lib/solana/magiceden';
 import { addCalenderEventFunction } from '../tools/functions/addCalenderEvent';
+import { AssetsParams, DepositParams, WithdrawParams } from '../types/lulo';
+import { depositLulo, getAssetsLulo, withdrawLulo } from '../lib/solana/lulo';
 import useAppState from '../store/zustand/AppState';
 
 const Conversation = () => {
@@ -24,6 +26,7 @@ const Conversation = () => {
   const audioElement = useRef<HTMLAudioElement | null>(null);
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder>();
   const [messageList, setMessageList] = useState<MessageCard[]>();
+  const [luloTotal, setLuloTotal] = useState(0);
   // const [messageList, setMessageList] = useState<MessageCard[]>([
   //   {
   //     type: 'tokenCards',
@@ -54,31 +57,66 @@ const Conversation = () => {
 
 
   const { appWallet } = useAppState();
+  if (!appWallet) return null;
+
 
   const { wallets } = useSolanaWallets();
-  // Igonere this variable and use appWallet variable.
-  const solanaWallet = wallets[0];
-
+  
   const rpc = process.env.SOLANA_RPC;
 
-  const transferSol = async () => {
-    if (!rpc) return;
+  const successResponse = () => { 
+    let msg = {
+      type: 'response.create',
+      response: {
+        instructions: 'Ask what the user wants to do next.',
+      },
+    }
+    return msg;
+  }
+  const errorResponse = (message:String) => {
+    let msg = {
+      type: 'response.error',
+      response: {
+        instructions: 'Error performing'+message,
+      },
+    };
+    return msg;
+  };
 
+  const transferSol = async (
+    amount: number,
+    to: string,
+  ) => {
+    console.log('transferSol', amount, to);
+    if (!rpc) return;
+    const LAMPORTS_PER_SOL = 10**9;
     setMessageList((prev) => [
       ...(prev || []),
       {
         type: 'agent',
-        message: `Agent is performing the transaction`,
+        message: `Agent is transferring ${amount} SOL to ${to}`,
       },
     ]);
-
+    
     const connection = new Connection(rpc);
-    const { blockhash, lastValidBlockHeight } =
-      await connection.getLatestBlockhash();
-
-    //TODO : Get the built Tx from microservice
-    const transaction = await transferSolTx(wallets[0].address, connection);
-    const signedTransaction = await solanaWallet.signTransaction(transaction);
+    let balance = await connection.getBalance(
+      new PublicKey(appWallet.address),
+    );
+    if ((balance/LAMPORTS_PER_SOL)-0.01  < amount ) {
+      setMessageList((prev) => [
+        ...(prev || []),
+        {
+          type: 'message',
+          message: 'Insufficient balance. Please maintain 0.01 balance minimum',
+        },
+      ]);
+      return errorResponse('transfer');
+    }
+    
+    const transaction = await transferSolTx(appWallet.address, to, amount*LAMPORTS_PER_SOL);
+    const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
+    transaction.recentBlockhash = blockhash;
+    const signedTransaction = await appWallet.signTransaction(transaction);
     const signature = await connection.sendRawTransaction(
       signedTransaction.serialize(),
     );
@@ -95,13 +133,15 @@ const Conversation = () => {
       },
     ]);
 
-    console.log(
-      await connection.confirmTransaction({
-        blockhash,
-        lastValidBlockHeight,
-        signature,
-      }),
-    );
+    return successResponse();
+
+    // console.log(
+    //   await connection.confirmTransaction({
+    //     blockhash,
+    //     lastValidBlockHeight,
+    //     signature,
+    //   }),
+    // );
   };
 
   const handleSwap = async (
@@ -125,18 +165,23 @@ const Conversation = () => {
     const params: SwapParams = {
       input_mint: tokenList[tokenA].MINT,
       output_mint: tokenList[tokenB].MINT,
-      public_key: `${wallets[0].address}`,
+      public_key: `${appWallet.address}`,
       amount: quantity * 10 ** tokenList[tokenA].DECIMALS,
     };
 
     const connection = new Connection(rpc);
-    const { blockhash, lastValidBlockHeight } =
-      await connection.getLatestBlockhash();
-
     const transaction = await swapTx(params);
-    if (!transaction) return;
-
-    const signedTransaction = await solanaWallet.signTransaction(transaction);
+    if (!transaction) { 
+      setMessageList((prev) => [
+        ...(prev || []),
+        {
+          type: 'message',
+          message: `Error during Swap.`,
+        },
+      ]);
+      return errorResponse('Swap');
+    }
+    const signedTransaction = await appWallet.signTransaction(transaction);
     const signature = await connection.sendRawTransaction(
       signedTransaction.serialize(),
     );
@@ -158,9 +203,174 @@ const Conversation = () => {
     //   }),
     // );
 
-    return;
+    return successResponse();
   };
 
+  const handleUserAssetsLulo = async () => {
+    if (!rpc) return;
+  
+    setMessageList((prev) => [
+      ...(prev || []),
+      {
+        type: 'agent',
+        message: `Agent is fetching Lulo Assets`,
+      },
+    ]);
+
+    const params: AssetsParams = {
+      owner: `${appWallet.address}`,
+    };
+    const assets = await getAssetsLulo(params);
+    let total = assets?.totalValue;
+    if (!total) total = 0;
+    setLuloTotal(total)
+    if (!assets) return;
+    let assets_string = JSON.stringify(assets) 
+    setMessageList((prev) => [
+      ...(prev || []),
+      {
+        type: 'message',
+        message: `Successfully fetched Lulo Assets: ${assets_string}`,
+      },
+    ]);
+    return successResponse();
+  };
+
+  const handleDepositLulo = async (
+    amount: number,
+    token: 'USDT' | 'USDS' | 'USDC',
+  ) => {
+    if (!rpc) return;
+    setMessageList((prev) => [
+      ...(prev || []),
+      {
+        type: 'agent',
+        message: `Agent is depositing the asset`,
+      },
+    ]);
+    const params: DepositParams = {
+      owner: `${appWallet.address}`,
+      depositAmount: amount,
+      mintAddress: tokenList[token].MINT,
+    };
+    
+    const connection = new Connection(rpc);
+    
+    const transaction_array = await depositLulo(params);
+    if (!transaction_array) { 
+      setMessageList((prev) => [
+        ...(prev || []),
+        {
+          type: 'message',
+          message: `Deposit failed. Check your balance.`,
+        },
+      ]);
+      return errorResponse('Deposit');
+    }
+    let count = 0
+    for (const transaction in transaction_array) { 
+      count += 1;
+      let tx = transaction_array[transaction]
+      let { blockhash, lastValidBlockHeight } =
+        await connection.getLatestBlockhash();
+      tx.message.recentBlockhash = blockhash;
+      
+      const signedTransaction = await appWallet.signTransaction(
+        transaction_array[transaction],
+      );
+      console.log(signedTransaction);
+      
+      const signature = await connection.sendRawTransaction(
+        signedTransaction.serialize(),
+      );
+      console.log(signature);
+      setMessageList((prev) => [
+        ...(prev || []),
+        {
+          type: 'message',
+          message: `Deposit ${count} is successful`,
+          link: `https://solscan.io/tx/${signature}`,
+        },
+      ]);
+    }
+    return successResponse();
+  }
+  
+  const handleWithdrawLulo = async (
+    amount: number,
+    token: 'USDT' | 'USDS' | 'USDC',
+  ) => {
+    if (!rpc) return;
+    setMessageList((prev) => [
+      ...(prev || []),
+      {
+        type: 'agent',
+        message: `Agent is withdrawing the asset`,
+      },
+    ]);
+    let all = false;
+    console.log(luloTotal);
+    if (luloTotal - amount<100){ 
+      all = true;
+      setMessageList((prev) => [
+        ...(prev || []),
+        {
+          type: 'agent',
+          message: `Lulo total must be greater than 100. Withdrawing all aseets`,
+        },
+      ]);
+    }
+    
+    const params: WithdrawParams = {
+      owner: `${appWallet.address}`,
+      withdrawAmount: amount,
+      mintAddress: tokenList[token].MINT,
+      withdrawAll: all,
+    };
+    console.log(params);
+    
+    const connection = new Connection(rpc);
+    
+    const transaction_array = await withdrawLulo(params);
+    
+    if (!transaction_array) { 
+      setMessageList((prev) => [
+        ...(prev || []),
+        {
+          type: 'message',
+          message: `Withdrawal failed. Check your balance.`,
+        },
+      ]);
+      return errorResponse('Withdraw');
+    }
+    let count = 0
+    for (const transaction in transaction_array) { 
+      count += 1;
+      let tx = transaction_array[transaction]
+      let { blockhash, lastValidBlockHeight } =
+        await connection.getLatestBlockhash();
+      tx.message.recentBlockhash = blockhash;
+      
+      const signedTransaction = await appWallet.signTransaction(
+        transaction_array[transaction],
+      );
+      console.log(signedTransaction);
+      
+      const signature = await connection.sendRawTransaction(
+        signedTransaction.serialize(),
+      );
+      console.log(signature);
+      setMessageList((prev) => [
+        ...(prev || []),
+        {
+          type: 'message',
+          message: `Withdrawal ${count} is success. `,
+          link: `https://solscan.io/tx/${signature}`,
+        },
+      ]);
+    }
+    return successResponse();
+}
   const handleLaunchpadCollections = async () => {
     setMessageList((prev) => [
       ...(prev || []),
@@ -237,6 +447,7 @@ const Conversation = () => {
 
       const baseUrl = 'https://api.openai.com/v1/realtime';
       const model = 'gpt-4o-realtime-preview-2024-12-17';
+      console.log(model);
 
       const sdpResponse = await fetch(`${baseUrl}?model=${model}`, {
         method: 'POST',
@@ -246,6 +457,7 @@ const Conversation = () => {
           'Content-Type': 'application/sdp',
         },
       });
+      console.log(sdpResponse);
 
       if (!sdpResponse.ok) {
         throw new Error('Failed to fetch SDP response');
@@ -256,6 +468,8 @@ const Conversation = () => {
         sdp: await sdpResponse.text(),
       };
 
+      console.log(answer);
+
       await pc.setRemoteDescription(answer);
       peerConnection.current = pc;
       setIsSessionActive(true);
@@ -265,6 +479,7 @@ const Conversation = () => {
   };
 
   function stopSession() {
+    console.log('Stopping session');
     if (dataChannel) {
       dataChannel.close();
     }
@@ -282,7 +497,10 @@ const Conversation = () => {
       if (dataChannel) {
         message.event_id = message.event_id || crypto.randomUUID();
         dataChannel.send(JSON.stringify(message));
+        console.log('Message sent using datachannel:', message);
+        console.log(events)
         setEvents((prev) => [message, ...prev]);
+        console.log(events)
       } else {
         console.error(
           'Failed to send message - no data channel available',
@@ -295,6 +513,7 @@ const Conversation = () => {
   );
 
   function sendTextMessage(message: any) {
+
     const event = {
       type: 'conversation.item.create',
       item: {
@@ -354,6 +573,8 @@ const Conversation = () => {
         for (const output of mostRecentEvent.response.output) {
           if (output.type === 'function_call') {
             console.log('function called');
+            console.log(output.arguements);
+            console.log(output);
 
             if (output.name === 'toggleWallet') {
               const { action } = JSON.parse(output.arguments);
@@ -375,19 +596,48 @@ const Conversation = () => {
                   },
                 });
               }, 500);
-            } else if (output.name === 'swapTokens') {
-              const { quantity, tokenA, tokenB } = JSON.parse(output.arguments);
-              await handleSwap(quantity, tokenA, tokenB);
+            } else if (output.name === 'transferSolTx') {
+              const { quantity, address } = JSON.parse(output.arguments);
+              let response = await transferSol(quantity, address);
 
               setTimeout(() => {
-                sendClientEvent({
-                  type: 'response.create',
-                  response: {
-                    instructions: 'Ask what the user wants to do next.',
-                  },
-                });
+                sendClientEvent(response);
               }, 500);
-            } else if (output.name === 'getNFTLaunchpad') {
+            
+            } else if (output.name === 'swapTokens') {
+              const { quantity, tokenA, tokenB } = JSON.parse(output.arguments);
+              let response = await handleSwap(quantity, tokenA, tokenB);
+
+              setTimeout(() => {
+                sendClientEvent(response);
+              }, 500);
+            } else if (output.name === 'getLuloAssets') {
+              
+              let response = await handleUserAssetsLulo();
+
+              setTimeout(() => {
+                sendClientEvent(response);
+              }, 500);
+            }
+            else if (output.name === 'depositLulo') {
+              const { amount,token} = JSON.parse(output.arguments);
+              let response = await handleDepositLulo(amount, token);
+
+              setTimeout(() => {
+                sendClientEvent(response);
+              }, 500);
+            }
+            else if (output.name === 'withdrawLulo') {
+              {
+                const { amount, token } = JSON.parse(output.arguments);
+                let response = await handleWithdrawLulo(amount, token);
+
+                setTimeout(() => {
+                  sendClientEvent(response);
+                }, 500);
+              }
+            }
+            else if (output.name === 'getNFTLaunchpad') {
               const data = await handleLaunchpadCollections();
 
               setTimeout(() => {
@@ -483,3 +733,4 @@ const Conversation = () => {
 };
 
 export default Conversation;
+

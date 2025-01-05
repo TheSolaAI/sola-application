@@ -15,4 +15,12 @@ export const tokenList = {
     MINT: 'JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN',
     DECIMALS: 6,
   },
+  USDS: {
+    MINT: 'USDSwr9ApdHk5bvJKMjzff41FfuX8bSxdKcR81vTwcA',
+    DECIMALS: 6,
+  },
+  USDT: {
+    MINT: 'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB',
+    DECIMALS: 6,
+  },
 };
