@@ -1,17 +1,16 @@
-import axios, { AxiosRequestConfig } from "axios";
+import axios from "axios";
 import { TokenData } from "../../types/token_data";
 
 
 const data_service_url = process.env.DATA_SERVICE_URL;
 
 export async function getTokenData(
-    params:any,
+    params:string,
 ): Promise<TokenData | null> {
-  console.log(params)
   try {
     const response = await axios.post<any>(
       data_service_url +'data/token/address',
-      params,
+      {"token_address": params},
       {
         headers: {
           'Content-Type': 'application/json',
@@ -19,7 +18,6 @@ export async function getTokenData(
       },
     );
       const token_data: TokenData = response.data;
-      console.log(token_data);
         return token_data;
         
       } catch (error) {

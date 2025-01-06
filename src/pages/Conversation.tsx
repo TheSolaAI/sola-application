@@ -416,7 +416,6 @@ const Conversation = () => {
     try {
       const data = await getTokenData(tokenMint);
       if (!data) return errorResponse('Error fetching token data');
-    
       let token_card: TokenCard[] = [{
         address:tokenMint,
         image: data.image,
@@ -637,8 +636,9 @@ const Conversation = () => {
               let response = await handleSwap(quantity, tokenA, tokenB);
               sendClientEvent(response);
             } else if (output.name === 'getTokenData') {
-              
-              let response = await handleTokenData(output.arguments);
+            
+              const { token_address } = JSON.parse(output.arguments);
+              let response = await handleTokenData(token_address);
               sendClientEvent(response);
             } else if (output.name === 'getLuloAssets') {
               let response = await handleUserAssetsLulo();
