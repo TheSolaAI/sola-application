@@ -106,7 +106,7 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
           case 'tokenCards':
             const tokens = item.card as TokenCard[];
             return (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 my-4">
+              <div className="grid grid-cols-1 gap-6 my-4">
                 {tokens.map((token, tokenIndex) => (
                   <a
                     key={tokenIndex}
@@ -130,11 +130,11 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                         </p>
                       </div>
                     </div>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-bodydark2 mt-2">
                       Market Cap: {token.marketCap || 'Unknown'}
                     </p>
-                    <div className="bg-gray-100 flex justify-center items-center min-h-screen">
-                      <div className="w-full max-w-4xl h-96 bg-white shadow-lg rounded-lg overflow-hidden">
+                    <div className="bg-bodydark flex justify-center items-center h-fit m-2">
+                      <div className="w-full max-w-4xl h-52 bg-white shadow-lg rounded-lg overflow-hidden">
                         <iframe 
                           src={`https://www.gmgn.cc/kline/sol/${token.address}`} 
                           className="w-full h-full"
