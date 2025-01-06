@@ -477,6 +477,10 @@ const Conversation = () => {
 
   const startSession = async () => {
     try {
+      const tokenResponse = await fetch('https://sola-proxy-server-eight.vercel.app/session');
+      const data = await tokenResponse.json();
+      const EPHEMERAL_KEY = data.client_secret.value;
+
       // Create a peer connection
       const pc = new RTCPeerConnection();
 
@@ -522,7 +526,7 @@ const Conversation = () => {
         method: 'POST',
         body: offer.sdp,
         headers: {
-          Authorization: `Bearer ${process.env.OPEN_AI_API_KEY}`,
+          Authorization: `Bearer ${EPHEMERAL_KEY}`,
           'Content-Type': 'application/sdp',
         },
       });

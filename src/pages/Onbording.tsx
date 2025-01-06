@@ -1,4 +1,4 @@
-import { LoginModal, usePrivy } from '@privy-io/react-auth';
+import { usePrivy } from '@privy-io/react-auth';
 
 function Onbording() {
   const { login, authenticated, ready } = usePrivy();
