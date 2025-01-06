@@ -9,6 +9,7 @@ import {
   LuloCard,
 } from '../../types/messageCard';
 
+
 interface Props {
   messageList: MessageCard[];
 }
@@ -139,16 +140,19 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
 
           case 'luloCard':
             const lulo = item.card as LuloCard;
+            
             const tokenBalance = lulo.tokenBalance;
+            
             return (
               <>
                 <div className="mb-4 bg-[#F5F5F5] p-3 rounded-lg leading-relaxed overflow-auto no-scrollbar transition-opacity duration-500 opacity-100 transform">
-                  <p className='text-base font-medium'>Deposit Value : {lulo.depositValue}</p>
-                  <p className='text-sm'>Interest Earned : {lulo.interestEarned}</p>
-                  <p className='text-sm'>Total Value : {lulo.totalValue}</p>
+                  <p className='text-base font-medium'>Deposit Value : {lulo.depositValue.toFixed(2)}</p>
+                  <p className='text-sm font-medium'>Interest Earned : {lulo.interestEarned.toFixed(2)}</p>
+                  <p className='text-sm font-medium'>Total Value : {lulo.totalValue.toFixed(2)}</p>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 my-4">
                   {tokenBalance.map((token, tokenIndex) => (
+                    
                     <a
                       key={tokenIndex}
                       href={`https://dexscreener.com/solana/${token.mint}`}
@@ -159,7 +163,7 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                       <div className="flex items-center gap-3">
                         <div>
                           <h3 className="truncate text-sm font-medium">
-                            Balance : {token.balance || 'Unknown'}
+                            Balance : {token.balance.toFixed(2) || 'Unknown'}
                           </h3>
                           <p className={`mt-1 text-xs font-medium`}>
                             Mint : {token.mint.substring(0, 3)}...
@@ -167,8 +171,8 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                           </p>
                         </div>
                       </div>
-                      <p className="text-xs text-gray-500">
-                        Value : {token.usdValue}
+                      <p className="mt-1 text-xs font-medium">
+                        Value : {token.usdValue.toFixed(2)}
                       </p>
                     </a>
                   ))}
