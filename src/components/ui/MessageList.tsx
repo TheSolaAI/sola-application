@@ -126,12 +126,12 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                           {token.metadata?.name || 'Unknown'}
                         </h3>
                         <p className={`mt-1 text-xs font-medium`}>
-                          {token.price}
+                          $ {token.price}
                         </p>
                       </div>
                     </div>
                     <p className="text-xs text-bodydark2 mt-2">
-                      Market Cap: {token.marketCap || 'Unknown'}
+                      Market Cap: $ {token.marketCap || 'Unknown'}
                     </p>
                     <div className="bg-bodydark flex justify-center items-center h-fit m-2">
                       <div className="w-full max-w-4xl h-52 bg-white shadow-lg rounded-lg overflow-hidden">
