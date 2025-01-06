@@ -1,4 +1,5 @@
 import React from 'react';
+
 import {
   MessageCard,
   SingleCard,
@@ -240,32 +241,35 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
             );
 
           case 'sanctumCard':
-            const sanctumCard = item.card as SanctumCard;
+            const sanctumCards = item.card as SanctumCard[];
             return (
+              <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-3 gap-3 my-4">
+                {sanctumCards.map((sanctumCard, tokenIndex) => (
               <a
                 href={sanctumCard.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group relative block rounded-xl bg-[#F5F5F5] border p-3 w-fit "
+                className="group relative block rounded-xl bg-[#F5F5F5] border p-3 w-fit border-color transition-all duration-300 ease-in-out hover:bg-[#e0e0e0] hover:shadow-lg"
               >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-4">
                   <img
-                    src={sanctumCard.logo}
+                    src={sanctumCard.logo_uri}
                     alt="sanctumimage"
                     className="h-16 rounded-sm"
                   />
                   <div>
                     <p className="text-base font-medium">
-                      Symbol : {sanctumCard.symbol}
+                      {sanctumCard.symbol}
                     </p>
-                    <p className="text-sm font-thin">
-                      APY : {sanctumCard.apy}%
+                    <p className="text-sm font-small">
+                      APY : {sanctumCard.apy.toFixed(2)}%
                     </p>
                   </div>
                 </div>
-              </a>
+                  </a>
+                ))}
+                </div>
             );
-
           default:
             return null;
         }

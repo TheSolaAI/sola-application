@@ -7,6 +7,7 @@ import {
   LuloCard,
   TransactionCard,
   TokenCard,
+  SanctumCard,
 } from '../types/messageCard';
 import { SwapParams } from '../types/swap';
 import { swapTx } from '../lib/solana/swapTx';
@@ -21,6 +22,7 @@ import { depositLulo, getAssetsLulo, withdrawLulo } from '../lib/solana/lulo';
 import useAppState from '../store/zustand/AppState';
 import useChatState from '../store/zustand/ChatState';
 import { getTokenData } from '../lib/solana/token_data';
+import { getLstData } from '../lib/solana/lst_data';
 
 const Conversation = () => {
   const {
@@ -445,6 +447,34 @@ const Conversation = () => {
     }
   };
 
+  const handleLSTData = async () => {
+    setMessageList((prev) => [
+      ...(prev || []),
+      {
+        type: 'agent',
+        message: `Fetching lST Data`,
+      },
+    ]);
+    try {
+      const data = await getLstData();
+      if (!data) return errorResponse('Error fetching token data');
+      let lst_card:SanctumCard[] = data;
+
+      setMessageList((prev) => [
+        ...(prev || []),
+        {
+          type: 'sanctumCard',
+          card: lst_card,
+        },
+      ]);
+      return successResponse();
+    } catch (error) {
+      console.error('Error fetching token data:', error);
+      return errorResponse('Error fetching token data');
+    }
+  };
+
+
   const startSession = async () => {
     try {
       // Create a peer connection
@@ -644,6 +674,14 @@ const Conversation = () => {
               const { token_address } = JSON.parse(output.arguments);
               let response = await handleTokenData(token_address);
               sendClientEvent(response);
+            } else if (output.name === 'getLstData') {
+              let response = await handleLSTData();
+              sendClientEvent({
+                type: 'response.create',
+                response: {
+                  instruction: 'ask the user what they want to do next',
+                },
+              });
             } else if (output.name === 'getLuloAssets') {
               let response = await handleUserAssetsLulo();
               sendClientEvent({

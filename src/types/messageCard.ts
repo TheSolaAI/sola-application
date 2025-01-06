@@ -20,7 +20,7 @@ export type MessageCard = {
     | TokenCard[]
     | LuloCard
     | TransactionCard
-    | SanctumCard;
+    | SanctumCard[];
   link?: string;
 };
 
@@ -71,7 +71,7 @@ export interface TokenCard {
 }
 
 export interface SanctumCard {
-  logo: string;
+  logo_uri: string;
   symbol: string;
   url: string;
   apy: number;
