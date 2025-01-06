@@ -1,6 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { LiveAudioVisualizer } from 'react-audio-visualize';
-import { useSolanaWallets } from '@privy-io/react-auth/solana';
 import { Connection, PublicKey } from '@solana/web3.js';
 import { transferSolTx } from '../lib/solana/transferSol';
 import { MessageCard } from '../types/messageCard';
@@ -12,7 +11,6 @@ import WalletUi from '../components/wallet/WalletUi';
 import MessageList from '../components/ui/MessageList';
 import { tokenList } from '../store/tokens/tokenMapping';
 import { fetchMagicEdenLaunchpadCollections } from '../lib/solana/magiceden';
-import { addCalenderEventFunction } from '../tools/functions/addCalenderEvent';
 import { AssetsParams, DepositParams, WithdrawParams } from '../types/lulo';
 import { depositLulo, getAssetsLulo, withdrawLulo } from '../lib/solana/lulo';
 import useAppState from '../store/zustand/AppState';
@@ -38,8 +36,6 @@ const Conversation = () => {
 
   const { appWallet } = useAppState();
   if (!appWallet) return null;
-
-  const { wallets } = useSolanaWallets();
 
   const rpc = process.env.SOLANA_RPC;
 
@@ -553,7 +549,6 @@ const Conversation = () => {
         for (const output of mostRecentEvent.response.output) {
           if (output.type === 'function_call') {
             console.log('function called');
-            console.log(output.arguements);
             console.log(output);
 
             if (output.name === 'toggleWallet') {
@@ -567,85 +562,39 @@ const Conversation = () => {
                 console.log('close', isWalletVisible);
                 toggleWallet();
               }
-
-              setTimeout(() => {
-                sendClientEvent({
-                  type: 'response.create',
-                  response: {
-                    instructions: 'Ask what the user wants to do next.',
-                  },
-                });
-              }, 500);
+              sendClientEvent({
+                type: 'response.create',
+                response: {
+                  instructions: 'Ask what the user wants to do next.',
+                },
+              });
             } else if (output.name === 'transferSolTx') {
               const { quantity, address } = JSON.parse(output.arguments);
               let response = await transferSol(quantity, address);
-
-              setTimeout(() => {
-                sendClientEvent(response);
-              }, 500);
+              sendClientEvent(response);
             } else if (output.name === 'swapTokens') {
               const { quantity, tokenA, tokenB } = JSON.parse(output.arguments);
               let response = await handleSwap(quantity, tokenA, tokenB);
-
-              setTimeout(() => {
-                sendClientEvent(response);
-              }, 500);
+              sendClientEvent(response);
             } else if (output.name === 'getLuloAssets') {
               let response = await handleUserAssetsLulo();
-
-              setTimeout(() => {
-                sendClientEvent(response);
-              }, 500);
+              sendClientEvent(response);
             } else if (output.name === 'depositLulo') {
               const { amount, token } = JSON.parse(output.arguments);
               let response = await handleDepositLulo(amount, token);
-
-              setTimeout(() => {
-                sendClientEvent(response);
-              }, 500);
+              sendClientEvent(response);
             } else if (output.name === 'withdrawLulo') {
-              {
-                const { amount, token } = JSON.parse(output.arguments);
-                let response = await handleWithdrawLulo(amount, token);
-
-                setTimeout(() => {
-                  sendClientEvent(response);
-                }, 500);
-              }
+              const { amount, token } = JSON.parse(output.arguments);
+              let response = await handleWithdrawLulo(amount, token);
+              sendClientEvent(response);
             } else if (output.name === 'getNFTLaunchpad') {
               const data = await handleLaunchpadCollections();
-
-              setTimeout(() => {
-                sendClientEvent({
-                  type: 'response.create',
-                  response: {
-                    result: data,
-                  },
-                });
-              }, 500);
-            } else if (output.name === 'addCalenderEvent') {
-              // TODO: Implement calender event addition logic
-              const { summary, description, dateTime, timeZone } = JSON.parse(
-                output.arguments,
-              );
-              setMessageList((prev) => [
-                ...(prev || []),
-                {
-                  type: 'agent',
-                  message: `Agent is adding details to your calender`,
+              sendClientEvent({
+                type: 'response.create',
+                response: {
+                  result: data,
                 },
-              ]);
-              await addCalenderEventFunction();
-
-              setTimeout(() => {
-                sendClientEvent({
-                  type: 'response.create',
-                  response: {
-                    instructions:
-                      'The event has been successfully added to calender.',
-                  },
-                });
-              }, 500);
+              });
             }
           }
         }

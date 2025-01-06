@@ -1,5 +1,5 @@
 const functionDescription =
-  'Call this function when the user wants to withdraw stable coins to Lulo.';
+  'Call this function when the user wants to withdraw stable coins from Lulo.';
 
 export const withdrawLulo = {
     type: 'function',
@@ -15,14 +15,15 @@ export const withdrawLulo = {
             },
             all: {
                 type: 'boolean',
-                description: 'If true, withdraw all the stable coins.',
+                description: 'If the user wants to withdraw all the stable coins from lulo.',
             },
             token: {
                 type: 'string',
                 enum: ['USDT', 'USDS', 'USDC'],
-                description: 'The stable coin to withdraw.',
+                description: 'The stable coin that the user wants to withdraw.',
             },
-        }
+        },
+        required: ['token'],
     },
 };
 

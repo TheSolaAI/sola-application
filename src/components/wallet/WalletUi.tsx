@@ -1,4 +1,3 @@
-import { useSolanaWallets } from '@privy-io/react-auth';
 import { CreditCard, ExternalLink } from 'react-feather';
 import { fetchFilteredAssets } from '../../lib/solana/wallet';
 import { useState, useEffect } from 'react';
@@ -21,8 +20,7 @@ interface Asset {
 }
 
 function WalletUi({ toggleWallet, isWalletVisible }: WalletUiProps) {
-  const { appWallet} = useAppState()
-  const { wallets } = useSolanaWallets();
+  const { appWallet } = useAppState();
   const [ownerAddress, setOwnerAddress] = useState<string>('');
 
   function viewWalletInExplorer() {
@@ -37,12 +35,8 @@ function WalletUi({ toggleWallet, isWalletVisible }: WalletUiProps) {
     isLoading,
   } = useSWR<Asset[]>(
     ownerAddress ? ['getAssetsByOwner', ownerAddress] : null,
-    () =>
-      fetchFilteredAssets(
-        'getAssetsByOwner',
-        ownerAddress,
-      ),
-    { refreshInterval: 10000 }, 
+    () => fetchFilteredAssets('getAssetsByOwner', ownerAddress),
+    { refreshInterval: 10000 },
   );
 
   useEffect(() => {
