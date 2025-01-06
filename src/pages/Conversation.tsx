@@ -2,7 +2,7 @@ import { useState, useRef, useCallback, useEffect } from 'react';
 import { LiveAudioVisualizer } from 'react-audio-visualize';
 import { Connection, PublicKey } from '@solana/web3.js';
 import { transferSolTx } from '../lib/solana/transferSol';
-import { MessageCard, LuloCard, TransactionCard } from '../types/messageCard';
+import { MessageCard, LuloCard, TransactionCard, TokenCard } from '../types/messageCard';
 import { SwapParams } from '../types/swap';
 import { swapTx } from '../lib/solana/swapTx';
 import { tools } from '../tools/tools';
@@ -15,6 +15,7 @@ import { AssetsParams, DepositParams, WithdrawParams } from '../types/lulo';
 import { depositLulo, getAssetsLulo, withdrawLulo } from '../lib/solana/lulo';
 import useAppState from '../store/zustand/AppState';
 import useChatState from '../store/zustand/ChatState';
+import { getTokenData } from '../lib/solana/token_data';
 
 const Conversation = () => {
   const {
@@ -408,6 +409,42 @@ const Conversation = () => {
     }
   };
 
+  const handleTokenData = async (tokenMint:string) => {
+    setMessageList((prev) => [
+      ...(prev || []),
+      {
+        type: 'agent',
+        message: `Fetching token data`,
+      }
+    ]);
+    try {
+      const data = await getTokenData(tokenMint);
+      if (!data) return errorResponse('Error fetching token data');
+    
+      let token_card: TokenCard[] = [{
+        address:tokenMint,
+        image: data.image,
+        metadata: data.metadata,
+        price: data.price.toString(),
+        marketCap: data.marketcap.toString(),
+
+      }]
+
+      setMessageList((prev) => [
+        ...(prev || []),
+        {
+          type: 'tokenCards',
+          card: token_card,
+        },
+      ]);
+      return successResponse();
+    }
+    catch (error) {
+      console.error('Error fetching token data:', error);
+      return errorResponse('Error fetching token data');
+    }
+  }
+
   const startSession = async () => {
     try {
       // Create a peer connection
@@ -602,6 +639,10 @@ const Conversation = () => {
             } else if (output.name === 'swapTokens') {
               const { quantity, tokenA, tokenB } = JSON.parse(output.arguments);
               let response = await handleSwap(quantity, tokenA, tokenB);
+              sendClientEvent(response);
+            } else if (output.name === 'getTokenData') {
+              
+              let response = await handleTokenData(output.arguments);
               sendClientEvent(response);
             } else if (output.name === 'getLuloAssets') {
               let response = await handleUserAssetsLulo();
