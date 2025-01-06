@@ -11,15 +11,19 @@ const functionDescription =
         properties: {
             amount: {
                 type: 'number',
-                description: 'The amount of stable coin to withdraw. Must be a valid positive number. Ignored if "all" is true.',
+                description: 'Amount of stable coin to withdraw.',
+            },
+            all: {
+                type: 'boolean',
+                description: 'If the user wants to withdraw all the stable coins from lulo.',
             },
             token: {
                 type: 'string',
-                enum: ['USDS', 'USDC'], // Removed 'USDT' since it isn't mentioned in the description
-                description: 'The stable coin to withdraw (either USDS or USDC).',
+                enum: ['USDT', 'USDS', 'USDC'],
+                description: 'The stable coin that the user wants to withdraw.',
             },
         },
-        required: ['token'], // Ensure at least the token is mandatory
+        required: ['token'],
     },
 };
 

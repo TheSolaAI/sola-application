@@ -1,6 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { LiveAudioVisualizer } from 'react-audio-visualize';
-import { useSolanaWallets } from '@privy-io/react-auth/solana';
 import { Connection, PublicKey } from '@solana/web3.js';
 import { transferSolTx } from '../lib/solana/transferSol';
 import { MessageCard, LuloCard, TransactionCard } from '../types/messageCard';
@@ -12,56 +11,57 @@ import WalletUi from '../components/wallet/WalletUi';
 import MessageList from '../components/ui/MessageList';
 import { tokenList } from '../store/tokens/tokenMapping';
 import { fetchMagicEdenLaunchpadCollections } from '../lib/solana/magiceden';
-import { addCalenderEventFunction } from '../tools/functions/addCalenderEvent';
-import { AssetsParams, DepositParams, TokenBalance, WithdrawParams } from '../types/lulo';
+import { AssetsParams, DepositParams, WithdrawParams } from '../types/lulo';
 import { depositLulo, getAssetsLulo, withdrawLulo } from '../lib/solana/lulo';
 import useAppState from '../store/zustand/AppState';
+import useChatState from '../store/zustand/ChatState';
 
 const Conversation = () => {
-  const [isSessionActive, setIsSessionActive] = useState(false);
+  const {
+    isSessionActive,
+    setIsSessionActive,
+    dataChannel,
+    setDataChannel,
+    mediaRecorder,
+    setMediaRecorder,
+    setPeerConnection,
+    getPeerConnection,
+  } = useChatState();
+
   const [isWalletVisible, setIsWalletVisible] = useState(false);
   const [events, setEvents] = useState<any[]>([]);
-  const [dataChannel, setDataChannel] = useState<RTCDataChannel | null>(null);
-  const peerConnection = useRef<RTCPeerConnection | null>(null);
   const audioElement = useRef<HTMLAudioElement | null>(null);
-  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder>();
   const [messageList, setMessageList] = useState<MessageCard[]>();
   
 
   const { appWallet } = useAppState();
   if (!appWallet) return null;
 
-
-  const { wallets } = useSolanaWallets();
-  
   const rpc = process.env.SOLANA_RPC;
 
-  const successResponse = () => { 
+  const successResponse = () => {
     let msg = {
       type: 'response.create',
       response: {
         instructions: 'Ask what the user wants to do next.',
       },
-    }
+    };
     return msg;
-  }
-  const errorResponse = (message:String) => {
+  };
+  const errorResponse = (message: String) => {
     let msg = {
       type: 'response.error',
       response: {
-        instructions: 'Error performing'+message,
+        instructions: 'Error performing' + message,
       },
     };
     return msg;
   };
 
-  const transferSol = async (
-    amount: number,
-    to: string,
-  ) => {
+  const transferSol = async (amount: number, to: string) => {
     console.log('transferSol', amount, to);
     if (!rpc) return;
-    const LAMPORTS_PER_SOL = 10**9;
+    const LAMPORTS_PER_SOL = 10 ** 9;
     setMessageList((prev) => [
       ...(prev || []),
       {
@@ -69,12 +69,10 @@ const Conversation = () => {
         message: `Agent is transferring ${amount} SOL to ${to}`,
       },
     ]);
-    
+
     const connection = new Connection(rpc);
-    let balance = await connection.getBalance(
-      new PublicKey(appWallet.address),
-    );
-    if ((balance/LAMPORTS_PER_SOL)-0.01  < amount ) {
+    let balance = await connection.getBalance(new PublicKey(appWallet.address));
+    if (balance / LAMPORTS_PER_SOL - 0.01 < amount) {
       setMessageList((prev) => [
         ...(prev || []),
         {
@@ -84,9 +82,14 @@ const Conversation = () => {
       ]);
       return errorResponse('transfer');
     }
-    
-    const transaction = await transferSolTx(appWallet.address, to, amount*LAMPORTS_PER_SOL);
-    const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
+
+    const transaction = await transferSolTx(
+      appWallet.address,
+      to,
+      amount * LAMPORTS_PER_SOL,
+    );
+    const { blockhash, lastValidBlockHeight } =
+      await connection.getLatestBlockhash();
     transaction.recentBlockhash = blockhash;
     const signedTransaction = await appWallet.signTransaction(transaction);
     const signature = await connection.sendRawTransaction(
@@ -143,7 +146,7 @@ const Conversation = () => {
 
     const connection = new Connection(rpc);
     const transaction = await swapTx(params);
-    if (!transaction) { 
+    if (!transaction) {
       setMessageList((prev) => [
         ...(prev || []),
         {
@@ -180,7 +183,7 @@ const Conversation = () => {
 
   const handleUserAssetsLulo = async () => {
     if (!rpc) return;
-  
+
     setMessageList((prev) => [
       ...(prev || []),
       {
@@ -225,11 +228,11 @@ const Conversation = () => {
       depositAmount: amount,
       mintAddress: tokenList[token].MINT,
     };
-    
+
     const connection = new Connection(rpc);
-    
+
     const transaction_array = await depositLulo(params);
-    if (!transaction_array) { 
+    if (!transaction_array) {
       setMessageList((prev) => [
         ...(prev || []),
         {
@@ -246,12 +249,12 @@ const Conversation = () => {
       let { blockhash, lastValidBlockHeight } =
         await connection.getLatestBlockhash();
       tx.message.recentBlockhash = blockhash;
-      
+
       const signedTransaction = await appWallet.signTransaction(
         transaction_array[transaction],
       );
       console.log(signedTransaction);
-      
+
       const signature = await connection.sendRawTransaction(
         signedTransaction.serialize(),
       );
@@ -271,8 +274,8 @@ const Conversation = () => {
       ]);
     }
     return successResponse();
-  }
-  
+  };
+
   const handleWithdrawLulo = async (
     amount: number,
     token: 'USDT' | 'USDS' | 'USDC',
@@ -326,8 +329,8 @@ const Conversation = () => {
     };
 
     const transaction_array = await withdrawLulo(params);
-    
-    if (!transaction_array) { 
+
+    if (!transaction_array) {
       setMessageList((prev) => [
         ...(prev || []),
         {
@@ -344,12 +347,12 @@ const Conversation = () => {
       let { blockhash, lastValidBlockHeight } =
         await connection.getLatestBlockhash();
       tx.message.recentBlockhash = blockhash;
-      
+
       const signedTransaction = await appWallet.signTransaction(
         transaction_array[transaction],
       );
       console.log(signedTransaction);
-      
+
       const signature = await connection.sendRawTransaction(
         signedTransaction.serialize(),
       );
@@ -369,7 +372,7 @@ const Conversation = () => {
       ]);
     }
     return successResponse();
-}
+  };
   const handleLaunchpadCollections = async () => {
     setMessageList((prev) => [
       ...(prev || []),
@@ -470,7 +473,7 @@ const Conversation = () => {
       console.log(answer);
 
       await pc.setRemoteDescription(answer);
-      peerConnection.current = pc;
+      setPeerConnection(pc);
       setIsSessionActive(true);
     } catch (error) {
       console.error('Error starting session:', error);
@@ -478,19 +481,19 @@ const Conversation = () => {
   };
 
   function stopSession() {
-    console.log('Stopping session');
+    const pc = getPeerConnection();
+
     if (dataChannel) {
+      console.log('Stopping session');
       dataChannel.close();
     }
-    if (peerConnection.current) {
-      peerConnection.current.close();
+    if (pc) {
+      pc.close();
+      setPeerConnection(null);
     }
 
     setIsSessionActive(false);
     setDataChannel(null);
-    peerConnection.current = null;
-    setEvents([])
-
   }
 
   const sendClientEvent = useCallback(
@@ -499,9 +502,9 @@ const Conversation = () => {
         message.event_id = message.event_id || crypto.randomUUID();
         dataChannel.send(JSON.stringify(message));
         console.log('Message sent using datachannel:', message);
-        console.log(events)
+        console.log(events);
         setEvents((prev) => [message, ...prev]);
-        console.log(events)
+        console.log(events);
       } else {
         console.error(
           'Failed to send message - no data channel available',
@@ -514,7 +517,6 @@ const Conversation = () => {
   );
 
   function sendTextMessage(message: any) {
-
     const event = {
       type: 'conversation.item.create',
       item: {
@@ -574,7 +576,6 @@ const Conversation = () => {
         for (const output of mostRecentEvent.response.output) {
           if (output.type === 'function_call') {
             console.log('function called');
-            console.log(output.arguements);
             console.log(output);
 
             if (output.name === 'toggleWallet') {
@@ -588,90 +589,39 @@ const Conversation = () => {
                 console.log('close', isWalletVisible);
                 toggleWallet();
               }
-
-              setTimeout(() => {
-                sendClientEvent({
-                  type: 'response.create',
-                  response: {
-                    instructions: 'Ask what the user wants to do next.',
-                  },
-                });
-              }, 500);
+              sendClientEvent({
+                type: 'response.create',
+                response: {
+                  instructions: 'Ask what the user wants to do next.',
+                },
+              });
             } else if (output.name === 'transferSolTx') {
               const { quantity, address } = JSON.parse(output.arguments);
               let response = await transferSol(quantity, address);
-
-              setTimeout(() => {
-                sendClientEvent(response);
-              }, 500);
-            
+              sendClientEvent(response);
             } else if (output.name === 'swapTokens') {
               const { quantity, tokenA, tokenB } = JSON.parse(output.arguments);
               let response = await handleSwap(quantity, tokenA, tokenB);
-
-              setTimeout(() => {
-                sendClientEvent(response);
-              }, 500);
+              sendClientEvent(response);
             } else if (output.name === 'getLuloAssets') {
-              
               let response = await handleUserAssetsLulo();
-
-              setTimeout(() => {
-                sendClientEvent(response);
-              }, 1500);
-            }
-            else if (output.name === 'depositLulo') {
-              const { amount,token} = JSON.parse(output.arguments);
+              sendClientEvent(response);
+            } else if (output.name === 'depositLulo') {
+              const { amount, token } = JSON.parse(output.arguments);
               let response = await handleDepositLulo(amount, token);
-
-              setTimeout(() => {
-                sendClientEvent(response);
-              }, 500);
-            }
-            else if (output.name === 'withdrawLulo') {
-              {
-                const { amount, token } = JSON.parse(output.arguments);
-                let response = await handleWithdrawLulo(amount, token);
-
-                setTimeout(() => {
-                  sendClientEvent(response);
-                }, 500);
-              }
-            }
-            else if (output.name === 'getNFTLaunchpad') {
+              sendClientEvent(response);
+            } else if (output.name === 'withdrawLulo') {
+              const { amount, token } = JSON.parse(output.arguments);
+              let response = await handleWithdrawLulo(amount, token);
+              sendClientEvent(response);
+            } else if (output.name === 'getNFTLaunchpad') {
               const data = await handleLaunchpadCollections();
-
-              setTimeout(() => {
-                sendClientEvent({
-                  type: 'response.create',
-                  response: {
-                    result: data,
-                  },
-                });
-              }, 500);
-            } else if (output.name === 'addCalenderEvent') {
-              // TODO: Implement calender event addition logic
-              const { summary, description, dateTime, timeZone } = JSON.parse(
-                output.arguments,
-              );
-              setMessageList((prev) => [
-                ...(prev || []),
-                {
-                  type: 'agent',
-                  message: `Agent is adding details to your calender`,
+              sendClientEvent({
+                type: 'response.create',
+                response: {
+                  result: data,
                 },
-              ]);
-              await addCalenderEventFunction();
-
-              setTimeout(() => {
-                sendClientEvent({
-                  type: 'response.create',
-                  response: {
-                    instructions:
-                      'The event has been successfully added to calender.',
-                  },
-                });
-              }, 500);
+              });
             }
           }
         }
@@ -734,4 +684,3 @@ const Conversation = () => {
 };
 
 export default Conversation;
-
