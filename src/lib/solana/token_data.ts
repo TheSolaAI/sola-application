@@ -18,7 +18,6 @@ export async function getTokenData(
         },
       },
     );
-    console.log(response.data);
       const token_data: TokenData = response.data;
       console.log(token_data);
         return token_data;
