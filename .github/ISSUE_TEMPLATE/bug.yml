@@ -1,0 +1,52 @@
+name: 🐞 Bug Report
+description: Report something that's not working the way it's intended.
+assignees:
+  - 'HaranK007'
+title: '🐞 [BUG] '
+body:
+  - type: input
+    id: url
+    attributes:
+      label: Request URL
+      description: Give us the URL where you found the bug with query parameters (if any).
+      placeholder: https://solaai.xyz
+    validations:
+      required: true
+
+  - type: input
+    id: browser
+    attributes:
+      label: Browser
+      description: Specify the browser and version where the bug occurred.
+      placeholder: "e.g., Chrome 91, Firefox 89"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Describe the issue you are facing with steps to reproduce.
+    validations:
+      required: true
+  
+  - type: textarea
+    id: expected_behavior
+    attributes:
+      label: Expected Behavior
+      description: Describe what you expected to happen.
+    validations:
+      required: true
+
+  - type: textarea
+    id: possible_solution
+    attributes:
+      label: Possible Solution
+      description: Add a possible solution to the bug.
+    validations:
+      required: false
+
+  - type: markdown
+    attributes:
+      value: |
+        Thanks 🙏 for reporting a bug!
