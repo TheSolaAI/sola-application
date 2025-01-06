@@ -7,6 +7,7 @@ import { depositLulo } from './functions/depositLulo';
 import { withdrawLulo } from './functions/withdrawLulo';
 import { transferSolTx } from './functions/transferSolTx';
 
+import { getTokenData } from './functions/getTokenData';
 export const tools = {
   type: 'session.update',
   session: {
@@ -19,6 +20,7 @@ export const tools = {
       depositLulo,
       withdrawLulo,
       transferSolTx,
+      getTokenData
     ],
     tool_choice: 'auto',
   },

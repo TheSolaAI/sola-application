@@ -133,6 +133,15 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                     <p className="text-xs text-gray-500">
                       Market Cap: {token.marketCap || 'Unknown'}
                     </p>
+                    <div className="bg-gray-100 flex justify-center items-center min-h-screen">
+                      <div className="w-full max-w-4xl h-96 bg-white shadow-lg rounded-lg overflow-hidden">
+                        <iframe 
+                          src={`https://www.gmgn.cc/kline/sol/${token.address}`} 
+                          className="w-full h-full"
+                          allowFullScreen>
+                        </iframe>
+                      </div>
+                    </div>
                   </a>
                 ))}
               </div>

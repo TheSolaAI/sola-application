@@ -61,3 +61,5 @@ export interface TokenCard {
   price?: string;
   marketCap?: string;
 }
+
+
