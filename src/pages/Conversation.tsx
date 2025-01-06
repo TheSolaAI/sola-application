@@ -2,7 +2,7 @@ import { useState, useRef, useCallback, useEffect } from 'react';
 import { LiveAudioVisualizer } from 'react-audio-visualize';
 import { Connection, PublicKey } from '@solana/web3.js';
 import { transferSolTx } from '../lib/solana/transferSol';
-import { MessageCard } from '../types/messageCard';
+import { MessageCard, LuloCard, TransactionCard } from '../types/messageCard';
 import { SwapParams } from '../types/swap';
 import { swapTx } from '../lib/solana/swapTx';
 import { tools } from '../tools/tools';
@@ -32,7 +32,7 @@ const Conversation = () => {
   const [events, setEvents] = useState<any[]>([]);
   const audioElement = useRef<HTMLAudioElement | null>(null);
   const [messageList, setMessageList] = useState<MessageCard[]>();
-  const [luloTotal, setLuloTotal] = useState(0);
+  
 
   const { appWallet } = useAppState();
   if (!appWallet) return null;
@@ -196,16 +196,16 @@ const Conversation = () => {
       owner: `${appWallet.address}`,
     };
     const assets = await getAssetsLulo(params);
-    let total = assets?.totalValue;
-    if (!total) total = 0;
-    setLuloTotal(total);
+   
     if (!assets) return;
-    let assets_string = JSON.stringify(assets);
+    
+    let luloCardItem: LuloCard = assets
+  
     setMessageList((prev) => [
       ...(prev || []),
       {
-        type: 'message',
-        message: `Successfully fetched Lulo Assets: ${assets_string}`,
+        type: 'luloCard',
+        card: luloCardItem,
       },
     ]);
     return successResponse();
@@ -240,12 +240,12 @@ const Conversation = () => {
           message: `Deposit failed. Check your balance.`,
         },
       ]);
-      return errorResponse('Deposit');
+      return errorResponse(`Deposit ${amount} ${token}`);
     }
-    let count = 0;
-    for (const transaction in transaction_array) {
-      count += 1;
-      let tx = transaction_array[transaction];
+    
+    for (const transaction in transaction_array) { 
+      
+      let tx = transaction_array[transaction]
       let { blockhash, lastValidBlockHeight } =
         await connection.getLatestBlockhash();
       tx.message.recentBlockhash = blockhash;
@@ -259,12 +259,17 @@ const Conversation = () => {
         signedTransaction.serialize(),
       );
       console.log(signature);
+      let txCard: TransactionCard = {
+        title: `Deposit ${amount} ${token}`,
+        status: 'Successful',
+        link: `https://solscan.io/tx/${signature}`,
+      };
+      
       setMessageList((prev) => [
         ...(prev || []),
         {
-          type: 'message',
-          message: `Deposit ${count} is successful`,
-          link: `https://solscan.io/tx/${signature}`,
+          type: 'transaction',
+          card: txCard,
         },
       ]);
     }
@@ -284,27 +289,44 @@ const Conversation = () => {
       },
     ]);
     let all = false;
-    console.log(luloTotal);
-    if (luloTotal - amount < 100) {
-      all = true;
-      setMessageList((prev) => [
-        ...(prev || []),
-        {
-          type: 'agent',
-          message: `Lulo total must be greater than 100. Withdrawing all aseets`,
-        },
-      ]);
+    
+    
+    const assetParams: AssetsParams = {
+      owner: `${appWallet.address}`,
+    };
+    let withdrawAmount = amount
+    const connection = new Connection(rpc);
+
+    let assets = await getAssetsLulo(assetParams);
+    if (assets) { 
+      let asset_list = assets.tokenBalance;
+      asset_list.map((asset) => {
+        if (asset.mint === tokenList[token].MINT) {
+          if (asset.balance>0){
+            if (asset.balance - amount < 100){
+              all = true;
+              withdrawAmount = asset.balance;
+              setMessageList((prev) => [
+                ...(prev || []),
+                {
+                  type: 'agent',
+                  message: `Lulo total must be greater than 100. Withdrawing all aseets`,
+                },
+              ]);
+            }
+          }
+        }
+      });
     }
+    
+    withdrawAmount = Math.ceil(withdrawAmount);
 
     const params: WithdrawParams = {
       owner: `${appWallet.address}`,
-      withdrawAmount: amount,
+      withdrawAmount: withdrawAmount,
       mintAddress: tokenList[token].MINT,
       withdrawAll: all,
     };
-    console.log(params);
-
-    const connection = new Connection(rpc);
 
     const transaction_array = await withdrawLulo(params);
 
@@ -316,12 +338,12 @@ const Conversation = () => {
           message: `Withdrawal failed. Check your balance.`,
         },
       ]);
-      return errorResponse('Withdraw');
+      return errorResponse(`Withdraw ${withdrawAmount} ${token}`);
     }
-    let count = 0;
-    for (const transaction in transaction_array) {
-      count += 1;
-      let tx = transaction_array[transaction];
+    
+    for (const transaction in transaction_array) { 
+      
+      let tx = transaction_array[transaction]
       let { blockhash, lastValidBlockHeight } =
         await connection.getLatestBlockhash();
       tx.message.recentBlockhash = blockhash;
@@ -335,12 +357,17 @@ const Conversation = () => {
         signedTransaction.serialize(),
       );
       console.log(signature);
+      let txCard: TransactionCard = {
+        title: `Withdraw ${amount} ${token}`,
+        status: 'Successful',
+        link: `https://solscan.io/tx/${signature}`,
+      };
+      
       setMessageList((prev) => [
         ...(prev || []),
         {
-          type: 'message',
-          message: `Withdrawal ${count} is success. `,
-          link: `https://solscan.io/tx/${signature}`,
+          type: 'transaction',
+          card: txCard,
         },
       ]);
     }
