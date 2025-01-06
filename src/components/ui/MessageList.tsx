@@ -144,7 +144,7 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
               <>
                 <div className="mb-4 bg-[#F5F5F5] flex flex-row gap-4 p-3 rounded-lg leading-relaxed overflow-auto no-scrollbar transition-opacity duration-500 opacity-100 transform">
                   <img
-                    src="/lulo.jpg"
+                    src="/lulo.png"
                     alt="luloimage"
                     className="h-16 rounded-sm"
                   />
@@ -169,9 +169,9 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                     >
                       <div className="flex items-center gap-3">
                         <img
-                          src={`/${token.mint}.jpg` || '/placeholder.png'}
+                          src={`/${token.mint}.png` || '/placeholder.png'}
                           alt="Token"
-                          className="h-10 w-10 rounded-lg bg-gray-200"
+                          className="h-10 w-10 rounded-lg "
                         />
                         <div>
                           <h3 className="truncate text-sm font-medium">

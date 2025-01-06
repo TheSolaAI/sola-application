@@ -31,7 +31,26 @@ const Conversation = () => {
   const [isWalletVisible, setIsWalletVisible] = useState(false);
   const [events, setEvents] = useState<any[]>([]);
   const audioElement = useRef<HTMLAudioElement | null>(null);
-  const [messageList, setMessageList] = useState<MessageCard[]>();
+  const [messageList, setMessageList] = useState<MessageCard[]>([{
+    type: 'luloCard',
+    card: {
+      depositValue: 100,
+      interestEarned: 10,
+      totalValue: 110,
+      tokenBalance: [
+        {
+          balance: 100,
+          mint: 'USDSwr9ApdHk5bvJKMjzff41FfuX8bSxdKcR81vTwcA',
+          usdValue: 100,
+        },
+        {
+          balance: 100,
+          mint: '0xTokenAddress2',
+          usdValue: 100,
+        },
+      ],
+    },
+  } ]);
   const [luloTotal, setLuloTotal] = useState(0);
 
   const { appWallet } = useAppState();
