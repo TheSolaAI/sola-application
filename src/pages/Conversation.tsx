@@ -33,7 +33,6 @@ const Conversation = () => {
   const [events, setEvents] = useState<any[]>([]);
   const audioElement = useRef<HTMLAudioElement | null>(null);
   const [messageList, setMessageList] = useState<MessageCard[]>();
-  
 
   const { appWallet } = useAppState();
   if (!appWallet) return null;
@@ -197,11 +196,11 @@ const Conversation = () => {
       owner: `${appWallet.address}`,
     };
     const assets = await getAssetsLulo(params);
-   
+
     if (!assets) return;
-    
-    let luloCardItem: LuloCard = assets
-  
+
+    let luloCardItem: LuloCard = assets;
+
     setMessageList((prev) => [
       ...(prev || []),
       {
@@ -243,10 +242,9 @@ const Conversation = () => {
       ]);
       return errorResponse(`Deposit ${amount} ${token}`);
     }
-    
-    for (const transaction in transaction_array) { 
-      
-      let tx = transaction_array[transaction]
+
+    for (const transaction in transaction_array) {
+      let tx = transaction_array[transaction];
       let { blockhash, lastValidBlockHeight } =
         await connection.getLatestBlockhash();
       tx.message.recentBlockhash = blockhash;
@@ -265,7 +263,7 @@ const Conversation = () => {
         status: 'Successful',
         link: `https://solscan.io/tx/${signature}`,
       };
-      
+
       setMessageList((prev) => [
         ...(prev || []),
         {
@@ -290,21 +288,20 @@ const Conversation = () => {
       },
     ]);
     let all = false;
-    
-    
+
     const assetParams: AssetsParams = {
       owner: `${appWallet.address}`,
     };
-    let withdrawAmount = amount
+    let withdrawAmount = amount;
     const connection = new Connection(rpc);
 
     let assets = await getAssetsLulo(assetParams);
-    if (assets) { 
+    if (assets) {
       let asset_list = assets.tokenBalance;
       asset_list.map((asset) => {
         if (asset.mint === tokenList[token].MINT) {
-          if (asset.balance>0){
-            if (asset.balance - amount < 100){
+          if (asset.balance > 0) {
+            if (asset.balance - amount < 100) {
               all = true;
               withdrawAmount = asset.balance;
               setMessageList((prev) => [
@@ -319,7 +316,7 @@ const Conversation = () => {
         }
       });
     }
-    
+
     withdrawAmount = Math.ceil(withdrawAmount);
 
     const params: WithdrawParams = {
@@ -341,10 +338,9 @@ const Conversation = () => {
       ]);
       return errorResponse(`Withdraw ${withdrawAmount} ${token}`);
     }
-    
-    for (const transaction in transaction_array) { 
-      
-      let tx = transaction_array[transaction]
+
+    for (const transaction in transaction_array) {
+      let tx = transaction_array[transaction];
       let { blockhash, lastValidBlockHeight } =
         await connection.getLatestBlockhash();
       tx.message.recentBlockhash = blockhash;
@@ -363,7 +359,7 @@ const Conversation = () => {
         status: 'Successful',
         link: `https://solscan.io/tx/${signature}`,
       };
-      
+
       setMessageList((prev) => [
         ...(prev || []),
         {
@@ -646,11 +642,21 @@ const Conversation = () => {
               sendClientEvent(response);
             } else if (output.name === 'getLuloAssets') {
               let response = await handleUserAssetsLulo();
-              sendClientEvent(response);
+              sendClientEvent({
+                type: 'response.create',
+                response: {
+                  instruction : 'ask the user what they want to do next',
+                },
+              });
             } else if (output.name === 'depositLulo') {
               const { amount, token } = JSON.parse(output.arguments);
               let response = await handleDepositLulo(amount, token);
-              sendClientEvent(response);
+              sendClientEvent({
+                type: 'response.create',
+                response: {
+                  instruction : 'ask the user what they want to do next',
+                },
+              });
             } else if (output.name === 'withdrawLulo') {
               const { amount, token } = JSON.parse(output.arguments);
               let response = await handleWithdrawLulo(amount, token);
@@ -703,23 +709,26 @@ const Conversation = () => {
 
         {/* Start of Message display Section */}
         {messageList && (
-          <section className="flex-grow flex justify-center items-start overflow-y-auto">
+          <section className="flex-grow flex justify-center items-start overflow-y-auto pb-20">
             <MessageList messageList={messageList} />
           </section>
         )}
         {/* End of Message display Section */}
 
         {/* Start of Session Controls Section */}
-        <section className="fixed bottom-0 left-1/2  transform -translate-x-4 p-4 flex justify-center">
-          <SessionControls
-            startSession={startSession}
-            stopSession={stopSession}
-            sendTextMessage={sendTextMessage}
-            isSessionActive={isSessionActive}
-          />
-        </section>
+        
         {/* End of Session Controls Section */}
       </main>
+      <section className="relative flex justify-center items-end w-full  bg-black">
+          <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 p-4 flex justify-center bg-white w-full">
+            <SessionControls
+              startSession={startSession}
+              stopSession={stopSession}
+              sendTextMessage={sendTextMessage}
+              isSessionActive={isSessionActive}
+            />
+          </div>
+        </section>
     </>
   );
 };

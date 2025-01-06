@@ -15,7 +15,7 @@ const functionDescription =
             },
             all: {
                 type: 'boolean',
-                description: 'If the user wants to withdraw all the stable coins from lulo.',
+                description: 'If the user wants to withdraw all the stable coin of type token from lulo.',
             },
             token: {
                 type: 'string',
