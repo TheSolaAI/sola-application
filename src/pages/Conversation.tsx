@@ -2,7 +2,12 @@ import { useState, useRef, useCallback, useEffect } from 'react';
 import { LiveAudioVisualizer } from 'react-audio-visualize';
 import { Connection, PublicKey } from '@solana/web3.js';
 import { transferSolTx } from '../lib/solana/transferSol';
-import { MessageCard, LuloCard, TransactionCard, TokenCard } from '../types/messageCard';
+import {
+  MessageCard,
+  LuloCard,
+  TransactionCard,
+  TokenCard,
+} from '../types/messageCard';
 import { SwapParams } from '../types/swap';
 import { swapTx } from '../lib/solana/swapTx';
 import { tools } from '../tools/tools';
@@ -405,25 +410,26 @@ const Conversation = () => {
     }
   };
 
-  const handleTokenData = async (tokenMint:string) => {
+  const handleTokenData = async (tokenMint: string) => {
     setMessageList((prev) => [
       ...(prev || []),
       {
         type: 'agent',
         message: `Fetching token data`,
-      }
+      },
     ]);
     try {
       const data = await getTokenData(tokenMint);
       if (!data) return errorResponse('Error fetching token data');
-      let token_card: TokenCard[] = [{
-        address:tokenMint,
-        image: data.image,
-        metadata: data.metadata,
-        price: data.price.toString(),
-        marketCap: data.marketcap.toString(),
-
-      }]
+      let token_card: TokenCard[] = [
+        {
+          address: tokenMint,
+          image: data.image,
+          metadata: data.metadata,
+          price: data.price.toString(),
+          marketCap: data.marketcap.toString(),
+        },
+      ];
 
       setMessageList((prev) => [
         ...(prev || []),
@@ -433,12 +439,11 @@ const Conversation = () => {
         },
       ]);
       return successResponse();
-    }
-    catch (error) {
+    } catch (error) {
       console.error('Error fetching token data:', error);
       return errorResponse('Error fetching token data');
     }
-  }
+  };
 
   const startSession = async () => {
     try {
@@ -636,7 +641,6 @@ const Conversation = () => {
               let response = await handleSwap(quantity, tokenA, tokenB);
               sendClientEvent(response);
             } else if (output.name === 'getTokenData') {
-            
               const { token_address } = JSON.parse(output.arguments);
               let response = await handleTokenData(token_address);
               sendClientEvent(response);
@@ -645,7 +649,7 @@ const Conversation = () => {
               sendClientEvent({
                 type: 'response.create',
                 response: {
-                  instruction : 'ask the user what they want to do next',
+                  instruction: 'ask the user what they want to do next',
                 },
               });
             } else if (output.name === 'depositLulo') {
@@ -654,7 +658,7 @@ const Conversation = () => {
               sendClientEvent({
                 type: 'response.create',
                 response: {
-                  instruction : 'ask the user what they want to do next',
+                  instruction: 'ask the user what they want to do next',
                 },
               });
             } else if (output.name === 'withdrawLulo') {
@@ -716,19 +720,19 @@ const Conversation = () => {
         {/* End of Message display Section */}
 
         {/* Start of Session Controls Section */}
-        
+
         {/* End of Session Controls Section */}
       </main>
       <section className="relative flex justify-center items-end w-full  bg-black">
-          <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 p-4 flex justify-center bg-white w-full">
-            <SessionControls
-              startSession={startSession}
-              stopSession={stopSession}
-              sendTextMessage={sendTextMessage}
-              isSessionActive={isSessionActive}
-            />
-          </div>
-        </section>
+        <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 p-4 flex justify-center bg-white w-full">
+          <SessionControls
+            startSession={startSession}
+            stopSession={stopSession}
+            sendTextMessage={sendTextMessage}
+            isSessionActive={isSessionActive}
+          />
+        </div>
+      </section>
     </>
   );
 };
