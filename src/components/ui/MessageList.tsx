@@ -7,8 +7,8 @@ import {
   TransactionCard,
   TokenCard,
   LuloCard,
+  SanctumCard,
 } from '../../types/messageCard';
-
 
 interface Props {
   messageList: MessageCard[];
@@ -135,11 +135,11 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                     </p>
                     <div className="bg-bodydark flex justify-center items-center h-fit m-2">
                       <div className="w-full max-w-4xl h-52 bg-white shadow-lg rounded-lg overflow-hidden">
-                        <iframe 
-                          src={`https://www.gmgn.cc/kline/sol/${token.address}`} 
+                        <iframe
+                          src={`https://www.gmgn.cc/kline/sol/${token.address}`}
                           className="w-full h-full"
-                          allowFullScreen>
-                        </iframe>
+                          allowFullScreen
+                        ></iframe>
                       </div>
                     </div>
                   </a>
@@ -149,9 +149,9 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
 
           case 'luloCard':
             const lulo = item.card as LuloCard;
-            
+
             const tokenBalance = lulo.tokenBalance;
-            
+
             return (
               <>
                 <div className="mb-4 bg-[#F5F5F5] flex flex-row gap-4 p-3 rounded-lg leading-relaxed overflow-auto no-scrollbar transition-opacity duration-500 opacity-100 transform">
@@ -167,12 +167,13 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                     <p className="text-sm font-medium">
                       Interest Earned : {lulo.interestEarned.toFixed(2)}
                     </p>
-                    <p className="text-sm font-medium">Total Value : {lulo.totalValue.toFixed(2)}</p>
+                    <p className="text-sm font-medium">
+                      Total Value : {lulo.totalValue.toFixed(2)}
+                    </p>
                   </div>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-4 my-4">
                   {tokenBalance.map((token, tokenIndex) => (
-                    
                     <a
                       key={tokenIndex}
                       href={`https://dexscreener.com/solana/${token.mint}`}
@@ -236,6 +237,33 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                   </div>
                 </div>
               </div>
+            );
+
+          case 'sanctumCard':
+            const sanctumCard = item.card as SanctumCard;
+            return (
+              <a
+                href={sanctumCard.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group relative block rounded-xl bg-[#F5F5F5] border p-3 w-fit "
+              >
+                <div className="flex items-center gap-3">
+                  <img
+                    src={sanctumCard.logo}
+                    alt="sanctumimage"
+                    className="h-16 rounded-sm"
+                  />
+                  <div>
+                    <p className="text-base font-medium">
+                      Symbol : {sanctumCard.symbol}
+                    </p>
+                    <p className="text-sm font-thin">
+                      APY : {sanctumCard.apy}%
+                    </p>
+                  </div>
+                </div>
+              </a>
             );
 
           default:
