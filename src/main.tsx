@@ -14,6 +14,10 @@ Sentry.init({
   integrations: [
     Sentry.browserTracingIntegration(),
     Sentry.replayIntegration(),
+    Sentry.feedbackIntegration({
+      colorScheme: 'system',
+      isEmailRequired: true,
+    }),
   ],
   // Tracing
   tracesSampleRate: 1.0,
