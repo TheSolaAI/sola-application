@@ -42,4 +42,6 @@ jobs:
           npm run build
 
       - name: Deploy to server
-        run: aws s3 sync dist/ s3://sola-frontend/ --cache-control max-age=60
+        run: |
+          aws s3 sync dist/ s3://sola-frontend/ --cache-control max-age=60
+          aws cloudfront create-invalidation --distribution-id EWH631DYZXDBA --paths "/*"
