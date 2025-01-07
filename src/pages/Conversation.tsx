@@ -588,6 +588,7 @@ const Conversation = () => {
         message: `Fetching NFT Data`,
       },
     ]);
+    console.log(nft);
     let nft_symbol = nft.replace(/\s+/g, '_');
     try {
       const data = await fetchMagicEdenNFTPrice(nft, nft_symbol);
@@ -605,6 +606,7 @@ const Conversation = () => {
       }
 
       let nft_card: NFTCollectionCard = data;
+      console.log(nft_card)
 
       setMessageList((prev) => [
         ...(prev || []),
@@ -847,8 +849,8 @@ const Conversation = () => {
               const response = await handleLaunchpadCollections();
               sendClientEvent(response);
             } else if (output.name === 'getNFTPrice') {
-              const { nft } = JSON.parse(output.arguments);
-              let response = await handleNFTPrice(nft);
+              const { nft_name } = JSON.parse(output.arguments);
+              let response = await handleNFTPrice(nft_name);
               sendClientEvent(response);
             }
           }

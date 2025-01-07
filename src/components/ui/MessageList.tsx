@@ -154,22 +154,28 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
             return (
               <div className="grid grid-cols-1 gap-6 my-4">
                 <div className="flex items-center gap-3">
+                  <a
+                    href={'https://magiceden.io/marketplace/' + nftCollectionCard.symbol}
+                    target="_blank"
+                  >
                   <img
                     src={nftCollectionCard.image || '/placeholder.png'}
-                    alt={nftCollectionCard.title || 'Token'}
+                    alt={nftCollectionCard.title || 'NFT NAME'}
                     className="h-10 w-10 rounded-lg  bg-graydark"
-                  />
+                    />
+                  
                   <div>
-                    <h3 className="truncate text-sm font-medium">
+                    <h3 className="truncate text-large font-medium">
                       {nftCollectionCard.title || 'Unknown'}
                     </h3>
-                    <p className={`mt-1 text-xs font-medium`}>
-                      $ {nftCollectionCard.price}
+                    <p className={`mt-1 text-small font-medium`}>
+                      {nftCollectionCard.price} ◎
                     </p>
-                  </div>
+                    </div>
+                    </a>
                 </div>
-                <p className="text-xs text-bodydark2 mt-2">
-                  Listed: $ {nftCollectionCard.listed || 'Unknown'}
+                <p className="text-small text-bodydark2 mt-2">
+                  Listed: {nftCollectionCard.listed || 'Unknown'}
                 </p>
               </div>
             );
