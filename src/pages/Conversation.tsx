@@ -49,7 +49,7 @@ const Conversation = () => {
   const { appWallet } = useAppState();
   if (!appWallet) return null;
 
-  const rpc = import.meta.env.SOLANA_RPC;
+  const rpc = process.env.SOLANA_RPC;
 
   const transferSol = async (amount: number, to: string) => {
     if (!rpc)

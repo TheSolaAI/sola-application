@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { TokenData } from '../../types/token_data';
 
-const data_service_url = import.meta.env.DATA_SERVICE_URL;
+const data_service_url = process.env.DATA_SERVICE_URL;
 
 export async function getTokenData(params: string): Promise<TokenData | null> {
   try {

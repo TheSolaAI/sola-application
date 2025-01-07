@@ -39,9 +39,9 @@ const solanaConnectors = toSolanaWalletConnectors({
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
     <Router>
-      {import.meta.env.PRVI_APP_ID && (
+      {process.env.PRVI_APP_ID && (
         <PrivyProvider
-          appId={import.meta.env.PRVI_APP_ID}
+          appId={process.env.PRVI_APP_ID}
           config={{
             loginMethods: ['email', 'wallet'],
             externalWallets: {
