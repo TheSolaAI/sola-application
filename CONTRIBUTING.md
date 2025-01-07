@@ -6,6 +6,7 @@ Thank you for considering contributing to the Sola Application! We welcome contr
 
 - [Getting Started](#getting-started)
 - [Development Environment](#development-environment)
+- [Code Style](#code-style)
 - [Commit Messages](#commit-messages)
 - [Pull Request Process](#pull-request-process)
 - [Issues](#issues)
@@ -51,6 +52,11 @@ To set up the development environment:
 
 4. Open your browser and navigate to `http://localhost:3000`.
 
+## Code Style
+
+- Follow the existing code style and conventions.
+- Use [ESLint](https://eslint.org/) and [Prettier](https://prettier.io/) to maintain code quality and consistency.
+
 ## Commit Messages
 
 - Use [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit messages.
@@ -83,13 +89,14 @@ To set up the development environment:
     ```
 
 3. Make your changes and commit them following the [Commit Messages](#commit-messages) guidelines.
-4. Push your branch to your fork:
+4. Ensure your code follows the [Code Style](#code-style) guidelines.
+5. Push your branch to your fork:
 
     ```sh
     git push origin feature/your-feature-name
     ```
 
-5. Open a pull request against the `main` branch of the main repository.
+6. Open a pull request against the `main` branch of the main repository.
 
 ## Issues
 
