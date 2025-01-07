@@ -7,7 +7,7 @@ const functionDescription =
     description: functionDescription,
     parameters: {
         type: 'object',
-        strict: true, // Ensures only defined parameters are accepted
+        strict: true, 
         properties: {
             amount: {
                 type: 'number',
