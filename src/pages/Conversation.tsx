@@ -23,6 +23,7 @@ import useAppState from '../store/zustand/AppState';
 import useChatState from '../store/zustand/ChatState';
 import { getTokenData } from '../lib/solana/token_data';
 import { getLstData } from '../lib/solana/lst_data';
+import { responseToOpenai } from '../lib/utils/response';
 
 const Conversation = () => {
   const {
@@ -36,8 +37,6 @@ const Conversation = () => {
     getPeerConnection,
   } = useChatState();
 
-  
-
   const [isWalletVisible, setIsWalletVisible] = useState(false);
   const [events, setEvents] = useState<any[]>([]);
   const audioElement = useRef<HTMLAudioElement | null>(null);
@@ -48,28 +47,8 @@ const Conversation = () => {
 
   const rpc = process.env.SOLANA_RPC;
 
-  const successResponse = () => {
-    let msg = {
-      type: 'response.create',
-      response: {
-        instructions: 'Ask what the user wants to do next.',
-      },
-    };
-    return msg;
-  };
-  const errorResponse = (message: String) => {
-    let msg = {
-      type: 'response.error',
-      response: {
-        instructions: 'Error performing' + message,
-      },
-    };
-    return msg;
-  };
-
   const transferSol = async (amount: number, to: string) => {
-    console.log('transferSol', amount, to);
-    if (!rpc) return;
+    if (!rpc) return responseToOpenai('Oops! contact admin. there is no rpc attached.');
     const LAMPORTS_PER_SOL = 10 ** 9;
     setMessageList((prev) => [
       ...(prev || []),
@@ -89,7 +68,7 @@ const Conversation = () => {
           message: 'Insufficient balance. Please maintain 0.01 balance minimum',
         },
       ]);
-      return errorResponse('transfer');
+      return responseToOpenai('Insufficient balance.');
     }
 
     const transaction = await transferSolTx(
@@ -104,7 +83,8 @@ const Conversation = () => {
     const signature = await connection.sendRawTransaction(
       signedTransaction.serialize(),
     );
-    console.log(signature);
+
+    //TODO: add dynamic status and handle failed transactions
     setMessageList((prev) => [
       ...(prev || []),
       {
@@ -117,7 +97,7 @@ const Conversation = () => {
       },
     ]);
 
-    return successResponse();
+    return responseToOpenai("Transaction is successful. ask what the user wants to do next.");
 
     // console.log(
     //   await connection.confirmTransaction({
@@ -133,16 +113,15 @@ const Conversation = () => {
     tokenA: 'SOL' | 'SEND' | 'USDC',
     tokenB: 'SOL' | 'SEND' | 'USDC',
   ) => {
-    if (!rpc) return;
-    if (!tokenList[tokenA] || !tokenList[tokenB]) return;
-
-    console.log(quantity * 10 ** tokenList[tokenA].DECIMALS, tokenA, tokenB);
+    if (!rpc) return responseToOpenai('Oops! contact admin. there is no rpc attached.');
+    if (!tokenList[tokenA] || !tokenList[tokenB]) return responseToOpenai('We dont support one of the token.');
+    if (tokenA === tokenB) return responseToOpenai('You are trying to swap same token. Please select different token.');
 
     setMessageList((prev) => [
       ...(prev || []),
       {
         type: 'agent',
-        message: `Agent is performing the swap`,
+        message: `Agent is performing the swap between ${tokenA} and ${tokenB}`,
       },
     ]);
 
@@ -163,18 +142,19 @@ const Conversation = () => {
           message: `Error during Swap.`,
         },
       ]);
-      return errorResponse('Swap');
+      return responseToOpenai('Swap failed. Please try again later.');
     }
     const signedTransaction = await appWallet.signTransaction(transaction);
     const signature = await connection.sendRawTransaction(
       signedTransaction.serialize(),
     );
-    console.log(signature);
+
+    // TODO: implement dynamic status
     setMessageList((prev) => [
       ...(prev || []),
       {
         type: 'message',
-        message: 'Swap is success. ',
+        message: 'Swap transaction sent',
         link: `https://solscan.io/tx/${signature}`,
       },
     ]);
@@ -187,17 +167,17 @@ const Conversation = () => {
     //   }),
     // );
 
-    return successResponse();
+    return responseToOpenai('Swap transaction sent. ask what the user wants to do next.');
   };
 
   const handleUserAssetsLulo = async () => {
-    if (!rpc) return;
+    if (!rpc) return responseToOpenai('Oops! contact admin. there is no rpc attached.');
 
     setMessageList((prev) => [
       ...(prev || []),
       {
         type: 'agent',
-        message: `Agent is fetching Lulo Assets`,
+        message: `Fetching your Lulo Assets`,
       },
     ]);
 
@@ -206,7 +186,7 @@ const Conversation = () => {
     };
     const assets = await getAssetsLulo(params);
 
-    if (!assets) return;
+    if (!assets) return responseToOpenai('You dont have any assets in lulo right now.');
 
     let luloCardItem: LuloCard = assets;
 
@@ -217,14 +197,14 @@ const Conversation = () => {
         card: luloCardItem,
       },
     ]);
-    return successResponse();
+    return responseToOpenai('Successfully fetched your assets. What do you want to do next?');
   };
 
   const handleDepositLulo = async (
     amount: number,
     token: 'USDT' | 'USDS' | 'USDC',
   ) => {
-    if (!rpc) return;
+    if (!rpc) return responseToOpenai('Oops! contact admin. there is no rpc attached.');
     setMessageList((prev) => [
       ...(prev || []),
       {
@@ -249,7 +229,7 @@ const Conversation = () => {
           message: `Deposit failed. Check your balance.`,
         },
       ]);
-      return errorResponse(`Deposit ${amount} ${token}`);
+      return responseToOpenai(`You dont have ${amount} worth of this ${token}.`);
     }
 
     for (const transaction in transaction_array) {
@@ -261,15 +241,15 @@ const Conversation = () => {
       const signedTransaction = await appWallet.signTransaction(
         transaction_array[transaction],
       );
-      console.log(signedTransaction);
 
       const signature = await connection.sendRawTransaction(
         signedTransaction.serialize(),
       );
-      console.log(signature);
+
+      // TODO: Handle dynamic status
       let txCard: TransactionCard = {
         title: `Deposit ${amount} ${token}`,
-        status: 'Successful',
+        status: 'Transaction Sent',
         link: `https://solscan.io/tx/${signature}`,
       };
 
@@ -281,14 +261,14 @@ const Conversation = () => {
         },
       ]);
     }
-    return successResponse();
+    return responseToOpenai('The transaction is sent. ask what the user wants to do next.');
   };
 
   const handleWithdrawLulo = async (
     amount: number,
     token: 'USDT' | 'USDS' | 'USDC',
   ) => {
-    if (!rpc) return;
+    if (!rpc) return responseToOpenai('Oops! contact admin. there is no rpc attached.');
     setMessageList((prev) => [
       ...(prev || []),
       {
@@ -345,7 +325,7 @@ const Conversation = () => {
           message: `Withdrawal failed. Check your balance.`,
         },
       ]);
-      return errorResponse(`Withdraw ${withdrawAmount} ${token}`);
+      return responseToOpenai(`Withdraw of ${withdrawAmount} of the token ${token} failed due to less balance.`);
     }
 
     for (const transaction in transaction_array) {
@@ -357,15 +337,15 @@ const Conversation = () => {
       const signedTransaction = await appWallet.signTransaction(
         transaction_array[transaction],
       );
-      console.log(signedTransaction);
 
       const signature = await connection.sendRawTransaction(
         signedTransaction.serialize(),
       );
-      console.log(signature);
+
+      // TODO: Handle dynamic status
       let txCard: TransactionCard = {
         title: `Withdraw ${amount} ${token}`,
-        status: 'Successful',
+        status: 'Sent transaction',
         link: `https://solscan.io/tx/${signature}`,
       };
 
@@ -377,8 +357,9 @@ const Conversation = () => {
         },
       ]);
     }
-    return successResponse();
+    return responseToOpenai('The transaction is sent. ask what the user wants to do next.');
   };
+
   const handleLaunchpadCollections = async () => {
     setMessageList((prev) => [
       ...(prev || []),
@@ -407,10 +388,9 @@ const Conversation = () => {
         ...formattedData,
       ]);
 
-      return data;
+      return responseToOpenai('Successfully fetched upcoming NFT launches.');
     } catch (error) {
-      console.error('Error fetching and processing collections:', error);
-      return;
+      return responseToOpenai('Oops! there has been a problem while getting nft launches. try again later.');
     }
   };
 
@@ -424,7 +404,7 @@ const Conversation = () => {
     ]);
     try {
       const data = await getTokenData(tokenMint);
-      if (!data) return errorResponse('Error fetching token data');
+      if (!data) return responseToOpenai('There has been a problem with fetching token data. Try again later.');
       let token_card: TokenCard[] = [
         {
           address: tokenMint,
@@ -442,10 +422,9 @@ const Conversation = () => {
           card: token_card,
         },
       ]);
-      return successResponse();
+      return responseToOpenai('Ask if the user needed anything else.');
     } catch (error) {
-      console.error('Error fetching token data:', error);
-      return errorResponse('Error fetching token data');
+      return responseToOpenai('There has been a problem with fetching token data. Try again later.');
     }
   };
 
@@ -459,7 +438,7 @@ const Conversation = () => {
     ]);
     try {
       const data = await getLstData();
-      if (!data) return errorResponse('Error fetching token data');
+      if (!data) return responseToOpenai('Oops! there has been a problem while fetching lst data. try again later.');
       let lst_card: SanctumCard[] = data;
 
       setMessageList((prev) => [
@@ -469,10 +448,9 @@ const Conversation = () => {
           card: lst_card,
         },
       ]);
-      return successResponse();
+      return responseToOpenai('Successfully fetched lst data. What do you want to do next?');
     } catch (error) {
-      console.error('Error fetching token data:', error);
-      return errorResponse('Error fetching token data');
+      return responseToOpenai('Oops! there has been a problem while fetching lst data. try again later.');
     }
   };
 
@@ -683,41 +661,21 @@ const Conversation = () => {
               sendClientEvent(response);
             } else if (output.name === 'getLstData') {
               let response = await handleLSTData();
-              sendClientEvent({
-                type: 'response.create',
-                response: {
-                  instruction: 'ask the user what they want to do next',
-                },
-              });
+              sendClientEvent(response);
             } else if (output.name === 'getLuloAssets') {
               let response = await handleUserAssetsLulo();
-              sendClientEvent({
-                type: 'response.create',
-                response: {
-                  instruction: 'ask the user what they want to do next',
-                },
-              });
+              sendClientEvent(response);
             } else if (output.name === 'depositLulo') {
               const { amount, token } = JSON.parse(output.arguments);
               let response = await handleDepositLulo(amount, token);
-              sendClientEvent({
-                type: 'response.create',
-                response: {
-                  instruction: 'ask the user what they want to do next',
-                },
-              });
+              sendClientEvent(response);
             } else if (output.name === 'withdrawLulo') {
               const { amount, token } = JSON.parse(output.arguments);
               let response = await handleWithdrawLulo(amount, token);
               sendClientEvent(response);
             } else if (output.name === 'getNFTLaunchpad') {
-              const data = await handleLaunchpadCollections();
-              sendClientEvent({
-                type: 'response.create',
-                response: {
-                  result: data,
-                },
-              });
+              const response = await handleLaunchpadCollections();
+              sendClientEvent(response);
             }
           }
         }

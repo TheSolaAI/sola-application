@@ -8,7 +8,7 @@ export const tokenList = {
     DECIMALS: 6,
   },
   SEND: {
-    MINT: 'CSmVx8guiujGZuLovb91Ft5TLi8td3iprMY8LBdYpump',
+    MINT: 'SENDdRQtYMWaQrBroBrJ2Q53fgVuq95CV9UPGEvpCxa',
     DECIMALS: 6,
   },
   JUP: {

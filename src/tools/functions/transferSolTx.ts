@@ -11,13 +11,14 @@ export const transferSolTx = {
         properties: {
             quantity: {
                 type: 'number',
-                description: 'Amount of Solana to transfer.',
+                description: 'Amount of Solana or SOL to transfer.',
             },
             address: {
                 type: 'string',
                 description: 'Recipient address.',
             },
-        }
+        },
+        required: ['quantity', 'address'],
     }
 };
 
