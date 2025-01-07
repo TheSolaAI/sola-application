@@ -9,6 +9,7 @@ import { transferSolTx } from './functions/transferSolTx';
 
 import { getTokenData } from './functions/getTokenData';
 import { getLstData } from "./functions/getLstData";
+import { getNFTPrice } from './functions/getNFTPrice';
 export const tools = {
   type: 'session.update',
   session: {
@@ -22,7 +23,8 @@ export const tools = {
       withdrawLulo,
       transferSolTx,
       getTokenData,
-      getLstData
+      getLstData,
+      getNFTPrice,
     ],
     tool_choice: 'auto',
   },
