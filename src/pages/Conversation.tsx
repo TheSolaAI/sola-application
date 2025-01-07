@@ -53,7 +53,9 @@ const Conversation = () => {
 
   const transferSol = async (amount: number, to: string) => {
     if (!rpc)
-      return responseToOpenai('Oops! contact admin. there is no rpc attached.');
+      return responseToOpenai(
+        'Ask the user to contact admin as the rpc is not attached',
+      );
     const LAMPORTS_PER_SOL = 10 ** 9;
     setMessageList((prev) => [
       ...(prev || []),
@@ -73,7 +75,7 @@ const Conversation = () => {
           message: 'Insufficient balance. Please maintain 0.01 balance minimum',
         },
       ]);
-      return responseToOpenai('Insufficient balance.');
+      return responseToOpenai('Tell the user they have Insufficient balance.');
     }
 
     const transaction = await transferSolTx(
@@ -121,13 +123,35 @@ const Conversation = () => {
     tokenB: 'SOL' | 'SEND' | 'USDC',
   ) => {
     if (!rpc)
-      return responseToOpenai('Oops! contact admin. there is no rpc attached.');
-    if (!tokenList[tokenA] || !tokenList[tokenB])
-      return responseToOpenai('We dont support one of the token.');
-    if (tokenA === tokenB)
       return responseToOpenai(
-        'You are trying to swap same token. Please select different token.',
+        'ask the user to contact admin as the rpc is not attached.',
       );
+    if (!tokenList[tokenA] || !tokenList[tokenB]) {
+      setMessageList((prev) => [
+        ...(prev || []),
+        {
+          type: 'message',
+          message:
+            'We dont support on of the tokens . Request admin to support it',
+        },
+      ]);
+      return responseToOpenai(
+        'tell the user that , We dont support one of the token.',
+      );
+    }
+
+    if (tokenA === tokenB) {
+      setMessageList((prev) => [
+        ...(prev || []),
+        {
+          type: 'message',
+          message: 'You cant swap between same tokens! LOL',
+        },
+      ]);
+      return responseToOpenai(
+        'tell the user that they are trying to swap same token and ask them to select different token.',
+      );
+    }
 
     setMessageList((prev) => [
       ...(prev || []),
@@ -154,7 +178,9 @@ const Conversation = () => {
           message: `Error during Swap.`,
         },
       ]);
-      return responseToOpenai('Swap failed. Please try again later.');
+      return responseToOpenai(
+        'tell the user that Swap failed and ask them to try later after some time.',
+      );
     }
     const signedTransaction = await appWallet.signTransaction(transaction);
     const signature = await connection.sendRawTransaction(
@@ -166,7 +192,7 @@ const Conversation = () => {
       ...(prev || []),
       {
         type: 'message',
-        message: 'Swap transaction sent',
+        message: 'Swap transaction sent ',
         link: `https://solscan.io/tx/${signature}`,
       },
     ]);
@@ -186,7 +212,9 @@ const Conversation = () => {
 
   const handleUserAssetsLulo = async () => {
     if (!rpc)
-      return responseToOpenai('Oops! contact admin. there is no rpc attached.');
+      return responseToOpenai(
+        'ask the user to contact admin as the rpc is not attached.',
+      );
 
     setMessageList((prev) => [
       ...(prev || []),
@@ -201,8 +229,18 @@ const Conversation = () => {
     };
     const assets = await getAssetsLulo(params);
 
-    if (!assets)
-      return responseToOpenai('You dont have any assets in lulo right now.');
+    if (!assets) {
+      setMessageList((prev) => [
+        ...(prev || []),
+        {
+          type: 'message',
+          message: 'Oops! Unable to fetch your lulo assets',
+        },
+      ]);
+      return responseToOpenai(
+        'tell the user that they dont have any assets in lulo right now.',
+      );
+    }
 
     let luloCardItem: LuloCard = assets;
 
@@ -214,7 +252,7 @@ const Conversation = () => {
       },
     ]);
     return responseToOpenai(
-      'Successfully fetched your assets. What do you want to do next?',
+      'tell the user that, Successfully fetched your assets and ask what they want to do next?',
     );
   };
 
@@ -223,7 +261,9 @@ const Conversation = () => {
     token: 'USDT' | 'USDS' | 'USDC',
   ) => {
     if (!rpc)
-      return responseToOpenai('Oops! contact admin. there is no rpc attached.');
+      return responseToOpenai(
+        'ask the user to contact admin as the rpc is not attached.',
+      );
     setMessageList((prev) => [
       ...(prev || []),
       {
@@ -249,7 +289,7 @@ const Conversation = () => {
         },
       ]);
       return responseToOpenai(
-        `You dont have ${amount} worth of this ${token}.`,
+        `tell the user that they dont have ${amount} worth of this ${token}.`,
       );
     }
 
@@ -292,7 +332,9 @@ const Conversation = () => {
     token: 'USDT' | 'USDS' | 'USDC',
   ) => {
     if (!rpc)
-      return responseToOpenai('Oops! contact admin. there is no rpc attached.');
+      return responseToOpenai(
+        'ask the user to contact admin as the rpc is not attached',
+      );
     setMessageList((prev) => [
       ...(prev || []),
       {
@@ -350,7 +392,7 @@ const Conversation = () => {
         },
       ]);
       return responseToOpenai(
-        `Withdraw of ${withdrawAmount} of the token ${token} failed due to less balance.`,
+        `tell the user that withdraw of ${withdrawAmount} of the token ${token} failed due to less balance.`,
       );
     }
 
@@ -416,10 +458,20 @@ const Conversation = () => {
         ...formattedData,
       ]);
 
-      return responseToOpenai('Successfully fetched upcoming NFT launches.');
-    } catch (error) {
       return responseToOpenai(
-        'Oops! there has been a problem while getting nft launches. try again later.',
+        'tell the user that successfully fetched upcoming NFT launches.',
+      );
+    } catch (error) {
+      setMessageList((prev) => [
+        ...(prev || []),
+        {
+          type: 'message',
+          message:
+            'Oops! There has been a problem while fetching the nft launches',
+        },
+      ]);
+      return responseToOpenai(
+        'tell the user that there has been a problem while getting nft launches and ask them to try later.',
       );
     }
   };
@@ -434,10 +486,19 @@ const Conversation = () => {
     ]);
     try {
       const data = await getTokenData(tokenMint);
-      if (!data)
+      if (!data) {
+        setMessageList((prev) => [
+          ...(prev || []),
+          {
+            type: 'message',
+            message: 'Oops! there has been a problem in fetching token data',
+          },
+        ]);
         return responseToOpenai(
-          'There has been a problem with fetching token data. Try again later.',
+          'tell the user that there has been a problem with fetching token data and ask them to try later.',
         );
+      }
+
       let token_card: TokenCard[] = [
         {
           address: tokenMint,
@@ -457,8 +518,15 @@ const Conversation = () => {
       ]);
       return responseToOpenai('Ask if the user needed anything else.');
     } catch (error) {
+      setMessageList((prev) => [
+        ...(prev || []),
+        {
+          type: 'message',
+          message: 'Oops! Encountered a problem while fetching token data.',
+        },
+      ]);
       return responseToOpenai(
-        'There has been a problem with fetching token data. Try again later.',
+        'tell the user that there has been a problem with fetching token data and ask them to try later.',
       );
     }
   };
@@ -473,10 +541,19 @@ const Conversation = () => {
     ]);
     try {
       const data = await getLstData();
-      if (!data)
+      if (!data) {
+        setMessageList((prev) => [
+          ...(prev || []),
+          {
+            type: 'message',
+            message: 'Oops! There has been a problem while fetching lst data',
+          },
+        ]);
         return responseToOpenai(
-          'Oops! there has been a problem while fetching lst data. try again later.',
+          'tell the user that there has been a problem while fetching lst data and ask them to try later.',
         );
+      }
+
       let lst_card: SanctumCard[] = data;
 
       setMessageList((prev) => [
@@ -487,11 +564,18 @@ const Conversation = () => {
         },
       ]);
       return responseToOpenai(
-        'Successfully fetched lst data. What do you want to do next?',
+        'Successfully fetched lst data. Ask what the user wants to do next?',
       );
     } catch (error) {
+      setMessageList((prev) => [
+        ...(prev || []),
+        {
+          type: 'message',
+          message: 'Oops! There has been a problem while fetching lst data',
+        },
+      ]);
       return responseToOpenai(
-        'Oops! there has been a problem while fetching lst data. try again later.',
+        'tell the user that there has been a problem while fetching lst data and ask them to try later.',
       );
     }
   };
@@ -507,18 +591,35 @@ const Conversation = () => {
     let nft_symbol = nft.replace(/\s+/g, '_');
     try {
       const data = await fetchMagicEdenNFTPrice(nft, nft_symbol);
-      if (!data)
+      if (!data) {
+        setMessageList((prev) => [
+          ...(prev || []),
+          {
+            type: 'message',
+            message:
+              'Oops! There has been a problem while fetching NFT data',
+          },
+        ]);
         return responseToOpenai(
-          'Oops! there has been a problem while fetching nft data. try again later.',
+          'Tell the user that there has been a problem while fetching nft data and ask them to try later.',
         );
-      let lst_card: NFTCollectionCard = data;
+      }
+
+      let nft_card: NFTCollectionCard = data;
 
       return responseToOpenai(
-        'Successfully fetched lst data. What do you want to do next?',
+        'Successfully fetched lst data. Ask what the user wants to do next?',
       );
     } catch (error) {
+      setMessageList((prev) => [
+        ...(prev || []),
+        {
+          type: 'message',
+          message: 'Oops! There has been a problem while fetching NFT data',
+        },
+      ]);
       return responseToOpenai(
-        'Oops! there has been a problem while fetching lst data. try again later.',
+        'Tell the user that there has been a problem while fetching nft data and ask them to try later.',
       );
     }
   };
@@ -701,21 +802,15 @@ const Conversation = () => {
 
             if (output.name === 'toggleWallet') {
               const { action } = JSON.parse(output.arguments);
-              console.log(action);
 
               if (action === 'open' && !isWalletVisible) {
-                console.log('open', isWalletVisible);
                 toggleWallet();
               } else if (action === 'close' && isWalletVisible) {
-                console.log('close', isWalletVisible);
                 toggleWallet();
               }
-              sendClientEvent({
-                type: 'response.create',
-                response: {
-                  instructions: 'Ask what the user wants to do next.',
-                },
-              });
+              sendClientEvent(
+                responseToOpenai('Ask what the user wants to do next.'),
+              );
             } else if (output.name === 'transferSolTx') {
               const { quantity, address } = JSON.parse(output.arguments);
               let response = await transferSol(quantity, address);
