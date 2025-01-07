@@ -57,6 +57,14 @@ export type NFTCard = {
   date: string;
 };
 
+export type NFTCollectionCard = {
+  title: string;
+ 
+  image: string;
+  price: string;
+  listed:string;
+};
+
 export interface TokenCard {
   address: string;
   image?: string;
