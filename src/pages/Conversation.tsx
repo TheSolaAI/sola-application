@@ -39,6 +39,7 @@ const Conversation = () => {
     setMediaRecorder,
     setPeerConnection,
     getPeerConnection,
+    resetMute,
   } = useChatState();
 
   const [isWalletVisible, setIsWalletVisible] = useState(false);
@@ -588,7 +589,7 @@ const Conversation = () => {
         message: `Fetching NFT Data`,
       },
     ]);
-    console.log(nft);
+
     let nft_symbol = nft.replace(/\s+/g, '_');
     try {
       const data = await fetchMagicEdenNFTPrice(nft, nft_symbol);
@@ -606,7 +607,6 @@ const Conversation = () => {
       }
 
       let nft_card: NFTCollectionCard = data;
-      console.log(nft_card)
 
       setMessageList((prev) => [
         ...(prev || []),
@@ -724,6 +724,7 @@ const Conversation = () => {
 
     setIsSessionActive(false);
     setDataChannel(null);
+    resetMute()
   }
 
   const sendClientEvent = useCallback(

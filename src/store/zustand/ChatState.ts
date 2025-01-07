@@ -12,6 +12,7 @@ interface ChatState {
   setMediaRecorder: (recorder: MediaRecorder | undefined) => void;
   setPeerConnection: (connection: RTCPeerConnection | null) => void;
   toggleMute: () => void;
+  resetMute: () => void;
 }
 
 const chatStateCreator: StateCreator<ChatState> = (set, get) => ({
@@ -21,9 +22,12 @@ const chatStateCreator: StateCreator<ChatState> = (set, get) => ({
   peerConnection: null,
   isMuted: false,
   setIsSessionActive: (isActive: boolean) => set({ isSessionActive: isActive }),
-  setDataChannel: (channel: RTCDataChannel | null) => set({ dataChannel: channel }),
-  setMediaRecorder: (recorder: MediaRecorder | undefined) => set({ mediaRecorder: recorder }),
-  setPeerConnection: (connection: RTCPeerConnection | null) => set({ peerConnection: connection }),
+  setDataChannel: (channel: RTCDataChannel | null) =>
+    set({ dataChannel: channel }),
+  setMediaRecorder: (recorder: MediaRecorder | undefined) =>
+    set({ mediaRecorder: recorder }),
+  setPeerConnection: (connection: RTCPeerConnection | null) =>
+    set({ peerConnection: connection }),
   getPeerConnection: () => get().peerConnection,
   toggleMute: () =>
     set((state) => {
@@ -36,6 +40,18 @@ const chatStateCreator: StateCreator<ChatState> = (set, get) => ({
         });
       }
       return { isMuted: !state.isMuted };
+    }),
+  resetMute: () =>
+    set((state) => {
+      const pc = state.peerConnection;
+      if (pc) {
+        pc.getSenders().forEach((sender) => {
+          if (sender.track?.kind === 'audio') {
+            sender.track.enabled = true;
+          }
+        });
+      }
+      return { isMuted: false };
     }),
 });
 
