@@ -155,28 +155,31 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
               <div className="grid grid-cols-1 gap-6 my-4">
                 <div className="flex items-center gap-3">
                   <a
-                    href={'https://magiceden.io/marketplace/' + nftCollectionCard.symbol}
+                    href={
+                      'https://magiceden.io/marketplace/' +
+                      nftCollectionCard.symbol
+                    }
                     target="_blank"
                   >
-                  <img
-                    src={nftCollectionCard.image || '/placeholder.png'}
-                    alt={nftCollectionCard.title || 'NFT NAME'}
-                    className="h-10 w-10 rounded-lg  bg-graydark"
+                    <img
+                      src={nftCollectionCard.image || '/placeholder.png'}
+                      alt={nftCollectionCard.title || 'NFT NAME'}
+                      className="h-10 w-10 rounded-lg  bg-graydark"
                     />
-                  
-                  <div>
-                    <h3 className="truncate text-large font-medium">
-                      {nftCollectionCard.title || 'Unknown'}
-                    </h3>
-                    <p className={`mt-1 text-small font-medium`}>
-                      {nftCollectionCard.price} ◎
-                    </p>
+
+                    <div>
+                      <h3 className="truncate text-large font-medium">
+                        {nftCollectionCard.title || 'Unknown'}
+                      </h3>
+                      <p className={`mt-1 text-small font-medium`}>
+                        ◎ {nftCollectionCard.price}
+                      </p>
+                      <p className="text-small text-bodydark2 mt-2">
+                        Listed: {nftCollectionCard.listed || 'Unknown'}
+                      </p>
                     </div>
-                    </a>
+                  </a>
                 </div>
-                <p className="text-small text-bodydark2 mt-2">
-                  Listed: {nftCollectionCard.listed || 'Unknown'}
-                </p>
               </div>
             );
 
