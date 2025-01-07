@@ -1,21 +1,15 @@
 # Contributing to Sola Application
 
-Thank you for considering contributing to the Sola Application! We welcome contributions from the community and are excited to work with you.
+Thank you for considering contributing to the Sola Application! We welcome contributions from the community.
 
 ## Table of Contents
 
-- [Code of Conduct](#code-of-conduct)
 - [Getting Started](#getting-started)
 - [Development Environment](#development-environment)
-- [Coding Standards](#coding-standards)
 - [Commit Messages](#commit-messages)
 - [Pull Request Process](#pull-request-process)
 - [Issues](#issues)
 - [License](#license)
-
-## Code of Conduct
-
-Please read and follow our [Code of Conduct](CODE_OF_CONDUCT.md) to ensure a welcoming and inclusive environment.
 
 ## Getting Started
 
@@ -40,7 +34,7 @@ Please read and follow our [Code of Conduct](CODE_OF_CONDUCT.md) to ensure a wel
 
 ## Development Environment
 
-To set up the development environment, follow these steps:
+To set up the development environment:
 
 1. Ensure you have Node.js and npm installed. We recommend using [nvm](https://github.com/nvm-sh/nvm) to manage Node.js versions.
 2. Install the required dependencies:
@@ -57,17 +51,6 @@ To set up the development environment, follow these steps:
 
 4. Open your browser and navigate to `http://localhost:3000`.
 
-## Coding Standards
-
-- Follow the [Airbnb JavaScript Style Guide](https://github.com/airbnb/javascript).
-- Use ESLint and Prettier for code formatting and linting.
-- Ensure your code passes all linting and formatting checks before committing:
-
-    ```sh
-    npm run lint
-    npm run format
-    ```
-
 ## Commit Messages
 
 - Use [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit messages.
@@ -79,7 +62,13 @@ To set up the development environment, follow these steps:
 
 ## Pull Request Process
 
-1. Ensure your fork is up to date with the main repository:
+1. Ensure your fork is up to date with the main repository. First, add the main repository as a remote named `upstream` if you haven't already:
+
+    ```sh
+    git remote add upstream https://github.com/TheSolaAI/sola-application.git
+    ```
+
+    Then, fetch and merge changes from `upstream`:
 
     ```sh
     git fetch upstream
@@ -108,4 +97,4 @@ If you find a bug or have a feature request, please open an issue on GitHub. Pro
 
 ## License
 
-By contributing to Sola Application, you agree that your contributions will be licensed under the [MIT License](LICENSE).
+By contributing to Sola Application, you agree that your contributions will be licensed under the [License](LICENSE).
