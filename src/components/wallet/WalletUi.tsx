@@ -46,17 +46,17 @@ function WalletUi({ toggleWallet, isWalletVisible }: WalletUiProps) {
   }, [appWallet]);
 
   return (
-    <div className="flex flex-col items-end gap-2 z-999999">
+    <div className="flex flex-col items-end gap-2 z-9">
       <Button
         icon={<CreditCard />}
         onClick={toggleWallet}
-        className={`w-fit z-999999 ${isWalletVisible ? 'bg-opacity-80' : ''}`}
+        className={`w-fit z-9 ${isWalletVisible ? 'bg-opacity-80' : ''}`}
       ></Button>
       {appWallet && (
         <section
           className={`
             bg-black h-72 w-64 overflow-x-hidden overflow-y-scroll  no-scrollbar rounded-xl p-4 text-white sm:w-72 md:w-80 lg:w-80
-            transition-all duration-300 ease-in-out z-999999
+            transition-all duration-300 ease-in-out z-9
             ${
               isWalletVisible
                 ? 'translate-x-0 translate-y-0 opacity-100'
@@ -65,7 +65,7 @@ function WalletUi({ toggleWallet, isWalletVisible }: WalletUiProps) {
           `}
         >
           <div
-            className="z-999999 w-full flex justify-center items-center bg-boxdark gap-2 p-2 rounded-full hover:bg-opacity-80 cursor-pointer"
+            className="z-9 w-full flex justify-center items-center bg-boxdark gap-2 p-2 rounded-full hover:bg-opacity-80 cursor-pointer"
             onClick={viewWalletInExplorer}
           >
             {appWallet.address.slice(0, 4)}...
