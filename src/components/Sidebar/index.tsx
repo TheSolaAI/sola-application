@@ -76,7 +76,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
           Sola AI
         </NavLink>
         <div className="bg-bodydark1 text-gray-2 py-2 px-4 text-sm rounded-lg">
-          ALPHA
+          CLOSED BETA
         </div>
 
         <button
@@ -257,17 +257,6 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                         }`}
                       >
                         <ul className="mb-5.5 mt-4 flex flex-col gap-2.5 pl-6">
-                          <li>
-                            <NavLink
-                              to="/settings/wallet"
-                              className={({ isActive }) =>
-                                'group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:bg-graydark ' +
-                                (isActive && 'bg-graydark dark:bg-meta-4')
-                              }
-                            >
-                              Wallet
-                            </NavLink>
-                          </li>
                           <li>
                             <NavLink
                               to="/settings/configuration"

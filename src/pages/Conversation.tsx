@@ -36,6 +36,8 @@ const Conversation = () => {
     getPeerConnection,
   } = useChatState();
 
+  
+
   const [isWalletVisible, setIsWalletVisible] = useState(false);
   const [events, setEvents] = useState<any[]>([]);
   const audioElement = useRef<HTMLAudioElement | null>(null);
@@ -458,7 +460,7 @@ const Conversation = () => {
     try {
       const data = await getLstData();
       if (!data) return errorResponse('Error fetching token data');
-      let lst_card:SanctumCard[] = data;
+      let lst_card: SanctumCard[] = data;
 
       setMessageList((prev) => [
         ...(prev || []),
@@ -474,10 +476,11 @@ const Conversation = () => {
     }
   };
 
-
   const startSession = async () => {
     try {
-      const tokenResponse = await fetch('https://sola-proxy-server-eight.vercel.app/session');
+      const tokenResponse = await fetch(
+        'https://sola-proxy-server-eight.vercel.app/session',
+      );
       const data = await tokenResponse.json();
       const EPHEMERAL_KEY = data.client_secret.value;
 
