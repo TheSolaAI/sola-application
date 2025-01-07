@@ -8,6 +8,7 @@ export type MessageCard = {
     | 'nftcards'
     | 'agent'
     | 'tokenCards'
+    | 'nftCollectionCard'
     | 'transaction'
     | 'transactions'
     | 'luloCard'
@@ -18,6 +19,7 @@ export type MessageCard = {
     | MultipleCards
     | NFTCard[]
     | TokenCard[]
+    | NFTCollectionCard
     | LuloCard
     | TransactionCard
     | SanctumCard[];
@@ -59,7 +61,6 @@ export type NFTCard = {
 
 export type NFTCollectionCard = {
   title: string;
- 
   image: string;
   price: string;
   listed:string;

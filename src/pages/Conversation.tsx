@@ -585,7 +585,7 @@ const Conversation = () => {
       ...(prev || []),
       {
         type: 'agent',
-        message: `Fetching lST Data`,
+        message: `Fetching NFT Data`,
       },
     ]);
     let nft_symbol = nft.replace(/\s+/g, '_');
@@ -596,8 +596,7 @@ const Conversation = () => {
           ...(prev || []),
           {
             type: 'message',
-            message:
-              'Oops! There has been a problem while fetching NFT data',
+            message: 'Oops! There has been a problem while fetching NFT data',
           },
         ]);
         return responseToOpenai(
@@ -607,8 +606,16 @@ const Conversation = () => {
 
       let nft_card: NFTCollectionCard = data;
 
+      setMessageList((prev) => [
+        ...(prev || []),
+        {
+          type: 'nftCollectionCard',
+          card: nft_card,
+        },
+      ]);
+
       return responseToOpenai(
-        'Successfully fetched lst data. Ask what the user wants to do next?',
+        'Successfully fetched NFT data. Ask what the user wants to do next?',
       );
     } catch (error) {
       setMessageList((prev) => [

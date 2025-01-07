@@ -9,6 +9,7 @@ import {
   TokenCard,
   LuloCard,
   SanctumCard,
+  NFTCollectionCard,
 } from '../../types/messageCard';
 
 interface Props {
@@ -148,6 +149,31 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
               </div>
             );
 
+          case 'nftCollectionCard':
+            const nftCollectionCard = item.card as NFTCollectionCard;
+            return (
+              <div className="grid grid-cols-1 gap-6 my-4">
+                <div className="flex items-center gap-3">
+                  <img
+                    src={nftCollectionCard.image || '/placeholder.png'}
+                    alt={nftCollectionCard.title || 'Token'}
+                    className="h-10 w-10 rounded-lg  bg-graydark"
+                  />
+                  <div>
+                    <h3 className="truncate text-sm font-medium">
+                      {nftCollectionCard.title || 'Unknown'}
+                    </h3>
+                    <p className={`mt-1 text-xs font-medium`}>
+                      $ {nftCollectionCard.price}
+                    </p>
+                  </div>
+                </div>
+                <p className="text-xs text-bodydark2 mt-2">
+                  Listed: $ {nftCollectionCard.listed || 'Unknown'}
+                </p>
+              </div>
+            );
+
           case 'luloCard':
             const lulo = item.card as LuloCard;
 
@@ -245,30 +271,30 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
             return (
               <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-3 gap-3 my-4">
                 {sanctumCards.map((sanctumCard, tokenIndex) => (
-              <a
-                href={sanctumCard.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group relative block rounded-xl bg-[#F5F5F5] border p-3 w-fit border-color transition-all duration-300 ease-in-out hover:bg-[#e0e0e0] hover:shadow-lg"
-              >
-                <div className="flex items-center gap-4">
-                  <img
-                    src={sanctumCard.logo_uri}
-                    alt="sanctumimage"
-                    className="h-16 rounded-sm"
-                  />
-                  <div>
-                    <p className="text-base font-medium">
-                      {sanctumCard.symbol}
-                    </p>
-                    <p className="text-sm font-small">
-                      APY : {sanctumCard.apy.toFixed(2)}%
-                    </p>
-                  </div>
-                </div>
+                  <a
+                    href={sanctumCard.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group relative block rounded-xl bg-[#F5F5F5] border p-3 w-fit border-color transition-all duration-300 ease-in-out hover:bg-[#e0e0e0] hover:shadow-lg"
+                  >
+                    <div className="flex items-center gap-4">
+                      <img
+                        src={sanctumCard.logo_uri}
+                        alt="sanctumimage"
+                        className="h-16 rounded-sm"
+                      />
+                      <div>
+                        <p className="text-base font-medium">
+                          {sanctumCard.symbol}
+                        </p>
+                        <p className="text-sm font-small">
+                          APY : {sanctumCard.apy.toFixed(2)}%
+                        </p>
+                      </div>
+                    </div>
                   </a>
                 ))}
-                </div>
+              </div>
             );
           default:
             return null;
