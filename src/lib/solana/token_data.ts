@@ -1,8 +1,7 @@
 import axios from 'axios';
 import { TokenData } from '../../types/token_data';
-import { config } from '../../config';
 
-const data_service_url = config.DATA_SERVICE_URL;
+const data_service_url = process.env.DATA_SERVICE_URL;
 
 export async function getTokenData(params: string): Promise<TokenData | null> {
   try {

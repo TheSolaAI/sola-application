@@ -17,7 +17,10 @@ import SessionControls from '../components/SessionControls';
 import WalletUi from '../components/wallet/WalletUi';
 import MessageList from '../components/ui/MessageList';
 import { tokenList } from '../store/tokens/tokenMapping';
-import { fetchMagicEdenLaunchpadCollections, fetchMagicEdenNFTPrice } from '../lib/solana/magiceden';
+import {
+  fetchMagicEdenLaunchpadCollections,
+  fetchMagicEdenNFTPrice,
+} from '../lib/solana/magiceden';
 import { AssetsParams, DepositParams, WithdrawParams } from '../types/lulo';
 import { depositLulo, getAssetsLulo, withdrawLulo } from '../lib/solana/lulo';
 import useAppState from '../store/zustand/AppState';
@@ -25,7 +28,6 @@ import useChatState from '../store/zustand/ChatState';
 import { getTokenData } from '../lib/solana/token_data';
 import { getLstData } from '../lib/solana/lst_data';
 import { responseToOpenai } from '../lib/utils/response';
-import { config } from '../config';
 
 const Conversation = () => {
   const {
@@ -47,7 +49,7 @@ const Conversation = () => {
   const { appWallet } = useAppState();
   if (!appWallet) return null;
 
-  const rpc = config.SOLANA_RPC;
+  const rpc = process.env.SOLANA_RPC;
 
   const transferSol = async (amount: number, to: string) => {
     if (!rpc)
@@ -494,9 +496,7 @@ const Conversation = () => {
     }
   };
 
-  const handleNFTPrice = async (
-  nft:string
-  ) => {
+  const handleNFTPrice = async (nft: string) => {
     setMessageList((prev) => [
       ...(prev || []),
       {
@@ -504,16 +504,15 @@ const Conversation = () => {
         message: `Fetching lST Data`,
       },
     ]);
-    let nft_symbol = nft.replace(/\s+/g, "_");
+    let nft_symbol = nft.replace(/\s+/g, '_');
     try {
-      const data = await fetchMagicEdenNFTPrice(nft,nft_symbol);
+      const data = await fetchMagicEdenNFTPrice(nft, nft_symbol);
       if (!data)
         return responseToOpenai(
           'Oops! there has been a problem while fetching nft data. try again later.',
         );
       let lst_card: NFTCollectionCard = data;
 
-      
       return responseToOpenai(
         'Successfully fetched lst data. What do you want to do next?',
       );
@@ -746,8 +745,7 @@ const Conversation = () => {
             } else if (output.name === 'getNFTLaunchpad') {
               const response = await handleLaunchpadCollections();
               sendClientEvent(response);
-            }
-            else if (output.name === "getNFTPrice") { 
+            } else if (output.name === 'getNFTPrice') {
               const { nft } = JSON.parse(output.arguments);
               let response = await handleNFTPrice(nft);
               sendClientEvent(response);

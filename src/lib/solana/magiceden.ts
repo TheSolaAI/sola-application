@@ -1,6 +1,5 @@
 import axios from 'axios';
 import { Collection } from '../../types/magicEden';
-import { config } from '../../config';
 import { NFTCollectionCard } from '../../types/messageCard';
 
 export const fetchMagicEdenLaunchpadCollections = async (
@@ -15,15 +14,13 @@ export const fetchMagicEdenLaunchpadCollections = async (
       },
     });
 
-    const currentDate = new Date(); 
+    const currentDate = new Date();
     console.log('Today', currentDate.getDate());
     console.log(response.data);
-    
+
     const futureCollections = response.data.filter((collection) => {
       const launchDate = new Date(collection.launchDatetime);
-      return (
-        currentDate <= launchDate
-      );
+      return currentDate <= launchDate;
     });
 
     console.log('Fetched Future Collections:', futureCollections);
@@ -38,41 +35,37 @@ export const fetchMagicEdenNFTPrice = async (
   nft_name: string,
   nft_symbol: string,
 ): Promise<NFTCollectionCard> => {
-  const url = config.DATA_SERVICE_URL+"data/nft/symbol"
-  const url2 = "https://api-mainnet.magiceden.io/collections/"+nft_symbol
+  const url = process.env.DATA_SERVICE_URL + 'data/nft/symbol';
+  const url2 = 'https://api-mainnet.magiceden.io/collections/' + nft_symbol;
 
   try {
-    const response = await axios.post<Collection[]>(url,
-      {
-        nft_symbol:nft_symbol,
-      }
-      
-    );
+    const response = await axios.post<Collection[]>(url, {
+      nft_symbol: nft_symbol,
+    });
     const response2 = await axios.get<Collection[]>(url2, {
       headers: {
         accept: 'application/json',
       },
     });
 
-    let data:any = response.data;
+    let data: any = response.data;
     let data2: any = response2.data;
 
-    let name = nft_name
-    let price:number = data["floor_price"]
-    let image = data2["image"]
-    let listed = data["listed_count"]
+    let name = nft_name;
+    let price: number = data['floor_price'];
+    let image = data2['image'];
+    let listed = data['listed_count'];
 
     let nft_card: NFTCollectionCard = {
       title: name,
       price: price.toFixed(2),
       image: image,
       listed: listed,
-    }
+    };
 
-    return nft_card
+    return nft_card;
   } catch (error) {
     console.error('Error fetching Magic Eden collections:', error);
     throw error;
   }
 };
-
