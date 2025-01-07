@@ -10,6 +10,7 @@ import { transferSolTx } from './functions/transferSolTx';
 import { getTokenData } from './functions/getTokenData';
 import { getLstData } from "./functions/getLstData";
 import { getNFTPrice } from './functions/getNFTPrice';
+import { getTrendingNFTs } from "./functions/getTrendingNFTs";
 export const tools = {
   type: 'session.update',
   session: {
@@ -25,6 +26,7 @@ export const tools = {
       getTokenData,
       getLstData,
       getNFTPrice,
+      getTrendingNFTs,
     ],
     tool_choice: 'auto',
   },

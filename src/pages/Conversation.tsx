@@ -9,6 +9,7 @@ import {
   TokenCard,
   SanctumCard,
   NFTCollectionCard,
+  TrendingNFTCard,
 } from '../types/messageCard';
 import { SwapParams } from '../types/swap';
 import { swapTx } from '../lib/solana/swapTx';
@@ -20,6 +21,7 @@ import { tokenList } from '../store/tokens/tokenMapping';
 import {
   fetchMagicEdenLaunchpadCollections,
   fetchMagicEdenNFTPrice,
+  fetchTrendingNFTs,
 } from '../lib/solana/magiceden';
 import { AssetsParams, DepositParams, WithdrawParams } from '../types/lulo';
 import { depositLulo, getAssetsLulo, withdrawLulo } from '../lib/solana/lulo';
@@ -633,6 +635,58 @@ const Conversation = () => {
     }
   };
 
+  const handleTrendingNFTs = async () => {
+    setMessageList((prev) => [
+      ...(prev || []),
+      {
+        type: 'agent',
+        message: `Fetching Trending NFTs`,
+      },
+    ]);
+
+    
+    try {
+      const data = await fetchTrendingNFTs();
+      if (!data) {
+        setMessageList((prev) => [
+          ...(prev || []),
+          {
+            type: 'message',
+            message: 'Oops! There has been a problem while fetching Trending NFT data',
+          },
+        ]);
+        return responseToOpenai(
+          'Tell the user that there has been a problem while fetching nft data and ask them to try later.',
+        );
+      }
+
+      let nft_card: TrendingNFTCard[] = data;
+
+      setMessageList((prev) => [
+        ...(prev || []),
+        {
+          type: 'trendingNFTCard',
+          card: nft_card,
+        },
+      ]);
+
+      return responseToOpenai(
+        'Successfully fetched NFT data. Ask what the user wants to do next?',
+      );
+    } catch (error) {
+      setMessageList((prev) => [
+        ...(prev || []),
+        {
+          type: 'message',
+          message: 'Oops! There has been a problem while fetching NFT data',
+        },
+      ]);
+      return responseToOpenai(
+        'Tell the user that there has been a problem while fetching nft data and ask them to try later.',
+      );
+    }
+  };
+
   const startSession = async () => {
     try {
       const tokenResponse = await fetch(
@@ -852,6 +906,9 @@ const Conversation = () => {
             } else if (output.name === 'getNFTPrice') {
               const { nft_name } = JSON.parse(output.arguments);
               let response = await handleNFTPrice(nft_name);
+              sendClientEvent(response);
+            } else if (output.name === 'getTrendingNFTs') {
+              let response = await handleTrendingNFTs();
               sendClientEvent(response);
             }
           }
