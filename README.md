@@ -15,32 +15,33 @@ This application provides seamless interaction between the user, OpenAI, and blo
 * **Blockchain Interactions:** Supports Solana on-chain interactions (e.g., transfer, swap).
 
 ## Architecture
+
 ![{16D54172-2C55-4994-8BA7-3B246A0B0994}](https://github.com/user-attachments/assets/f83edd23-b696-4630-a2e6-2f6bc59f6107)
 
-### Components:
+### Components
 
 1. **Sola AI Application:** Serves as the central hub for processing user input, communicating with services, and integrating AI models with blockchain interactions.
-   - Interfaces with OpenAI for natural language processing.
-   - Routes user requests to appropriate microservices.
+   * Interfaces with OpenAI for natural language processing.
+   * Routes user requests to appropriate microservices.
 
 2. **Data Service:**
-   - Micro Service providing blockchain data.
-   - Filters and structures Solana blockchain data based on user queries.
+   * Microservice providing blockchain data.
+   * Filters and structures Solana blockchain data based on user queries.
 
 3. **Wallet Service:**
-   - Helps to build pre-defined transactions and provides transaction object.
+   * Helps to build pre-defined transactions and provides transaction objects.
 
-### Workflow:
+### Workflow
 
 1. **User Input:** Sola AI receives voice or text input.
 2. **Data Fetching:** The Data Service retrieves and filters blockchain data.
 3. **Transaction Building:** The Wallet Service handles transaction construction.
-4. **Transaction Exceution:** The Transaction is executed using embedded wallet or user's custom wallet.
+4. **Transaction Execution:** The transaction is executed using an embedded wallet or the user's custom wallet.
 5. **Response:** Sola AI processes the results and responds to the user through the voice/text interface.
 
 ## Installation
 
-For installation instructions, please refer to the [INSTALL.md](INSTALL.md) file.
+For detailed installation instructions, please refer to the [INSTALL.md](INSTALL.md) file.
 
 ## Contributing
 
