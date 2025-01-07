@@ -14,7 +14,7 @@ This application provides seamless interaction between the user, OpenAI, and blo
 * **Blockchain Data Filtering:** Microservices filter and process blockchain data based on user queries.
 * **Blockchain Interactions:** Supports Solana on-chain interactions (e.g., transfer, swap).
 
-## Architecture
+## Microservice Overview
 
 ![{16D54172-2C55-4994-8BA7-3B246A0B0994}](https://github.com/user-attachments/assets/f83edd23-b696-4630-a2e6-2f6bc59f6107)
 
@@ -30,6 +30,8 @@ This application provides seamless interaction between the user, OpenAI, and blo
 
 3. **Wallet Service:**
    * Helps to build pre-defined transactions and provides transaction objects.
+
+> Refer our [Docs](https://docs.solaai.xyz/application-overview/high-level-architecture) for a better understanding of the application architecture. 
 
 ### Workflow
 
