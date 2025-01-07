@@ -39,6 +39,7 @@ const Conversation = () => {
     setMediaRecorder,
     setPeerConnection,
     getPeerConnection,
+    resetMute,
   } = useChatState();
 
   const [isWalletVisible, setIsWalletVisible] = useState(false);
@@ -723,6 +724,7 @@ const Conversation = () => {
 
     setIsSessionActive(false);
     setDataChannel(null);
+    resetMute()
   }
 
   const sendClientEvent = useCallback(
