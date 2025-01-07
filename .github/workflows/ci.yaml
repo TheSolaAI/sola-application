@@ -1,0 +1,45 @@
+name: CI/CD
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  Deploy-Dev-Server:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Node.js and npm
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-region: us-east-1
+
+        # - name: Configure AWS CLI
+        #   run: |
+        #     aws configure set default.aws_access_key_id ${{ secrets.AWS_ACCESS_KEY }}
+        #     aws configure set default.aws_secret_access_key ${{ secrets.AWS_SECRET_KEY }}
+        #     aws configure set default.region us-east-1
+        #     aws configure set default.output json
+
+      - name: Get .env from S3
+        run: aws s3 cp s3://sola-secrets/.env .env
+
+      - name: Install and build
+        run: |
+          npm install
+          npm run build
+
+      - name: Deploy to server
+        run: aws s3 sync dist/ s3://sola-frontend/ --cache-control max-age=60
