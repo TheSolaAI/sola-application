@@ -17,6 +17,7 @@ Sentry.init({
     Sentry.feedbackIntegration({
       colorScheme: 'system',
       isEmailRequired: true,
+      showBranding: false,
     }),
   ],
   // Tracing
