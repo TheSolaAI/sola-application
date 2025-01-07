@@ -1,4 +1,5 @@
 import React from 'react';
+import { TrendingNFTCard } from '../../types/messageCard';
 
 import {
   MessageCard,
@@ -305,6 +306,41 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                 ))}
               </div>
             );
+          
+          case 'trendingNFTCard':
+              const trendingNFTCard = item.card as TrendingNFTCard[];
+              return (
+                <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-2 gap-3 my-4">
+                  {trendingNFTCard.map((nftCards, tokenIndex) => (
+                    <div
+                    key={tokenIndex}
+                    className="mb-4 bg-graydark rounded-xl shadow-md"
+                  >
+                    <img
+                      src={nftCards.image}
+                      alt={nftCards.name}
+                      className="h-56 object-cover rounded-lg"
+                    />
+                    <div className="p-4">
+                      <h4 className="mb-4 text-lg font-semibold text-bodydark1">
+                        {nftCards.name}
+                      </h4>
+                      <div className="flex items-center justify-between mt-2">
+                        <p className="text-gray-700 text-sm">
+                          Price: {nftCards.floor_price} ◎
+                        </p>
+                        <p className="text-gray-700 text-sm">
+                          Listings: {nftCards.listed_count}
+                        </p>
+                        <p className="text-gray-700 text-sm">
+                          1d: {nftCards.volume_24hr.toFixed(2)} ◎
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  ))}
+                </div>
+              );
           default:
             return null;
         }

@@ -33,6 +33,11 @@ export default defineConfig(({ mode }) => {
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/api/, ''),
         },
+        '/apq': {
+          target: 'https://api-mainnet.magiceden.io',
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/apq/, ''),
+        },
       },
     },
   };

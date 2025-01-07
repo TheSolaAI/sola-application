@@ -1,7 +1,7 @@
 import { TokenBalance } from './lulo';
 
 export type MessageCard = {
-  type:
+    type:
     | 'message'
     | 'card'
     | 'cards'
@@ -12,7 +12,8 @@ export type MessageCard = {
     | 'transaction'
     | 'transactions'
     | 'luloCard'
-    | 'sanctumCard';
+    | 'sanctumCard'
+    | 'trendingNFTCard';
   message?: string;
   card?:
     | SingleCard
@@ -22,7 +23,8 @@ export type MessageCard = {
     | NFTCollectionCard
     | LuloCard
     | TransactionCard
-    | SanctumCard[];
+    | SanctumCard[]
+    | TrendingNFTCard[];
   link?: string;
 };
 
@@ -57,6 +59,16 @@ export type NFTCard = {
   price: string;
   size: string;
   date: string;
+};
+
+export type TrendingNFTCard = {
+  
+  name: string;
+  floor_price: number;
+  listed_count: number;
+  volume_all: number;
+  image: string;
+  volume_24hr:number
 };
 
 export type NFTCollectionCard = {
