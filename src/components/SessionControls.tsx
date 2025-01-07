@@ -1,6 +1,7 @@
 import React, { useState, ChangeEvent, KeyboardEvent } from 'react';
-import { Mic, CloudOff, Send } from 'react-feather';
+import { Mic , Send, MicOff, XCircle } from 'react-feather';
 import Button from './Button';
+import useChatState from '../store/zustand/ChatState';
 
 interface SessionStoppedProps {
   startSession: () => void;
@@ -18,7 +19,10 @@ const SessionStopped: React.FC<SessionStoppedProps> = ({ startSession }) => {
 
   return (
     <div className="flex items-center justify-center w-full h-full">
-      <Button onClick={handleStartSession} icon={<Mic height={16} />}>
+      <Button
+        onClick={handleStartSession}
+        icon={<Mic height={16} />}
+      >
         {isActivating ? 'Connecting...' : 'Start Conversation'}
       </Button>
     </div>
@@ -35,16 +39,17 @@ const SessionActive: React.FC<SessionActiveProps> = ({
   sendTextMessage,
 }) => {
   const [message, setMessage] = useState('');
+  const { isMuted, toggleMute } = useChatState();
 
   const handleSendClientEvent = () => {
-    sendTextMessage(message);
-    setMessage('');
+    if (message.trim()) {
+      sendTextMessage(message);
+      setMessage('');
+    }
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && message.trim()) {
-      handleSendClientEvent();
-    }
+    if (e.key === 'Enter') handleSendClientEvent();
   };
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -54,27 +59,31 @@ const SessionActive: React.FC<SessionActiveProps> = ({
   return (
     <div className="flex items-center justify-center w-full h-full gap-4">
       <input
-        onKeyDown={handleKeyDown}
         type="text"
-        placeholder="send a text message..."
+        placeholder="Send a text message..."
         className="border border-[#E7E7E7] bg-graydark rounded-2xl p-4 min-w-full flex"
         value={message}
+        onKeyDown={handleKeyDown}
         onChange={handleChange}
       />
       <Button
-        onClick={() => {
-          if (message.trim()) {
-            handleSendClientEvent();
-          }
-        }}
+        onClick={handleSendClientEvent}
         icon={<Send height={16} />}
         className="rounded-full p-4 w-16 h-16"
-      ></Button>
+        aria-label="Send Message"
+      />
+      <Button
+        onClick={toggleMute}
+        icon={isMuted ? <MicOff height={16} /> : <Mic height={16} />}
+        className="rounded-full p-4 w-16 h-16"
+        aria-label={isMuted ? 'Unmute Microphone' : 'Mute Microphone'}
+      />
       <Button
         onClick={stopSession}
-        icon={<CloudOff height={16} />}
+        icon={<XCircle height={16} />}
         className="rounded-full p-4 w-16 h-16"
-      ></Button>
+        aria-label="End Session"
+      />
     </div>
   );
 };
@@ -91,19 +100,17 @@ const SessionControls: React.FC<SessionControlsProps> = ({
   stopSession,
   sendTextMessage,
   isSessionActive,
-}) => {
-  return (
-    <div className="flex gap-4 h-full rounded-md">
-      {isSessionActive ? (
-        <SessionActive
-          stopSession={stopSession}
-          sendTextMessage={sendTextMessage}
-        />
-      ) : (
-        <SessionStopped startSession={startSession} />
-      )}
-    </div>
-  );
-};
+}) => (
+  <div className="flex gap-4 h-full rounded-md">
+    {isSessionActive ? (
+      <SessionActive
+        stopSession={stopSession}
+        sendTextMessage={sendTextMessage}
+      />
+    ) : (
+      <SessionStopped startSession={startSession} />
+    )}
+  </div>
+);
 
 export default SessionControls;
