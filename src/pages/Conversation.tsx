@@ -706,7 +706,6 @@ const Conversation = () => {
     const pc = getPeerConnection();
 
     if (dataChannel) {
-      console.log('Stopping session');
       dataChannel.close();
     }
     if (pc) {
