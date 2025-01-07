@@ -1,6 +1,4 @@
-import { config } from '../../config';
-
-const helius_api_key = config.HELIUS_API_KEY;
+const helius_api_key = process.env.HELIUS_API_KEY;
 const url = `https://mainnet.helius-rpc.com/?api-key=${helius_api_key}`;
 
 export const fetchFilteredAssets = async (
@@ -11,7 +9,7 @@ export const fetchFilteredAssets = async (
     console.log('No address provided');
     return [];
   }
-  if (!config.HELIUS_API_KEY) {
+  if (!process.env.HELIUS_API_KEY) {
     console.log('Helius API key not found');
     return [];
   }

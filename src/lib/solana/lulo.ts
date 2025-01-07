@@ -9,9 +9,8 @@ import {
   WithdrawTransaction,
 } from '../../types/lulo';
 import { VersionedTransaction } from '@solana/web3.js';
-import { config } from '../../config';
 
-const wallet_service_url = config.WALLET_SERVICE_URL;
+const wallet_service_url = process.env.WALLET_SERVICE_URL;
 
 export async function getAssetsLulo(
   params: AssetsParams,
