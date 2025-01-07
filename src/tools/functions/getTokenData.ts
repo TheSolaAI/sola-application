@@ -14,7 +14,6 @@ export const getTokenData = {
         description: 'the contract address of a token'
       },
     },
-    required: ['token_address'],
   },
 };
 

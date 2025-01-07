@@ -404,26 +404,34 @@ const Conversation = () => {
     ]);
     try {
       const data = await getTokenData(tokenMint);
-      if (!data) return responseToOpenai('There has been a problem with fetching token data. Try again later.');
-      let token_card: TokenCard[] = [
-        {
-          address: tokenMint,
-          image: data.image,
-          metadata: data.metadata,
-          price: data.price.toString(),
-          marketCap: data.marketcap.toString(),
-        },
-      ];
-
-      setMessageList((prev) => [
-        ...(prev || []),
-        {
-          type: 'tokenCards',
-          card: token_card,
-        },
-      ]);
-      return responseToOpenai('Ask if the user needed anything else.');
+      
+      if (data?.image) {
+        
+        let token_card: TokenCard[] = [
+          {
+            address: tokenMint,
+            image: data.image,
+            metadata: data.metadata,
+            price: data.price.toString(),
+            marketCap: data.marketcap.toString(),
+          },
+        ];
+  
+        setMessageList((prev) => [
+          ...(prev || []),
+          {
+            type: 'tokenCards',
+            card: token_card,
+          },
+        ]);
+        return responseToOpenai('Token data has been fetched .Ask if the user needed anything else.');
+      }
+      else {
+        
+        return responseToOpenai('There has been a problem with fetching token data. Try again later.');
+      }
     } catch (error) {
+      
       return responseToOpenai('There has been a problem with fetching token data. Try again later.');
     }
   };

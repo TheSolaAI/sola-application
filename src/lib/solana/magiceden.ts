@@ -4,12 +4,13 @@ import { Collection } from '../../types/magicEden';
 export const fetchMagicEdenLaunchpadCollections = async (
   limit: number = 100,
 ): Promise<Collection[]> => {
-  const url = `/api/v2/launchpad/collections?limit=${limit}`;
+  const url = `https://api-mainnet.magiceden.dev/v2/launchpad/collections?limit=10`;
 
   try {
     const response = await axios.get<Collection[]>(url, {
       headers: {
-        accept: 'application/json',
+        "accept": 'application/json',
+        "Access-Control-Allow-Origin": '*',
       },
     });
 
@@ -25,6 +26,7 @@ export const fetchMagicEdenLaunchpadCollections = async (
     });
 
     console.log('Fetched Future Collections:', futureCollections);
+    
     return futureCollections;
   } catch (error) {
     console.error('Error fetching Magic Eden collections:', error);
