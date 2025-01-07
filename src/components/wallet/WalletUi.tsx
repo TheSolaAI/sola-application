@@ -36,7 +36,7 @@ function WalletUi({ toggleWallet, isWalletVisible }: WalletUiProps) {
   } = useSWR<Asset[]>(
     ownerAddress ? ['getAssetsByOwner', ownerAddress] : null,
     () => fetchFilteredAssets('getAssetsByOwner', ownerAddress),
-    { refreshInterval: 10000 },
+    { refreshInterval: 5000 },
   );
 
   useEffect(() => {
