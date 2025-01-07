@@ -60,6 +60,7 @@ export type NFTCard = {
 };
 
 export type NFTCollectionCard = {
+  symbol: string;
   title: string;
   image: string;
   price: string;

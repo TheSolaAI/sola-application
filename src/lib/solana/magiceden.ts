@@ -53,10 +53,12 @@ export const fetchMagicEdenNFTPrice = async (
 
     let name = nft_name;
     let price: number = data['floor_price'];
-    let image = data2['image'];
+    let image = data2["image"]
     let listed = data['listed_count'];
+    let symbol = nft_symbol
 
     let nft_card: NFTCollectionCard = {
+      symbol: symbol,
       title: name,
       price: price.toFixed(2),
       image: image,
