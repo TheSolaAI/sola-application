@@ -10,7 +10,7 @@ import {
 } from '../../types/lulo';
 import { VersionedTransaction } from '@solana/web3.js';
 
-const wallet_service_url = process.env.WALLET_SERVICE_URL;
+const wallet_service_url = import.meta.env.WALLET_SERVICE_URL;
 
 export async function getAssetsLulo(
   params: AssetsParams,
