@@ -14,7 +14,7 @@ export default defineConfig(({ mode }) => {
       react(),
       nodePolyfills(),
       sentryVitePlugin({
-        authToken: process.env.VITE_SENTRY_AUTH_TOKEN,
+        authToken: process.env.SENTRY_AUTH_TOKEN,
         org: 'solaai',
         project: 'sola-application-frontend',
       }),

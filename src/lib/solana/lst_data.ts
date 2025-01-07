@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { LSTData } from '../../types/data_types';
 
-const data_service_url = process.env.DATA_SERVICE_URL;
+const data_service_url = import.meta.env.DATA_SERVICE_URL;
 
 export async function getLstData(): Promise<LSTData[] | null> {
   try {

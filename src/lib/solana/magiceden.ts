@@ -35,7 +35,7 @@ export const fetchMagicEdenNFTPrice = async (
   nft_name: string,
   nft_symbol: string,
 ): Promise<NFTCollectionCard> => {
-  const url = process.env.DATA_SERVICE_URL + 'data/nft/symbol';
+  const url = import.meta.env.DATA_SERVICE_URL + 'data/nft/symbol';
   const url2 = 'https://api-mainnet.magiceden.io/collections/' + nft_symbol;
 
   try {
