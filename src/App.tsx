@@ -11,8 +11,6 @@ import WalletManagement from './pages/WalletManagement';
 import useAppState from './store/zustand/AppState';
 import Settings from './pages/Settings';
 
-
-
 function App() {
   const { authenticated } = usePrivy();
   const { createWallet, wallets } = useSolanaWallets();
