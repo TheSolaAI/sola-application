@@ -161,11 +161,12 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                       nftCollectionCard.symbol
                     }
                     target="_blank"
+                    className='flex gap-4'
                   >
                     <img
                       src={nftCollectionCard.image || '/placeholder.png'}
                       alt={nftCollectionCard.title || 'NFT NAME'}
-                      className="h-10 w-10 rounded-lg  bg-graydark"
+                      className="h-22 w-22 rounded-lg  bg-graydark"
                     />
 
                     <div>
