@@ -699,7 +699,6 @@ const Conversation = () => {
       },
     ]);
 
-    
     try {
       const data = await fetchTrendingNFTs();
       if (!data) {
@@ -707,7 +706,8 @@ const Conversation = () => {
           ...(prev || []),
           {
             type: 'message',
-            message: 'Oops! There has been a problem while fetching Trending NFT data',
+            message:
+              'Oops! There has been a problem while fetching Trending NFT data',
           },
         ]);
         return responseToOpenai(
@@ -833,12 +833,12 @@ const Conversation = () => {
 
     setIsSessionActive(false);
     setDataChannel(null);
-    resetMute()
+    resetMute();
   }
 
   const sendClientEvent = useCallback(
     (message: any) => {
-      if (dataChannel) {
+      if (dataChannel && dataChannel.readyState === 'open') {
         message.event_id = message.event_id || crypto.randomUUID();
         dataChannel.send(JSON.stringify(message));
         console.log('Message sent using datachannel:', message);
@@ -879,17 +879,25 @@ const Conversation = () => {
     setIsWalletVisible(!isWalletVisible);
   }
 
+
+  // WebRTC datachannel handling for message, open, close, error events.
   useEffect(() => {
     if (dataChannel) {
-      // Append new server events to the list
       dataChannel.addEventListener('message', (e) => {
         setEvents((prev) => [JSON.parse(e.data), ...prev]);
       });
 
-      // Set session active when the data channel is opened
       dataChannel.addEventListener('open', () => {
         setIsSessionActive(true);
         setEvents([]);
+      });
+
+      dataChannel.addEventListener('close', () => {
+        setIsSessionActive(false);
+      });
+
+      dataChannel.addEventListener('error', (error) => {
+        console.error('Data channel error:', error);
       });
     }
   }, [dataChannel]);
