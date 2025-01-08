@@ -30,6 +30,7 @@ import useChatState from '../store/zustand/ChatState';
 import { getTokenData, getTokenDataSymbol } from '../lib/solana/token_data';
 import { getLstData } from '../lib/solana/lst_data';
 import { responseToOpenai } from '../lib/utils/response';
+import { useWalletStore } from '../store/zustand/WalletState';
 
 const Conversation = () => {
   const {
@@ -43,11 +44,13 @@ const Conversation = () => {
     getPeerConnection,
     resetMute,
   } = useChatState();
-
+  const {getAssetById} = useWalletStore()
+  
   const [isWalletVisible, setIsWalletVisible] = useState(false);
   const [events, setEvents] = useState<any[]>([]);
   const audioElement = useRef<HTMLAudioElement | null>(null);
   const [messageList, setMessageList] = useState<MessageCard[]>();
+
 
   const { appWallet } = useAppState();
   if (!appWallet) return null;
@@ -68,48 +71,65 @@ const Conversation = () => {
       },
     ]);
 
-    const connection = new Connection(rpc);
-    let balance = await connection.getBalance(new PublicKey(appWallet.address));
-    if (balance / LAMPORTS_PER_SOL - 0.01 < amount) {
+    try {
+      const connection = new Connection(rpc);
+      let balance = await connection.getBalance(
+        new PublicKey(appWallet.address),
+      );
+      if (balance / LAMPORTS_PER_SOL - 0.01 < amount) {
+        setMessageList((prev) => [
+          ...(prev || []),
+          {
+            type: 'message',
+            message:
+              'Insufficient balance. Please maintain 0.01 balance minimum',
+          },
+        ]);
+        return responseToOpenai(
+          'Tell the user they have Insufficient balance.',
+        );
+      }
+
+      const transaction = await transferSolTx(
+        appWallet.address,
+        to,
+        amount * LAMPORTS_PER_SOL,
+      );
+      const { blockhash, lastValidBlockHeight } =
+        await connection.getLatestBlockhash();
+      transaction.recentBlockhash = blockhash;
+      const signedTransaction = await appWallet.signTransaction(transaction);
+      const signature = await connection.sendRawTransaction(
+        signedTransaction.serialize(),
+      );
+
+      //TODO: add dynamic status and handle failed transactions
+      setMessageList((prev) => [
+        ...(prev || []),
+        {
+          type: 'transaction',
+          card: {
+            title: 'Transaction',
+            status: 'Pending',
+            link: `https://solscan.io/tx/${signature}`,
+          },
+        },
+      ]);
+
+      return responseToOpenai(
+        'Transaction is successful. ask what the user wants to do next.',
+      );
+    } catch (error) {
       setMessageList((prev) => [
         ...(prev || []),
         {
           type: 'message',
-          message: 'Insufficient balance. Please maintain 0.01 balance minimum',
+          message: 'There occured a problem with performing transaction',
         },
       ]);
-      return responseToOpenai('Tell the user they have Insufficient balance.');
+      console.error('error during sending transaction', error);
+      return responseToOpenai('just tell the user that there has been a problem with making transaction.');
     }
-
-    const transaction = await transferSolTx(
-      appWallet.address,
-      to,
-      amount * LAMPORTS_PER_SOL,
-    );
-    const { blockhash, lastValidBlockHeight } =
-      await connection.getLatestBlockhash();
-    transaction.recentBlockhash = blockhash;
-    const signedTransaction = await appWallet.signTransaction(transaction);
-    const signature = await connection.sendRawTransaction(
-      signedTransaction.serialize(),
-    );
-
-    //TODO: add dynamic status and handle failed transactions
-    setMessageList((prev) => [
-      ...(prev || []),
-      {
-        type: 'transaction',
-        card: {
-          title: 'Transaction',
-          status: 'Pending',
-          link: `https://solscan.io/tx/${signature}`,
-        },
-      },
-    ]);
-
-    return responseToOpenai(
-      'Transaction is successful. ask what the user wants to do next.',
-    );
 
     // console.log(
     //   await connection.confirmTransaction({
@@ -129,6 +149,7 @@ const Conversation = () => {
       return responseToOpenai(
         'ask the user to contact admin as the rpc is not attached.',
       );
+
     if (!tokenList[tokenA] || !tokenList[tokenB]) {
       setMessageList((prev) => [
         ...(prev || []),
@@ -141,9 +162,7 @@ const Conversation = () => {
       return responseToOpenai(
         'tell the user that , We dont support one of the token.',
       );
-    }
-
-    if (tokenA === tokenB) {
+    } else if (tokenA === tokenB) {
       setMessageList((prev) => [
         ...(prev || []),
         {
@@ -154,6 +173,19 @@ const Conversation = () => {
       return responseToOpenai(
         'tell the user that they are trying to swap same token and ask them to select different token.',
       );
+    }
+
+    const amount = quantity * 10 ** tokenList[tokenA].DECIMALS;
+    const tokenAAsset = getAssetById(tokenList[tokenA].MINT)
+    if (!tokenAAsset || tokenAAsset.balance < amount) {
+      setMessageList((prev) => [
+        ...(prev || []),
+        {
+          type: 'message',
+          message: 'You dont have enough balance',
+        },
+      ]);
+      return responseToOpenai('tell the user that they dont have enough balance and ask them to fund');
     }
 
     setMessageList((prev) => [
@@ -182,7 +214,7 @@ const Conversation = () => {
         },
       ]);
       return responseToOpenai(
-        'tell the user that Swap failed and ask them to try later after some time.',
+        'just tell the user that Swap failed and ask them to try later after some time.',
       );
     }
     const signedTransaction = await appWallet.signTransaction(transaction);
@@ -878,7 +910,6 @@ const Conversation = () => {
   function toggleWallet() {
     setIsWalletVisible(!isWalletVisible);
   }
-
 
   // WebRTC datachannel handling for message, open, close, error events.
   useEffect(() => {

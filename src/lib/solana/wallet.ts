@@ -39,6 +39,7 @@ export const fetchFilteredAssets = async (
 
   const nativeSolToken = {
     imageLink: '/Solana_logo.png',
+    id: 'So11111111111111111111111111111111111111112',
     symbol: 'SOL',
     balance: result.nativeBalance.lamports,
     decimals: 9,
@@ -56,6 +57,7 @@ export const fetchFilteredAssets = async (
         content: {
           metadata: { symbol },
         },
+        id,
         token_info: {
           balance,
           decimals,
@@ -65,6 +67,7 @@ export const fetchFilteredAssets = async (
 
       return {
         imageLink: image,
+        id,
         symbol,
         balance,
         decimals,
