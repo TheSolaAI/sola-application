@@ -33,9 +33,22 @@ export async function getTokenDataSymbol(params: string): Promise<TokenData | nu
         },
       },
     );
-    const token_data: TokenData = response.data;
-    return token_data;
-  } catch (error) {
+    const token_data = response.data;
+    const token_card: TokenData = {
+      image: token_data.image,
+      marketcap: token_data.marketcap,
+      metadata: {
+        name: token_data.name,
+        symbol: token_data.symbol,
+        description: token_data.token_address,
+        token_standard: token_data.url
+      },
+      price: token_data.price,
+    }
+      return token_card;
+    }
+    
+  catch (error) {
     console.error('Error fetching assets:', error);
     return null;
   }

@@ -27,7 +27,7 @@ import { AssetsParams, DepositParams, WithdrawParams } from '../types/lulo';
 import { depositLulo, getAssetsLulo, withdrawLulo } from '../lib/solana/lulo';
 import useAppState from '../store/zustand/AppState';
 import useChatState from '../store/zustand/ChatState';
-import { getTokenData } from '../lib/solana/token_data';
+import { getTokenData, getTokenDataSymbol } from '../lib/solana/token_data';
 import { getLstData } from '../lib/solana/lst_data';
 import { responseToOpenai } from '../lib/utils/response';
 
@@ -534,6 +534,61 @@ const Conversation = () => {
     }
   };
 
+  const handleTokenDataSymbol = async (tokenSymbol: string) => {
+    setMessageList((prev) => [
+      ...(prev || []),
+      {
+        type: 'agent',
+        message: `Fetching ${tokenSymbol} data`,
+      },
+    ]);
+    try {
+      const data = await getTokenDataSymbol(tokenSymbol);
+      if (!data) {
+        setMessageList((prev) => [
+          ...(prev || []),
+          {
+            type: 'message',
+            message: 'Oops! there has been a problem in fetching token data',
+          },
+        ]);
+        return responseToOpenai(
+          'tell the user that there has been a problem with fetching token data and ask them to try later.',
+        );
+      }
+
+      let token_card: TokenCard[] = [
+        {
+          address: data.metadata.description,
+          image: data.image,
+          metadata: data.metadata,
+          price: data.price.toString(),
+          marketCap: data.marketcap.toString(),
+        },
+      ];
+
+      setMessageList((prev) => [
+        ...(prev || []),
+        {
+          type: 'tokenCards',
+          card: token_card,
+        },
+      ]);
+      return responseToOpenai('Ask if the user needed anything else.');
+    } catch (error) {
+      setMessageList((prev) => [
+        ...(prev || []),
+        {
+          type: 'message',
+          message: 'Oops! Encountered a problem while fetching token data.',
+        },
+      ]);
+      return responseToOpenai(
+        'tell the user that there has been a problem with fetching token data and ask them to try later.',
+      );
+    }
+  };
+
   const handleLSTData = async () => {
     setMessageList((prev) => [
       ...(prev || []),
@@ -909,6 +964,10 @@ const Conversation = () => {
               sendClientEvent(response);
             } else if (output.name === 'getTrendingNFTs') {
               let response = await handleTrendingNFTs();
+              sendClientEvent(response);
+            } else if (output.name === 'getTokenDataSymbol') {
+              const { symbol } = JSON.parse(output.arguments);
+              let response = await handleTokenDataSymbol(symbol);
               sendClientEvent(response);
             }
           }
