@@ -4,19 +4,12 @@ import { useState, useEffect } from 'react';
 import useSWR from 'swr';
 import Button from '../Button';
 import useAppState from '../../store/zustand/AppState';
+import { Asset } from '../../types/walletBalance';
+import { useWalletStore } from '../../store/zustand/WalletState';
 
 interface WalletUiProps {
   toggleWallet: () => void;
   isWalletVisible: boolean;
-}
-
-interface Asset {
-  imageLink: string;
-  symbol: string;
-  balance: number;
-  decimals: number;
-  pricePerToken?: number;
-  totalPrice?: number;
 }
 
 function WalletUi({ toggleWallet, isWalletVisible }: WalletUiProps) {
@@ -38,6 +31,14 @@ function WalletUi({ toggleWallet, isWalletVisible }: WalletUiProps) {
     () => fetchFilteredAssets('getAssetsByOwner', ownerAddress),
     { refreshInterval: 5000 },
   );
+
+  const setAssets = useWalletStore((state) => state.setAssets)
+
+  useEffect(() => {
+    if (assets.length > 0) {
+      setAssets(assets);
+    }
+  }, [assets]);
 
   useEffect(() => {
     if (appWallet) {
