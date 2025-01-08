@@ -31,6 +31,7 @@ import { getTokenData, getTokenDataSymbol } from '../lib/solana/token_data';
 import { getLstData } from '../lib/solana/lst_data';
 import { responseToOpenai } from '../lib/utils/response';
 import { useWalletStore } from '../store/zustand/WalletState';
+import { Loader } from 'react-feather';
 
 const Conversation = () => {
   const {
@@ -44,13 +45,13 @@ const Conversation = () => {
     getPeerConnection,
     resetMute,
   } = useChatState();
-  const {getAssetById} = useWalletStore()
-  
+  const { getAssetById } = useWalletStore();
+
   const [isWalletVisible, setIsWalletVisible] = useState(false);
   const [events, setEvents] = useState<any[]>([]);
   const audioElement = useRef<HTMLAudioElement | null>(null);
   const [messageList, setMessageList] = useState<MessageCard[]>();
-
+  const [isLoaded, setIsLoaded] = useState<boolean>(true);
 
   const { appWallet } = useAppState();
   if (!appWallet) return null;
@@ -128,7 +129,9 @@ const Conversation = () => {
         },
       ]);
       console.error('error during sending transaction', error);
-      return responseToOpenai('just tell the user that there has been a problem with making transaction.');
+      return responseToOpenai(
+        'just tell the user that there has been a problem with making transaction.',
+      );
     }
 
     // console.log(
@@ -176,7 +179,7 @@ const Conversation = () => {
     }
 
     const amount = quantity * 10 ** tokenList[tokenA].DECIMALS;
-    const tokenAAsset = getAssetById(tokenList[tokenA].MINT)
+    const tokenAAsset = getAssetById(tokenList[tokenA].MINT);
     if (!tokenAAsset || tokenAAsset.balance < amount) {
       setMessageList((prev) => [
         ...(prev || []),
@@ -185,7 +188,9 @@ const Conversation = () => {
           message: 'You dont have enough balance',
         },
       ]);
-      return responseToOpenai('tell the user that they dont have enough balance and ask them to fund');
+      return responseToOpenai(
+        'tell the user that they dont have enough balance and ask them to fund',
+      );
     }
 
     setMessageList((prev) => [
@@ -911,6 +916,12 @@ const Conversation = () => {
     setIsWalletVisible(!isWalletVisible);
   }
 
+  useEffect(() => {
+    if (appWallet && audioElement.current && messageList) {
+      setIsLoaded(true);
+    }
+  }, [appWallet, audioElement, messageList]);
+
   // WebRTC datachannel handling for message, open, close, error events.
   useEffect(() => {
     if (dataChannel) {
@@ -1017,7 +1028,7 @@ const Conversation = () => {
     handleEvents();
   }, [events, sendClientEvent]);
 
-  return (
+  return isLoaded ? (
     <>
       <main className="h-screen flex flex-col relative">
         {/* Start of wallet */}
@@ -1069,6 +1080,8 @@ const Conversation = () => {
         </div>
       </section>
     </>
+  ) : (
+    <Loader />
   );
 };
 
