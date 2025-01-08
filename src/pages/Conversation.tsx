@@ -552,6 +552,7 @@ const Conversation = () => {
             message: 'Oops! there has been a problem in fetching token data',
           },
         ]);
+        console.log("error has been triggered")
         return responseToOpenai(
           'tell the user that there has been a problem with fetching token data and ask them to try later.',
         );
@@ -574,7 +575,7 @@ const Conversation = () => {
           card: token_card,
         },
       ]);
-      return responseToOpenai('Ask if the user needed anything else.');
+      responseToOpenai('The token data has been fetched');
     } catch (error) {
       setMessageList((prev) => [
         ...(prev || []),
@@ -583,6 +584,7 @@ const Conversation = () => {
           message: 'Oops! Encountered a problem while fetching token data.',
         },
       ]);
+      console.log('error has been triggered');
       return responseToOpenai(
         'tell the user that there has been a problem with fetching token data and ask them to try later.',
       );
@@ -968,6 +970,7 @@ const Conversation = () => {
             } else if (output.name === 'getTokenDataSymbol') {
               const { symbol } = JSON.parse(output.arguments);
               let response = await handleTokenDataSymbol(symbol);
+              console.log(response);
               sendClientEvent(response);
             }
           }

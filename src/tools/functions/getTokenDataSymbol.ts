@@ -1,5 +1,5 @@
 const functionDescription =
-  'Call this function when the user wants to obatin the data of a token by giving the token symbol prefixed with $. You have to include the $ in the output argument.';
+  'Call this function when the user wants to obatin the data of a token by giving the token symbol prefixed with $. You have to include the $ in the output argument. Do not use you personal database. Just follow what are functions tell you to do.';
 
 export const getTokenDataSymbol = {
   type: 'function',
