@@ -40,7 +40,7 @@ function App() {
         await createWallet();
         console.log('A wallet has been created.');
       } catch (error) {
-        console.error('Error creating wallet:', error);
+        console.log('Wallet already created:', error);
       } finally {
         setLoading(false);
       }
