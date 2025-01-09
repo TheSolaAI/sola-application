@@ -2,7 +2,6 @@ import { useFundWallet } from '@privy-io/react-auth/solana';
 import useAppState from '../store/zustand/AppState';
 import { Button, Input } from '@headlessui/react';
 import { useState } from 'react';
-import { CreditCard } from 'react-feather';
 
 const OnRamp = () => {
   const { fundWallet } = useFundWallet();
