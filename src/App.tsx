@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { Route, Routes, useLocation } from 'react-router-dom';
 import { usePrivy } from '@privy-io/react-auth';
 import { useSolanaWallets } from '@privy-io/react-auth/solana';
@@ -52,66 +52,26 @@ function App() {
     }
   }, [authenticated]);
 
-  const AuthenticatedRoutes = () => (
+  const AuthenticatedRoutes = useMemo(() => (
     <DefaultLayout>
       <Routes>
-        <Route
-          path="/"
-          element={
-            <>
-              <PageTitle title="Home" />
-              <Conversaction />
-            </>
-          }
-        />
-        <Route
-          path="/home"
-          element={
-            <>
-              <PageTitle title="Home" />
-              <Conversaction />
-            </>
-          }
-        />
-        <Route
-          path="/settings/configuration"
-          element={
-            <>
-              <PageTitle title="Settings" />
-              <Settings />
-            </>
-          }
-        />
-        <Route
-          path="/wallet"
-          element={
-            <>
-              <PageTitle title="Wallet Management" />
-              <WalletManagement />
-            </>
-          }
-        />
-        <Route
-          path="/onramp"
-          element={
-            <>
-              <PageTitle title="On Ramp" />
-              <OnRamp />
-            </>
-          }
-        />
+        <Route path="/" element={<><PageTitle title="Home" /><Conversaction /></>} />
+        <Route path="/home" element={<><PageTitle title="Home" /><Conversaction /></>} />
+        <Route path="/settings/configuration" element={<><PageTitle title="Settings" /><Settings /></>} />
+        <Route path="/wallet" element={<><PageTitle title="Wallet Management" /><WalletManagement /></>} />
+        <Route path="/onramp" element={<><PageTitle title="On Ramp" /><OnRamp /></>} />
       </Routes>
     </DefaultLayout>
-  );
+  ), []); 
 
-  const UnauthenticatedRoutes = () => <Onbording />;
+  const UnauthenticatedRoutes = useMemo(() => <Onbording />, []); 
 
   return loading ? (
     <Loader />
   ) : authenticated ? (
-    <AuthenticatedRoutes />
+    AuthenticatedRoutes
   ) : (
-    <UnauthenticatedRoutes />
+    UnauthenticatedRoutes
   );
 }
 
