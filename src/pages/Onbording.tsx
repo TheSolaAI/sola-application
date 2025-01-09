@@ -27,7 +27,7 @@ function Onbording() {
                 </radialGradient>
               </defs>
             </svg>
-            <div className="mx-auto max-w-md text-center lg:mx-0 lg:flex-auto lg:py-32 lg:text-left">
+            <div className="mx-auto my-8 max-w-md text-center lg:mx-0 lg:flex-auto lg:py-28 lg:text-left">
               <h2 className="text-3xl font-semibold tracking-tight text-balance text-white sm:text-4xl">
                 Welcome to Sola AI. Voice assistant on Solana.
               </h2>

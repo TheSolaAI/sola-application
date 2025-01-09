@@ -10,6 +10,7 @@ import Onbording from './pages/Onbording';
 import WalletManagement from './pages/WalletManagement';
 import useAppState from './store/zustand/AppState';
 import Settings from './pages/Settings';
+import OnRamp from './pages/OnRamp';
 
 function App() {
   const { authenticated } = usePrivy();
@@ -87,6 +88,15 @@ function App() {
             <>
               <PageTitle title="Wallet Management" />
               <WalletManagement />
+            </>
+          }
+        />
+        <Route
+          path="/onramp"
+          element={
+            <>
+              <PageTitle title="On Ramp" />
+              <OnRamp />
             </>
           }
         />
