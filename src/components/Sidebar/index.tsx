@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import SidebarLinkGroup from './SidebarLinkGroup';
 import { usePrivy } from '@privy-io/react-auth';
-import { Users, MoreVertical } from 'react-feather';
+import { Users, MoreVertical, DollarSign } from 'react-feather';
 import useChatState from '../../store/zustand/ChatState';
 
 interface SidebarProps {
@@ -193,6 +193,20 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 </NavLink>
               </li>
               {/* <!-- Menu Item Wallet --> */}
+
+              {/* <!-- Menu OnRamp --> */}
+              <li>
+                <NavLink
+                  to="/onramp"
+                  className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${
+                    pathname.includes('onramp') && 'bg-graydark dark:bg-meta-4'
+                  }`}
+                >
+                  <DollarSign />
+                  On Ramp
+                </NavLink>
+              </li>
+              {/* <!-- Menu Menu OnRamp --> */}
             </ul>
           </div>
 

@@ -49,6 +49,12 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
                 connectors: solanaConnectors,
               },
             },
+            fundingMethodConfig: {
+              moonpay: {
+                paymentMethod: 'credit_debit_card',
+                uiConfig: {accentColor: '#1D1D1F', theme: 'dark'},
+              }
+            }
           }}
         >
           <App />
