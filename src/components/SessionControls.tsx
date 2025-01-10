@@ -1,7 +1,7 @@
 import React, { useState, ChangeEvent, KeyboardEvent } from 'react';
-import { Mic , Send, MicOff, XCircle } from 'react-feather';
-import Button from './Button';
+import { Mic, Send, MicOff, XCircle } from 'react-feather';
 import useChatState from '../store/zustand/ChatState';
+import { Button } from '@headlessui/react';
 
 interface SessionStoppedProps {
   startSession: () => void;
@@ -21,8 +21,9 @@ const SessionStopped: React.FC<SessionStoppedProps> = ({ startSession }) => {
     <div className="flex items-center justify-center w-full h-full">
       <Button
         onClick={handleStartSession}
-        icon={<Mic height={16} />}
+        className="flex gap-2 items-center bg-bodydark1 py-4 px-6 rounded-full text-base text-graydark"
       >
+        <Mic height={16} />{' '}
         {isActivating ? 'Connecting...' : 'Start Conversation'}
       </Button>
     </div>
@@ -68,22 +69,23 @@ const SessionActive: React.FC<SessionActiveProps> = ({
       />
       <Button
         onClick={handleSendClientEvent}
-        icon={<Send height={16} />}
-        className="rounded-full p-4 w-16 h-16"
-        aria-label="Send Message"
-      />
+        className="rounded-3xl p-4 w-16 h-16 bg-body text-graydark"
+      >
+        <Send height={16} />
+      </Button>
       <Button
         onClick={toggleMute}
-        icon={isMuted ? <MicOff height={16} /> : <Mic height={16} />}
-        className="rounded-full p-4 w-16 h-16"
-        aria-label={isMuted ? 'Unmute Microphone' : 'Mute Microphone'}
-      />
+        className="rounded-3xl p-4 w-20 h-16 bg-body text-graydark"
+      >
+        {isMuted ? <MicOff height={16} /> : <Mic height={16} />}
+      </Button>
+
       <Button
         onClick={stopSession}
-        icon={<XCircle height={16} />}
-        className="rounded-full p-4 w-16 h-16"
-        aria-label="End Session"
-      />
+        className="rounded-3xl p-4 w-16 h-16 bg-body text-graydark"
+      >
+        <XCircle height={16} />
+      </Button>
     </div>
   );
 };

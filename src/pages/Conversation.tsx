@@ -1065,7 +1065,7 @@ const Conversation = () => {
 
         {/* Start of Message display Section */}
         {messageList && (
-          <section className="flex-grow flex justify-center items-start overflow-y-auto pb-20">
+          <section className="flex-grow flex justify-center items-start overflow-y-auto pb-20 no-scrollbar">
             <MessageList messageList={messageList} />
           </section>
         )}

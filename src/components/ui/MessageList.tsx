@@ -19,7 +19,7 @@ interface Props {
 
 const MessageList: React.FC<Props> = ({ messageList }) => {
   return (
-    <div className="p-4 rounded-lg text-bodydark1 w-3/5 ">
+    <div className="p-4 rounded-lg text-bodydark1 w-3/5 no-scrollbar">
       {messageList.map((item, index) => {
         switch (item.type) {
           case 'message':
