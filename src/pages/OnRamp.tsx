@@ -63,16 +63,6 @@ const OnRamp = () => {
           <img src={'./card.svg'} className="h-52" />
         </div>
         <div>
-          <div className="mb-4">
-            <Input
-              id="amount"
-              type="text"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              className="shadow appearance-none rounded w-full py-2 px-3 leading-tight"
-              placeholder="Enter amount"
-            />
-          </div>
           <Button
             onClick={handleFundWallet}
             disabled={isLoading}
