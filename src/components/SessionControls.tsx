@@ -57,7 +57,7 @@ const SessionActive: React.FC<SessionActiveProps> = ({
   };
 
   return (
-    <div className="flex items-center justify-center w-full h-full gap-4">
+    <div className="flex items-center justify-center w-full h-full gap-4 animate-in fade-in-0 duration-300">
       <input
         type="text"
         placeholder="Send a text message..."
@@ -101,7 +101,7 @@ const SessionControls: React.FC<SessionControlsProps> = ({
   sendTextMessage,
   isSessionActive,
 }) => (
-  <div className="flex gap-4 h-full rounded-md">
+  <div className="flex gap-4 h-full rounded-md ">
     {isSessionActive ? (
       <SessionActive
         stopSession={stopSession}
