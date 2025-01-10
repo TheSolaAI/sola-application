@@ -59,7 +59,7 @@ function WalletUi({ toggleWallet, isWalletVisible }: WalletUiProps) {
         <section
           className={`
             bg-body h-72 w-64 overflow-x-hidden overflow-y-scroll no-scrollbar rounded-xl p-4 text-white sm:w-72 md:w-80 lg:w-80
-            animate-in slide-in-from-top-3 duration-500 z-9
+            z-9
             ${
               isWalletVisible
                 ? 'translate-x-0 translate-y-0 opacity-100'

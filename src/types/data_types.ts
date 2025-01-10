@@ -15,6 +15,7 @@ export type LSTData = {
     symbol: string,
     url: string,
     apy: number,
+    address:string
 }
 
 
