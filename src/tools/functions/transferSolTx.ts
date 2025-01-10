@@ -1,5 +1,5 @@
 const functionDescription =
-  'Call this function when the user wants to send SOLANA or SOL.';
+  'Call this function when the user wants to send SOLANA or SOL using address or .sol domain. the .sol domains are random and doesnt need to make sense in meaining, so dont autocorrect anything from .sol domains.';
 
 export const transferSolTx = {
   type: 'function',
@@ -15,7 +15,7 @@ export const transferSolTx = {
             },
             address: {
                 type: 'string',
-                description: 'Recipient address.',
+                description: 'Recipient address or his .sol domain.',
             },
         },
         required: ['quantity', 'address'],

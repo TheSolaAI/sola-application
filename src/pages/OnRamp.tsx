@@ -1,6 +1,6 @@
 import { useFundWallet } from '@privy-io/react-auth/solana';
 import useAppState from '../store/zustand/AppState';
-import { Button, Input } from '@headlessui/react';
+import { Button} from '@headlessui/react';
 import { useState } from 'react';
 
 const OnRamp = () => {
@@ -8,7 +8,6 @@ const OnRamp = () => {
   const { appWallet } = useAppState();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [amount, setAmount] = useState<string>('');
 
   const handleFundWallet = async () => {
     if (!appWallet?.address) {
@@ -17,21 +16,21 @@ const OnRamp = () => {
       return;
     }
 
-    if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
-      setError('Please enter a valid amount greater than 0.');
-      return;
-    }
+    
 
     setIsLoading(true);
     setError(null);
 
     try {
       await fundWallet(appWallet.address, {
+        
         card: {
           preferredProvider: 'moonpay',
         },
-        amount: amount,
+        amount: ""
+        
       });
+      console.log('Funding wallet...');
     } catch (err: any) {
       console.error('Error funding wallet:', err);
       setError(err?.message || 'An error occurred funding the wallet.');
