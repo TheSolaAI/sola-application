@@ -19,14 +19,14 @@ interface Props {
 
 const MessageList: React.FC<Props> = ({ messageList }) => {
   return (
-    <div className="p-4 rounded-lg text-bodydark1 w-3/5">
+    <div className="p-4 rounded-lg text-bodydark1 w-3/5 ">
       {messageList.map((item, index) => {
         switch (item.type) {
           case 'message':
             return (
               <div
                 key={index}
-                className="mb-4 bg-[#F5F5F5] p-3 rounded-lg text-bodydark1 leading-relaxed overflow-auto no-scrollbar animate-in fade-in-0 duration-300"
+                className="mb-4 bg-[#F5F5F5] p-3 rounded-lg text-bodydark1 leading-relaxed overflow-auto no-scrollbar transition-opacity duration-500 opacity-100 transform"
               >
                 {item.message}
                 {item.link && (
@@ -42,7 +42,7 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
             return (
               <div
                 key={index}
-                className="flex items-center justify-between mb-4 p-4 bg-[#F5F5F5] border rounded-lg animate-in fade-in-0 duration-300"
+                className="flex items-center justify-between mb-4 p-4 bg-[#F5F5F5] border rounded-lg"
               >
                 <div>
                   <h4 className="text-lg font-semibold">
@@ -68,7 +68,7 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
             return (
               <div
                 key={index}
-                className="mb-4 bg-[#F5F5F5] border rounded-lg p-4 shadow-md overflow-auto no-scrollbar animate-in fade-in-0 duration-300"
+                className="mb-4 bg-[#F5F5F5] border rounded-lg p-4 shadow-md overflow-auto no-scrollbar transition-opacity duration-500 opacity-100 transform"
               >
                 <h4 className="mb-2 text-lg font-semibold text-bodydark1">
                   {singleCard.title}
@@ -85,7 +85,7 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
             return (
               <div
                 key={index}
-                className="grid grid-cols-2 gap-4 mb-4 overflow-auto no-scrollbar animate-in fade-in-0 duration-300"
+                className="grid grid-cols-2 gap-4 mb-4 overflow-auto no-scrollbar transition-opacity duration-500 opacity-100 transform"
               >
                 {multipleCards.map((subCard, subIndex) => (
                   <div
@@ -100,10 +100,7 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
 
           case 'agent':
             return (
-              <div
-                key={index}
-                className="mb-4 flex items-center gap-3 animate-in fade-in-0 duration-300"
-              >
+              <div key={index} className="mb-4 flex items-center gap-3">
                 <span className="w-2 h-2 bg-green-500 rounded-full" />
                 <span className="text-bodydark2">{item.message}</span>
               </div>
@@ -112,7 +109,7 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
           case 'tokenCards':
             const tokens = item.card as TokenCard[];
             return (
-              <div className="grid grid-cols-1 gap-6 my-4 animate-in fade-in-0 duration-300">
+              <div className="grid grid-cols-1 gap-6 my-4">
                 {tokens.map((token, tokenIndex) => (
                   <a
                     key={tokenIndex}
@@ -156,7 +153,7 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
           case 'nftCollectionCard':
             const nftCollectionCard = item.card as NFTCollectionCard;
             return (
-              <div className="grid grid-cols-1 gap-6 my-4 animate-in fade-in-0 duration-300">
+              <div className="grid grid-cols-1 gap-6 my-4">
                 <div className="flex items-center gap-3">
                   <a
                     href={
@@ -164,7 +161,7 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                       nftCollectionCard.symbol
                     }
                     target="_blank"
-                    className="flex gap-4"
+                    className='flex gap-4'
                   >
                     <img
                       src={nftCollectionCard.image || '/placeholder.png'}
@@ -195,7 +192,7 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
 
             return (
               <>
-                <div className="mb-4 bg-[#F5F5F5] flex flex-row gap-4 p-3 rounded-lg leading-relaxed overflow-auto no-scrollbar animate-in fade-in-0 duration-300">
+                <div className="mb-4 bg-[#F5F5F5] flex flex-row gap-4 p-3 rounded-lg leading-relaxed overflow-auto no-scrollbar transition-opacity duration-500 opacity-100 transform">
                   <img
                     src="/lulo.png"
                     alt="luloimage"
@@ -213,14 +210,14 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                     </p>
                   </div>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-4 my-4 ">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-4 my-4">
                   {tokenBalance.map((token, tokenIndex) => (
                     <a
                       key={tokenIndex}
                       href={`https://dexscreener.com/solana/${token.mint}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="group relative w-full overflow-hidden block rounded-xl bg-[#F5F5F5] border p-3 animate-in fade-in-0 duration-300"
+                      className="group relative w-full overflow-hidden block rounded-xl bg-[#F5F5F5] border p-3"
                     >
                       <div className="flex items-center gap-3">
                         <img
@@ -251,7 +248,7 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
             return (
               <div
                 key={index}
-                className="mb-4 bg-graydark rounded-xl shadow-md overflow-hidden animate-in fade-in-0 duration-300"
+                className="mb-4 bg-graydark rounded-xl shadow-md overflow-hidden"
               >
                 <img
                   src={nftCards.image}
@@ -310,15 +307,15 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                 ))}
               </div>
             );
-
+          
           case 'trendingNFTCard':
-            const trendingNFTCard = item.card as TrendingNFTCard[];
-            return (
-              <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-2 gap-3 my-4 ">
-                {trendingNFTCard.map((nftCards, tokenIndex) => (
-                  <div
+              const trendingNFTCard = item.card as TrendingNFTCard[];
+              return (
+                <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-2 gap-3 my-4">
+                  {trendingNFTCard.map((nftCards, tokenIndex) => (
+                    <div
                     key={tokenIndex}
-                    className="mb-4 bg-graydark rounded-xl shadow-md animate-in fade-in-0 duration-300"
+                    className="mb-4 bg-graydark rounded-xl shadow-md"
                   >
                     <img
                       src={nftCards.image}
@@ -342,9 +339,9 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                       </div>
                     </div>
                   </div>
-                ))}
-              </div>
-            );
+                  ))}
+                </div>
+              );
           default:
             return null;
         }
