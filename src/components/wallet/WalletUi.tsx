@@ -2,10 +2,10 @@ import { CreditCard, ExternalLink } from 'react-feather';
 import { fetchFilteredAssets } from '../../lib/solana/wallet';
 import { useState, useEffect } from 'react';
 import useSWR from 'swr';
-import Button from '../Button';
 import useAppState from '../../store/zustand/AppState';
 import { Asset } from '../../types/walletBalance';
 import { useWalletStore } from '../../store/zustand/WalletState';
+import { Button } from '@headlessui/react';
 
 interface WalletUiProps {
   toggleWallet: () => void;
@@ -32,7 +32,7 @@ function WalletUi({ toggleWallet, isWalletVisible }: WalletUiProps) {
     { refreshInterval: 5000 },
   );
 
-  const setAssets = useWalletStore((state) => state.setAssets)
+  const setAssets = useWalletStore((state) => state.setAssets);
 
   useEffect(() => {
     if (assets.length > 0) {
@@ -49,15 +49,17 @@ function WalletUi({ toggleWallet, isWalletVisible }: WalletUiProps) {
   return (
     <div className="flex flex-col items-end gap-2 z-9">
       <Button
-        icon={<CreditCard />}
         onClick={toggleWallet}
-        className={`w-fit z-9 ${isWalletVisible ? 'bg-opacity-80' : ''}`}
-      ></Button>
+        className={`w-fit z-9 text-graydark bg-body px-8 py-4 rounded-2xl ${isWalletVisible ? 'bg-opacity-80' : ''}`}
+      >
+        {' '}
+        <CreditCard />{' '}
+      </Button>
       {appWallet && (
         <section
           className={`
-            bg-black h-72 w-64 overflow-x-hidden overflow-y-scroll  no-scrollbar rounded-xl p-4 text-white sm:w-72 md:w-80 lg:w-80
-            transition-all duration-300 ease-in-out z-9
+            bg-body h-72 w-64 overflow-x-hidden overflow-y-scroll no-scrollbar rounded-xl p-4 text-white sm:w-72 md:w-80 lg:w-80
+            animate-in slide-in-from-top-3 duration-500 z-9
             ${
               isWalletVisible
                 ? 'translate-x-0 translate-y-0 opacity-100'
@@ -66,7 +68,7 @@ function WalletUi({ toggleWallet, isWalletVisible }: WalletUiProps) {
           `}
         >
           <div
-            className="z-9 w-full flex justify-center items-center bg-boxdark gap-2 p-2 rounded-full hover:bg-opacity-80 cursor-pointer"
+            className="z-9 w-full flex justify-center items-center bg-strokedark gap-2 p-2 rounded-xl hover:bg-opacity-80 cursor-pointer"
             onClick={viewWalletInExplorer}
           >
             {appWallet.address.slice(0, 4)}...
