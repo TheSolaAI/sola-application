@@ -32,7 +32,7 @@ import { getLstData } from '../lib/solana/lst_data';
 import { responseToOpenai } from '../lib/utils/response';
 import { useWalletStore } from '../store/zustand/WalletState';
 import { Loader } from 'react-feather';
-import { getPublicKeyFromSolDomain} from '../lib/solana/sns'
+import { getPublicKeyFromSolDomain } from '../lib/solana/sns';
 
 const Conversation = () => {
   const {
@@ -66,8 +66,8 @@ const Conversation = () => {
       );
     const LAMPORTS_PER_SOL = 10 ** 9;
     let recipient = to;
-    if (to.endsWith('.sol')) { 
-      recipient = await getPublicKeyFromSolDomain(to)
+    if (to.endsWith('.sol')) {
+      recipient = await getPublicKeyFromSolDomain(to);
     }
     setMessageList((prev) => [
       ...(prev || []),
@@ -476,7 +476,7 @@ const Conversation = () => {
         'The transaction is sent . ask what the user wants to do next',
       );
     } catch (error) {
-      console.error('error while performing the swap, ',error)
+      console.error('error while performing the swap, ', error);
       return responseToOpenai(
         'Just tell the user that Swap failed and ask them to try later after some time',
       );
@@ -624,7 +624,9 @@ const Conversation = () => {
           card: token_card,
         },
       ]);
-      return responseToOpenai('tell the user that the token data is fetched successfully');
+      return responseToOpenai(
+        'tell the user that the token data is fetched successfully',
+      );
     } catch (error) {
       setMessageList((prev) => [
         ...(prev || []),
@@ -775,9 +777,7 @@ const Conversation = () => {
         },
       ]);
 
-      return responseToOpenai(
-        'tell the user NFT data is fetched',
-      );
+      return responseToOpenai('tell the user NFT data is fetched');
     } catch (error) {
       setMessageList((prev) => [
         ...(prev || []),
@@ -1036,7 +1036,7 @@ const Conversation = () => {
 
   return isLoaded ? (
     <>
-      <main className="h-screen flex flex-col relative">
+      <main className="h-screen flex flex-col relative animate-in fade-in-0 duration-500">
         {/* Start of wallet */}
         <section className="absolute right-0 p-4">
           <WalletUi
@@ -1048,17 +1048,19 @@ const Conversation = () => {
 
         {/* Start of Visualizer Section */}
         <section
-          className={`flex items-center justify-center ${
+          className={`flex items-center justify-center animate-in fade-in-0 duration-75 ${
             messageList ? 'h-1/4' : 'h-1/2'
           }`}
         >
-          {mediaRecorder && (
+          {mediaRecorder ? (
             <LiveAudioVisualizer
               barColor="#1D1D1F"
               mediaRecorder={mediaRecorder}
               width={400}
               height={200}
             />
+          ) : (
+            <div className=" font-satoshi font-bold text-title-xxl text-boxdark">What can I do for you?</div>
           )}
         </section>
         {/* End of Visualizer Section */}
@@ -1075,7 +1077,7 @@ const Conversation = () => {
 
         {/* End of Session Controls Section */}
       </main>
-      <section className="relative flex justify-center items-end w-full  bg-black">
+      <section className="relative flex justify-center items-end w-full  bg-black animate-in fade-in-0 duration-500">
         <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 p-4 flex justify-center bg-white w-full">
           <SessionControls
             startSession={startSession}
