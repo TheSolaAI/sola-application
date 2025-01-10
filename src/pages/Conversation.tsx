@@ -32,6 +32,7 @@ import { getLstData } from '../lib/solana/lst_data';
 import { responseToOpenai } from '../lib/utils/response';
 import { useWalletStore } from '../store/zustand/WalletState';
 import { Loader } from 'react-feather';
+import { getPublicKeyFromSolDomain} from '../lib/solana/sns'
 
 const Conversation = () => {
   const {
@@ -64,6 +65,10 @@ const Conversation = () => {
         'Ask the user to contact admin as the rpc is not attached',
       );
     const LAMPORTS_PER_SOL = 10 ** 9;
+    let recipient = to;
+    if (to.endsWith('.sol')) { 
+      recipient = await getPublicKeyFromSolDomain(to)
+    }
     setMessageList((prev) => [
       ...(prev || []),
       {
@@ -93,7 +98,7 @@ const Conversation = () => {
 
       const transaction = await transferSolTx(
         appWallet.address,
-        to,
+        recipient,
         amount * LAMPORTS_PER_SOL,
       );
       const { blockhash, lastValidBlockHeight } =
@@ -404,7 +409,7 @@ const Conversation = () => {
                 ...(prev || []),
                 {
                   type: 'agent',
-                  message: `Lulo total must be greater than 100. Withdrawing all aseets`,
+                  message: `Lulo total must be greater than 100. Withdrawing ${Math.ceil(withdrawAmount)} ${token}`,
                 },
               ]);
             }
@@ -454,7 +459,7 @@ const Conversation = () => {
 
         // TODO: Handle dynamic status
         let txCard: TransactionCard = {
-          title: `Withdraw ${amount} ${token}`,
+          title: `Withdraw ${withdrawAmount} ${token}`,
           status: 'Sent transaction',
           link: `https://solscan.io/tx/${signature}`,
         };
