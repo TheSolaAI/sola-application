@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { LiveAudioVisualizer } from 'react-audio-visualize';
-import { Connection, PublicKey } from '@solana/web3.js';
+import { Connection, LAMPORTS_PER_SOL, PublicKey } from '@solana/web3.js';
 import { transferSolTx } from '../lib/solana/transferSol';
 import {
   MessageCard,
@@ -35,6 +35,8 @@ import { Loader } from 'react-feather';
 import { getPublicKeyFromSolDomain } from '../lib/solana/sns'
 import { swapLST } from '../lib/solana/swapLst';
 import { fetchLSTAddress } from '../lib/utils/lst_reader';
+import { getAssociatedTokenAddress } from '@solana/spl-token';
+import { transferSplTx } from '../lib/solana/transferSpl';
 
 const Conversation = () => {
   const {
@@ -150,10 +152,113 @@ const Conversation = () => {
     // );
   };
 
+  const transferSpl = async (amount: number,token:'SOLA' | 'USDC' |'BONK'|"USDT"|"JUP", to: string) => {
+    if (!rpc)
+      return responseToOpenai(
+        'Ask the user to contact admin as the rpc is not attached',
+      );
+    
+    let recipient = to;
+    if (to.endsWith('.sol')) {
+      recipient = await getPublicKeyFromSolDomain(to)
+    }
+    setMessageList((prev) => [
+      ...(prev || []),
+      {
+        type: 'agent',
+        message: `Agent is transferring ${amount} ${token} to ${to}`,
+      },
+    ]);
+    let token_mint = tokenList[token].MINT
+    try {
+      const connection = new Connection(rpc);
+      
+      
+      // if (balance < amount) {
+      //   setMessageList((prev) => [
+      //     ...(prev || []),
+      //     {
+      //       type: 'message',
+      //       message:
+      //         'Insufficient balance',
+      //     },
+      //   ]);
+      //   return responseToOpenai(
+      //     'tell the user that they dont have enough balance and ask them to fund their account',
+      //   );
+      // }
+
+      const transaction = await transferSplTx(
+        appWallet.address,
+        recipient,
+        amount,
+        token_mint,
+      );
+      const { blockhash, lastValidBlockHeight } =
+        await connection.getLatestBlockhash();
+      if (!transaction) {
+        console.log(transaction)
+        setMessageList((prev) => [
+          ...(prev || []),
+          {
+            type: 'message',
+            message: 'There occured a problem with performing transaction',
+          },
+        ])
+        return responseToOpenai(
+          'tell the user that there has been a problem with making transaction and try again later',
+        );
+      }
+
+      transaction.recentBlockhash = blockhash;
+      const signedTransaction = await appWallet.signTransaction(transaction);
+      const signature = await connection.sendRawTransaction(
+        signedTransaction.serialize(),
+      );
+
+      //TODO: add dynamic status and handle failed transactions
+      setMessageList((prev) => [
+        ...(prev || []),
+        {
+          type: 'transaction',
+          card: {
+            title: 'Transaction',
+            status: 'Pending',
+            link: `https://solscan.io/tx/${signature}`,
+          },
+        },
+      ]);
+
+      return responseToOpenai(
+        'Transaction is successful. ask what the user wants to do next',
+      );
+    } catch (error) {
+      setMessageList((prev) => [
+        ...(prev || []),
+        {
+          type: 'message',
+          message: `There occured a problem with performing transaction ${error}`,
+        },
+      ]);
+      console.error('error during sending transaction', error);
+      return responseToOpenai(
+        'tell the user that there has been a problem with making transaction and try again later',
+      );
+    }
+
+    // console.log(
+    //   await connection.confirmTransaction({
+    //     blockhash,
+    //     lastValidBlockHeight,
+    //     signature,
+    //   }),
+    // );
+  };
+
   const handleSwap = async (
     quantity: number,
-    tokenA: 'SOL' | 'SEND' | 'USDC',
-    tokenB: 'SOL' | 'SEND' | 'USDC',
+    tokenA: 'SOL' | 'SOLA' | 'USDC' |'BONK'|"USDT"|"JUP",
+    tokenB: 'SOL' | 'SOLA' | 'USDC' |'BONK'|"USDT"|"JUP",
   ) => {
     if (!rpc)
       return responseToOpenai(
@@ -1114,11 +1219,15 @@ const Conversation = () => {
               let response = await handleTokenDataSymbol(symbol);
               sendClientEvent(response);
             } else if (output.name === 'swapLST') {
-              const { quantity,lst } = JSON.parse(output.arguments);
-              let response = await handleLstSwaps(quantity,lst);
+              const { quantity, lst } = JSON.parse(output.arguments);
+              let response = await handleLstSwaps(quantity, lst);
               sendClientEvent(response);
             } else if (output.name === 'test') {
               let response = await test();
+            } else if (output.name === 'transferSpl') {
+              const { amount,token,address } = JSON.parse(output.arguments);
+              let response = await transferSpl(amount, token, address);
+              sendClientEvent(response);
             }
           }
         }

@@ -13,6 +13,7 @@ export default defineConfig(({ mode }) => {
       'process.env.SOLANA_RPC': JSON.stringify(env.SOLANA_RPC),
       'process.env.WALLET_SERVICE_URL': JSON.stringify(env.WALLET_SERVICE_URL),
       'process.env.DATA_SERVICE_URL': JSON.stringify(env.DATA_SERVICE_URL),
+      'process.env.ATA_PRIV_KEY': JSON.stringify(env.ATA_PRIV_KEY),
     },
     build: {
       sourcemap: true,

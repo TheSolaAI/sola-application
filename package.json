@@ -17,8 +17,10 @@
     "@privy-io/react-auth": "^1.98.4",
     "@sentry/react": "^8.47.0",
     "@sentry/vite-plugin": "^2.22.7",
+    "@solana/spl-token": "^0.4.9",
     "@solana/web3.js": "^1.98.0",
     "axios": "^1.7.9",
+    "bs58": "^4.0.1",
     "dotenv": "^16.4.7",
     "react": "^18.2.0",
     "react-apexcharts": "^1.4.1",
@@ -36,6 +38,7 @@
     "zustand": "^5.0.2"
   },
   "devDependencies": {
+    "@types/bs58": "^4.0.4",
     "@types/node": "^22.10.5",
     "@types/react": "^18.2.17",
     "@types/react-dom": "^18.2.7",

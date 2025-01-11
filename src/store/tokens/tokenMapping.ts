@@ -23,4 +23,12 @@ export const tokenList = {
     MINT: 'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB',
     DECIMALS: 6,
   },
+  SOLA: {
+    MINT: "B5UsiUYcTD3PcQa8r2uXcVgRmDL8jUYuXPiYjrY7pump",
+    DECIMALS: 6,
+  },
+  BONK: {
+    MINT: "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263",
+    DECIMALS:6
+  }
 };
