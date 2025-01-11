@@ -16,7 +16,7 @@
     "@microsoft/clarity": "^1.0.0",
     "@privy-io/react-auth": "^1.98.4",
     "@sentry/react": "^8.47.0",
-    "@sentry/vite-plugin": "^2.22.7",
+    "@sentry/vite-plugin": "^2.23.0",
     "@solana/spl-token": "^0.4.9",
     "@solana/web3.js": "^1.98.0",
     "axios": "^1.7.9",
