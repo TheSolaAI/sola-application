@@ -13,6 +13,7 @@ import { getTrendingNFTs } from './functions/getTrendingNFTs';
 import { getTokenDataSymbol } from './functions/getTokenDataSymbol';
 import { swapLST } from './functions/swapLSTfromClick';
 import { test } from './functions/test';
+import { transferSpl } from './functions/transferSpl';
 
 const instructions = `
 You are a personalized Solana blockchain assistant named Sola AI.
@@ -43,6 +44,7 @@ export const tools = {
       getTrendingNFTs,
       getTokenDataSymbol,
       swapLST,
+      transferSpl,
       test
     ],
     tool_choice: 'auto',

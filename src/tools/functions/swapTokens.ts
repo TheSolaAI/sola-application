@@ -16,12 +16,12 @@ export const swapTokens = {
       tokenA: {
         type: 'string',
         //TODO: Use a mapping instead of this.
-        enum: ['SOL', 'SEND', 'USDC', 'JUP',"USDS"],
+        enum: ['SOLANA', 'SOLA', 'USDC', 'JUP',"USDT","BONK"],
         description: 'The token that the user wants to swap.',
       },
       tokenB: {
         type: 'string',
-        enum: ['SOL', 'SEND', 'USDC', 'JUP',"USDS"],
+        enum: ['SOLANA', 'SOLA', 'USDC', 'JUP', 'USDT', 'BONK'],
         description: 'The token that the user want to receive.',
       },
     },
