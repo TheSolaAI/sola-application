@@ -165,7 +165,7 @@ const Conversation = () => {
       const decimal = item.decimals;
       const name = item.symbol
       const amount = balance / 10 ** decimal;
-      asset_details += `${name}:${amount.toFixed(2)}\n`;
+      asset_details += `${name}\:${amount.toFixed(2)} `;
       }
     );
     
