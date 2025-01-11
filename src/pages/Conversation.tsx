@@ -480,21 +480,33 @@ const Conversation = () => {
       let { blockhash, lastValidBlockHeight } =
         await connection.getLatestBlockhash();
       tx.message.recentBlockhash = blockhash;
+      let txCard: TransactionCard = {
+        title: `1}`,
+        status: '1',
+        link: `1`,
+      };
+      try {
+        const signedTransaction = await appWallet.signTransaction(
+          transaction_array[transaction],
+        );
+        const signature = await connection.sendRawTransaction(
+          signedTransaction.serialize(),
 
-      const signedTransaction = await appWallet.signTransaction(
-        transaction_array[transaction],
-      );
+        );
+        txCard = {
+          title: `Deposit ${amount} ${token}`,
+          status: 'Transaction Sent',
+          link: `https://solscan.io/tx/${signature}`,
+        };
+      }
+      catch (error:any) { 
+        error.getLogs()
+      }
 
-      const signature = await connection.sendRawTransaction(
-        signedTransaction.serialize(),
-      );
+      
 
       // TODO: Handle dynamic status
-      let txCard: TransactionCard = {
-        title: `Deposit ${amount} ${token}`,
-        status: 'Transaction Sent',
-        link: `https://solscan.io/tx/${signature}`,
-      };
+      
 
       setMessageList((prev) => [
         ...(prev || []),
