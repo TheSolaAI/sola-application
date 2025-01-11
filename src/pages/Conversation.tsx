@@ -56,6 +56,7 @@ const Conversation = () => {
   const [events, setEvents] = useState<any[]>([]);
   const audioElement = useRef<HTMLAudioElement | null>(null);
   const [messageList, setMessageList] = useState<MessageCard[]>();
+  const [fetchedToken, setFetchedToken] = useState<string>('');
   const [isLoaded, setIsLoaded] = useState<boolean>(true);
 
   const { appWallet } = useAppState();
@@ -692,6 +693,12 @@ const Conversation = () => {
   };
 
   const handleTokenDataSymbol = async (tokenSymbol: string) => {
+    if (fetchedToken == tokenSymbol) {
+      return responseToOpenai('I have already fetch the data. tell them to input the address of the token.Ask if the user needed anything else.');
+    }
+    else { 
+      setFetchedToken(tokenSymbol);
+    }
     setMessageList((prev) => [
       ...(prev || []),
       {
