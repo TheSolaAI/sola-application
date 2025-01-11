@@ -31,7 +31,10 @@ interface Props {
 
 const MessageList: React.FC<Props> = ({ messageList }) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [sanctumAddress,setSanctumAddress] = useState<string>("")
   const [sanctumAmount, setSanctumAmount] = useState<string>('0');
+  const [sanctumSymbol, setSanctumSymbol] = useState<string>("")
+  const [sanctumApy,setSanctumApy] = useState<number>(0)
   const [link, setSolscanLink] = useState<string>('');
   let { appWallet } = useAppState()
 
@@ -39,7 +42,11 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
   function closeModal() {
     setIsOpen(false);
   }
-  function openModal() {
+  function openModal(symbol:any,address:any,apy:any) {
+    
+    setSanctumAddress(address)
+    setSanctumSymbol(symbol);
+    setSanctumApy(apy);
     setIsOpen(true);
   }
   async function invokeSwap(
@@ -349,15 +356,17 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
 
           case 'sanctumCard':
             const sanctumCards = item.card as SanctumCard[];
+            console.log(sanctumCards)
             return (
               <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-3 gap-3 my-4">
-                {sanctumCards.map((sanctumCard) => (
-                  <>
+                {sanctumCards.map((sanctumCard,index) => (
+                  
                     <div
-                      onClick={openModal}
+                      key={sanctumCard.symbol || index}
+                    onClick={() => { openModal(sanctumCard.symbol, sanctumCard.address,sanctumCard.apy) }}
                       className="group relative w-full overflow-hidden block rounded-xl bg-[#F5F5F5] border p-3 w-fit border-color transition-all duration-300 ease-in-out hover:bg-[#e0e0e0] hover:shadow-lg"
                     >
-                    
+                      
                     <div className="flex items-center gap-4">
                       <img
                         src={sanctumCard.logo_uri}
@@ -373,7 +382,7 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                         </p>
                         </div>
                         </div>
-                    </div>
+                    
                     <Transition appear show={isOpen} as={Fragment}>
                       <Dialog
                         as="div"
@@ -389,7 +398,7 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                         leaveFrom="opacity-100"
                         leaveTo="opacity-0"
                       >
-                        <div className="fixed inset-0 bg-black bg-opacity-25" />
+                        <div className="fixed inset-0 bg-black bg-opacity-15" />
                       </TransitionChild>
 
                       <div className="fixed inset-0 overflow-y-auto">
@@ -410,7 +419,7 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                                 as="h3"
                                 className="text-lg w-full font-medium flex items-center justify-between text-gray-900"
                               >
-                                <div>{ sanctumCard.symbol} Swap Details</div>
+                                <div>{ sanctumSymbol} Swap Details</div>
                                   <button
                                     type="button"
                                     className="inline-flex justify-center rounder-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
@@ -421,7 +430,7 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                               </DialogTitle>
                               <div className="mt-2">
                                 <p className="text-sm text-gray-500">
-                                    APY: {sanctumCard.apy.toFixed(2)}% <br />
+                                    APY: {sanctumApy.toFixed(2)}% <br />
                                     {link &&
                                       <a
                                         href={link}
@@ -445,7 +454,7 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                               <div className="mt-4">
                                 <button
                                   className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-                                    onClick={() => { invokeSwap(sanctumAmount, sanctumCard.address, appWallet) }} 
+                                    onClick={() => { invokeSwap(sanctumAmount, sanctumAddress, appWallet) }} 
                                 >
                                   Swap
                                 </button>
@@ -458,7 +467,7 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                         </Dialog>
                     </Transition>
 
-                    </>
+                    </div>
                 ))}
                   </div >
                   
