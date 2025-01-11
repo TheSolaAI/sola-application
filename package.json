@@ -31,6 +31,8 @@
     "swr": "^2.3.0",
     "tailwindcss-animate": "^1.0.7",
     "three": "^0.172.0",
+    "toml": "^3.0.0",
+    "toml-json": "^1.1.4",
     "zustand": "^5.0.2"
   },
   "devDependencies": {

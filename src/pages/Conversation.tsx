@@ -32,7 +32,9 @@ import { getLstData } from '../lib/solana/lst_data';
 import { responseToOpenai } from '../lib/utils/response';
 import { useWalletStore } from '../store/zustand/WalletState';
 import { Loader } from 'react-feather';
-import { getPublicKeyFromSolDomain} from '../lib/solana/sns'
+import { getPublicKeyFromSolDomain } from '../lib/solana/sns'
+import { swapLST } from '../lib/solana/swapLst';
+import { fetchLSTAddress } from '../lib/utils/lst_reader';
 
 const Conversation = () => {
   const {
@@ -66,7 +68,7 @@ const Conversation = () => {
       );
     const LAMPORTS_PER_SOL = 10 ** 9;
     let recipient = to;
-    if (to.endsWith('.sol')) { 
+    if (to.endsWith('.sol')) {
       recipient = await getPublicKeyFromSolDomain(to)
     }
     setMessageList((prev) => [
@@ -476,7 +478,7 @@ const Conversation = () => {
         'The transaction is sent . ask what the user wants to do next',
       );
     } catch (error) {
-      console.error('error while performing the swap, ',error)
+      console.error('error while performing the swap, ', error)
       return responseToOpenai(
         'Just tell the user that Swap failed and ask them to try later after some time',
       );
@@ -792,6 +794,92 @@ const Conversation = () => {
     }
   };
 
+  const handleLstSwaps = async (
+    lst_amount: number,
+    lst_symbol: string,
+  ) => {
+
+    let rpc = process.env.SOLANA_RPC_URL
+    if (!rpc) { 
+      console.log("rpc not set")
+      return responseToOpenai("there has been a server error, prompt the user to try again later")
+    }
+    setMessageList((prev) => [
+      ...(prev || []),
+      {
+        type: 'agent',
+        message: `Swapping ${lst_amount} ${lst_symbol} from Solana`,
+      },
+    ]);
+  
+    try {
+      //todo
+      //create a fn to read sanctum list and fetch address
+      let address = await fetchLSTAddress(lst_symbol);
+      if (address == "") {
+        setMessageList((prev) => [
+          ...(prev || []),
+          {
+            type: 'message',
+            message: `Problem while fetching LST address: ${lst_symbol}`,
+          },
+        ]);
+        return responseToOpenai("error fetching in fetching lst address, prompt the user to try again")
+      }
+
+      let swapAmount = lst_amount;
+
+      let params: SwapParams = {
+        input_mint: tokenList.SOL.MINT,
+        output_mint: address,
+        public_key: appWallet.address,
+        amount: swapAmount,
+      }
+
+      const transaction = await swapLST(params);
+      if (!transaction) {
+        setMessageList((prev) => [
+          ...(prev || []),
+          {
+            type: 'message',
+            message: `Error while creating the swap transaction: ${lst_symbol}`,
+          },
+        ]);
+        return responseToOpenai("error while creating the transaction, prompt the user to try again")
+      }
+      let connection = new Connection(rpc);
+      const signedTransaction = await appWallet.signTransaction(transaction);
+      const serialzedTransaction = signedTransaction.serialize();
+      const transactionSignature = await connection.sendRawTransaction(serialzedTransaction);
+
+      setMessageList((prev) => [
+        ...(prev || []),
+        {
+          type: 'message',
+          message: `Transaction sent`,
+          link: `https://solscan.io/tx/${transactionSignature}`,
+        },
+      ])
+      
+    }
+    catch (error) {
+      console.error(error);
+      setMessageList((prev) => [
+        ...(prev || []),
+        {
+          type: 'message',
+          message: `Problem while swapping to LST:${error}`
+          
+        }
+      ]
+      )
+    }
+  }
+
+  const test= async () => { 
+    let address = await fetchLSTAddress("JupSOL")
+  }
+
   const startSession = async () => {
     try {
       const tokenResponse = await fetch(
@@ -1025,6 +1113,12 @@ const Conversation = () => {
               const { symbol } = JSON.parse(output.arguments);
               let response = await handleTokenDataSymbol(symbol);
               sendClientEvent(response);
+            } else if (output.name === 'swapLST') {
+              const { quantity,lst } = JSON.parse(output.arguments);
+              let response = await handleLstSwaps(quantity,lst);
+              sendClientEvent(response);
+            } else if (output.name === 'test') {
+              let response = await test();
             }
           }
         }

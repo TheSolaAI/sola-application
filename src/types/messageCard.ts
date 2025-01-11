@@ -97,4 +97,5 @@ export interface SanctumCard {
   symbol: string;
   url: string;
   apy: number;
+  address:string
 }

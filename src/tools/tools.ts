@@ -11,9 +11,11 @@ import { getLstData } from './functions/getLstData';
 import { getNFTPrice } from './functions/getNFTPrice';
 import { getTrendingNFTs } from './functions/getTrendingNFTs';
 import { getTokenDataSymbol } from './functions/getTokenDataSymbol';
+import { swapLST } from './functions/swapLSTfromClick';
+import { test } from './functions/test';
 
 const instructions = `
-You are a personalized Solana blockchain assistant.
+You are a personalized Solana blockchain assistant named Sola AI.
 You can answer user queries and help the user find and execute the best tool for their queries.
 Be precise.
 If any function execution fails, do not try it again and again.
@@ -40,6 +42,8 @@ export const tools = {
       getNFTPrice,
       getTrendingNFTs,
       getTokenDataSymbol,
+      swapLST,
+      test
     ],
     tool_choice: 'auto',
     temperature: 0.6,

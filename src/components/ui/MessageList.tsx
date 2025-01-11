@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment, useState } from 'react';
 import { TrendingNFTCard } from '../../types/messageCard';
 
 import {
@@ -12,12 +12,82 @@ import {
   SanctumCard,
   NFTCollectionCard,
 } from '../../types/messageCard';
+import { Dialog, DialogPanel, DialogTitle, Input, Transition, TransitionChild } from '@headlessui/react';
+import { X } from 'react-feather';
+import useAppState from '../../store/zustand/AppState';
+import axios from 'axios';
+import { Connection, VersionedTransaction } from '@solana/web3.js';
+import { tokenList } from '../../store/tokens/tokenMapping';
+import { SwapParams } from '../../types/swap';
+import { responseToOpenai } from '../../lib/utils/response';
+import { ConnectedSolanaWallet } from '@privy-io/react-auth';
+
+const wallet_service_url = process.env.WALLET_SERVICE_URL;
+
 
 interface Props {
   messageList: MessageCard[];
 }
 
 const MessageList: React.FC<Props> = ({ messageList }) => {
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [sanctumAmount, setSanctumAmount] = useState<string>('0');
+  const [link, setSolscanLink] = useState<string>('');
+  let { appWallet } = useAppState()
+
+  const rpc = process.env.SOLANA_RPC;
+  function closeModal() {
+    setIsOpen(false);
+  }
+  function openModal() {
+    setIsOpen(true);
+  }
+  async function invokeSwap(
+    amount: string,
+    address: string,
+    solanaWallet:ConnectedSolanaWallet|null
+): Promise<any | null> {
+    if (!rpc ||!solanaWallet) { 
+      console.error('RPC URL is not defined');
+      return null;
+    }
+    let fin_amount = Number(amount) * 10 ** tokenList.SOL.DECIMALS
+    let params: SwapParams = {
+        input_mint: tokenList.SOL.MINT,
+        output_mint: address,
+        public_key: solanaWallet.address,
+        amount: fin_amount,
+    }
+    console.log(address)
+  try {
+    const response = await axios.post<any>(
+      wallet_service_url + 'api/wallet/jup/swap',
+      params,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      },
+    )
+      ;
+
+    const swapTransaction = response.data['transaction'];
+    const transactionBuffer = Buffer.from(swapTransaction, 'base64');
+    const transaction = VersionedTransaction.deserialize(transactionBuffer);
+    const connection = new Connection(rpc);
+    const signedTransaction = await solanaWallet.signTransaction(transaction);
+    const serializedTransaction = signedTransaction.serialize();
+    const signature = await connection.sendRawTransaction(serializedTransaction);
+    const link = `https://solscan.io/tx/${signature}`
+    setSolscanLink(link)
+    return responseToOpenai(`success fully swapped the LST. Ask what the user wants to do next`)
+    
+  } catch (error) {
+    console.error('Error during swap:', error);
+    return null;
+  }
+}
+
   return (
     <div className="p-4 rounded-lg text-bodydark1 w-3/5 no-scrollbar">
       {messageList.map((item, index) => {
@@ -281,13 +351,13 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
             const sanctumCards = item.card as SanctumCard[];
             return (
               <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-3 gap-3 my-4">
-                {sanctumCards.map((sanctumCard, tokenIndex) => (
-                  <a
-                    href={sanctumCard.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group relative block rounded-xl bg-[#F5F5F5] border p-3 w-fit border-color transition-all duration-300 ease-in-out hover:bg-[#e0e0e0] hover:shadow-lg"
-                  >
+                {sanctumCards.map((sanctumCard) => (
+                  <>
+                    <div
+                      onClick={openModal}
+                      className="group relative w-full overflow-hidden block rounded-xl bg-[#F5F5F5] border p-3 w-fit border-color transition-all duration-300 ease-in-out hover:bg-[#e0e0e0] hover:shadow-lg"
+                    >
+                    
                     <div className="flex items-center gap-4">
                       <img
                         src={sanctumCard.logo_uri}
@@ -301,11 +371,97 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                         <p className="text-sm font-small">
                           APY : {sanctumCard.apy.toFixed(2)}%
                         </p>
-                      </div>
+                        </div>
+                        </div>
                     </div>
-                  </a>
+                    <Transition appear show={isOpen} as={Fragment}>
+                      <Dialog
+                        as="div"
+                        className="relative w-full h-full z-9999"
+                        onClose={closeModal}
+                      >
+                      <TransitionChild
+                        as={Fragment}
+                        enter="ease-out duration-300"
+                        enterFrom="opacity-0"
+                        enterTo="opacity-100"
+                        leave="ease-in duration-200"
+                        leaveFrom="opacity-100"
+                        leaveTo="opacity-0"
+                      >
+                        <div className="fixed inset-0 bg-black bg-opacity-25" />
+                      </TransitionChild>
+
+                      <div className="fixed inset-0 overflow-y-auto">
+                        <div className="flex min-h-full items-center justify-center p-4 text-center">
+                          <TransitionChild
+                            as={Fragment}
+                            enter="ease-out duration-100"
+                            enterFrom="opacity-0 scale-95"
+                            enterTo="opacity-100 scale-100"
+                            leave="ease-in duration-100"
+                            leaveFrom="opacity-100 scale-100"
+                            leaveTo="opacity-0 scale-95"
+                          >
+                            <DialogPanel
+                            className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all"
+                            >
+                              <DialogTitle
+                                as="h3"
+                                className="text-lg w-full font-medium flex items-center justify-between text-gray-900"
+                              >
+                                <div>{ sanctumCard.symbol} Swap Details</div>
+                                  <button
+                                    type="button"
+                                    className="inline-flex justify-center rounder-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                                    onClick={closeModal}  
+                                  >
+                                    <X/>
+                                  </button>
+                              </DialogTitle>
+                              <div className="mt-2">
+                                <p className="text-sm text-gray-500">
+                                    APY: {sanctumCard.apy.toFixed(2)}% <br />
+                                    {link &&
+                                      <a
+                                        href={link}
+                                        target="_blank"
+                                        rel="no opener noreferrer"
+                                        className="text-blue-500 hover:text-blue-700"
+                                      >
+                                        SolScan Transaction url
+                                      </a>
+                                    }
+                                  </p>
+                                  <Input
+                                    type="string"
+                                    name="amount"
+                                    className="mt-2 bg-grey-900 text-black"
+                                    onChange={(e) =>
+                                      setSanctumAmount(e.target.value)}
+                                  />
+                                  
+                              </div>
+                              <div className="mt-4">
+                                <button
+                                  className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                                    onClick={() => { invokeSwap(sanctumAmount, sanctumCard.address, appWallet) }} 
+                                >
+                                  Swap
+                                </button>
+                              </div>
+                            </DialogPanel>
+
+                          </TransitionChild>
+                        </div>
+                        </div>
+                        </Dialog>
+                    </Transition>
+
+                    </>
                 ))}
-              </div>
+                  </div >
+                  
             );
           
           case 'trendingNFTCard':
