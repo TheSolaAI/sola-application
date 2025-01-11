@@ -118,7 +118,11 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
               >
                 {item.message}
                 {item.link && (
-                  <a href={`${item.link}`} className="text-blue-400">
+                  <a href={`${item.link}`}
+                    className="text-blue-400"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     Solscan Link
                   </a>
                 )}
