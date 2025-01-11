@@ -37,6 +37,7 @@ import { swapLST } from '../lib/solana/swapLst';
 import { fetchLSTAddress } from '../lib/utils/lst_reader';
 import { getAssociatedTokenAddress } from '@solana/spl-token';
 import { transferSplTx } from '../lib/solana/transferSpl';
+import { assert } from 'console';
 
 const Conversation = () => {
   const {
@@ -50,7 +51,7 @@ const Conversation = () => {
     getPeerConnection,
     resetMute,
   } = useChatState();
-  const { getAssetById } = useWalletStore();
+  const { assets,getAssetById } = useWalletStore();
 
   const [isWalletVisible, setIsWalletVisible] = useState(false);
   const [events, setEvents] = useState<any[]>([]);
@@ -63,6 +64,10 @@ const Conversation = () => {
   if (!appWallet) return null;
 
   const rpc = process.env.SOLANA_RPC;
+  interface AssetList {
+    [key: string]: any;
+  }
+  
 
   const transferSol = async (amount: number, to: string) => {
     if (!rpc)
@@ -152,7 +157,29 @@ const Conversation = () => {
     //   }),
     // );
   };
+  const fetchWallet = async () => {
+    let asset_details = "";
+    const user_assets = assets
+    user_assets.forEach(item => {
+      const balance = item.balance
+      const decimal = item.decimals;
+      const name = item.symbol
+      const amount = balance / 10 ** decimal;
+      asset_details += `${name}:${amount.toFixed(2)}\n`;
+      }
+    );
+    
+    setMessageList((prev) => [
+      ...(prev || []),
+      {
+        type: 'agent',
+        message: `The agent is fetching you wallet assets`,
+      },
+    ]);
+    console.log(asset_details);
+    return responseToOpenai(`here is your asset list ${asset_details}. Do not stop till u say all the assets`);
 
+  }
   const transferSpl = async (amount: number,token:'SOLA' | 'USDC' |'BONK'|"USDT"|"JUP", to: string) => {
     if (!rpc)
       return responseToOpenai(
@@ -1234,6 +1261,13 @@ const Conversation = () => {
             } else if (output.name === 'transferSpl') {
               const { amount,token,address } = JSON.parse(output.arguments);
               let response = await transferSpl(amount, token, address);
+              sendClientEvent(response);
+            }else if (output.name === 'transferSpl') {
+              const { amount,token,address } = JSON.parse(output.arguments);
+              let response = await transferSpl(amount, token, address);
+              sendClientEvent(response);
+            } else if (output.name === 'fetchWallet') {
+              let response = await fetchWallet()
               sendClientEvent(response);
             }
           }
