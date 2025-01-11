@@ -16,7 +16,7 @@ export const transferSpl = {
       token: {
         type: 'string',
         //TODO: Use a mapping instead of this.
-        enum: ['SOL', 'SOLA', 'USDC', 'JUP',"USDT","BONK"],
+        enum: ['SOLA', 'USDC', 'JUP',"USDT","BONK"],
         description: 'The token that the user wants to send.',
       },
       address: {

@@ -93,7 +93,18 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
     console.error('Error during swap:', error);
     return null;
   }
-}
+  }
+  function formatNumber(num:number) {
+    if (num >= 1_000_000_000) {
+      return (num / 1_000_000_000).toFixed(2).replace(/\.0$/, "") + "B";
+    } else if (num >= 1_000_000) {
+      return (num / 1_000_000).toFixed(2).replace(/\.0$/, "") + "M";
+    } else if (num >= 1_000) {
+      return (num / 1_000).toFixed(2).replace(/\.0$/, "") + "K";
+    } else {
+      return num.toString();
+    }
+  }
 
   return (
     <div className="p-4 rounded-lg text-bodydark1 w-3/5 no-scrollbar">
@@ -193,9 +204,9 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                     href={`https://dexscreener.com/solana/${token.address}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group relative block rounded-xl bg-[#F5F5F5] border p-3"
+                    className="group relative block rounded-xl bg-[#F5F5F5] border p-4 h-full"
                   >
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-4">
                       <img
                         src={token.image || '/placeholder.png'}
                         alt={token.metadata?.name || 'Token'}
@@ -210,11 +221,11 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                         </p>
                       </div>
                     </div>
-                    <p className="text-xs text-bodydark2 mt-2">
-                      Market Cap: $ {token.marketCap || 'Unknown'}
+                    <p className="text-s text-bodydark2 mt-2 font-medium">
+                      Market Cap: $ {formatNumber(Number(token.marketCap))|| 'Unknown'}
                     </p>
                     <div className="bg-bodydark flex justify-center items-center h-fit m-2">
-                      <div className="w-full max-w-4xl h-52 bg-white shadow-lg rounded-lg overflow-hidden">
+                      <div className="w-full max-w-1xl h-56 bg-white shadow-lg rounded-lg overflow-hidden">
                         <iframe
                           src={`https://www.gmgn.cc/kline/sol/${token.address}`}
                           className="w-full h-full"
