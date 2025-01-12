@@ -266,7 +266,7 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                           navigator.clipboard.writeText(token.address);
                         }}
                       >
-                        <img src="src/images/copy.svg" alt="Copy Icon" className="h-4 w-4" />
+                        <img src="./copy.svg" alt="Copy Icon" className="h-4 w-4" />
                       </button>
                       <button
                         onClick={() => {
@@ -277,13 +277,13 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                         }}
                         className="px-4 py-2 text-xs font-medium text-white rounded-lg hover:scale-105 hover:shadow-lg transition-all"
                       >
-                        <img src="src/images/dexscreener.png" alt="Dex Icon" className="h-4 w-4" />
+                        <img src="./dexscreener.png" alt="Dex Icon" className="h-4 w-4" />
                       </button>
                       <button
                         className="flex items-center justify-center px-4 py-2 text-xs font-medium text-white rounded-lg hover:scale-105 hover:shadow-lg transition-all"
                         onClick={() => handleExpand(token.address)}
                       >
-                        <img src="src/images/graph.png" alt="Expand Icon" className="h-4 w-4" />
+                        <img src="./graph.png" alt="Expand Icon" className="h-4 w-4" />
                       </button>
                       <button
                         className="flex items-center justify-center px-4 py-2 text-xs font-medium text-white rounded-lg"
