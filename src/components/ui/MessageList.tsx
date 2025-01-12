@@ -553,7 +553,7 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                                   <Input
                                     type="string"
                                     name="amount"
-                                    placeholder="Enter Sol Amount"
+
                                     className="mt-2 bg-grey-900 text-black border border-indigo-500 rounded-md"
                                     onChange={(e) =>
                                       setSanctumAmount(e.target.value)}
