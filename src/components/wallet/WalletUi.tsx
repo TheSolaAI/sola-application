@@ -50,7 +50,7 @@ function WalletUi({ toggleWallet, isWalletVisible }: WalletUiProps) {
     <div className="flex flex-col items-end gap-2 z-9">
       <Button
         onClick={toggleWallet}
-        className={`w-fit z-9 text-graydark bg-body px-8 py-4 rounded-2xl ${isWalletVisible ? 'bg-opacity-80' : ''}`}
+        className={`w-fit z-9 text-graydark bg-body px-8 py-4 rounded-2xl animate-in fade-in-0 duration-500 ${isWalletVisible ? 'bg-opacity-80' : ''}`}
       >
         {' '}
         <CreditCard />{' '}
@@ -71,8 +71,8 @@ function WalletUi({ toggleWallet, isWalletVisible }: WalletUiProps) {
             className="z-9 w-full flex justify-center items-center bg-strokedark gap-2 p-2 rounded-xl hover:bg-opacity-80 cursor-pointer"
             onClick={viewWalletInExplorer}
           >
-            {appWallet.address.slice(0, 4)}...
-            {appWallet.address.slice(-4)}
+            {/* {appWallet.address.slice(0, 4)}...
+            {appWallet.address.slice(-4)} */}
             <ExternalLink height={16} />
           </div>
           <div className="flex justify-between items-center my-4">

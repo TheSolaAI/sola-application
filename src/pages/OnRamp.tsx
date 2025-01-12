@@ -53,7 +53,7 @@ const OnRamp = () => {
   const hoverColor = 'hover:bg-bodydark1/80';
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen gap-16 ">
+    <div className="flex flex-col items-center justify-center h-screen gap-16 animate-in fade-in-0 duration-300">
       <div className=' text-title-xl font-semibold'>Easy On-Ramps</div>
       <div
         className={`${bgColor} rounded-xl p-8 shadow-sm w-2/6 h-2/4 flex flex-col justify-between`}
