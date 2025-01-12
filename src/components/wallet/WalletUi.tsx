@@ -71,8 +71,8 @@ function WalletUi({ toggleWallet, isWalletVisible }: WalletUiProps) {
             className="z-9 w-full flex justify-center items-center bg-strokedark gap-2 p-2 rounded-xl hover:bg-opacity-80 cursor-pointer"
             onClick={viewWalletInExplorer}
           >
-            {/* {appWallet.address.slice(0, 4)}...
-            {appWallet.address.slice(-4)} */}
+            {appWallet.address.slice(0, 4)}...
+            {appWallet.address.slice(-4)}
             <ExternalLink height={16} />
           </div>
           <div className="flex justify-between items-center my-4">
