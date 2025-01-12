@@ -37,7 +37,7 @@ const solanaConnectors = toSolanaWalletConnectors({
 });
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
-  <React.StrictMode>
+  <>
     <Router>
       {process.env.PRVI_APP_ID && (
         <PrivyProvider
@@ -61,5 +61,5 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
         </PrivyProvider>
       )}
     </Router>
-  </React.StrictMode>,
+  </>,
 );

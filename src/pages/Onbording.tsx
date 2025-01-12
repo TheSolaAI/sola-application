@@ -3,9 +3,10 @@ import { usePrivy } from '@privy-io/react-auth';
 function Onbording() {
   const { login, authenticated, ready } = usePrivy();
   const disableLogin = !ready || (ready && authenticated);
+
   return (
     <>
-      <div className="bg-white h-screen overflow-hidden">
+      <div className="bg-white h-screen overflow-hidden animate-in slide-in-from-bottom-4">
         <div className="mx-auto max-w-8xl sm:px-6 sm:py-18 lg:px-8 ">
           <div className="relative isolate h-screen overflow-hidden bg-gray-900 px-6 shadow-2xl sm:rounded-3xl sm:px-8 md:pt-24 lg:flex lg:gap-x-20 lg:px-16 lg:pt-12 ">
             <svg
