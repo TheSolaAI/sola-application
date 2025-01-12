@@ -109,7 +109,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
           onClick={() => setSidebarOpen(!sidebarOpen)}
           aria-controls="sidebar"
           aria-expanded={sidebarOpen}
-          className="block lg:hidden"
+          className="block  lg:hidden bg-black"
         >
           <svg
             className="fill-current"
@@ -127,7 +127,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
         </button>
       </div>
       {/* <!-- SIDEBAR HEADER --> */}
-
+      
       <div className="no-scrollbar flex flex-col justify-between h-screen overflow-y-auto duration-300 ease-linear">
         {/* <!-- Sidebar Menu --> */}
         <nav className="mt-5 py-4 px-4 lg:mt-9 lg:px-6">

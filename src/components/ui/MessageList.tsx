@@ -21,7 +21,8 @@ import { tokenList } from '../../store/tokens/tokenMapping';
 import { SwapParams } from '../../types/swap';
 import { responseToOpenai } from '../../lib/utils/response';
 import { ConnectedSolanaWallet } from '@privy-io/react-auth';
-
+import { useWalletStore } from '../../store/zustand/WalletState';
+import Draggable from 'react-draggable';
 const wallet_service_url = process.env.WALLET_SERVICE_URL;
 
 
@@ -34,8 +35,15 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
   const [sanctumAddress,setSanctumAddress] = useState<string>("")
   const [sanctumAmount, setSanctumAmount] = useState<string>('0');
   const [sanctumSymbol, setSanctumSymbol] = useState<string>("")
-  const [sanctumApy,setSanctumApy] = useState<number>(0)
+  const [sanctumApy, setSanctumApy] = useState<number>(0)
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [isSufficient, setIsSufficient] = useState<boolean>(false);
   const [link, setSolscanLink] = useState<string>('');
+  const [expandedToken, setExpandedToken] = useState<string | null>(null); // Tracks which token is expanded
+
+  const handleExpand = (tokenAddress: string) => {
+    setExpandedToken((prev) => (prev === tokenAddress ? null : tokenAddress));
+  };
   let { appWallet } = useAppState()
 
   const rpc = process.env.SOLANA_RPC;
@@ -58,7 +66,17 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
       console.error('RPC URL is not defined');
       return null;
     }
+    
     let fin_amount = Number(amount) * 10 ** tokenList.SOL.DECIMALS
+    // let wallet_balance = getAssetById(tokenList.SOL.MINT)?.balance
+    // if (!wallet_balance) {
+    //   setIsSufficient(false)
+    //   return
+    // }
+    // if (fin_amount > wallet_balance) {
+    //   console.log('Insufficient balance');
+    //   return null;
+    // }
     let params: SwapParams = {
         input_mint: tokenList.SOL.MINT,
         output_mint: address,
@@ -84,6 +102,7 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
     const connection = new Connection(rpc);
     const signedTransaction = await solanaWallet.signTransaction(transaction);
     const serializedTransaction = signedTransaction.serialize();
+    
     const signature = await connection.sendRawTransaction(serializedTransaction);
     const link = `https://solscan.io/tx/${signature}`
     setSolscanLink(link)
@@ -202,34 +221,104 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
             const tokens = item.card as TokenCard[];
             return (
               <div className="grid grid-cols-1 gap-6 my-4">
-                {tokens.map((token, tokenIndex) => (
-                  <a
-                    key={tokenIndex}
-                    href={`https://dexscreener.com/solana/${token.address}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group relative block rounded-xl bg-[#F5F5F5] border p-4 h-full"
-                  >
+              {tokens.map((token, tokenIndex) => (
+                <a
+                  key={tokenIndex}
+                  className="group relative block rounded-xl bg-[#F5F5F5] border p-4 h-full"
+                >
+                  <div className="flex items-center justify-between gap-4">
+                    {/* Left Section: Image and Details */}
                     <div className="flex items-center gap-4">
                       <img
-                        src={token.image || '/placeholder.png'}
-                        alt={token.metadata?.name || 'Token'}
-                        className="h-10 w-10 rounded-lg  bg-graydark"
+                        src={token.image || "/placeholder.png"}
+                        alt={token.metadata?.name || "Token"}
+                        className="h-10 w-10 rounded-lg bg-graydark"
                       />
                       <div>
-                        <h3 className="truncate text-sm font-medium">
-                          {token.metadata?.name || 'Unknown'}
-                        </h3>
-                        <p className={`mt-1 text-xs font-medium`}>
-                          $ {token.price}
-                        </p>
-                      </div>
+  {/* Token Name and Price */}
+                <h3 className="truncate text-sm font-medium">
+                  {token.metadata?.name || "Unknown"}
+                </h3>
+                        <p className="mt-1 text-xs font-medium">$ {token.price}</p>
+                        <p
+                    className={`text-xs font-medium ${
+                      Number(token.priceChange) > 0
+                        ? "text-green-500"
+                        : Number(token.priceChange) < 0
+                        ? "text-red-500"
+                        : "text-bodydark2"
+                    }`}
+                  >
+                    {token.priceChange ? `${token.priceChange}%` : "Unknown"}
+                  </p>
+
+                {/* Indented Section for Other Parameters */}
+                
+              </div>
+
                     </div>
-                    <p className="text-s text-bodydark2 mt-2 font-medium">
-                      Market Cap: $ {formatNumber(Number(token.marketCap))|| 'Unknown'}
-                    </p>
-                    <div className="bg-bodydark flex justify-center items-center h-fit m-2">
-                      <div className="w-full max-w-1xl h-56 bg-white shadow-lg rounded-lg overflow-hidden">
+        
+                    {/* Right Section: Buttons */}
+                    <div className="flex gap-1">
+                      <button
+                        className="px-4 py-2 text-xs font-medium text-white rounded-lg hover:scale-105 hover:shadow-lg transition-all"
+                        onClick={() => {
+                          navigator.clipboard.writeText(token.address);
+                        }}
+                      >
+                        <img src="src/images/copy.svg" alt="Copy Icon" className="h-4 w-4" />
+                      </button>
+                      <button
+                        onClick={() => {
+                          window.open(
+                            `https://dexscreener.com/solana/${token.address}`,
+                            "_blank"
+                          );
+                        }}
+                        className="px-4 py-2 text-xs font-medium text-white rounded-lg hover:scale-105 hover:shadow-lg transition-all"
+                      >
+                        <img src="src/images/dexscreener.png" alt="Dex Icon" className="h-4 w-4" />
+                      </button>
+                      <button
+                        className="flex items-center justify-center px-4 py-2 text-xs font-medium text-white rounded-lg hover:scale-105 hover:shadow-lg transition-all"
+                        onClick={() => handleExpand(token.address)}
+                      >
+                        <img src="src/images/graph.png" alt="Expand Icon" className="h-4 w-4" />
+                      </button>
+                      <button
+                        className="flex items-center justify-center px-4 py-2 text-xs font-medium text-white rounded-lg"
+                        
+                      >
+                      </button>
+                      <button
+                        className="flex items-center justify-center px-4 py-2 text-xs font-medium text-white rounded-lg"
+                        
+                      >
+                      </button>
+                    </div>
+                    
+                  </div>
+                  <div className="flex flex-row gap-6 mt-2">
+                  {/* Market Cap */}
+                  <p className="text-s font-medium text-bodydark2">
+                    Market Cap: $ {formatNumber(Number(token.marketCap)) || "Unknown"}
+                  </p>
+
+                  <p className="text-s font-medium text-bodydark2">
+                    24H Volume: $ {formatNumber(Number(token.volume)) || "Unknown"}
+                  </p>
+                </div>
+        
+                  {/* Chart Section */}
+                  {expandedToken === token.address && (
+                    <div className="fixed inset-0 z-50 bg-black bg-opacity-75 flex items-center justify-center">
+                      <div className="relative w-full max-w-4xl h-screen bg-white shadow-lg rounded-lg overflow-hidden">
+                        <button
+                          className="absolute top-4 right-4 bg-gray-700 text-white px-4 py-2 rounded-lg shadow-lg"
+                          onClick={() => setExpandedToken(null)}
+                        >
+                          Close
+                        </button>
                         <iframe
                           src={`https://www.gmgn.cc/kline/sol/${token.address}`}
                           className="w-full h-full"
@@ -237,10 +326,14 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                         ></iframe>
                       </div>
                     </div>
-                  </a>
-                ))}
-              </div>
-            );
+                  )}
+        
+        
+
+                </a>
+              ))}
+            </div>
+          );
 
           case 'nftCollectionCard':
             const nftCollectionCard = item.card as NFTCollectionCard;
@@ -460,6 +553,7 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                                   <Input
                                     type="string"
                                     name="amount"
+
                                     className="mt-2 bg-grey-900 text-black border border-indigo-500 rounded-md"
                                     onChange={(e) =>
                                       setSanctumAmount(e.target.value)}

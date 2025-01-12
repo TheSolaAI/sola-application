@@ -44,6 +44,8 @@ export async function getTokenDataSymbol(params: string): Promise<TokenData | nu
         token_standard: token_data.url
       },
       price: token_data.price,
+      volume: token_data.volume,
+      price_change_24h: token_data.price_change_24,
     }
       return token_card;
     }

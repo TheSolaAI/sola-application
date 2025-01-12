@@ -90,6 +90,8 @@ export interface TokenCard {
   };
   price?: string;
   marketCap?: string;
+  volume?: string;
+  priceChange?: string;
 }
 
 export interface SanctumCard {
