@@ -30,5 +30,9 @@ export const tokenList = {
   BONK: {
     MINT: "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263",
     DECIMALS:6
+  },
+  WIF: {
+    MINT: "EKpQGSJtjMFqKZ9KQanSqYXRcF8fBopzLHYxdM65zcjm",
+    DECIMALS:6
   }
 };

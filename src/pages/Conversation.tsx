@@ -286,8 +286,8 @@ const Conversation = () => {
 
   const handleSwap = async (
     quantity: number,
-    tokenA: 'SOL' | 'SOLA' | 'USDC' |'BONK'|"USDT"|"JUP",
-    tokenB: 'SOL' | 'SOLA' | 'USDC' |'BONK'|"USDT"|"JUP",
+    tokenA: 'SOL' | 'SOLA' | 'USDC' |'BONK'|"USDT"|"JUP"|"WIF",
+    tokenB: 'SOL' | 'SOLA' | 'USDC' |'BONK'|"USDT"|"JUP"|"WIF",
   ) => {
     if (!rpc)
       return responseToOpenai(
@@ -748,6 +748,7 @@ const Conversation = () => {
     ]);
     try {
       const data = await getTokenDataSymbol(tokenSymbol);
+      console.log(data);
       if (!data) {
         setMessageList((prev) => [
           ...(prev || []),
@@ -768,6 +769,8 @@ const Conversation = () => {
           metadata: data.metadata,
           price: data.price.toString(),
           marketCap: data.marketcap.toString(),
+          volume: data.volume.toString(),
+          priceChange: data.price_change_24h.toString(),
         },
       ];
 

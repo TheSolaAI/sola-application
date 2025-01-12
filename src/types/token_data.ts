@@ -7,6 +7,8 @@ export type TokenData = {
         token_standard: string;
     },
     price:number,
-    marketcap:number
+    marketcap: number,
+    volume: number;
+    price_change_24h: number;
 }
 
