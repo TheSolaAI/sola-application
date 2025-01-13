@@ -1,7 +1,8 @@
 import React, { Fragment, useState } from 'react';
-import { TrendingNFTCard } from '../../types/messageCard';
+import {  } from '../../types/messageCard';
 
 import {
+  TrendingNFTCard ,
   MessageCard,
   SingleCard,
   MultipleCards,
@@ -9,6 +10,7 @@ import {
   TransactionCard,
   TokenCard,
   LuloCard,
+  RugCheckCard,
   SanctumCard,
   NFTCollectionCard,
 } from '../../types/messageCard';
@@ -582,6 +584,63 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                   
             );
           
+            case 'rugCheckCard':
+          const rugCheckCard = item.card as RugCheckCard;
+
+          // Determine score color based on the number of risks
+          const scoreColor =
+            rugCheckCard.issues.length === 0
+              ? 'text-green-500'
+              : rugCheckCard.issues.length === 1
+              ? 'text-yellow-500'
+              : rugCheckCard.issues.length === 2
+              ? 'text-orange-500'
+              : 'text-red-500';
+
+          // Determine risk level color
+          const getRiskColor = (level: 'warn' | 'danger' | 'none') => {
+            switch (level) {
+              case 'warn':
+                return 'text-orange-500';
+              case 'danger':
+                return 'text-red-500';
+              default:
+                return 'text-green-500';
+            }
+          };
+
+            return (
+            <div className="grid grid-cols-1 gap-2 my-4 bg-[#F5F5F5] rounded-lg p-4">
+              {/* Display overall risk score */}
+              <div className="flex items-center gap-3">
+                <h3 className={scoreColor}>
+                  Risk Level: {rugCheckCard.score}
+                </h3>
+              </div>
+
+              {/* Display risk details */}
+              <div className="flex flex-col gap-4">
+                {rugCheckCard.issues.length === 0 ? (
+                  <p className="text-green-500 font-thin">No Risks Found</p>
+                ) : (
+                  rugCheckCard.issues.map((risk, index) => (
+                    <div key={index} className="bg-[#F5F5F5] p-4 rounded-lg shadow">
+                      <h4 className={`font-bold ${getRiskColor(risk.level)}`}>
+                        {risk.name} ({risk.level})
+                      </h4>
+                      <p>{risk.description}</p>
+                      {risk.value && <p className='font-thin'>Value: {risk.value}</p>}
+                      <p className='font-thin'>Score: {risk.score}</p>
+                    </div>
+                  ))
+                )}
+              </div>
+                </div>
+             
+          );
+
+
+          
           case 'trendingNFTCard':
               const trendingNFTCard = item.card as TrendingNFTCard[];
               return (
@@ -621,6 +680,7 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
         }
       })}
     </div>
+    
   );
 };
 
