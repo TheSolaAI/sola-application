@@ -30,6 +30,8 @@ module.exports = {
           DEFAULT: '#FB5454',
         },
         body: '#1D1D1F',
+        darkalign: '#373737',
+        darkalign2: '#292929',
         bodydark: '#AEB7C0',
         bodydark1: '#1D1D1F',
         bodydark2: '#87878A',

@@ -20,7 +20,7 @@ const appStateCreator: StateCreator<AppState> = (set) => ({
   appWallet: null,
   appWallets: [],
   embeddedWalletVisiblity: false,
-  theme: localStorage.getItem('theme') as 'light' | 'dark' || 'dark', 
+  theme: localStorage.getItem('theme') as 'light' | 'dark' || 'light', 
   disclaimer: true,
   setAuthorized: (authorized: boolean) => set({ authorized }),
   setWallet: (appWallet: ConnectedSolanaWallet) => set({ appWallet }),
