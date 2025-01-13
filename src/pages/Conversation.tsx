@@ -865,7 +865,7 @@ const Conversation = () => {
       ...(prev || []),
       {
         type: 'agent',
-        message: `Checking if $${token} is a rug.`,
+        message: `Checking if ${token} is a rug.`,
       },
     ]);
     try {
@@ -879,9 +879,6 @@ const Conversation = () => {
       }
       console.log(final_token)
       const data = await getRugCheck(final_token);
-
-      
-      const data = await getRugCheck(`$${token}`);
 
       if (!data) {
         setMessageList((prev) => [
