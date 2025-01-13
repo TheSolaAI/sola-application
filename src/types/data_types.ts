@@ -18,4 +18,9 @@ export type LSTData = {
     address:string
 }
 
+export type RugCheck = {
+    score: number;
+    issues:[]
+}
+
 

@@ -10,6 +10,7 @@ import {
   SanctumCard,
   NFTCollectionCard,
   TrendingNFTCard,
+  RugCheckCard,
 } from '../types/messageCard';
 import { SwapParams } from '../types/swap';
 import { swapTx } from '../lib/solana/swapTx';
@@ -38,6 +39,7 @@ import { fetchLSTAddress } from '../lib/utils/lst_reader';
 import { getAssociatedTokenAddress } from '@solana/spl-token';
 import { transferSplTx } from '../lib/solana/transferSpl';
 import { assert } from 'console';
+import { getRugCheck } from '../lib/solana/rugCheck';
 
 const Conversation = () => {
   const {
@@ -858,6 +860,55 @@ const Conversation = () => {
     }
   };
 
+  const handleRugCheck= async (token:string) => {
+    setMessageList((prev) => [
+      ...(prev || []),
+      {
+        type: 'agent',
+        message: `Fetching Token Info for ${token}`,
+      },
+    ]);
+    try {
+      const data = await getRugCheck(token);
+      if (!data) {
+        setMessageList((prev) => [
+          ...(prev || []),
+          {
+            type: 'message',
+            message: 'Oops! There has been a problem while fetching token data',
+          },
+        ]);
+        return responseToOpenai(
+          'tell the user that there has been a problem while fetching token data, do not repeat the address, only repeat if its a ticker',
+        );
+      }
+
+      let rug_check_card: RugCheckCard = data;
+
+      setMessageList((prev) => [
+        ...(prev || []),
+        {
+          type: 'rugCheckCard',
+          card: rug_check_card,
+        },
+      ]);
+      return responseToOpenai(
+        `tell the user that the token has a risk score of ${rug_check_card.score}`,
+      );
+    } catch (error) {
+      setMessageList((prev) => [
+        ...(prev || []),
+        {
+          type: 'message',
+          message: 'Oops! There has been a problem while fetching lst data',
+        },
+      ]);
+      return responseToOpenai(
+        'tell the user that there has been a problem while the token data. Do not repeat the token address, only repeat if its a ticker',
+      );
+    }
+  };
+
   const handleNFTPrice = async (nft: string) => {
     setMessageList((prev) => [
       ...(prev || []),
@@ -1295,7 +1346,11 @@ const Conversation = () => {
             } else if (output.name === 'fetchWallet') {
               let response = await fetchWallet();
               sendClientEvent(response);
-            }
+            } else if (output.name === 'getRugCheck') {
+                const { token } = JSON.parse(output.arguments);
+                let response = await handleRugCheck(token)
+                sendClientEvent(response);
+              }
           }
         }
       }

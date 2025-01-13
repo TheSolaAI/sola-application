@@ -13,6 +13,7 @@ export type MessageCard = {
     | 'transactions'
     | 'luloCard'
     | 'sanctumCard'
+    | 'rugCheckCard'
     | 'trendingNFTCard';
   message?: string;
   card?:
@@ -24,6 +25,7 @@ export type MessageCard = {
     | LuloCard
     | TransactionCard
     | SanctumCard[]
+    | RugCheckCard
     | TrendingNFTCard[];
   link?: string;
 };
@@ -101,3 +103,17 @@ export interface SanctumCard {
   apy: number;
   address:string
 }
+
+export interface RugCheckCard {
+  score: number;
+  issues: Risk[];
+}
+
+export interface Risk {
+  name: string;
+  value: string;
+  description: string; 
+  score: number; 
+  level: 'none' | 'warn' | 'danger'; 
+}
+
