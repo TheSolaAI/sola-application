@@ -53,10 +53,10 @@ const OnRamp = () => {
   const hoverColor = 'hover:bg-bodydark1/80';
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen gap-16 animate-in fade-in-0 duration-300">
-      <div className=' text-title-xl font-semibold'>Easy On-Ramps</div>
+    <div className="flex flex-col items-center justify-center h-screen gap-16 dark:bg-darkalign animate-in fade-in-0 duration-300">
+      <div className=' text-title-xl font-semibold dark:text-purple-300'>Easy On-Ramps</div>
       <div
-        className={`${bgColor} rounded-xl p-8 shadow-sm w-2/6 h-2/4 flex flex-col justify-between`}
+        className={`${bgColor} rounded-xl p-8 shadow-sm w-2/6 h-2/4 flex flex-col justify-between dark:bg-darkalign2`}
       >
         <div className="flex justify-center items-center mb-4 w-full h-full">
           <img src={'./card.svg'} className="h-52" />
@@ -67,7 +67,7 @@ const OnRamp = () => {
             disabled={isLoading}
             className={`
             ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}
-            ${cardBgColor} ${hoverColor} ${textColor} font-bold py-2 px-4 rounded w-full focus:outline-none focus:shadow-outline
+            ${cardBgColor} ${hoverColor} ${textColor} font-bold py-2 px-4 rounded w-full focus:outline-none focus:shadow-outline dark:text-bodydark2 dark:bg-boxdark dark:hover:bg-boxdark-2
           `}
           >
             {isLoading ? 'Funding...' : 'Fund Wallet'}

@@ -68,7 +68,7 @@ const Conversation = () => {
     setLocalDataChannel(dataChannel);
   }, [dataChannel]);
 
-  const { appWallet } = useAppState();
+  const { appWallet, theme } = useAppState();
   
 
   const rpc = process.env.SOLANA_RPC;
@@ -1370,7 +1370,7 @@ const Conversation = () => {
 
   return isLoaded ? (
     <>
-      <main className="h-screen flex flex-col relative">
+      <main className="h-screen flex flex-col relative dark:bg-darkalign">
         {/* Start of wallet */}
         <section className="absolute right-0 p-4 animate-in fade-in-0 duration-300">
           <WalletUi
@@ -1388,7 +1388,7 @@ const Conversation = () => {
         >
           {mediaRecorder && (
             <LiveAudioVisualizer
-              barColor="#1D1D1F"
+              barColor={theme == 'light' ? "#1D1D1F" : "#D8B4FE"}
               mediaRecorder={mediaRecorder}
               width={400}
               height={200}
@@ -1409,8 +1409,8 @@ const Conversation = () => {
 
         {/* End of Session Controls Section */}
       </main>
-      <section className="relative flex justify-center items-end w-full  bg-black animate-in fade-in-0 duration-300">
-        <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 p-4 flex justify-center bg-white w-full">
+      <section className="relative flex justify-center items-end w-full  bg-black dark:bg-darkalign animate-in fade-in-0 duration-300">
+        <div className="absolute  w-full bottom-0 left-1/2 transform -translate-x-1/2 p-4 flex justify-center bg-white dark:bg-darkalign">
           <SessionControls
             startSession={startSession}
             stopSession={stopSession}

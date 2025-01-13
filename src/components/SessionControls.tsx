@@ -62,7 +62,7 @@ const SessionActive: React.FC<SessionActiveProps> = ({
       <input
         type="text"
         placeholder="Send a text message..."
-        className="border border-[#E7E7E7] bg-graydark rounded-2xl p-4 min-w-full flex"
+        className="border border-[#E7E7E7] bg-graydark rounded-2xl p-4 min-w-full flex text-bodydark1 dark:bg-bodydark2 dark:border-none"
         value={message}
         onKeyDown={handleKeyDown}
         onChange={handleChange}
