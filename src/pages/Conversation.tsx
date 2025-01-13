@@ -869,8 +869,20 @@ const Conversation = () => {
       },
     ]);
     try {
+
+      let final_token = ""
+      if (token.startsWith("$")) {
+        final_token = token
+      }
+      else { 
+        final_token = `$${token}`
+      }
+      console.log(final_token)
+      const data = await getRugCheck(final_token);
+
       
       const data = await getRugCheck(`$${token}`);
+
       if (!data) {
         setMessageList((prev) => [
           ...(prev || []),
