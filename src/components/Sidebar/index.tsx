@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import SidebarLinkGroup from './SidebarLinkGroup';
 import { usePrivy } from '@privy-io/react-auth';
-import { Users, MoreVertical, DollarSign } from 'react-feather';
+import { Users, MoreVertical, DollarSign, MessageSquare, CreditCard } from 'react-feather';
 import useChatState from '../../store/zustand/ChatState';
 import useAppState from '../../store/zustand/AppState';
 import { Switch } from '@headlessui/react';
@@ -95,16 +95,16 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
   return (
     <aside
       ref={sidebar}
-      className={`absolute left-0 top-0 z-9999 flex h-screen w-72.5 flex-col overflow-y-hidden bg-[#F9F9F9] duration-300 ease-linear dark:bg-boxdark lg:static lg:translate-x-0 ${
+      className={`absolute left-0 top-0 z-9999 flex h-screen w-72.5 flex-col overflow-y-hidden bg-[#F9F9F9] duration-300 ease-linear dark:bg-bodydark1 lg:static lg:translate-x-0 ${
         sidebarOpen ? 'translate-x-0' : '-translate-x-full'
       }`}
     >
       {/* <!-- SIDEBAR HEADER --> */}
       <div className="flex items-center justify-between gap-2 px-6 py-5.5 lg:py-6.5">
-        <NavLink to="/" className="text-bodydark1 font-semibold">
+        <NavLink to="/" className="text-bodydark1 font-semibold dark:text-purple-300">
           Sola AI
         </NavLink>
-        <div className="bg-bodydark1 text-gray-2 py-2 px-4 text-sm rounded-lg">
+        <div className="bg-bodydark1 text-gray-2 py-2 px-4 text-sm rounded-lg dark:bg-purple-300 dark:text-bodydark1 dark:font-medium">
           CLOSED BETA
         </div>
 
@@ -137,7 +137,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
         <nav className="mt-5 py-4 px-4 lg:mt-9 lg:px-6">
           {/* <!-- Menu Group --> */}
           <div>
-            <h3 className="mb-4 ml-4 text-sm font-semibold text-bodydark2">
+            <h3 className="mb-4 ml-4 text-sm font-semibold text-bodydark2 dark:text-purple-300">
               MENU
             </h3>
 
@@ -146,23 +146,11 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
               <li>
                 <NavLink
                   to="/home"
-                  className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${
-                    pathname.includes('home') && 'bg-graydark dark:bg-meta-4'
+                  className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-small text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 dark:text-bodydark2 ${
+                    pathname.includes('home') && 'bg-graydark dark:bg-meta-4 '
                   }`}
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="#1D1D1F"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-                  </svg>
+                  <MessageSquare />
                   Main Conversation
                 </NavLink>
               </li>
@@ -172,27 +160,11 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
               <li>
                 <NavLink
                   to="/wallet"
-                  className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${
+                  className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-small text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 dark:text-bodydark2 ${
                     pathname.includes('wallet') && 'bg-graydark dark:bg-meta-4'
                   }`}
                 >
-                  <svg
-                    className="fill-current"
-                    width="18"
-                    height="18"
-                    viewBox="0 0 18 18"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M9.0002 7.79065C11.0814 7.79065 12.7689 6.1594 12.7689 4.1344C12.7689 2.1094 11.0814 0.478149 9.0002 0.478149C6.91895 0.478149 5.23145 2.1094 5.23145 4.1344C5.23145 6.1594 6.91895 7.79065 9.0002 7.79065ZM9.0002 1.7719C10.3783 1.7719 11.5033 2.84065 11.5033 4.16252C11.5033 5.4844 10.3783 6.55315 9.0002 6.55315C7.62207 6.55315 6.49707 5.4844 6.49707 4.16252C6.49707 2.84065 7.62207 1.7719 9.0002 1.7719Z"
-                      fill=""
-                    />
-                    <path
-                      d="M10.8283 9.05627H7.17207C4.16269 9.05627 1.71582 11.5313 1.71582 14.5406V16.875C1.71582 17.2125 1.99707 17.5219 2.3627 17.5219C2.72832 17.5219 3.00957 17.2407 3.00957 16.875V14.5406C3.00957 12.2344 4.89394 10.3219 7.22832 10.3219H10.8564C13.1627 10.3219 15.0752 12.2063 15.0752 14.5406V16.875C15.0752 17.2125 15.3564 17.5219 15.7221 17.5219C16.0877 17.5219 16.3689 17.2407 16.3689 16.875V14.5406C16.2846 11.5313 13.8377 9.05627 10.8283 9.05627Z"
-                      fill=""
-                    />
-                  </svg>
+                  <CreditCard className='' />
                   Wallet Management
                 </NavLink>
               </li>
@@ -202,7 +174,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
               <li>
                 <NavLink
                   to="/onramp"
-                  className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${
+                  className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-small text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 dark:text-bodydark2 ${
                     pathname.includes('onramp') && 'bg-graydark dark:bg-meta-4'
                   }`}
                 >
@@ -216,7 +188,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
 
           {/* <!-- Others Group --> */}
           <div>
-            <h3 className="mb-4 ml-4 text-sm font-semibold text-bodydark2">
+            <h3 className="mb-4 ml-4 text-sm font-semibold text-bodydark2 dark:text-purple-300">
               OTHERS
             </h3>
 
@@ -233,7 +205,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                       <React.Fragment>
                         <NavLink
                           to="#"
-                          className={`group relative flex items-center gap-2.5 rounded-sm px-4 py-2 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${
+                          className={`group relative flex items-center gap-2.5 rounded-sm px-4 py-2 font-small text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 dark:text-bodydark2 ${
                             (pathname === '/settings' ||
                               pathname.includes('settings')) &&
                             'bg-graydark dark:bg-meta-4'
@@ -308,7 +280,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                               <NavLink
                                 to="/settings/configuration"
                                 className={({ isActive }) =>
-                                  'group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:bg-graydark ' +
+                                  'group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:bg-meta-2 dark:hover:bg-meta-4' +
                                   (isActive && 'bg-graydark dark:bg-meta-4')
                                 }
                               >
@@ -328,13 +300,13 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
               <li>
                 {/* <!-- Toggle Theme Element --> */}
                 <div
-                  className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out dark:hover:bg-meta-4`}
+                  className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out dark:text-bodydark2`}
                 >
                   App Theme{' '}
                   <Switch
                     checked={theme === 'light' ? false : true}
                     onChange={toggleTheme}
-                    className="group relative flex h-7 w-14 cursor-pointer rounded-full bg-bodydark2 p-1 transition-colors duration-200 ease-in-out focus:outline-none data-[focus]:outline-1 data-[focus]:outline-white data-[checked]:bg-bodydark1"
+                    className="group relative flex h-7 w-14 cursor-pointer rounded-full bg-bodydark2 p-1 transition-colors duration-200 ease-in-out focus:outline-none data-[focus]:outline-1 data-[focus]:outline-white data-[checked]:bg-purple-300"
                   >
                     <span
                       aria-hidden="true"
@@ -352,23 +324,23 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
         {/* <!-- Sidebar Footer --> */}
         <div className=" relative flex flex-col items-center w-full gap-2 px-6 py-5.5 lg:py-6.5 ">
           {isLogoutVisible && (
-            <div className="flex items-center justify-between w-full gap-2 p-2 text-base font-bold bg-boxdark-2 rounded-md hover:bg-boxdark ease-in-out">
+            <div className="flex items-center justify-between w-full gap-2 p-2 text-base font-bold bg-boxdark-2 rounded-md hover:bg-boxdark dark:bg-purple-300 ease-in-out ">
               <button
                 onClick={logoutHandler}
-                className="text-center text-bodydark w-full"
+                className="text-center text-bodydark w-full dark:text-bodydark1"
               >
                 Logout
               </button>
             </div>
           )}
           <div
-            className={`flex items-center justify-between w-full gap-2 p-2 cursor-pointer hover:bg-graydark dark:hover:bg-meta-4 ${
-              isLogoutVisible && 'bg-graydark'
+            className={`flex items-center justify-between w-full gap-2 p-2 cursor-pointer hover:bg-graydark dark:bg-bodydark1 dark:hover:bg-meta-4  ${
+              isLogoutVisible && 'bg-graydark '
             }`}
             onClick={toggleLogout}
           >
             <div className="flex-shrink-0">
-              <Users className="text-bodydark1 w-6 h-6" />
+              <Users className="text-bodydark1 w-6 h-6 dark:text-bodydark2" />
             </div>
             <div className="flex-1 text-sm font-medium text-bodydark2 overflow-hidden text-ellipsis whitespace-nowrap">
               @{user?.email ? user.email.address.split('@')[0] : 'Anonymous'}
