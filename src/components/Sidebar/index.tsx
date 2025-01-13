@@ -146,7 +146,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
               <li>
                 <NavLink
                   to="/home"
-                  className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-small text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 dark:text-bodydark2 ${
+                  className={`group relative flex items-center gap-2.5 rounded-lg py-2 px-4 font-small text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 dark:text-bodydark2 ${
                     pathname.includes('home') && 'bg-graydark dark:bg-meta-4 '
                   }`}
                 >
@@ -160,7 +160,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
               <li>
                 <NavLink
                   to="/wallet"
-                  className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-small text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 dark:text-bodydark2 ${
+                  className={`group relative flex items-center gap-2.5 rounded-lg py-2 px-4 font-small text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 dark:text-bodydark2 ${
                     pathname.includes('wallet') && 'bg-graydark dark:bg-meta-4'
                   }`}
                 >
@@ -174,7 +174,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
               <li>
                 <NavLink
                   to="/onramp"
-                  className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-small text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 dark:text-bodydark2 ${
+                  className={`group relative flex items-center gap-2.5 rounded-lg py-2 px-4 font-small text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 dark:text-bodydark2 ${
                     pathname.includes('onramp') && 'bg-graydark dark:bg-meta-4'
                   }`}
                 >
@@ -205,7 +205,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                       <React.Fragment>
                         <NavLink
                           to="#"
-                          className={`group relative flex items-center gap-2.5 rounded-sm px-4 py-2 font-small text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 dark:text-bodydark2 ${
+                          className={`group relative flex items-center gap-2.5 rounded-lg px-4 py-2 font-small text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 dark:text-bodydark2 ${
                             (pathname === '/settings' ||
                               pathname.includes('settings')) &&
                             'bg-graydark dark:bg-meta-4'
@@ -275,12 +275,12 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                             !open && 'hidden'
                           }`}
                         >
-                          <ul className="mb-5.5 mt-4 flex flex-col gap-2.5 pl-6">
+                          <ul className="mb-5.5 flex flex-col gap-2.5 pl-6">
                             <li>
                               <NavLink
                                 to="/settings/configuration"
                                 className={({ isActive }) =>
-                                  'group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:bg-meta-2 dark:hover:bg-meta-4' +
+                                  'group relative flex items-center gap-2.5 rounded-md p-2 m-2 font-medium text-bodydark2 duration-300 ease-in-out hover:bg-meta-2 dark:hover:bg-meta-4' +
                                   (isActive && 'bg-graydark dark:bg-meta-4')
                                 }
                               >
@@ -334,7 +334,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
             </div>
           )}
           <div
-            className={`flex items-center justify-between w-full gap-2 p-2 cursor-pointer hover:bg-graydark dark:bg-bodydark1 dark:hover:bg-meta-4  ${
+            className={`flex items-center justify-between w-full gap-2 p-2 cursor-pointer rounded-lg hover:bg-graydark dark:bg-bodydark1 dark:hover:bg-meta-4  ${
               isLogoutVisible && 'bg-graydark '
             }`}
             onClick={toggleLogout}
