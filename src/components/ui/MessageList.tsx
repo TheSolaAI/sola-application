@@ -610,7 +610,7 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
           };
 
             return (
-            <div className="grid grid-cols-1 gap-6 my-4">
+            <div className="grid grid-cols-1 gap-2 my-4 bg-[#F5F5F5] rounded-lg p-4">
               {/* Display overall risk score */}
               <div className="flex items-center gap-3">
                 <h3 className={scoreColor}>
@@ -621,16 +621,16 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
               {/* Display risk details */}
               <div className="flex flex-col gap-4">
                 {rugCheckCard.issues.length === 0 ? (
-                  <p className="text-green-500">No Risks Found</p>
+                  <p className="text-green-500 font-thin">No Risks Found</p>
                 ) : (
                   rugCheckCard.issues.map((risk, index) => (
-                    <div key={index} className="border p-4 rounded shadow">
+                    <div key={index} className="bg-[#F5F5F5] p-4 rounded-lg shadow">
                       <h4 className={`font-bold ${getRiskColor(risk.level)}`}>
                         {risk.name} ({risk.level})
                       </h4>
                       <p>{risk.description}</p>
-                      {risk.value && <p>Value: {risk.value}</p>}
-                      <p>Score: {risk.score}</p>
+                      {risk.value && <p className='font-thin'>Value: {risk.value}</p>}
+                      <p className='font-thin'>Score: {risk.score}</p>
                     </div>
                   ))
                 )}

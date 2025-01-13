@@ -2,7 +2,7 @@ import axios from 'axios';
 import { RugCheck } from '../../types/data_types';
 
 
-const data_service_url = "http://localhost:3001/rug?address="
+const data_service_url = process.env.PROXY_SERVER2_URL || "http://localhost:3001/rug?address="
 
 export async function getRugCheck(token:string): Promise<RugCheck | null> {
   try {
