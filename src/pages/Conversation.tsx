@@ -865,21 +865,22 @@ const Conversation = () => {
       ...(prev || []),
       {
         type: 'agent',
-        message: `Fetching Token Info for ${token}`,
+        message: `Checking if $${token} is a rug.`,
       },
     ]);
     try {
-      const data = await getRugCheck(token);
+      
+      const data = await getRugCheck(`$${token}`);
       if (!data) {
         setMessageList((prev) => [
           ...(prev || []),
           {
             type: 'message',
-            message: 'Oops! There has been a problem while fetching token data',
+            message: 'Oops! There has been a problem while identifying the data',
           },
         ]);
         return responseToOpenai(
-          'tell the user that there has been a problem while fetching token data, do not repeat the address, only repeat if its a ticker',
+          'tell the user that there has been a problem identifying the data, do not repeat the address, only repeat if its a ticker',
         );
       }
 
@@ -893,14 +894,14 @@ const Conversation = () => {
         },
       ]);
       return responseToOpenai(
-        `tell the user that the token has a risk score of ${rug_check_card.score}`,
+        `tell the user that the token has a risk score of ${rug_check_card.score}. if its above 0 and less than 200, its risky, and if its above 200 then high chances that it could be a rug`,
       );
     } catch (error) {
       setMessageList((prev) => [
         ...(prev || []),
         {
           type: 'message',
-          message: 'Oops! There has been a problem while fetching lst data',
+          message: 'Oops! There has been a problem while identifying the data',
         },
       ]);
       return responseToOpenai(

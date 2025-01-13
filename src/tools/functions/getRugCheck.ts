@@ -1,5 +1,5 @@
 const functionDescription =
-  'Call this function when the user wants to know whether a token is a rug or a scam. You will be given either the ticker or address of the token, and you respond with the statistics given to you.';
+  'Call this function when the user wants to know whether a token is a rug or a scam. You will be given either the name or address of the token, and you respond with the statistics given to you.';
 
 export const getRugCheck = {
   type: 'function',
@@ -11,7 +11,7 @@ export const getRugCheck = {
       properties: {
       token: {
         type: 'string',
-        description: 'The ticker or address of the token',
+        description: 'The name or address of the token',
       },
     },
     required: ['token'],
