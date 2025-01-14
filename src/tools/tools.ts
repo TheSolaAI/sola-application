@@ -16,6 +16,7 @@ import { test } from './functions/test';
 import { transferSpl } from './functions/transferSpl';
 import { fetchWallet } from './functions/fetchWallet';
 import { getRugCheck } from './functions/getRugCheck';
+import { getMarketData } from './functions/getMarketData';
 
 
 const instructions = `
@@ -49,6 +50,7 @@ export const tools = {
       transferSpl,
       fetchWallet,
       getRugCheck,
+      getMarketData,
       test
     ],
     tool_choice: 'auto',
