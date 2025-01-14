@@ -14,6 +14,7 @@ export type MessageCard = {
     | 'luloCard'
     | 'sanctumCard'
     | 'rugCheckCard'
+    | 'marketDataCard'
     | 'trendingNFTCard';
   message?: string;
   card?:
@@ -26,6 +27,7 @@ export type MessageCard = {
     | TransactionCard
     | SanctumCard[]
     | RugCheckCard
+    | MarketDataCard
     | TrendingNFTCard[];
   link?: string;
 };
@@ -116,4 +118,14 @@ export interface Risk {
   score: number; 
   level: 'none' | 'warn' | 'danger'; 
 }
+export interface MarketDataCard {
+  marketAnalysis: string;
+  coinInfo: CoinInfo[]
+}
 
+export interface CoinInfo { 
+  symbol: string,
+  price: string,
+  change: string,
+  sparkLine: string
+}

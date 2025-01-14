@@ -1,6 +1,8 @@
 import axios from 'axios'
 
-const url = process.env.PROXY_SERVER2_URL
+
+const url = "http://localhost:3001/"
+
 export const getMarketData = async () => {
     if (!url) { 
         return;
@@ -9,3 +11,5 @@ export const getMarketData = async () => {
   const response = await axios.get(market_url);
   return response.data;
 };
+
+ 
