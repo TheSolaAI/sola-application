@@ -40,6 +40,7 @@ import { getAssociatedTokenAddress } from '@solana/spl-token';
 import { transferSplTx } from '../lib/solana/transferSpl';
 import { assert } from 'console';
 import { getRugCheck } from '../lib/solana/rugCheck';
+import { getMarketData } from '../lib/utils/marketMacro';
 
 const Conversation = () => {
   const {
@@ -72,12 +73,56 @@ const Conversation = () => {
   
 
   const rpc = process.env.SOLANA_RPC;
-  interface AssetList {
-    [key: string]: any;
-  }
-
   
 
+  
+  const marketMacro = async () => { 
+
+    setMessageList((prev) => [
+      ...(prev || []),
+      {
+        type: 'agent',
+        message: `Agent is scanning the market`,
+      },
+    ]);
+
+    let marketData = await getMarketData();
+    let market = marketData["market"];
+    let voice = marketData["voice"];
+    let stats = marketData['stats'];
+    let btcDominance = stats['btcDominance'];
+    let ethDominance = stats['ethDominance'];
+
+
+    setMessageList((prev) => [
+      ...(prev || []),
+      {
+        type: 'agent',
+        message: market,
+      },
+    ]);
+
+    setMessageList((prev) => [
+      ...(prev || []),
+      {
+        type: 'agent',
+        message: `Todays BTCDOM: ${btcDominance}`,
+      },
+    ]);
+
+    setMessageList((prev) => [
+      ...(prev || []),
+      {
+        type: 'agent',
+        message: `Todays ETHDOM: ${ethDominance} `,
+      },
+    ]);
+    
+    return responseToOpenai(
+      `tell the user the contents of ${voice} and ask them what they want to do`
+    )    
+
+  }
   const transferSol = async (amount: number, to: string) => {
     if (!appWallet) return null;
     if (!rpc)
@@ -1358,6 +1403,10 @@ const Conversation = () => {
             } else if (output.name === 'getRugCheck') {
                 const { token } = JSON.parse(output.arguments);
                 let response = await handleRugCheck(token)
+                sendClientEvent(response);
+            }
+              else if (output.name === 'getMarketData') {
+                let response = await marketMacro()
                 sendClientEvent(response);
               }
           }
