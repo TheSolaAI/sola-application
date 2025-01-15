@@ -44,7 +44,6 @@ import { assert } from 'console';
 import { getRugCheck } from '../lib/solana/rugCheck';
 import { getMarketData } from '../lib/utils/marketMacro';
 
-//todo voice speed and clarity customs
 
 const Conversation = () => {
   const {
@@ -88,6 +87,7 @@ const Conversation = () => {
     ]);
 
     let marketData = await getMarketData();
+
     
     let market = marketData["market"];
     let voice = marketData["voice"];
@@ -128,7 +128,14 @@ const Conversation = () => {
     }
 
     
-    //todo create a ui for displaying the data
+
+    let market = marketData["market"];
+    let voice = marketData["voice"];
+    let stats = marketData['stats'];
+    let btcDominance = stats['btcDominance'];
+    let ethDominance = stats['ethDominance'];
+
+
 
     setMessageList((prev) => [
       ...(prev || []),
@@ -154,6 +161,7 @@ const Conversation = () => {
       },
     ]);
 
+
     coin_info.forEach(item => {
       setMessageList((prev) => [
         ...(prev || []),
@@ -163,6 +171,9 @@ const Conversation = () => {
         },
       ])
     });
+    
+
+
     
 
     return responseToOpenai(
