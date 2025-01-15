@@ -38,7 +38,6 @@
     "toml": "^3.0.0",
     "toml-json": "^1.1.4",
     "vite-plugin-compression": "^0.5.1",
-    "vite-plugin-inspect": "^10.0.6",
     "zustand": "^5.0.2"
   },
   "devDependencies": {
