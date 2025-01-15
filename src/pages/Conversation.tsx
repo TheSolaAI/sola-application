@@ -424,7 +424,7 @@ const Conversation = () => {
       );
     }
 
-    
+    const amount = quantity * 10 ** tokenList[tokenA].DECIMALS;
     const tokenAAsset = getAssetById(tokenList[tokenA].MINT);
     if (!tokenAAsset || tokenAAsset.balance < amount) {
       setMessageList((prev) => [
