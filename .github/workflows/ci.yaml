@@ -43,5 +43,20 @@ jobs:
 
       - name: Deploy to server
         run: |
-          aws s3 sync dist/ s3://sola-frontend/ --cache-control max-age=60
+          aws s3 sync dist/ s3://sola-frontend/ \
+            --exclude "*" \
+            --include "*.br" \
+            --content-encoding br \
+            --cache-control max-age=60 \
+            --metadata-directive REPLACE
+          aws s3 sync dist/ s3://sola-frontend/ \
+            --exclude "*" \
+            --include "*.gz" \
+            --content-encoding gzip \
+            --cache-control max-age=60 \
+            --metadata-directive REPLACE
+          aws s3 sync dist/ s3://sola-frontend/ \
+            --exclude "*.br" \
+            --exclude "*.gz" \
+            --cache-control max-age=60
           aws cloudfront create-invalidation --distribution-id EWH631DYZXDBA --paths "/*"
