@@ -13,6 +13,8 @@ import {
   RugCheckCard,
   MarketDataCard,
   CoinInfo,
+  MarketDataCard,
+  CoinInfo,
 } from '../types/messageCard';
 import { SwapParams } from '../types/swap';
 import { swapTx } from '../lib/solana/swapTx';
@@ -1447,6 +1449,10 @@ const Conversation = () => {
             } else if (output.name === 'getRugCheck') {
                 const { token } = JSON.parse(output.arguments);
                 let response = await handleRugCheck(token)
+                sendClientEvent(response);
+            }
+              else if (output.name === 'getMarketData') {
+                let response = await marketMacro()
                 sendClientEvent(response);
             }
               else if (output.name === 'getMarketData') {

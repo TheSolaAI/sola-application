@@ -15,6 +15,7 @@ export type MessageCard = {
     | 'sanctumCard'
     | 'rugCheckCard'
     | 'marketDataCard'
+    | 'marketDataCard'
     | 'trendingNFTCard';
   message?: string;
   card?:
@@ -27,6 +28,7 @@ export type MessageCard = {
     | TransactionCard
     | SanctumCard[]
     | RugCheckCard
+    | MarketDataCard
     | MarketDataCard
     | TrendingNFTCard[];
   link?: string;
