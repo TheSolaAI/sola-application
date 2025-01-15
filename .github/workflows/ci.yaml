@@ -49,17 +49,14 @@ jobs:
             --content-encoding br \
             --cache-control max-age=60 \
             --metadata-directive REPLACE
-            --delete
           aws s3 sync dist/ s3://sola-frontend/ \
             --exclude "*" \
             --include "*.gz" \
             --content-encoding gzip \
             --cache-control max-age=60 \
             --metadata-directive REPLACE
-            --delete
           aws s3 sync dist/ s3://sola-frontend/ \
             --exclude "*.br" \
             --exclude "*.gz" \
             --cache-control max-age=60
-            --delete
           aws cloudfront create-invalidation --distribution-id EWH631DYZXDBA --paths "/*"
