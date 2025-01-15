@@ -11,6 +11,8 @@ import {
   NFTCollectionCard,
   TrendingNFTCard,
   RugCheckCard,
+  MarketDataCard,
+  CoinInfo,
 } from '../types/messageCard';
 import { SwapParams } from '../types/swap';
 import { swapTx } from '../lib/solana/swapTx';
@@ -42,6 +44,7 @@ import { assert } from 'console';
 import { getRugCheck } from '../lib/solana/rugCheck';
 import { getMarketData } from '../lib/utils/marketMacro';
 
+
 const Conversation = () => {
   const {
     isSessionActive,
@@ -62,7 +65,6 @@ const Conversation = () => {
   const [messageList, setMessageList] = useState<MessageCard[]>();
   const [fetchedToken, setFetchedToken] = useState<string>('');
   const [isLoaded, setIsLoaded] = useState<boolean>(true);
-
   const [localDataChannel, setLocalDataChannel] = useState(dataChannel);
 
   useEffect(() => {
@@ -73,9 +75,7 @@ const Conversation = () => {
   
 
   const rpc = process.env.SOLANA_RPC;
-  
 
-  
   const marketMacro = async () => { 
 
     setMessageList((prev) => [
@@ -87,11 +87,54 @@ const Conversation = () => {
     ]);
 
     let marketData = await getMarketData();
+
+    
+    let market = marketData["market"];
+    let voice = marketData["voice"];
+    let stats = marketData['stats'];
+    let priceInfo:any[] = marketData['priceInfo'];
+    let btcDominance = stats['btcDominance'];
+    let ethDominance = stats['ethDominance'];
+
+    let coin_info:CoinInfo[] = []
+    let count = 0;
+    priceInfo.forEach(item => { 
+      if (count <= 0) { 
+        let coin_symbol = item['symbol'];
+        let coin_price = item['price'];
+        let coin_change = item['change'];
+        let coin_sparkline = item["sparkLine"]
+        coin_info.push({
+          symbol: coin_symbol,
+          price: coin_price,
+          change: coin_change,
+          sparkLine: coin_sparkline,
+        });
+        count += 1;
+      }
+      if (item["symbol"] == "BTC") {
+        coin_info.push({
+          symbol: item['symbol'],
+          price: item['price'],
+          change: item['change'],
+          sparkLine: item['sparkLine'],
+        })
+       }
+    })
+
+    let marketDataCard:MarketDataCard = {
+      marketAnalysis: market,
+      coinInfo: coin_info,
+    }
+
+    
+
     let market = marketData["market"];
     let voice = marketData["voice"];
     let stats = marketData['stats'];
     let btcDominance = stats['btcDominance'];
     let ethDominance = stats['ethDominance'];
+
 
 
     setMessageList((prev) => [
@@ -117,7 +160,22 @@ const Conversation = () => {
         message: `Todays ETHDOM: ${ethDominance} `,
       },
     ]);
+
+
+    coin_info.forEach(item => {
+      setMessageList((prev) => [
+        ...(prev || []),
+        {
+          type: 'agent',
+          message: `Todays PriceInfo: ${item.symbol} ${item.price}$ ${Number(item.change).toFixed(2)}%`,
+        },
+      ])
+    });
     
+
+
+    
+
     return responseToOpenai(
       `tell the user the contents of ${voice} and ask them what they want to do`
     )    
