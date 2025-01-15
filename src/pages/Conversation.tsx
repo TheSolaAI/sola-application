@@ -13,8 +13,6 @@ import {
   RugCheckCard,
   MarketDataCard,
   CoinInfo,
-  MarketDataCard,
-  CoinInfo,
 } from '../types/messageCard';
 import { SwapParams } from '../types/swap';
 import { swapTx } from '../lib/solana/swapTx';
@@ -392,7 +390,9 @@ const Conversation = () => {
     quantity: number,
     tokenA: 'SOL' | 'SOLA' | 'USDC' | 'BONK' | 'USDT' | 'JUP' | 'WIF',
     tokenB: 'SOL' | 'SOLA' | 'USDC' | 'BONK' | 'USDT' | 'JUP' | 'WIF',
+    swapType: 'EXACT_IN' | 'EXACT_OUT' | 'EXACT_DOLLAR',
   ) => {
+
     if (!appWallet) return null;
     if (!rpc)
       return responseToOpenai(
@@ -424,7 +424,7 @@ const Conversation = () => {
       );
     }
 
-    const amount = quantity * 10 ** tokenList[tokenA].DECIMALS;
+    
     const tokenAAsset = getAssetById(tokenList[tokenA].MINT);
     if (!tokenAAsset || tokenAAsset.balance < amount) {
       setMessageList((prev) => [
@@ -1394,8 +1394,8 @@ const Conversation = () => {
               let response = await transferSol(quantity, address);
               sendClientEvent(response);
             } else if (output.name === 'swapTokens') {
-              const { quantity, tokenA, tokenB } = JSON.parse(output.arguments);
-              let response = await handleSwap(quantity, tokenA, tokenB);
+              const { swapType,quantity, tokenA, tokenB } = JSON.parse(output.arguments);
+              let response = await handleSwap(quantity, tokenA, tokenB,swapType);
               sendClientEvent(response);
             } else if (output.name === 'getTokenData') {
               const { token_address } = JSON.parse(output.arguments);
