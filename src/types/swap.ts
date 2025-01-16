@@ -5,6 +5,7 @@ export type SwapParams = {
   output_mint: string;
   public_key: string;
   amount: number;
+  swap_mode: string;
 };
 
 export type SwapResponse = {

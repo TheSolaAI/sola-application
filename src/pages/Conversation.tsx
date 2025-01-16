@@ -426,19 +426,19 @@ const Conversation = () => {
 
     const amount = quantity * 10 ** tokenList[tokenA].DECIMALS;
     const tokenAAsset = getAssetById(tokenList[tokenA].MINT);
-    if (!tokenAAsset || tokenAAsset.balance < amount) {
-      setMessageList((prev) => [
-        ...(prev || []),
-        {
-          type: 'message',
-          message:
-            'Either we dont support the token or you have insufficient balance',
-        },
-      ]);
-      return responseToOpenai(
-        'tell the user that they dont have enough balance perform the swap and ask them to fund the account',
-      );
-    }
+    // if (!tokenAAsset || tokenAAsset.balance < amount) {
+    //   setMessageList((prev) => [
+    //     ...(prev || []),
+    //     {
+    //       type: 'message',
+    //       message:
+    //         'Either we dont support the token or you have insufficient balance',
+    //     },
+    //   ]);
+    //   return responseToOpenai(
+    //     'tell the user that they dont have enough balance perform the swap and ask them to fund the account',
+    //   );
+    // }
 
     setMessageList((prev) => [
       ...(prev || []),
@@ -452,7 +452,8 @@ const Conversation = () => {
       input_mint: tokenList[tokenA].MINT,
       output_mint: tokenList[tokenB].MINT,
       public_key: `${appWallet.address}`,
-      amount: quantity * 10 ** tokenList[tokenA].DECIMALS,
+      amount: quantity,
+      swap_mode: swapType,
     };
 
     const connection = new Connection(rpc);
@@ -469,18 +470,31 @@ const Conversation = () => {
         'just tell the user that Swap failed and ask them to try later after some time',
       );
     }
+    const latestBlockHash = await connection.getLatestBlockhash();
+    
     const signedTransaction = await appWallet.signTransaction(transaction);
-    const signature = await connection.sendRawTransaction(
-      signedTransaction.serialize(),
-    );
-
+    
+    const rawTransaction = signedTransaction.serialize()
+    
+    const txid = await connection.sendRawTransaction(rawTransaction, {
+      skipPreflight: true,
+      maxRetries: 2
+    });
+    console.log(txid);
+    await connection.confirmTransaction({
+    blockhash: latestBlockHash.blockhash,
+    lastValidBlockHeight: latestBlockHash.lastValidBlockHeight,
+    signature: txid
+    });
+    
+  
     // TODO: implement dynamic status
     setMessageList((prev) => [
       ...(prev || []),
       {
         type: 'message',
         message: 'Swap transaction sent ',
-        link: `https://solscan.io/tx/${signature}`,
+        link: `https://solscan.io/tx/${txid}`,
       },
     ]);
 
@@ -1152,6 +1166,7 @@ const Conversation = () => {
         output_mint: address,
         public_key: appWallet.address,
         amount: swapAmount,
+        swap_mode:"EXACT_IN"
       };
 
       const transaction = await swapLST(params);
