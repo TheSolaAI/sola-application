@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { LiveAudioVisualizer } from 'react-audio-visualize';
-import { Connection, LAMPORTS_PER_SOL, PublicKey } from '@solana/web3.js';
+import { Connection, PublicKey } from '@solana/web3.js';
 import { transferSolTx } from '../lib/solana/transferSol';
 import {
   MessageCard,
@@ -38,9 +38,7 @@ import { Loader } from 'react-feather';
 import { getPublicKeyFromSolDomain } from '../lib/solana/sns';
 import { swapLST } from '../lib/solana/swapLst';
 import { fetchLSTAddress } from '../lib/utils/lst_reader';
-import { getAssociatedTokenAddress } from '@solana/spl-token';
 import { transferSplTx } from '../lib/solana/transferSpl';
-import { assert } from 'console';
 import { getRugCheck } from '../lib/solana/rugCheck';
 import { getMarketData } from '../lib/utils/marketMacro';
 
@@ -452,7 +450,8 @@ const Conversation = () => {
       input_mint: tokenList[tokenA].MINT,
       output_mint: tokenList[tokenB].MINT,
       public_key: `${appWallet.address}`,
-      amount: quantity * 10 ** tokenList[tokenA].DECIMALS,
+      amount: quantity,
+      swap_mode: swapType,
     };
 
     const connection = new Connection(rpc);
@@ -469,28 +468,33 @@ const Conversation = () => {
         'just tell the user that Swap failed and ask them to try later after some time',
       );
     }
+    const latestBlockHash = await connection.getLatestBlockhash();
+    
     const signedTransaction = await appWallet.signTransaction(transaction);
-    const signature = await connection.sendRawTransaction(
-      signedTransaction.serialize(),
-    );
+    
+    const rawTransaction = signedTransaction.serialize()
+    
+    const txid = await connection.sendRawTransaction(rawTransaction, {
+      skipPreflight: true,
+      maxRetries: 10
+    });
+    
 
+    // await connection.confirmTransaction({
+    // blockhash: latestBlockHash.blockhash,
+    // lastValidBlockHeight: latestBlockHash.lastValidBlockHeight,
+    // signature: txid
+    // });
+    
     // TODO: implement dynamic status
     setMessageList((prev) => [
       ...(prev || []),
       {
         type: 'message',
         message: 'Swap transaction sent ',
-        link: `https://solscan.io/tx/${signature}`,
+        link: `https://solscan.io/tx/${txid}`,
       },
     ]);
-
-    // console.log(
-    //   await connection.confirmTransaction({
-    //     blockhash,
-    //     lastValidBlockHeight,
-    //     signature,
-    //   }),
-    // );
 
     return responseToOpenai(
       'tell the user that swap transaction is sent to blockchain',
@@ -1152,6 +1156,7 @@ const Conversation = () => {
         output_mint: address,
         public_key: appWallet.address,
         amount: swapAmount,
+        swap_mode:"EXACT_IN"
       };
 
       const transaction = await swapLST(params);
