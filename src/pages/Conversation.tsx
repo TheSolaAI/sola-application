@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { LiveAudioVisualizer } from 'react-audio-visualize';
-import { Connection, LAMPORTS_PER_SOL, PublicKey } from '@solana/web3.js';
+import { Connection, PublicKey } from '@solana/web3.js';
 import { transferSolTx } from '../lib/solana/transferSol';
 import {
   MessageCard,
@@ -38,9 +38,7 @@ import { Loader } from 'react-feather';
 import { getPublicKeyFromSolDomain } from '../lib/solana/sns';
 import { swapLST } from '../lib/solana/swapLst';
 import { fetchLSTAddress } from '../lib/utils/lst_reader';
-import { getAssociatedTokenAddress } from '@solana/spl-token';
 import { transferSplTx } from '../lib/solana/transferSpl';
-import { assert } from 'console';
 import { getRugCheck } from '../lib/solana/rugCheck';
 import { getMarketData } from '../lib/utils/marketMacro';
 
@@ -426,19 +424,19 @@ const Conversation = () => {
 
     const amount = quantity * 10 ** tokenList[tokenA].DECIMALS;
     const tokenAAsset = getAssetById(tokenList[tokenA].MINT);
-    // if (!tokenAAsset || tokenAAsset.balance < amount) {
-    //   setMessageList((prev) => [
-    //     ...(prev || []),
-    //     {
-    //       type: 'message',
-    //       message:
-    //         'Either we dont support the token or you have insufficient balance',
-    //     },
-    //   ]);
-    //   return responseToOpenai(
-    //     'tell the user that they dont have enough balance perform the swap and ask them to fund the account',
-    //   );
-    // }
+    if (!tokenAAsset || tokenAAsset.balance < amount) {
+      setMessageList((prev) => [
+        ...(prev || []),
+        {
+          type: 'message',
+          message:
+            'Either we dont support the token or you have insufficient balance',
+        },
+      ]);
+      return responseToOpenai(
+        'tell the user that they dont have enough balance perform the swap and ask them to fund the account',
+      );
+    }
 
     setMessageList((prev) => [
       ...(prev || []),
@@ -478,16 +476,16 @@ const Conversation = () => {
     
     const txid = await connection.sendRawTransaction(rawTransaction, {
       skipPreflight: true,
-      maxRetries: 2
-    });
-    console.log(txid);
-    await connection.confirmTransaction({
-    blockhash: latestBlockHash.blockhash,
-    lastValidBlockHeight: latestBlockHash.lastValidBlockHeight,
-    signature: txid
+      maxRetries: 10
     });
     
-  
+
+    // await connection.confirmTransaction({
+    // blockhash: latestBlockHash.blockhash,
+    // lastValidBlockHeight: latestBlockHash.lastValidBlockHeight,
+    // signature: txid
+    // });
+    
     // TODO: implement dynamic status
     setMessageList((prev) => [
       ...(prev || []),
@@ -497,14 +495,6 @@ const Conversation = () => {
         link: `https://solscan.io/tx/${txid}`,
       },
     ]);
-
-    // console.log(
-    //   await connection.confirmTransaction({
-    //     blockhash,
-    //     lastValidBlockHeight,
-    //     signature,
-    //   }),
-    // );
 
     return responseToOpenai(
       'tell the user that swap transaction is sent to blockchain',
