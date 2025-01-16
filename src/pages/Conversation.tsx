@@ -88,7 +88,7 @@ const Conversation = () => {
     ]);
 
     let marketData = await getMarketData();
-    
+    console.log(marketData)
     let market:string = marketData["market"];
     console.log(market)
     let voice = marketData["voice"];
@@ -1455,10 +1455,6 @@ const Conversation = () => {
                 let response = await marketMacro()
                 sendClientEvent(response);
             }
-              else if (output.name === 'getMarketData') {
-                let response = await marketMacro()
-                sendClientEvent(response);
-              }
           }
         }
       }
