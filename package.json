@@ -14,7 +14,7 @@
     "@bonfida/spl-name-service": "^3.0.7",
     "@headlessui/react": "^2.2.0",
     "@microsoft/clarity": "^1.0.0",
-    "@privy-io/react-auth": "^1.98.4",
+    "@privy-io/react-auth": "^2.0.3",
     "@sentry/react": "^8.47.0",
     "@sentry/vite-plugin": "^2.22.7",
     "@solana/spl-token": "^0.4.9",
