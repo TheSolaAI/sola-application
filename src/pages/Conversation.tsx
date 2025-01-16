@@ -422,21 +422,6 @@ const Conversation = () => {
       );
     }
 
-    const amount = quantity * 10 ** tokenList[tokenA].DECIMALS;
-    const tokenAAsset = getAssetById(tokenList[tokenA].MINT);
-    if (!tokenAAsset || tokenAAsset.balance < amount) {
-      setMessageList((prev) => [
-        ...(prev || []),
-        {
-          type: 'message',
-          message:
-            'Either we dont support the token or you have insufficient balance',
-        },
-      ]);
-      return responseToOpenai(
-        'tell the user that they dont have enough balance perform the swap and ask them to fund the account',
-      );
-    }
 
     setMessageList((prev) => [
       ...(prev || []),
