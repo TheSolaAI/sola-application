@@ -791,7 +791,11 @@ const Conversation = () => {
           'tell the user that there has been a problem with fetching token data and ask them to try later.',
         );
       }
-
+            
+      if (data.price_change_24 == null) {
+        data.price_change_24 = 0;
+      }
+      
       let token_card: TokenCard[] = [
         {
           address: tokenMint,
@@ -799,9 +803,16 @@ const Conversation = () => {
           metadata: data.metadata,
           price: data.price.toString(),
           marketCap: data.marketcap.toString(),
+          volume: data.volume.toString(),
+          priceChange: data.price_change_24.toString() || 'NaN',
         },
       ];
 
+      console.log(token_card);
+
+      
+
+      
       setMessageList((prev) => [
         ...(prev || []),
         {
@@ -809,7 +820,9 @@ const Conversation = () => {
           card: token_card,
         },
       ]);
-      return responseToOpenai('Ask if the user needed anything else.');
+
+      return responseToOpenai('The token data has been fetched successfully.Do not repeat the address. Ask if the user needed anything else.');
+
     } catch (error) {
       setMessageList((prev) => [
         ...(prev || []),
@@ -855,6 +868,9 @@ const Conversation = () => {
         );
       }
 
+
+      
+
       let token_card: TokenCard[] = [
         {
           address: data.metadata.description,
@@ -863,7 +879,7 @@ const Conversation = () => {
           price: data.price.toString(),
           marketCap: data.marketcap.toString(),
           volume: data.volume.toString(),
-          priceChange: data.price_change_24h.toString(),
+          priceChange: data.price_change_24.toString(),
         },
       ];
 
