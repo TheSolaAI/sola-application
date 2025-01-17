@@ -86,6 +86,7 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
       output_mint: address,
       public_key: solanaWallet.address,
       amount: fin_amount,
+      swap_mode: 'EXACT_IN',
     };
     console.log(address);
     try {
