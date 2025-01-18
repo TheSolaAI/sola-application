@@ -1,13 +1,14 @@
-export type RegisterUser = {
-  email: string;
-  id: string;
-  connect_wallet: string;
+import { ThemeType } from "../app";
+
+export type RegisterUserResponse = {
+  id: number;
+  privy_wallet_id: string;
+  wallet_id: string;
   wallet_Provider: string;
 };
 
-export type UserSettings = {
-  user_id: string;
-  theme: string;
+export type UserSettingsResponse = {
+  theme: ThemeType;
   voice_preference: string;
   emotion_choices: string;
 };
