@@ -1195,10 +1195,16 @@ const Conversation = () => {
       },
     ]);
 
-    if (token.startsWith('$')) {
-      const tokenDetails = await getTokenDataSymbol(token);
-      token = tokenDetails?.metadata.description || 'NaN';
+    try{
+      if (token.startsWith('$')) {
+        const tokenDetails = await getTokenDataSymbol(token);
+        token = tokenDetails?.metadata.description || 'NaN';
+      }
+    }catch(error){
+      return responseToOpenai("tell the user that there occured some problem while getting token details and ask them to try later")
     }
+
+    
 
     setMessageList((prev) => [
       ...(prev || []),
@@ -1207,6 +1213,8 @@ const Conversation = () => {
         card: { token: token },
       },
     ]);
+
+    return responseToOpenai('tell the user that bubblemap is successfully fetched')
   };
 
   const test = async () => {
@@ -1479,6 +1487,7 @@ const Conversation = () => {
             } else if (output.name === 'getBubblemap') {
               const { token } = JSON.parse(output.arguments);
               let response = await handleBubblemap(token);
+              sendClientEvent(response)
             }
           }
         }
