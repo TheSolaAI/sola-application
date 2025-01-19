@@ -490,6 +490,7 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                         key={idx}
                         className="bg-gray-200 dark:bg-darkalign1 text-gray-800 dark:text-bodydark p-2 rounded-md text-sm font-medium"
                         href={analysis.link}
+                        target="_blank"
                       >
                         {analysis.text}
                       </a>
