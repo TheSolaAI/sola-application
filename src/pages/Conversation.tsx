@@ -89,35 +89,35 @@ const Conversation = () => {
     console.log(market);
     let voice = marketData['voice'];
     let stats = marketData['stats'];
-    let priceInfo: any[] = marketData['priceInfo'];
+    // let priceInfo: any[] = marketData['priceInfo'];
     let btcDominance = stats['btcDominance'];
     let ethDominance = stats['ethDominance'];
 
-    let coin_info: CoinInfo[] = [];
-    let count = 0;
-    priceInfo.forEach((item) => {
-      if (count <= 0) {
-        let coin_symbol = item['symbol'];
-        let coin_price = item['price'];
-        let coin_change = item['change'];
-        let coin_sparkline = item['sparkLine'];
-        coin_info.push({
-          symbol: coin_symbol,
-          price: Number(Number(coin_price).toFixed(2)),
-          change: Number(Number(coin_change).toFixed(2)),
-          sparkLine: coin_sparkline,
-        });
-        count += 1;
-      }
-      if (item['symbol'] == 'BTC') {
-        coin_info.push({
-          symbol: item['symbol'],
-          price: Number(Number(item['price']).toFixed(2)),
-          change: Number(Number(item['change']).toFixed(2)),
-          sparkLine: item['sparkLine'],
-        });
-      }
-    });
+    // let coin_info: CoinInfo[] = [];
+    // let count = 0;
+    // priceInfo.forEach((item) => {
+    //   if (count <= 0) {
+    //     let coin_symbol = item['symbol'];
+    //     let coin_price = item['price'];
+    //     let coin_change = item['change'];
+    //     let coin_sparkline = item['sparkLine'];
+    //     coin_info.push({
+    //       symbol: coin_symbol,
+    //       price: Number(Number(coin_price).toFixed(2)),
+    //       change: Number(Number(coin_change).toFixed(2)),
+    //       sparkLine: coin_sparkline,
+    //     });
+    //     count += 1;
+    //   }
+    //   if (item['symbol'] == 'BTC') {
+    //     coin_info.push({
+    //       symbol: item['symbol'],
+    //       price: Number(Number(item['price']).toFixed(2)),
+    //       change: Number(Number(item['change']).toFixed(2)),
+    //       sparkLine: item['sparkLine'],
+    //     });
+    //   }
+    // });
 
     const marketInfo: string[] = market
       .trim()
@@ -127,7 +127,7 @@ const Conversation = () => {
     console.log(marketInfo);
     let marketDataCard: MarketDataCard = {
       marketAnalysis: marketInfo,
-      coinInfo: coin_info,
+      coinInfo: [],
     };
 
     //todo create a ui for displaying the data
@@ -1204,8 +1204,6 @@ const Conversation = () => {
       return responseToOpenai("tell the user that there occured some problem while getting token details and ask them to try later")
     }
 
-    
-
     setMessageList((prev) => [
       ...(prev || []),
       {
@@ -1222,10 +1220,12 @@ const Conversation = () => {
   };
 
   const startSession = async () => {
+    let url = process.env.DATA_SERVICE_URL;
     try {
       const tokenResponse = await fetch(
-        'https://sola-proxy-server-eight.vercel.app/session',
+        `${url}data/session/create`
       );
+      
       const data = await tokenResponse.json();
       const EPHEMERAL_KEY = data.client_secret.value;
 
