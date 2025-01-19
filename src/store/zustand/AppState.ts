@@ -16,7 +16,6 @@ interface AppState {
   setWallet: (wallet: ConnectedSolanaWallet) => void;
   setEmbeddedWalletVisibility: (visibility: boolean) => void;
   setAccessToken: (accessToken: string) => void;
-  toggleTheme: () => void;
   setTheme: (theme: ThemeType) => void;
   setAiVoice: (aiVoice: string) => void;
   setAiEmotion: (aiEmotion: string) => void;
@@ -38,20 +37,23 @@ const appStateCreator: StateCreator<AppState> = (set) => ({
   setEmbeddedWalletVisibility: (visibility: boolean) =>
     set({ embeddedWalletVisibility: visibility }),
   setAccessToken: (accessToken: string) => set({ accessToken }),
-  toggleTheme: () =>
-    set((state) => {
-      const newTheme: ThemeType = state.theme === 'dark' ? 'light' : 'dark';
-      localStorage.setItem('theme', newTheme);
-      document.documentElement.classList.remove(state.theme);
-      document.documentElement.classList.add(newTheme);
-      return { theme: newTheme };
-    }),
   setTheme: (theme: ThemeType) =>
     set((state) => {
+      const resolveTheme = (selectedTheme: ThemeType): ThemeType => {
+        if (selectedTheme === 'system') {
+          return window.matchMedia('(prefers-color-scheme: dark)').matches
+            ? 'dark'
+            : 'light';
+        }
+        return selectedTheme;
+      };
+
+      const resolvedTheme = resolveTheme(theme);
       localStorage.setItem('theme', theme);
       document.documentElement.classList.remove(state.theme);
-      document.documentElement.classList.add(theme);
-      return { theme };
+      document.documentElement.classList.add(resolvedTheme);
+
+      return { theme: resolvedTheme };
     }),
   setAiVoice: (aiVoice: string) => set({ aiVoice }),
   setAiEmotion: (aiEmotion: string) => set({ aiEmotion }),

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import SidebarLinkGroup from './SidebarLinkGroup';
-import { getAccessToken, usePrivy } from '@privy-io/react-auth';
+import { usePrivy } from '@privy-io/react-auth';
 import {
   Users,
   MoreVertical,
@@ -21,7 +21,7 @@ interface SidebarProps {
 }
 
 const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
-  const { user, logout } = usePrivy();
+  const { user, logout, getAccessToken } = usePrivy();
   const location = useLocation();
   const { pathname } = location;
 
@@ -47,8 +47,6 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
   const { theme } = useAppState();
 
   const toggleTheme = async () => {
-    const token = await getAccessToken();
-    setAccessToken(token);
     const newTheme: ThemeType = theme === 'dark' ? 'light' : 'dark';
     await updateSettings({ theme: newTheme });
   };
@@ -108,6 +106,15 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
       document.querySelector('body')?.classList.remove('sidebar-expanded');
     }
   }, [sidebarExpanded]);
+
+  useEffect(() => {
+    const fetchAccessToken = async () => {
+      const token = await getAccessToken();
+      setAccessToken(token);
+    };
+
+    fetchAccessToken();
+  }, []);
 
   return (
     <aside

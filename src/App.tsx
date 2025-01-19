@@ -65,11 +65,15 @@ function App() {
   }, [pathname]);
 
   useEffect(() => {
-    if (authenticated) {
-      initializeWallet();
-      registerUser();
-      updateUserSettings();
-    }
+    const initializeApp = async () => {
+      if (authenticated) {
+        await initializeWallet();
+        await registerUser();
+        await updateUserSettings();
+      }
+    };
+
+    initializeApp();
   }, [authenticated, memoizedCreateWallet, wallets.length]);
 
   const MemoizedAuthenticatedRoutes = useCallback(
