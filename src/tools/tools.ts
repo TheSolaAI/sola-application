@@ -1,4 +1,3 @@
-import { addCalenderEvent } from './functions/addCalenderEvent';
 import { getNFTLaunchpad } from './functions/getLaunchpadCollections';
 import { swapTokens } from './functions/swapTokens';
 import { toggleWallet } from './functions/toggleWallet';
@@ -12,14 +11,14 @@ import { getNFTPrice } from './functions/getNFTPrice';
 import { getTrendingNFTs } from './functions/getTrendingNFTs';
 import { getTokenDataSymbol } from './functions/getTokenDataSymbol';
 import { swapLST } from './functions/swapLSTfromClick';
-import { test } from './functions/test';
+// import { test } from './functions/test';
 import { transferSpl } from './functions/transferSpl';
 import { fetchWallet } from './functions/fetchWallet';
 import { getRugCheck } from './functions/getRugCheck';
 import { getMarketData } from './functions/getMarketData';
+import { getBubblemap } from './functions/getBubblemap';
 
 export const createToolsConfig = (aiVoice: string, aiEmotion: string) => {
-
   const instructions = `
     You are Sola AI, a voice assistant specializing in the Solana blockchain and its ecosystem, powered by the SOLA token. Your role is to provide accurate, real-time information and actionable advice in a professional, teacher-like tone.
 
@@ -40,11 +39,24 @@ export const createToolsConfig = (aiVoice: string, aiEmotion: string) => {
       instructions,
       voice: aiVoice,
       tools: [
-        toggleWallet, swapTokens, addCalenderEvent, getNFTLaunchpad, 
-        getLuloAssets, depositLulo, withdrawLulo, transferSolTx, 
-        getTokenData, getLstData, getNFTPrice, getTrendingNFTs, 
-        getTokenDataSymbol, swapLST, transferSpl, fetchWallet, 
-        getRugCheck, getMarketData, test,
+        toggleWallet,
+        swapTokens,
+        getNFTLaunchpad,
+        getLuloAssets,
+        depositLulo,
+        withdrawLulo,
+        transferSolTx,
+        getTokenData,
+        getLstData,
+        getNFTPrice,
+        getTrendingNFTs,
+        getTokenDataSymbol,
+        swapLST,
+        transferSpl,
+        fetchWallet,
+        getRugCheck,
+        getMarketData,
+        getBubblemap,
       ],
       tool_choice: 'auto',
       temperature: 0.6,

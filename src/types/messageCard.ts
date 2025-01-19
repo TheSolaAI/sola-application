@@ -16,7 +16,8 @@ export type MessageCard = {
     | 'rugCheckCard'
     | 'marketDataCard'
     | 'marketDataCard'
-    | 'trendingNFTCard';
+    | 'trendingNFTCard'
+    | 'bubblemapCard'
   message?: string;
   card?:
     | SingleCard
@@ -30,7 +31,8 @@ export type MessageCard = {
     | RugCheckCard
     | MarketDataCard
     | MarketDataCard
-    | TrendingNFTCard[];
+    | TrendingNFTCard[]
+    | BubblemapCard
   link?: string;
 };
 
@@ -68,7 +70,6 @@ export type NFTCard = {
 };
 
 export type TrendingNFTCard = {
-  
   name: string;
   floor_price: number;
   listed_count: number;
@@ -111,6 +112,10 @@ export interface SanctumCard {
 export interface RugCheckCard {
   score: number;
   issues: Risk[];
+}
+
+export interface BubblemapCard {
+  token: string;
 }
 
 export interface Risk {
