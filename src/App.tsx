@@ -16,10 +16,10 @@ function App() {
   const { authenticated, getAccessToken } = usePrivy();
   const { createWallet, wallets } = useSolanaWallets();
   const { setWallet } = useAppState();
-  const { authorized, setAuthorized, aiEmotion, aiVoice } = useAppState();
+  const { authorized, setAuthorized } = useAppState();
   const { pathname } = useLocation();
   const memoizedCreateWallet = useCallback(createWallet, []);
-  const { register, setAccessToken, updateSettings, fetchSettings } = useUser();
+  const { register, setAccessToken, fetchSettings } = useUser();
 
   const initializeWallet = async () => {
     try {
@@ -43,17 +43,7 @@ function App() {
   };
 
   const updateUserSettings = async () => {
-    const settings = await fetchSettings();
-    if (!settings) {
-      console.log(
-        await updateSettings({
-          theme: 'dark',
-          voice_preference: 'ash',
-          emotion_choices: 'highly energetic and cheerfully enthusiastic',
-        }),
-      );
-    }
-    console.log("app config",aiVoice, aiEmotion);
+    console.log(await fetchSettings());
   };
 
   useEffect(() => {
@@ -76,7 +66,7 @@ function App() {
 
   useEffect(() => {
     if (authenticated) {
-      // initializeWallet();
+      initializeWallet();
       registerUser();
       updateUserSettings();
     }

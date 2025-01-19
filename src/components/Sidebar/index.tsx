@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import SidebarLinkGroup from './SidebarLinkGroup';
-import { usePrivy } from '@privy-io/react-auth';
+import { getAccessToken, usePrivy } from '@privy-io/react-auth';
 import {
   Users,
   MoreVertical,
@@ -12,6 +12,8 @@ import {
 import useChatState from '../../store/zustand/ChatState';
 import useAppState from '../../store/zustand/AppState';
 import { Switch } from '@headlessui/react';
+import { ThemeType } from '../../types/app';
+import useUser from '../../hooks/useUser';
 
 interface SidebarProps {
   sidebarOpen: boolean;
@@ -40,7 +42,16 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
     setDataChannel,
   } = useChatState();
 
-  const { toggleTheme, theme } = useAppState();
+  const { updateSettings, setAccessToken } = useUser();
+
+  const { theme } = useAppState();
+
+  const toggleTheme = async () => {
+    const token = await getAccessToken();
+    setAccessToken(token);
+    const newTheme: ThemeType = theme === 'dark' ? 'light' : 'dark';
+    await updateSettings({ theme: newTheme });
+  };
 
   const toggleLogout = () => {
     setLogoutVisible(!isLogoutVisible);
