@@ -486,60 +486,19 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                   </h3>
                   <div className="flex flex-wrap gap-2">
                     {marketdataCard.marketAnalysis.map((analysis, idx) => (
-                      <span
+                      <a
                         key={idx}
                         className="bg-gray-200 dark:bg-darkalign1 text-gray-800 dark:text-bodydark p-2 rounded-md text-sm font-medium"
+                        href={analysis.link}
                       >
-                        {analysis}
-                      </span>
+                        {analysis.text}
+                      </a>
                     ))}
                   </div>
                 </div>
 
-                {/* Coin Info Section */}
-                <div>
-                  <h3 className="text-lg font-semibold mb-2">
-                    Coin Information
-                  </h3>
-                  <div className="space-y-4">
-                    {marketdataCard.coinInfo.map((coin, idx) => (
-                      <div
-                        key={idx}
-                        className="flex items-center justify-between bg-gray-100 dark:bg-darkalign1 p-3 rounded-md shadow-sm"
-                      >
-                        {/* Coin Symbol and Info */}
-                        <div className="flex flex-col">
-                          <span className="text-base font-bold">
-                            {coin.symbol}
-                          </span>
-                          <span className="text-sm text-gray-500 dark:text-bodydark">
-                            ${coin.price}
-                          </span>
-                          <span
-                            className={`text-sm ${
-                              coin.change > 0
-                                ? 'text-green-500'
-                                : 'text-red-500'
-                            }`}
-                          >
-                            {coin.change > 0 ? '+' : ''}
-                            {coin.change}%
-                          </span>
-                        </div>
-
-                        {/* Sparkline Graph */}
-                        <div className="w-24 h-10">
-                          <img
-                            src={coin.sparkLine}
-                            alt={`${coin.symbol} sparkline`}
-                            className="w-full h-full object-contain"
-                          />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
               </div>
+                
             );
 
           case 'sanctumCard':
