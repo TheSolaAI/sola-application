@@ -7,8 +7,8 @@ function WalletManagement() {
   const {
     appWallet,
     setWallet,
-    embeddedWalletVisiblity,
-    setEmbeddedWalletVisiblity,
+    embeddedWalletVisibility,
+    setEmbeddedWalletVisibility,
   } = useAppState();
   const { wallets } = useSolanaWallets();
 
@@ -22,7 +22,7 @@ function WalletManagement() {
   return (
     <div className="bg-white h-screen p-4 dark:bg-darkalign animate-in fade-in-0 duration-300">
       <div className='bg-graydark rounded-lg p-4 dark:bg-darkalign2'>
-        <h1 className="font-bold text-xl dark:text-purple-300">Wallet Management :</h1>
+        <h1 className="font-bold text-xl dark:text-purple-300">WALLET MANAGEMENT :</h1>
         <div className="flex flex-col gap-4 p-4 m-4 ">
           <div>
             <span className="text-boxdark font-medium dark:text-bodydark2">Switch Wallet : </span>
@@ -85,8 +85,8 @@ function WalletManagement() {
           <div className=" flex gap-2 text-boxdark font-medium dark:text-bodydark2">
             Embedded Wallet Confirmation {`(Experiment)`} :{' '}
             <Switch
-              checked={embeddedWalletVisiblity}
-              onChange={setEmbeddedWalletVisiblity}
+              checked={embeddedWalletVisibility}
+              onChange={setEmbeddedWalletVisibility}
               className="group relative flex h-7 w-14 cursor-pointer rounded-full bg-bodydark2 p-1 transition-colors duration-200 ease-in-out focus:outline-none data-[focus]:outline-1 data-[focus]:outline-white data-[checked]:bg-purple-300"
             >
               <span

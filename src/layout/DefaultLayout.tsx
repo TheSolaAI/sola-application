@@ -5,13 +5,13 @@ import Disclaimer from '../components/ui/Disclaimer';
 
 const DefaultLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { disclaimer, setDesclaimer } = useAppState();
+  const { disclaimer, setDisclaimer } = useAppState();
   return (
     <>
     
       <div className="dark:bg-boxdark-2 dark:text-bodydark">
         {/* <!-- ===== Page Wrapper Start ===== --> */}
-        <Disclaimer isOpen={disclaimer} setIsOpen={setDesclaimer} />
+        <Disclaimer isOpen={disclaimer} setIsOpen={setDisclaimer} />
         <div className="flex h-screen overflow-hidden">
           {/* <!-- ===== Sidebar Start ===== --> */}
           <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />

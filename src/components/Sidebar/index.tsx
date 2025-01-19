@@ -2,10 +2,18 @@ import React, { useEffect, useRef, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import SidebarLinkGroup from './SidebarLinkGroup';
 import { usePrivy } from '@privy-io/react-auth';
-import { Users, MoreVertical, DollarSign, MessageSquare, CreditCard } from 'react-feather';
+import {
+  Users,
+  MoreVertical,
+  DollarSign,
+  MessageSquare,
+  CreditCard,
+} from 'react-feather';
 import useChatState from '../../store/zustand/ChatState';
 import useAppState from '../../store/zustand/AppState';
 import { Switch } from '@headlessui/react';
+import { ThemeType } from '../../types/app';
+import useUser from '../../hooks/useUser';
 
 interface SidebarProps {
   sidebarOpen: boolean;
@@ -13,7 +21,7 @@ interface SidebarProps {
 }
 
 const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
-  const { user, logout } = usePrivy();
+  const { user, logout, getAccessToken } = usePrivy();
   const location = useLocation();
   const { pathname } = location;
 
@@ -34,7 +42,14 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
     setDataChannel,
   } = useChatState();
 
-  const { toggleTheme, theme } = useAppState();
+  const { updateSettings, setAccessToken } = useUser();
+
+  const { theme } = useAppState();
+
+  const toggleTheme = async () => {
+    const newTheme: ThemeType = theme === 'dark' ? 'light' : 'dark';
+    await updateSettings({ theme: newTheme });
+  };
 
   const toggleLogout = () => {
     setLogoutVisible(!isLogoutVisible);
@@ -92,6 +107,15 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
     }
   }, [sidebarExpanded]);
 
+  useEffect(() => {
+    const fetchAccessToken = async () => {
+      const token = await getAccessToken();
+      setAccessToken(token);
+    };
+
+    fetchAccessToken();
+  }, []);
+
   return (
     <aside
       ref={sidebar}
@@ -101,7 +125,10 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
     >
       {/* <!-- SIDEBAR HEADER --> */}
       <div className="flex items-center justify-between gap-2 px-6 py-5.5 lg:py-6.5">
-        <NavLink to="/" className="text-bodydark1 font-semibold dark:text-purple-300">
+        <NavLink
+          to="/"
+          className="text-bodydark1 font-semibold dark:text-purple-300"
+        >
           Sola AI
         </NavLink>
         <div className="bg-bodydark1 text-gray-2 py-2 px-4 text-sm rounded-lg dark:bg-purple-300 dark:text-bodydark1 dark:font-medium">
@@ -164,7 +191,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                     pathname.includes('wallet') && 'bg-graydark dark:bg-meta-4'
                   }`}
                 >
-                  <CreditCard className='' />
+                  <CreditCard className="" />
                   Wallet Management
                 </NavLink>
               </li>
@@ -280,8 +307,9 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                               <NavLink
                                 to="/settings/configuration"
                                 className={({ isActive }) =>
-                                  'group relative flex items-center gap-2.5 rounded-md p-2 m-2 font-medium text-bodydark2 duration-300 ease-in-out hover:bg-meta-2 dark:hover:bg-meta-4' +
-                                  (isActive && 'bg-graydark dark:bg-meta-4')
+                                  `group relative flex items-center gap-2.5 rounded-md p-2 m-2 font-medium text-bodydark2 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${
+                                    isActive ? 'bg-graydark dark:bg-meta-4' : ''
+                                  }`
                                 }
                               >
                                 Configuration

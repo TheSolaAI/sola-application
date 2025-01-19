@@ -16,7 +16,7 @@ import {
 } from '../types/messageCard';
 import { SwapParams } from '../types/swap';
 import { swapTx } from '../lib/solana/swapTx';
-import { tools } from '../tools/tools';
+import { createToolsConfig } from '../tools/tools';
 import SessionControls from '../components/SessionControls';
 import WalletUi from '../components/wallet/WalletUi';
 import MessageList from '../components/ui/MessageList';
@@ -70,13 +70,11 @@ const Conversation = () => {
     setLocalDataChannel(dataChannel);
   }, [dataChannel]);
 
-  const { appWallet, theme } = useAppState();
-  
+  const { appWallet, theme, aiEmotion, aiVoice } = useAppState();
 
   const rpc = process.env.SOLANA_RPC;
 
-  const marketMacro = async () => { 
-
+  const marketMacro = async () => {
     setMessageList((prev) => [
       ...(prev || []),
       {
@@ -86,23 +84,23 @@ const Conversation = () => {
     ]);
 
     let marketData = await getMarketData();
-    console.log(marketData)
-    let market:string = marketData["market"];
-    console.log(market)
-    let voice = marketData["voice"];
+    console.log(marketData);
+    let market: string = marketData['market'];
+    console.log(market);
+    let voice = marketData['voice'];
     let stats = marketData['stats'];
-    let priceInfo:any[] = marketData['priceInfo'];
+    let priceInfo: any[] = marketData['priceInfo'];
     let btcDominance = stats['btcDominance'];
     let ethDominance = stats['ethDominance'];
 
-    let coin_info:CoinInfo[] = []
+    let coin_info: CoinInfo[] = [];
     let count = 0;
-    priceInfo.forEach(item => { 
-      if (count <= 0) { 
+    priceInfo.forEach((item) => {
+      if (count <= 0) {
         let coin_symbol = item['symbol'];
         let coin_price = item['price'];
         let coin_change = item['change'];
-        let coin_sparkline = item["sparkLine"]
+        let coin_sparkline = item['sparkLine'];
         coin_info.push({
           symbol: coin_symbol,
           price: Number(Number(coin_price).toFixed(2)),
@@ -111,35 +109,34 @@ const Conversation = () => {
         });
         count += 1;
       }
-      if (item["symbol"] == "BTC") {
+      if (item['symbol'] == 'BTC') {
         coin_info.push({
           symbol: item['symbol'],
           price: Number(Number(item['price']).toFixed(2)),
           change: Number(Number(item['change']).toFixed(2)),
           sparkLine: item['sparkLine'],
-        })
-       }
-    })
-    
+        });
+      }
+    });
+
     const marketInfo: string[] = market
-    .trim()
-    .split('\n')
-    .map(line => line.replace(/^-\s*/, '')); 
-    
-    console.log(marketInfo)
-    let marketDataCard:MarketDataCard = {
+      .trim()
+      .split('\n')
+      .map((line) => line.replace(/^-\s*/, ''));
+
+    console.log(marketInfo);
+    let marketDataCard: MarketDataCard = {
       marketAnalysis: marketInfo,
       coinInfo: coin_info,
-    }
+    };
 
-    
     //todo create a ui for displaying the data
 
     setMessageList((prev) => [
       ...(prev || []),
       {
         type: 'marketDataCard',
-        card:marketDataCard
+        card: marketDataCard,
       },
     ]);
 
@@ -159,12 +156,10 @@ const Conversation = () => {
       },
     ]);
 
-
     return responseToOpenai(
-      `tell the user the contents of ${voice}, use current affairs on your own, to give report,  and ask them what they want to do`
-    )    
-
-  }
+      `tell the user the contents of ${voice}, use current affairs on your own, to give report,  and ask them what they want to do`,
+    );
+  };
   const transferSol = async (amount: number, to: string) => {
     if (!appWallet) return null;
     if (!rpc)
@@ -390,7 +385,6 @@ const Conversation = () => {
     tokenB: 'SOL' | 'SOLA' | 'USDC' | 'BONK' | 'USDT' | 'JUP' | 'WIF',
     swapType: 'EXACT_IN' | 'EXACT_OUT' | 'EXACT_DOLLAR',
   ) => {
-
     if (!appWallet) return null;
     if (!rpc)
       return responseToOpenai(
@@ -421,7 +415,6 @@ const Conversation = () => {
         'tell the user that they are trying to swap same token and ask them to select different token',
       );
     }
-
 
     setMessageList((prev) => [
       ...(prev || []),
@@ -454,23 +447,22 @@ const Conversation = () => {
       );
     }
     const latestBlockHash = await connection.getLatestBlockhash();
-    
+
     const signedTransaction = await appWallet.signTransaction(transaction);
-    
-    const rawTransaction = signedTransaction.serialize()
-    
+
+    const rawTransaction = signedTransaction.serialize();
+
     const txid = await connection.sendRawTransaction(rawTransaction, {
       skipPreflight: true,
-      maxRetries: 10
+      maxRetries: 10,
     });
-    
 
     // await connection.confirmTransaction({
     // blockhash: latestBlockHash.blockhash,
     // lastValidBlockHeight: latestBlockHash.lastValidBlockHeight,
     // signature: txid
     // });
-    
+
     // TODO: implement dynamic status
     setMessageList((prev) => [
       ...(prev || []),
@@ -956,7 +948,7 @@ const Conversation = () => {
     }
   };
 
-  const handleRugCheck= async (token:string) => {
+  const handleRugCheck = async (token: string) => {
     setMessageList((prev) => [
       ...(prev || []),
       {
@@ -965,22 +957,22 @@ const Conversation = () => {
       },
     ]);
     try {
-      let final_token = ""
-      if (token.startsWith("$")) {
-        final_token = token
+      let final_token = '';
+      if (token.startsWith('$')) {
+        final_token = token;
+      } else {
+        final_token = `$${token}`;
       }
-      else { 
-        final_token = `$${token}`
-      }
-      console.log(final_token)
+      console.log(final_token);
       const data = await getRugCheck(final_token);
-      
+
       if (!data) {
         setMessageList((prev) => [
           ...(prev || []),
           {
             type: 'message',
-            message: 'Oops! There has been a problem while identifying the data',
+            message:
+              'Oops! There has been a problem while identifying the data',
           },
         ]);
         return responseToOpenai(
@@ -1157,7 +1149,7 @@ const Conversation = () => {
         output_mint: address,
         public_key: appWallet.address,
         amount: swapAmount,
-        swap_mode:"EXACT_IN"
+        swap_mode: 'EXACT_IN',
       };
 
       const transaction = await swapLST(params);
@@ -1249,7 +1241,7 @@ const Conversation = () => {
       await pc.setLocalDescription(offer);
 
       const baseUrl = 'https://api.openai.com/v1/realtime';
-      const model = 'gpt-4o-realtime-preview-2024-12-17';
+      const model = 'gpt-4o-mini-realtime-preview-2024-12-17';
 
       const sdpResponse = await fetch(`${baseUrl}?model=${model}`, {
         method: 'POST',
@@ -1370,7 +1362,7 @@ const Conversation = () => {
         firstEvent.type === 'session.created' &&
         !events.some((e) => e.type === 'session.update')
       ) {
-        sendClientEvent(tools);
+        sendClientEvent(createToolsConfig(aiVoice, aiEmotion));
       }
 
       const mostRecentEvent = events[0];
@@ -1400,8 +1392,15 @@ const Conversation = () => {
               let response = await transferSol(quantity, address);
               sendClientEvent(response);
             } else if (output.name === 'swapTokens') {
-              const { swapType,quantity, tokenA, tokenB } = JSON.parse(output.arguments);
-              let response = await handleSwap(quantity, tokenA, tokenB,swapType);
+              const { swapType, quantity, tokenA, tokenB } = JSON.parse(
+                output.arguments,
+              );
+              let response = await handleSwap(
+                quantity,
+                tokenA,
+                tokenB,
+                swapType,
+              );
               sendClientEvent(response);
             } else if (output.name === 'getTokenData') {
               const { token_address } = JSON.parse(output.arguments);
@@ -1453,13 +1452,12 @@ const Conversation = () => {
               let response = await fetchWallet();
               sendClientEvent(response);
             } else if (output.name === 'getRugCheck') {
-                const { token } = JSON.parse(output.arguments);
-                let response = await handleRugCheck(token)
-                sendClientEvent(response);
-            }
-              else if (output.name === 'getMarketData') {
-                let response = await marketMacro()
-                sendClientEvent(response);
+              const { token } = JSON.parse(output.arguments);
+              let response = await handleRugCheck(token);
+              sendClientEvent(response);
+            } else if (output.name === 'getMarketData') {
+              let response = await marketMacro();
+              sendClientEvent(response);
             }
           }
         }
@@ -1489,7 +1487,7 @@ const Conversation = () => {
         >
           {mediaRecorder && (
             <LiveAudioVisualizer
-              barColor={theme == 'light' ? "#1D1D1F" : "#D8B4FE"}
+              barColor={theme == 'light' ? '#1D1D1F' : '#D8B4FE'}
               mediaRecorder={mediaRecorder}
               width={400}
               height={200}
