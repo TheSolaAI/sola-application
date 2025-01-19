@@ -126,7 +126,7 @@ export interface Risk {
   level: 'none' | 'warn' | 'danger'; 
 }
 export interface MarketDataCard {
-  marketAnalysis: string[];
+  marketAnalysis: MarketInfo[];
   coinInfo: CoinInfo[]
 }
 
@@ -135,4 +135,9 @@ export interface CoinInfo {
   price: number,
   change: number,
   sparkLine: string
+}
+
+export interface MarketInfo { 
+  text: string,
+  link:string
 }

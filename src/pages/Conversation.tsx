@@ -13,6 +13,7 @@ import {
   RugCheckCard,
   MarketDataCard,
   CoinInfo,
+  MarketInfo,
 } from '../types/messageCard';
 import { SwapParams } from '../types/swap';
 import { swapTx } from '../lib/solana/swapTx';
@@ -41,6 +42,7 @@ import { fetchLSTAddress } from '../lib/utils/lst_reader';
 import { transferSplTx } from '../lib/solana/transferSpl';
 import { getRugCheck } from '../lib/solana/rugCheck';
 import { getMarketData } from '../lib/utils/marketMacro';
+
 
 //todo voice speed and clarity customs
 
@@ -84,9 +86,9 @@ const Conversation = () => {
     ]);
 
     let marketData = await getMarketData();
-    console.log(marketData);
+    
     let market: string = marketData['market'];
-    console.log(market);
+    
     let voice = marketData['voice'];
     let stats = marketData['stats'];
     // let priceInfo: any[] = marketData['priceInfo'];
@@ -123,12 +125,34 @@ const Conversation = () => {
       .trim()
       .split('\n')
       .map((line) => line.replace(/^-\s*/, ''));
+    
+    
+    let marketAnalysis: MarketInfo[] = [];
 
-    console.log(marketInfo);
+    marketInfo.map((item) => {
+      try {
+        let text = item.split('[Source]')[0];
+        let link = item.split('[Source]')[1];
+      
+      
+        link = link.slice(1, -1);
+        marketAnalysis.push({
+          text: text,
+          link: link,
+        });
+      }
+    catch (e) {
+        console.log(e);
+      }
+    });
+    
+
     let marketDataCard: MarketDataCard = {
-      marketAnalysis: marketInfo,
+      marketAnalysis: marketAnalysis,
       coinInfo: [],
     };
+
+    
 
     //todo create a ui for displaying the data
 
