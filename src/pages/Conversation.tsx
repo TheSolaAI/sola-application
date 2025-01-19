@@ -1195,14 +1195,27 @@ const Conversation = () => {
       },
     ]);
 
+    try{
+      if (token.startsWith('$')) {
+        const tokenDetails = await getTokenDataSymbol(token);
+        token = tokenDetails?.metadata.description || 'NaN';
+      }
+    }catch(error){
+      return responseToOpenai("tell the user that there occured some problem while getting token details and ask them to try later")
+    }
+
+    
+
     setMessageList((prev) => [
       ...(prev || []),
       {
         type: 'bubblemapCard',
-        card: {token: token},
+        card: { token: token },
       },
     ]);
-  }
+
+    return responseToOpenai('tell the user that bubblemap is successfully fetched')
+  };
 
   const test = async () => {
     let address = await fetchLSTAddress('JupSOL');
@@ -1472,8 +1485,9 @@ const Conversation = () => {
               let response = await marketMacro();
               sendClientEvent(response);
             } else if (output.name === 'getBubblemap') {
-              const { symbol } = JSON.parse(output.arguments);
-              let response = await handleBubblemap(symbol);
+              const { token } = JSON.parse(output.arguments);
+              let response = await handleBubblemap(token);
+              sendClientEvent(response)
             }
           }
         }
