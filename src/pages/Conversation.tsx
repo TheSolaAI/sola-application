@@ -783,11 +783,11 @@ const Conversation = () => {
           'tell the user that there has been a problem with fetching token data and ask them to try later.',
         );
       }
-            
+
       if (data.price_change_24 == null) {
         data.price_change_24 = 0;
       }
-      
+
       let token_card: TokenCard[] = [
         {
           address: tokenMint,
@@ -802,9 +802,6 @@ const Conversation = () => {
 
       console.log(token_card);
 
-      
-
-      
       setMessageList((prev) => [
         ...(prev || []),
         {
@@ -813,8 +810,9 @@ const Conversation = () => {
         },
       ]);
 
-      return responseToOpenai('The token data has been fetched successfully.Do not repeat the address. Ask if the user needed anything else.');
-
+      return responseToOpenai(
+        'The token data has been fetched successfully.Do not repeat the address. Ask if the user needed anything else.',
+      );
     } catch (error) {
       setMessageList((prev) => [
         ...(prev || []),
@@ -859,9 +857,6 @@ const Conversation = () => {
           'tell the user that there has been a problem with fetching token data and ask them to try later.',
         );
       }
-
-
-      
 
       let token_card: TokenCard[] = [
         {
@@ -1191,6 +1186,24 @@ const Conversation = () => {
     }
   };
 
+  const handleBubblemap = async (token: string) => {
+    setMessageList((prev) => [
+      ...(prev || []),
+      {
+        type: 'agent',
+        message: `getting Bubblemap for ${token}`,
+      },
+    ]);
+
+    setMessageList((prev) => [
+      ...(prev || []),
+      {
+        type: 'bubblemapCard',
+        card: {token: token},
+      },
+    ]);
+  }
+
   const test = async () => {
     let address = await fetchLSTAddress('JupSOL');
   };
@@ -1458,6 +1471,9 @@ const Conversation = () => {
             } else if (output.name === 'getMarketData') {
               let response = await marketMacro();
               sendClientEvent(response);
+            } else if (output.name === 'getBubblemap') {
+              const { symbol } = JSON.parse(output.arguments);
+              let response = await handleBubblemap(symbol);
             }
           }
         }
