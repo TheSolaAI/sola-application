@@ -9,6 +9,6 @@ export type TokenData = {
     price:number,
     marketcap: number,
     volume: number;
-    price_change_24h: number;
+    price_change_24: number;
 }
 
