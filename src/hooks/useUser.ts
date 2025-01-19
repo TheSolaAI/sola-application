@@ -51,7 +51,7 @@ const useUser = () => {
         console.error('Error fetching user settings:', error);
         return null;
       }
-    }, [accessToken, setTheme, setAiVoice, setAiEmotion]);
+    }, [accessToken]);
 
   // Patch user settings
   const updateSettings = useCallback(
@@ -81,7 +81,7 @@ const useUser = () => {
         return null;
       }
     },
-    [accessToken, setTheme, setAiVoice, setAiEmotion],
+    [accessToken],
   );
 
   return { register, fetchSettings, updateSettings, setAccessToken };
