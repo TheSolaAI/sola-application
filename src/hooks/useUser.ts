@@ -40,9 +40,11 @@ const useUser = () => {
       try {
         const settings = await getUserSettings(accessToken);
         if (settings) {
-          settings.theme && setTheme(settings.theme);
-          settings.voice_preference && setAiVoice(settings.voice_preference);
-          settings.emotion_choices && setAiEmotion(settings.emotion_choices);
+          setTheme(settings.theme ?? 'light');
+          setAiVoice(settings.voice_preference || 'sage');
+          setAiEmotion(
+            settings.emotion_choices || 'playfully cheeky and very sarcastic',
+          );
         }
         return settings;
       } catch (error) {
@@ -66,11 +68,12 @@ const useUser = () => {
           updatedSettings,
         );
         if (updatedResponse) {
-          updatedResponse.theme && setTheme(updatedResponse.theme);
-          updatedResponse.voice_preference &&
-            setAiVoice(updatedResponse.voice_preference);
-          updatedResponse.emotion_choices &&
-            setAiEmotion(updatedResponse.emotion_choices);
+          setTheme(updatedResponse.theme ?? 'light');
+          setAiVoice(updatedResponse.voice_preference || 'sage');
+          setAiEmotion(
+            updatedResponse.emotion_choices ||
+              'playfully cheeky and very sarcastic',
+          );
         }
         return updatedResponse;
       } catch (error) {

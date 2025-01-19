@@ -1,4 +1,5 @@
 import { ThemeType } from "../app";
+import { AIEMOTION, AIVOICE } from "./aiConfig";
 
 export type RegisterUser = {
   privy_wallet_id: string;
@@ -8,6 +9,6 @@ export type RegisterUser = {
 
 export type UserSettings = {
   theme?: ThemeType;
-  voice_preference?: string;
-  emotion_choices?: string;
+  voice_preference?: AIVOICE;
+  emotion_choices?: AIEMOTION;
 };

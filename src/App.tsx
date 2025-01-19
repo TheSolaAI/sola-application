@@ -13,13 +13,13 @@ import OnRamp from './pages/OnRamp';
 import useUser from './hooks/useUser';
 
 function App() {
-  const { authenticated, getAccessToken, user } = usePrivy();
+  const { authenticated, getAccessToken } = usePrivy();
   const { createWallet, wallets } = useSolanaWallets();
   const { setWallet } = useAppState();
-  const { authorized, setAuthorized } = useAppState();
+  const { authorized, setAuthorized, aiEmotion, aiVoice } = useAppState();
   const { pathname } = useLocation();
   const memoizedCreateWallet = useCallback(createWallet, []);
-  const { register, setAccessToken, updateSettings } = useUser();
+  const { register, setAccessToken, updateSettings, fetchSettings } = useUser();
 
   const initializeWallet = async () => {
     try {
@@ -33,7 +33,6 @@ function App() {
   const registerUser = async () => {
     const accessToken = await getAccessToken();
     setAccessToken(accessToken ?? '');
-    console.log("user: ",user?.linkedAccounts)
     console.log(
       await register({
         privy_wallet_id: 'string',
@@ -44,7 +43,17 @@ function App() {
   };
 
   const updateUserSettings = async () => {
-    console.log(await updateSettings({ theme: 'dark' }));
+    const settings = await fetchSettings();
+    if (!settings) {
+      console.log(
+        await updateSettings({
+          theme: 'dark',
+          voice_preference: 'ash',
+          emotion_choices: 'highly energetic and cheerfully enthusiastic',
+        }),
+      );
+    }
+    console.log("app config",aiVoice, aiEmotion);
   };
 
   useEffect(() => {

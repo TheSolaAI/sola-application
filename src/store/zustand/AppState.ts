@@ -29,7 +29,7 @@ const appStateCreator: StateCreator<AppState> = (set) => ({
   appWallets: [],
   embeddedWalletVisibility: false,
   accessToken: null,
-  theme: (localStorage.getItem('theme') as ThemeType) || 'dark',
+  theme: (localStorage.getItem('theme') as ThemeType) || 'light',
   aiVoice: 'ash',
   aiEmotion: 'Chearfull and Energetic',
   disclaimer: true,
