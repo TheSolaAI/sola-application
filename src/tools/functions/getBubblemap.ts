@@ -1,5 +1,7 @@
 const functionDescription = 
-  'Fetches a bubblemap for the specified token address. This can be used to retrieve additional details about a token.';
+  `Fetches a bubblemap for the specified token. This can be used to retrieve additional details about a token when required. 
+  The input can be either a token address or a token symbol. If it is a symbol, make sure to prefix it with "$".
+  `;
 
 export const getBubblemap = {
   type: 'function',
@@ -9,11 +11,11 @@ export const getBubblemap = {
     type: 'object',
     strict: true,
     properties: {
-      symbol: {
+      token: {
         type: 'string',
-        description: 'The symbol or address of the token to retrieve the bubblemap for.',
+        description: 'The token address or symbol to retrieve the bubblemap for. If it is a symbol, prefix it with "$".',
       },
     },
-    required: ['symbol'],
+    required: ['token'],
   },
 };
