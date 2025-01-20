@@ -12,7 +12,6 @@ import {
   TrendingNFTCard,
   RugCheckCard,
   MarketDataCard,
-  CoinInfo,
   MarketInfo,
 } from '../types/messageCard';
 import { SwapParams } from '../types/swap';
@@ -42,7 +41,7 @@ import { fetchLSTAddress } from '../lib/utils/lst_reader';
 import { transferSplTx } from '../lib/solana/transferSpl';
 import { getRugCheck } from '../lib/solana/rugCheck';
 import { getMarketData } from '../lib/utils/marketMacro';
-
+import RenderBlinks from '../components/ui/RenderBlinks';
 
 //todo voice speed and clarity customs
 
@@ -58,7 +57,7 @@ const Conversation = () => {
     getPeerConnection,
     resetMute,
   } = useChatState();
-  const { assets, getAssetById } = useWalletStore();
+  const { assets } = useWalletStore();
 
   const [isWalletVisible, setIsWalletVisible] = useState(false);
   const [events, setEvents] = useState<any[]>([]);
@@ -67,6 +66,8 @@ const Conversation = () => {
   const [fetchedToken, setFetchedToken] = useState<string>('');
   const [isLoaded, setIsLoaded] = useState<boolean>(true);
   const [localDataChannel, setLocalDataChannel] = useState(dataChannel);
+  const [isBlinksVisible, setIsBlinksVisible] = useState(true);
+  const [blinks, setBlinks] = useState('snake');
 
   useEffect(() => {
     setLocalDataChannel(dataChannel);
@@ -86,9 +87,9 @@ const Conversation = () => {
     ]);
 
     let marketData = await getMarketData();
-    
+
     let market: string = marketData['market'];
-    
+
     let voice = marketData['voice'];
     let stats = marketData['stats'];
     // let priceInfo: any[] = marketData['priceInfo'];
@@ -125,34 +126,28 @@ const Conversation = () => {
       .trim()
       .split('\n')
       .map((line) => line.replace(/^-\s*/, ''));
-    
-    
+
     let marketAnalysis: MarketInfo[] = [];
 
     marketInfo.map((item) => {
       try {
         let text = item.split('[Source]')[0];
         let link = item.split('[Source]')[1];
-      
-      
+
         link = link.slice(1, -1);
         marketAnalysis.push({
           text: text,
           link: link,
         });
-      }
-    catch (e) {
+      } catch (e) {
         console.log(e);
       }
     });
-    
 
     let marketDataCard: MarketDataCard = {
       marketAnalysis: marketAnalysis,
       coinInfo: [],
     };
-
-    
 
     //todo create a ui for displaying the data
 
@@ -1219,13 +1214,15 @@ const Conversation = () => {
       },
     ]);
 
-    try{
+    try {
       if (token.startsWith('$')) {
         const tokenDetails = await getTokenDataSymbol(token);
         token = tokenDetails?.metadata.description || 'NaN';
       }
-    }catch(error){
-      return responseToOpenai("tell the user that there occured some problem while getting token details and ask them to try later")
+    } catch (error) {
+      return responseToOpenai(
+        'tell the user that there occured some problem while getting token details and ask them to try later',
+      );
     }
 
     setMessageList((prev) => [
@@ -1236,7 +1233,9 @@ const Conversation = () => {
       },
     ]);
 
-    return responseToOpenai('tell the user that bubblemap is successfully fetched')
+    return responseToOpenai(
+      'tell the user that bubblemap is successfully fetched',
+    );
   };
 
   const test = async () => {
@@ -1246,10 +1245,8 @@ const Conversation = () => {
   const startSession = async () => {
     let url = process.env.DATA_SERVICE_URL;
     try {
-      const tokenResponse = await fetch(
-        `${url}data/session/create`
-      );
-      
+      const tokenResponse = await fetch(`${url}data/session/create`);
+
       const data = await tokenResponse.json();
       const EPHEMERAL_KEY = data.client_secret.value;
 
@@ -1511,7 +1508,16 @@ const Conversation = () => {
             } else if (output.name === 'getBubblemap') {
               const { token } = JSON.parse(output.arguments);
               let response = await handleBubblemap(token);
-              sendClientEvent(response)
+              sendClientEvent(response);
+            } else if (output.name === 'getBlinks') {
+              const { actionName } = JSON.parse(output.arguments);
+              setIsBlinksVisible(true);
+              setBlinks(actionName);
+              sendClientEvent(
+                responseToOpenai(
+                  'tell the user that you have opened the asked blink.',
+                ),
+              );
             }
           }
         }
@@ -1551,11 +1557,11 @@ const Conversation = () => {
         {/* End of Visualizer Section */}
 
         {/* Start of Message display Section */}
-        {messageList && (
-          <section className="flex-grow flex justify-center items-start overflow-y-auto pb-20 no-scrollbar">
-            <MessageList messageList={messageList} />
-          </section>
-        )}
+        <section className="flex-grow flex justify-center items-start overflow-y-auto pb-20 no-scrollbar">
+          {messageList && <MessageList messageList={messageList} />}
+          {isBlinksVisible && <RenderBlinks actionName={blinks} />}
+        </section>
+
         {/* End of Message display Section */}
 
         {/* Start of Session Controls Section */}
