@@ -18,6 +18,7 @@ export type MessageCard = {
     | 'marketDataCard'
     | 'trendingNFTCard'
     | 'bubblemapCard'
+    | 'blinkCard'
   message?: string;
   card?:
     | SingleCard

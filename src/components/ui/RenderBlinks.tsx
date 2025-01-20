@@ -1,3 +1,5 @@
+import '@dialectlabs/blinks/index.css';
+
 import {
     Blink,
     useAction,
@@ -9,10 +11,12 @@ import {
     actionName: string;
   }
   function RenderBlinks({ actionName }: RenderBlinksProps) {
+    useActionsRegistryInterval();
+
     if (!(actionName in BLINKGAMES)) {
       return <div>Invalid action name</div>;
     }
-    useActionsRegistryInterval();
+    
     const rpc = process.env.SOLANA_RPC || 'https://api.mainnet-beta.solana.com';
     const { adapter } = useActionSolanaWalletAdapter(rpc);
     const { action, isLoading } = useAction({
@@ -21,9 +25,10 @@ import {
     return (
       <>
         {!isLoading && action ? (
-          <Blink action={action} adapter={adapter} />
+          <div className='w-3/5'><Blink action={action} adapter={adapter} /></div>
+          
         ) : (
-          <div>Loading blinks</div>
+          <div className='text-gray-700 text-sm dark:text-graydark'>Loading blinks</div>
         )}
       </>
     );

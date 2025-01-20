@@ -12,7 +12,6 @@ import {
   TrendingNFTCard,
   RugCheckCard,
   MarketDataCard,
-  CoinInfo,
   MarketInfo,
 } from '../types/messageCard';
 import { SwapParams } from '../types/swap';
@@ -42,7 +41,7 @@ import { fetchLSTAddress } from '../lib/utils/lst_reader';
 import { transferSplTx } from '../lib/solana/transferSpl';
 import { getRugCheck } from '../lib/solana/rugCheck';
 import { getMarketData } from '../lib/utils/marketMacro';
-
+import RenderBlinks from '../components/ui/RenderBlinks';
 
 //impl tasks for tmrw
 
@@ -52,9 +51,6 @@ import { getMarketData } from '../lib/utils/marketMacro';
 //fix lag in changing the type of ai voice
 //change fetching mcap to fdv
 //add server side wallets
-
-
-
 
 const Conversation = () => {
   const {
@@ -68,7 +64,7 @@ const Conversation = () => {
     getPeerConnection,
     resetMute,
   } = useChatState();
-  const { assets, getAssetById } = useWalletStore();
+  const { assets } = useWalletStore();
 
   const [isWalletVisible, setIsWalletVisible] = useState(false);
   const [events, setEvents] = useState<any[]>([]);
@@ -77,6 +73,8 @@ const Conversation = () => {
   const [fetchedToken, setFetchedToken] = useState<string>('');
   const [isLoaded, setIsLoaded] = useState<boolean>(true);
   const [localDataChannel, setLocalDataChannel] = useState(dataChannel);
+  const [isBlinksVisible, setIsBlinksVisible] = useState(true);
+  const [blinks, setBlinks] = useState('snake');
 
   useEffect(() => {
     setLocalDataChannel(dataChannel);
@@ -96,9 +94,9 @@ const Conversation = () => {
     ]);
 
     let marketData = await getMarketData();
-    
+
     let market: string = marketData['market'];
-    
+
     let voice = marketData['voice'];
     let stats = marketData['stats'];
     // let priceInfo: any[] = marketData['priceInfo'];
@@ -135,34 +133,28 @@ const Conversation = () => {
       .trim()
       .split('\n')
       .map((line) => line.replace(/^-\s*/, ''));
-    
-    
+
     let marketAnalysis: MarketInfo[] = [];
 
     marketInfo.map((item) => {
       try {
         let text = item.split('[Source]')[0];
         let link = item.split('[Source]')[1];
-      
-      
+
         link = link.slice(1, -1);
         marketAnalysis.push({
           text: text,
           link: link,
         });
-      }
-    catch (e) {
+      } catch (e) {
         console.log(e);
       }
     });
-    
 
     let marketDataCard: MarketDataCard = {
       marketAnalysis: marketAnalysis,
       coinInfo: [],
     };
-
-    
 
     //todo create a ui for displaying the data
 
@@ -301,7 +293,7 @@ const Conversation = () => {
         message: `The agent is fetching you wallet assets`,
       },
     ]);
-    console.log(asset_details)
+    console.log(asset_details);
     return responseToOpenai(
       `here is your asset list ${asset_details}. Do not stop till u say top 5 assets. Dont stop in halfway.`,
     );
@@ -355,7 +347,6 @@ const Conversation = () => {
       const { blockhash, lastValidBlockHeight } =
         await connection.getLatestBlockhash();
       if (!transaction) {
-        
         setMessageList((prev) => [
           ...(prev || []),
           {
@@ -512,7 +503,7 @@ const Conversation = () => {
     );
   };
 
-    //fix cors error
+  //fix cors error
   const handleUserAssetsLulo = async () => {
     if (!appWallet) return null;
     if (!rpc)
@@ -840,7 +831,7 @@ const Conversation = () => {
             priceChange: data.price_change_24.toString(),
           },
         ];
-  
+
         setMessageList((prev) => [
           ...(prev || []),
           {
@@ -851,8 +842,7 @@ const Conversation = () => {
         return responseToOpenai(
           'tell the user that the token data is fetched successfully',
         );
-      }
-      else { 
+      } else {
         const data = await getTokenData(tokenMint);
         if (!data) {
           setMessageList((prev) => [
@@ -866,11 +856,11 @@ const Conversation = () => {
             'tell the user that there has been a problem with fetching token data and ask them to try later.',
           );
         }
-  
+
         if (data.price_change_24 == null) {
           data.price_change_24 = 0;
         }
-  
+
         let token_card: TokenCard[] = [
           {
             address: tokenMint,
@@ -882,7 +872,7 @@ const Conversation = () => {
             priceChange: data.price_change_24.toString() || 'NaN',
           },
         ];
-  
+
         setMessageList((prev) => [
           ...(prev || []),
           {
@@ -894,7 +884,6 @@ const Conversation = () => {
           'The token data has been fetched successfully.Do not repeat the address. Ask if the user needed anything else.',
         );
       }
-
     } catch (error) {
       setMessageList((prev) => [
         ...(prev || []),
@@ -908,8 +897,6 @@ const Conversation = () => {
       );
     }
   };
-
-
 
   const handleLSTData = async () => {
     setMessageList((prev) => [
@@ -975,7 +962,7 @@ const Conversation = () => {
       } else {
         final_token = `$${token}`;
       }
-      
+
       const data = await getRugCheck(final_token);
 
       if (!data) {
@@ -1203,6 +1190,38 @@ const Conversation = () => {
     }
   };
 
+  const handleBubblemap = async (token: string) => {
+    setMessageList((prev) => [
+      ...(prev || []),
+      {
+        type: 'agent',
+        message: `getting Bubblemap for ${token}`,
+      },
+    ]);
+
+    try {
+      if (token.startsWith('$')) {
+        const tokenDetails = await getTokenDataSymbol(token);
+        token = tokenDetails?.metadata.description || 'NaN';
+      }
+    } catch (error) {
+      return responseToOpenai(
+        'tell the user that there occured some problem while getting token details and ask them to try later',
+      );
+    }
+
+    setMessageList((prev) => [
+      ...(prev || []),
+      {
+        type: 'bubblemapCard',
+        card: { token: token },
+      },
+    ]);
+
+    return responseToOpenai(
+      'tell the user that bubblemap is successfully fetched',
+    );
+  };
 
   const test = async () => {
     let address = await fetchLSTAddress('JupSOL');
@@ -1211,10 +1230,8 @@ const Conversation = () => {
   const startSession = async () => {
     let url = process.env.DATA_SERVICE_URL;
     try {
-      const tokenResponse = await fetch(
-        `${url}data/session/create`
-      );
-      
+      const tokenResponse = await fetch(`${url}data/session/create`);
+
       const data = await tokenResponse.json();
       const EPHEMERAL_KEY = data.client_secret.value;
 
@@ -1466,7 +1483,25 @@ const Conversation = () => {
             } else if (output.name === 'getMarketData') {
               let response = await marketMacro();
               sendClientEvent(response);
-            } 
+            } else if (output.name === 'getBubblemap') {
+              const { token } = JSON.parse(output.arguments);
+              let response = await handleBubblemap(token);
+              sendClientEvent(response);
+            } else if (output.name === 'getBlinks') {
+              const { actionName } = JSON.parse(output.arguments);
+              setMessageList((prev) => [
+                ...(prev || []),
+                {
+                  type: 'blinkCard',
+                  link: actionName
+                },
+              ]);
+              sendClientEvent(
+                responseToOpenai(
+                  'tell the user that you have opened the asked blink.',
+                ),
+              );
+            }
           }
         }
       }
@@ -1505,11 +1540,9 @@ const Conversation = () => {
         {/* End of Visualizer Section */}
 
         {/* Start of Message display Section */}
-        {messageList && (
-          <section className="flex-grow flex justify-center items-start overflow-y-auto pb-20 no-scrollbar">
-            <MessageList messageList={messageList} />
-          </section>
-        )}
+        <section className="flex-grow flex justify-center items-start overflow-y-auto pb-20 no-scrollbar">
+          {messageList && <MessageList messageList={messageList} />}
+        </section>  
         {/* End of Message display Section */}
 
         {/* Start of Session Controls Section */}
