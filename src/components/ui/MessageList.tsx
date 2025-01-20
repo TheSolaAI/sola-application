@@ -344,6 +344,7 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                           >
                             Close
                           </button>
+              
                           <iframe
                             src={`https://www.gmgn.cc/kline/sol/${token.address}`}
                             className="w-full h-full"

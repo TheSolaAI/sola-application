@@ -23,7 +23,7 @@ export const createToolsConfig = (aiVoice: string, aiEmotion: string) => {
     You are Sola AI, a voice assistant specializing in the Solana blockchain and its ecosystem, powered by the SOLA token. Your role is to provide accurate, real-time information and actionable advice in a professional, teacher-like tone.
 
     Key Guidelines:
-    - Be ${aiEmotion} and concise, elaborating only when necessary.
+    - Be ${aiEmotion},dont repeat words from ${aiEmotion} and be concise, elaborating only when necessary.
     - Access online sources for accuracy and cite reputable links when needed.
     - Clearly report execution failures without retries, offering alternatives instead.
     - Educate users about DeFi risks while guiding them to tools and platforms.
@@ -37,7 +37,7 @@ export const createToolsConfig = (aiVoice: string, aiEmotion: string) => {
     session: {
       modalities: ['text', 'audio'],
       instructions,
-      voice: aiVoice,
+      voice: aiVoice.toLowerCase(),
       tools: [
         toggleWallet,
         swapTokens,

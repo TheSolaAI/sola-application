@@ -44,7 +44,13 @@ import { getRugCheck } from '../lib/solana/rugCheck';
 import { getMarketData } from '../lib/utils/marketMacro';
 
 
+//impl tasks for tmrw
+
 //todo voice speed and clarity customs
+//add smooth transition when changing modes
+//fix cors error for localhost
+//fix lag in changing the type of ai voice
+
 
 const Conversation = () => {
   const {
@@ -291,9 +297,9 @@ const Conversation = () => {
         message: `The agent is fetching you wallet assets`,
       },
     ]);
-    console.log(asset_details);
+    
     return responseToOpenai(
-      `here is your asset list ${asset_details}. Do not stop till u say all the assets`,
+      `here is your asset list ${asset_details}. Do not stop till u say top 5 assets`,
     );
   };
   const transferSpl = async (
@@ -345,7 +351,7 @@ const Conversation = () => {
       const { blockhash, lastValidBlockHeight } =
         await connection.getLatestBlockhash();
       if (!transaction) {
-        console.log(transaction);
+        
         setMessageList((prev) => [
           ...(prev || []),
           {
@@ -502,6 +508,7 @@ const Conversation = () => {
     );
   };
 
+    //fix cors error
   const handleUserAssetsLulo = async () => {
     if (!appWallet) return null;
     if (!rpc)
@@ -964,7 +971,7 @@ const Conversation = () => {
       } else {
         final_token = `$${token}`;
       }
-      console.log(final_token);
+      
       const data = await getRugCheck(final_token);
 
       if (!data) {
@@ -1377,9 +1384,6 @@ const Conversation = () => {
       ) {
         for (const output of mostRecentEvent.response.output) {
           if (output.type === 'function_call') {
-            console.log('function called');
-            console.log(output);
-
             if (output.name === 'toggleWallet') {
               const { action } = JSON.parse(output.arguments);
 
