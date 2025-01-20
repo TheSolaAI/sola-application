@@ -38,8 +38,8 @@ jobs:
 
       - name: Install and build
         run: |
-          npm install
-          npm run build
+          yarn install
+          yarn build
 
       - name: Deploy to server
         run: |

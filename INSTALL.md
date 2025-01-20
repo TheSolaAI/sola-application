@@ -17,7 +17,7 @@ To get started with Sola AI, follow these steps:
 3. Install the dependencies:
 
     ```sh
-    npm install
+    yarn install
     ```
 
 4. Create a `.env` file in the root folder and add your environment variables as described below.
@@ -25,10 +25,10 @@ To get started with Sola AI, follow these steps:
 5. Start the development server:
 
     ```sh
-    npm run dev
+    yarn dev
     ```
 
-6. Open your browser and navigate to `http://localhost:3000`.
+6. Open your browser and navigate to `http://localhost:5173`.
 
 ## Environment Variables
 
@@ -61,7 +61,7 @@ SENTRY_AUTH_TOKEN=your_sentry_auth_token_here
 To start the project:
 
 ```sh
-npm run dev
+yarn dev
 ```
 
 ## Troubleshooting
