@@ -12,3 +12,14 @@ export type TokenData = {
     price_change_24: number;
 }
 
+export type TokenGate = {
+    status: string,
+    data: TokenAmount,
+    message:string,
+}
+
+interface TokenAmount { 
+    amount: number,
+    tier: number
+}
+
