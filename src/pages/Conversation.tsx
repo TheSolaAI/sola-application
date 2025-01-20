@@ -46,10 +46,14 @@ import { getMarketData } from '../lib/utils/marketMacro';
 
 //impl tasks for tmrw
 
-//todo voice speed and clarity customs
+//todo voice speed and clarity customs and voice persistance
 //add smooth transition when changing modes
 //fix cors error for localhost
 //fix lag in changing the type of ai voice
+//change fetching mcap to fdv
+//add server side wallets
+
+
 
 
 const Conversation = () => {
@@ -297,9 +301,9 @@ const Conversation = () => {
         message: `The agent is fetching you wallet assets`,
       },
     ]);
-    
+    console.log(asset_details)
     return responseToOpenai(
-      `here is your asset list ${asset_details}. Do not stop till u say top 5 assets`,
+      `here is your asset list ${asset_details}. Do not stop till u say top 5 assets. Dont stop in halfway.`,
     );
   };
   const transferSpl = async (

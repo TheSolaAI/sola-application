@@ -13,7 +13,7 @@ export const getTokenData = {
     properties: {
       token_address: {
         type: 'string',
-        description: 'The token address (Solana Base58 format) or token symbol. If it is a symbol, you must prefix it with "$" before passing it.',
+        description: 'The token address (Solana Base58 format) or token symbol. If it is a symbol, you must always prefix it with "$" before passing it.',
       },
     },
     required: ['token'],
