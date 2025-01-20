@@ -16,7 +16,7 @@ import { transferSpl } from './functions/transferSpl';
 import { fetchWallet } from './functions/fetchWallet';
 import { getRugCheck } from './functions/getRugCheck';
 import { getMarketData } from './functions/getMarketData';
-import { getBubblemap } from './functions/getBubblemap';
+
 
 export const createToolsConfig = (aiVoice: string, aiEmotion: string) => {
   const instructions = `
@@ -55,7 +55,7 @@ export const createToolsConfig = (aiVoice: string, aiEmotion: string) => {
         fetchWallet,
         getRugCheck,
         getMarketData,
-        getBubblemap,
+
       ],
       tool_choice: 'auto',
       temperature: 0.6,

@@ -46,9 +46,13 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
   const [sanctumApy, setSanctumApy] = useState<number>(0);
   const [link, setSolscanLink] = useState<string>('');
   const [expandedToken, setExpandedToken] = useState<string | null>(null); // Tracks which token is expanded
+  const [bubbleMap, setBubbleMap] = useState<string | null>(null); // Tracks which token is expanded
 
   const handleExpand = (tokenAddress: string) => {
     setExpandedToken((prev) => (prev === tokenAddress ? null : tokenAddress));
+  };
+  const handleBubbleMap = (tokenAddress: string) => {
+    setBubbleMap((prev) => (prev === tokenAddress ? null : tokenAddress));
   };
   let { appWallet } = useAppState();
 
@@ -303,6 +307,16 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                             className="h-4 w-4"
                           />
                         </button>
+                        <button
+                          className="flex items-center justify-center px-4 py-2 text-xs font-medium text-white rounded-lg hover:scale-105 hover:shadow-lg transition-all"
+                          onClick={() => handleBubbleMap(token.address)}
+                        >
+                          <img
+                            src="./bubbles.svg"
+                            alt="Expand Icon"
+                            className="h-4 w-4"
+                          />
+                        </button>
                         <button className="flex items-center justify-center px-4 py-2 text-xs font-medium text-white rounded-lg"></button>
                         <button className="flex items-center justify-center px-4 py-2 text-xs font-medium text-white rounded-lg"></button>
                       </div>
@@ -335,6 +349,24 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                             className="w-full h-full"
                             allowFullScreen
                           ></iframe>
+                        </div>
+                      </div>
+                    )}
+                    {bubbleMap === token.address && (
+                      <div className="fixed inset-0 z-50 bg-black bg-opacity-75 flex items-center justify-center">
+                        <div className="relative w-full max-w-4xl h-screen bg-white shadow-lg rounded-lg overflow-hidden">
+                          <button
+                            className="absolute top-4 right-4 bg-gray-700 text-white px-4 py-2 rounded-lg shadow-lg"
+                            onClick={() => setBubbleMap(null)}
+                          >
+                            Close
+                          </button>
+                          
+                          <iframe
+                              src={`https://app.bubblemaps.io/sol/token/${token.address}`}
+                            className='w-full h-full'
+                            allowFullScreen
+                            />
                         </div>
                       </div>
                     )}

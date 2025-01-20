@@ -1192,34 +1192,6 @@ const Conversation = () => {
     }
   };
 
-  const handleBubblemap = async (token: string) => {
-    setMessageList((prev) => [
-      ...(prev || []),
-      {
-        type: 'agent',
-        message: `getting Bubblemap for ${token}`,
-      },
-    ]);
-
-    try{
-      if (token.startsWith('$')) {
-        const tokenDetails = await getTokenDataSymbol(token);
-        token = tokenDetails?.metadata.description || 'NaN';
-      }
-    }catch(error){
-      return responseToOpenai("tell the user that there occured some problem while getting token details and ask them to try later")
-    }
-
-    setMessageList((prev) => [
-      ...(prev || []),
-      {
-        type: 'bubblemapCard',
-        card: { token: token },
-      },
-    ]);
-
-    return responseToOpenai('tell the user that bubblemap is successfully fetched')
-  };
 
   const test = async () => {
     let address = await fetchLSTAddress('JupSOL');
@@ -1486,11 +1458,7 @@ const Conversation = () => {
             } else if (output.name === 'getMarketData') {
               let response = await marketMacro();
               sendClientEvent(response);
-            } else if (output.name === 'getBubblemap') {
-              const { token } = JSON.parse(output.arguments);
-              let response = await handleBubblemap(token);
-              sendClientEvent(response)
-            }
+            } 
           }
         }
       }
