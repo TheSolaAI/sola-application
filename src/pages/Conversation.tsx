@@ -41,7 +41,6 @@ import { fetchLSTAddress } from '../lib/utils/lst_reader';
 import { transferSplTx } from '../lib/solana/transferSpl';
 import { getRugCheck } from '../lib/solana/rugCheck';
 import { getMarketData } from '../lib/utils/marketMacro';
-import RenderBlinks from '../components/ui/RenderBlinks';
 
 //impl tasks for tmrw
 
