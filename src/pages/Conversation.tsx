@@ -66,8 +66,8 @@ const Conversation = () => {
   const [fetchedToken, setFetchedToken] = useState<string>('');
   const [isLoaded, setIsLoaded] = useState<boolean>(true);
   const [localDataChannel, setLocalDataChannel] = useState(dataChannel);
-  const [isBlinksVisible, setIsBlinksVisible] = useState(true);
-  const [blinks, setBlinks] = useState('snake');
+  const [isBlinksVisible, setIsBlinksVisible] = useState(false);
+  const [blinks, setBlinks] = useState('');
 
   useEffect(() => {
     setLocalDataChannel(dataChannel);
@@ -1559,7 +1559,8 @@ const Conversation = () => {
         {/* Start of Message display Section */}
         <section className="flex-grow flex justify-center items-start overflow-y-auto pb-20 no-scrollbar">
           {messageList && <MessageList messageList={messageList} />}
-          {isBlinksVisible && <RenderBlinks actionName={blinks} />}
+          <div className='p-4 rounded-lg text-bodydark1 w-2/5 no-scrollbar'>{isBlinksVisible && <RenderBlinks actionName={blinks} />}</div>
+          
         </section>
 
         {/* End of Message display Section */}

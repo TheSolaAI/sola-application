@@ -1,6 +1,6 @@
 const functionDescription = 
   `This function is called when the user wants to play a game or perform a blink action. 
-  The user can choose from available options, such as coin flip, snake, or rock-paper-scissors.`;
+  The user can choose from available options, such as coin flip, snake and ladder, or rock-paper-scissors.`;
 
 export const getBlinks = {
   type: 'function',

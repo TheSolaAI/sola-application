@@ -12,7 +12,7 @@ import {
   }
   function RenderBlinks({ actionName }: RenderBlinksProps) {
     useActionsRegistryInterval();
-    console.log(BLINKGAMES[actionName as keyof typeof BLINKGAMES])
+
     if (!(actionName in BLINKGAMES)) {
       return <div>Invalid action name</div>;
     }
