@@ -73,8 +73,8 @@ const Conversation = () => {
   const [fetchedToken, setFetchedToken] = useState<string>('');
   const [isLoaded, setIsLoaded] = useState<boolean>(true);
   const [localDataChannel, setLocalDataChannel] = useState(dataChannel);
-  const [isBlinksVisible, setIsBlinksVisible] = useState(true);
-  const [blinks, setBlinks] = useState('snake');
+  const [isBlinksVisible, setIsBlinksVisible] = useState(false);
+  const [blinks, setBlinks] = useState('');
 
   useEffect(() => {
     setLocalDataChannel(dataChannel);
