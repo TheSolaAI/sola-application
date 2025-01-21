@@ -31,6 +31,8 @@ import { tokenList } from '../../store/tokens/tokenMapping';
 import { SwapParams } from '../../types/swap';
 import { responseToOpenai } from '../../lib/utils/response';
 import { ConnectedSolanaWallet } from '@privy-io/react-auth';
+import { Blink } from '@dialectlabs/blinks';
+import RenderBlinks from './RenderBlinks';
 
 const wallet_service_url = process.env.WALLET_SERVICE_URL;
 
@@ -762,6 +764,12 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                 />
               </div>
             );
+          case 'blinkCard':
+            const blink = item.link || ''
+            return (
+              <div className='p-4 flex w-full justify-center '><RenderBlinks actionName={blink} /></div>
+              
+            )            
           default:
             return null;
         }
