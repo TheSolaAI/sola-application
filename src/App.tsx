@@ -19,7 +19,7 @@ function App() {
   const { authorized, setAuthorized } = useAppState();
   const { pathname } = useLocation();
   const memoizedCreateWallet = useCallback(createWallet, []);
-  const { register, setAccessToken, fetchSettings } = useUser();
+  const { setAccessToken, fetchSettings } = useUser();
 
   const initializeWallet = async () => {
     try {
@@ -30,19 +30,9 @@ function App() {
     }
   };
 
-  const registerUser = async () => {
+  const updateUserSettings = async () => {
     const accessToken = await getAccessToken();
     setAccessToken(accessToken ?? '');
-    console.log(
-      await register({
-        privy_wallet_id: 'string',
-        wallet_id: 'string',
-        wallet_provider: 'string',
-      }),
-    );
-  };
-
-  const updateUserSettings = async () => {
     console.log(await fetchSettings());
   };
 
@@ -68,7 +58,6 @@ function App() {
     const initializeApp = async () => {
       if (authenticated) {
         await initializeWallet();
-        await registerUser();
         await updateUserSettings();
       }
     };

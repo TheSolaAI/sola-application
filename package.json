@@ -22,6 +22,7 @@
     "@solana/spl-token": "^0.4.9",
     "@solana/web3.js": "^1.98.0",
     "axios": "^1.7.9",
+    "axios-retry": "^4.5.0",
     "bs58": "^4.0.1",
     "dotenv": "^16.4.7",
     "react": "^18.2.0",

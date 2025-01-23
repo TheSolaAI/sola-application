@@ -42,15 +42,6 @@ import { transferSplTx } from '../lib/solana/transferSpl';
 import { getRugCheck } from '../lib/solana/rugCheck';
 import { getMarketData } from '../lib/utils/marketMacro';
 
-//impl tasks for tmrw
-
-//todo voice speed and clarity customs and voice persistance
-//add smooth transition when changing modes
-//fix cors error for localhost
-//fix lag in changing the type of ai voice
-//change fetching mcap to fdv
-//add server side wallets
-
 const Conversation = () => {
   const {
     isSessionActive,
@@ -72,8 +63,6 @@ const Conversation = () => {
   const [fetchedToken, setFetchedToken] = useState<string>('');
   const [isLoaded, setIsLoaded] = useState<boolean>(true);
   const [localDataChannel, setLocalDataChannel] = useState(dataChannel);
-  const [isBlinksVisible, setIsBlinksVisible] = useState(false);
-  const [blinks, setBlinks] = useState('');
 
   useEffect(() => {
     setLocalDataChannel(dataChannel);
@@ -98,36 +87,8 @@ const Conversation = () => {
 
     let voice = marketData['voice'];
     let stats = marketData['stats'];
-    // let priceInfo: any[] = marketData['priceInfo'];
     let btcDominance = stats['btcDominance'];
     let ethDominance = stats['ethDominance'];
-
-    // let coin_info: CoinInfo[] = [];
-    // let count = 0;
-    // priceInfo.forEach((item) => {
-    //   if (count <= 0) {
-    //     let coin_symbol = item['symbol'];
-    //     let coin_price = item['price'];
-    //     let coin_change = item['change'];
-    //     let coin_sparkline = item['sparkLine'];
-    //     coin_info.push({
-    //       symbol: coin_symbol,
-    //       price: Number(Number(coin_price).toFixed(2)),
-    //       change: Number(Number(coin_change).toFixed(2)),
-    //       sparkLine: coin_sparkline,
-    //     });
-    //     count += 1;
-    //   }
-    //   if (item['symbol'] == 'BTC') {
-    //     coin_info.push({
-    //       symbol: item['symbol'],
-    //       price: Number(Number(item['price']).toFixed(2)),
-    //       change: Number(Number(item['change']).toFixed(2)),
-    //       sparkLine: item['sparkLine'],
-    //     });
-    //   }
-    // });
-
     const marketInfo: string[] = market
       .trim()
       .split('\n')
