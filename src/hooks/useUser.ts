@@ -43,7 +43,7 @@ const useUser = () => {
           setTheme(settings.theme ?? 'light');
           setAiVoice(settings.voice_preference || 'sage');
           setAiEmotion(
-            settings.emotion_choices || 'playfully cheeky and very sarcastic',
+            settings.emotion_choice || 'playfully cheeky and very sarcastic',
           );
         }
         return settings;
@@ -62,19 +62,19 @@ const useUser = () => {
         console.error('Access token is required to update settings.');
         return null;
       }
+      {
+        updatedSettings.theme && setTheme(updatedSettings.theme);
+      }
+      {
+        updatedSettings.voice_preference &&
+          setAiVoice(updatedSettings.voice_preference);
+      }
+      updatedSettings.emotion_choice && setAiEmotion(
+        updatedSettings.emotion_choice,
+      );
       try {
-        const updatedResponse = await updateUserSetting(
-          accessToken,
-          updatedSettings,
-        );
-        if (updatedResponse) {
-          setTheme(updatedResponse.theme ?? 'light');
-          setAiVoice(updatedResponse.voice_preference || 'sage');
-          setAiEmotion(
-            updatedResponse.emotion_choices ||
-              'playfully cheeky and very sarcastic',
-          );
-        }
+        const updatedResponse = updateUserSetting(accessToken, updatedSettings);
+
         return updatedResponse;
       } catch (error) {
         console.error('Error updating user settings:', error);

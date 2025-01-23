@@ -23,7 +23,7 @@ const Settings: React.FC = () => {
   };
 
   const handleEmotionSelection = (emotion: AiEmotion) => {
-    updateSettings({ emotion_choices: emotion });
+    updateSettings({ emotion_choice: emotion });
     setIsEmotionOpen(false);
   };
 

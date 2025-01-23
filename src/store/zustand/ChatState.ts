@@ -1,11 +1,17 @@
 import { create, StateCreator } from 'zustand';
+import { MessageCard } from '../../types/messageCard';
 
 interface ChatState {
+  roomId: number | null;
   isSessionActive: boolean;
   dataChannel: RTCDataChannel | null;
   mediaRecorder: MediaRecorder | undefined;
   peerConnection: RTCPeerConnection | null;
   isMuted: boolean;
+  messageList: MessageCard[];
+  setRoomId: (roomId: number) => void;
+  setMessageList: (message: MessageCard[]) => void;
+  addMessage: (message: MessageCard) => void;
   getPeerConnection: () => RTCPeerConnection | null;
   setIsSessionActive: (isActive: boolean) => void;
   setDataChannel: (channel: RTCDataChannel | null) => void;
@@ -16,11 +22,17 @@ interface ChatState {
 }
 
 const chatStateCreator: StateCreator<ChatState> = (set, get) => ({
+  roomId: null,
   isSessionActive: false,
   dataChannel: null,
   mediaRecorder: undefined,
   peerConnection: null,
   isMuted: false,
+  messageList: [],
+  setRoomId: (roomId) => set({ roomId: roomId }),
+  setMessageList: (messages) => set({ messageList: messages }),
+  addMessage: (message) =>
+    set((state) => ({ messageList: [...state.messageList, message] })),
   setIsSessionActive: (isActive: boolean) => set({ isSessionActive: isActive }),
   setDataChannel: (channel: RTCDataChannel | null) =>
     set({ dataChannel: channel }),
