@@ -165,7 +165,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
           {/* <!-- Menu Group --> */}
           <div>
             <h3 className="mb-4 ml-4 text-sm font-semibold text-bodydark2 dark:text-purple-300">
-              MENU
+              CHAT
             </h3>
 
             <ul className="mb-6 flex flex-col gap-1.5">
@@ -182,34 +182,6 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 </NavLink>
               </li>
               {/* <!-- Menu Item Conversation --> */}
-
-              {/* <!-- Menu Item Wallet --> */}
-              <li>
-                <NavLink
-                  to="/wallet"
-                  className={`group relative flex items-center gap-2.5 rounded-lg py-2 px-4 font-small text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 dark:text-bodydark2 ${
-                    pathname.includes('wallet') && 'bg-graydark dark:bg-meta-4'
-                  }`}
-                >
-                  <CreditCard className="" />
-                  Wallet Management
-                </NavLink>
-              </li>
-              {/* <!-- Menu Item Wallet --> */}
-
-              {/* <!-- Menu OnRamp --> */}
-              <li>
-                <NavLink
-                  to="/onramp"
-                  className={`group relative flex items-center gap-2.5 rounded-lg py-2 px-4 font-small text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 dark:text-bodydark2 ${
-                    pathname.includes('onramp') && 'bg-graydark dark:bg-meta-4'
-                  }`}
-                >
-                  <DollarSign />
-                  On Ramp
-                </NavLink>
-              </li>
-              {/* <!-- Menu Menu OnRamp --> */}
             </ul>
           </div>
 
@@ -324,6 +296,34 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 </SidebarLinkGroup>
                 {/* <!-- Menu Item Ui Elements --> */}
               </li>
+
+              {/* <!-- Menu Item Wallet --> */}
+              <li>
+                <NavLink
+                  to="/wallet"
+                  className={`group relative flex items-center gap-2.5 rounded-lg py-2 px-4 font-small text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 dark:text-bodydark2 ${
+                    pathname.includes('wallet') && 'bg-graydark dark:bg-meta-4'
+                  }`}
+                >
+                  <CreditCard className="" />
+                  Wallet Management
+                </NavLink>
+              </li>
+              {/* <!-- Menu Item Wallet --> */}
+
+              {/* <!-- Menu OnRamp --> */}
+              <li>
+                <NavLink
+                  to="/onramp"
+                  className={`group relative flex items-center gap-2.5 rounded-lg py-2 px-4 font-small text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 dark:text-bodydark2 ${
+                    pathname.includes('onramp') && 'bg-graydark dark:bg-meta-4'
+                  }`}
+                >
+                  <DollarSign />
+                  On Ramp
+                </NavLink>
+              </li>
+              {/* <!-- Menu Menu OnRamp --> */}
 
               <li>
                 {/* <!-- Toggle Theme Element --> */}

@@ -6,7 +6,7 @@ export const getUserSettings = async (
   jwt: string,
 ): Promise<UserSettingsResponse | null> => {
   try {
-    const response = await dbClient.get('/settings/', {
+    const response = await dbClient.get('auth/settings/', {
       headers: {
         Authorization: `Bearer ${jwt}`,
       },
@@ -33,7 +33,7 @@ export const updateUserSetting = async (
   user: UserSettings,
 ): Promise<UserSettingsResponse | null> => {
   try {
-    const response = await dbClient.patch('/settings/update/', user, {
+    const response = await dbClient.patch('auth/settings/update/', user, {
       headers: {
         Authorization: `Bearer ${jwt}`,
       },
