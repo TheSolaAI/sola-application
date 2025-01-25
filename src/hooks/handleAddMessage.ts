@@ -19,6 +19,7 @@ const useChatHandler = () => {
       try {
         const response = await createRoom(accessToken, roomDetails);
         appendRoom(response.data);
+        setMessageList(() => [])
         setCurrentRoomId(response.data.id);
         return response.data;
       } catch (error) {
@@ -30,7 +31,7 @@ const useChatHandler = () => {
   );
 
   const sendMessage = useCallback(
-    async (roomId: string, message: string | JSON) => {
+    async (roomId: string, message: string | object) => {
       if (!accessToken) return null;
 
       try {
@@ -65,7 +66,7 @@ const useChatHandler = () => {
         }
 
         if (roomId) {
-          await sendMessage(roomId, JSON.stringify(message));
+          await sendMessage(roomId, message);
         }
       } catch (error) {
         console.error('Error in handleAddMessage:', error);

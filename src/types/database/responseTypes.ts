@@ -1,4 +1,5 @@
 import { ThemeType } from '../app';
+import { MessageCard } from '../messageCard';
 
 export type RegisterUserResponse = {
   id: number;
@@ -25,7 +26,7 @@ export type ChatRoom = {
 
 export type ChatMessageResponse = {
   id: number;
-  message: string;
+  message: MessageCard;
   created_at: string;
 };
 

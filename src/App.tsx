@@ -60,6 +60,7 @@ function App() {
           throw new Error('Failed to fetch access token.');
         }
         setAccessToken(jwt);
+        console.log(jwt)
         await initializeWallet();
         await updateUserSettings();
       }

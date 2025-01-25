@@ -62,7 +62,8 @@ const Conversation = () => {
   const { assets } = useWalletStore();
   const { id } = useParams<{ id: string }>();
   const { getRoomMessages, loading, error, messageLoadingError } = useChat();
-  const { setCurrentRoomId, messageList, setMessageList } = useRoomStore();
+  const { setCurrentRoomId, messageList, setMessageList, currentRoomId } =
+    useRoomStore();
   const { handleAddMessage } = useChatHandler();
 
   const [isWalletVisible, setIsWalletVisible] = useState(false);
@@ -76,6 +77,7 @@ const Conversation = () => {
     async function loadMessages() {
       if (id) {
         console.log(id);
+        setMessageList(() => []);
         await getRoomMessages(id);
       } else {
         setCurrentRoomId(null);
@@ -86,7 +88,7 @@ const Conversation = () => {
   }, [id]);
 
   useEffect(() => {
-    toast.error('Failed to load the chat data');
+    if (messageLoadingError) toast.error('Failed to load the chat data');
   }, [messageLoadingError]);
 
   useEffect(() => {
@@ -1496,7 +1498,9 @@ const Conversation = () => {
 
           {/* Start of Message display Section */}
           <section className="flex-grow flex justify-center items-start overflow-y-auto pb-20 no-scrollbar">
-            {messageList && <MessageList messageList={messageList} />}
+            {messageList && currentRoomId && (
+              <MessageList messageList={messageList} />
+            )}
           </section>
           {/* End of Message display Section */}
 

@@ -9,7 +9,7 @@ import useAppState from '../store/zustand/AppState';
 import { usePrivy } from '@privy-io/react-auth';
 
 export const useChat = () => {
-  const { setRooms, setCurrentRoomChat, setCurrentRoomId } =
+  const { setRooms, setCurrentRoomChat, setCurrentRoomId, setMessageList } =
     useRoomStore();
   const { accessToken, setAccessToken } = useAppState();
   const { getAccessToken } = usePrivy();
@@ -64,8 +64,19 @@ export const useChat = () => {
 
       try {
         const response = await fetchRoomMessages(token, roomId, params);
-        console.log(response.data);
+        console.log('Room Messages: ', response.data);
         setCurrentRoomChat(response.data);
+        setMessageList((prev) => {
+          if (!response.data || !Array.isArray(response.data.results)) {
+            console.error('Invalid response format:', response);
+            return prev; 
+          }
+          const newMessages = response.data.results.map(
+            (result) => result.message,
+          );
+          return [...prev, ...newMessages];
+        });
+        console.log('success :');
         setCurrentRoomId(roomId);
       } catch (err: any) {
         setError(err.message || 'Failed to fetch messages');
