@@ -11,7 +11,6 @@ import useAppState from './store/zustand/AppState';
 import Settings from './pages/Settings';
 import OnRamp from './pages/OnRamp';
 import useUser from './hooks/useUser';
-import { useChat } from './hooks/useChatRoom';
 
 function App() {
   const { authenticated, getAccessToken } = usePrivy();
@@ -83,7 +82,7 @@ function App() {
             }
           />
           <Route
-            path="/home"
+            path="/c/:id"
             element={
               <>
                 <PageTitle title="Home" />

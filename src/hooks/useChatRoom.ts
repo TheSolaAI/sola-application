@@ -1,106 +1,89 @@
 import { useState, useCallback } from 'react';
 import {
   getRooms as fetchRooms,
-  createRoom as createRoomAPI,
   getRoomMessages as fetchRoomMessages,
-  sendRoomMessage as sendMessageAPI,
 } from '../api/chatService';
-import { CreateRoom, RoomMessages } from '../types/database/requstTypes';
+import { RoomMessages } from '../types/database/requstTypes';
 import { useRoomStore } from '../store/zustand/RoomState';
 import useAppState from '../store/zustand/AppState';
-
-// TODO: Add sooner to messages or warnings
+import { usePrivy } from '@privy-io/react-auth';
 
 export const useChat = () => {
-  const { setRooms, appendRoom, setCurrentRoomChat } = useRoomStore();
-  const { accessToken } = useAppState();
+  const { setRooms, setCurrentRoomChat, setCurrentRoomId } =
+    useRoomStore();
+  const { accessToken, setAccessToken } = useAppState();
+  const { getAccessToken } = usePrivy();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [messageLoadingError, setMessageLoadingError] = useState<string | null>(
+    null,
+  );
+
+  const ensureAccessToken = useCallback(async (): Promise<string | null> => {
+    if (accessToken) {
+      return accessToken;
+    }
+    try {
+      const newAccessToken = await getAccessToken();
+      setAccessToken(newAccessToken);
+      return newAccessToken;
+    } catch (err: any) {
+      console.error('Failed to get access token:', err.message);
+      setError('Failed to get access token');
+      return null;
+    }
+  }, [accessToken, getAccessToken, setAccessToken]);
 
   const getRooms = useCallback(async () => {
     setLoading(true);
     setError(null);
-    if (!accessToken) {
-      console.warn('jwt not found');
+    const token = await ensureAccessToken();
+    if (!token) {
       return null;
     }
     try {
-      const response = await fetchRooms(accessToken);
+      const response = await fetchRooms(token);
       setRooms(response.data);
     } catch (err: any) {
       setError(err.message || 'Failed to fetch rooms');
     } finally {
       setLoading(false);
     }
-  }, [accessToken]);
-
-  const createRoom = useCallback(
-    async (roomDetails: CreateRoom) => {
-      setLoading(true);
-      setError(null);
-      if (!accessToken) {
-        console.warn('jwt not found');
-        return null;
-      }
-      try {
-        const response = await createRoomAPI(accessToken, roomDetails);
-        appendRoom(response.data);
-      } catch (err: any) {
-        setError(err.message || 'Failed to create room');
-        return null;
-      } finally {
-        setLoading(false);
-      }
-    },
-    [accessToken],
-  );
+  }, [ensureAccessToken, setRooms]);
 
   const getRoomMessages = useCallback(
-    async (roomId: number, params?: RoomMessages) => {
+    async (roomId: string, params?: RoomMessages) => {
       setLoading(true);
       setError(null);
-      if (!accessToken) {
-        console.warn('jwt not found');
+      setMessageLoadingError(null);
+      const token = await ensureAccessToken();
+      if (!token) {
+        setError('Access token not found.');
         return null;
       }
+
       try {
-        const response = await fetchRoomMessages(accessToken, roomId, params);
+        const response = await fetchRoomMessages(token, roomId, params);
         console.log(response.data);
         setCurrentRoomChat(response.data);
+        setCurrentRoomId(roomId);
       } catch (err: any) {
         setError(err.message || 'Failed to fetch messages');
+        setMessageLoadingError(err.message || 'Failed to fetch messages');
+        setCurrentRoomId(null);
       } finally {
         setLoading(false);
       }
+      return null;
     },
-    [accessToken],
-  );
-
-  const sendMessage = useCallback(
-    async (roomId: number, message: string | JSON) => {
-      setLoading(true);
-      setError(null);
-      if (!accessToken) {
-        console.warn('jwt not found');
-        return null;
-      }
-      try {
-        const response = await sendMessageAPI(accessToken, roomId, message);
-      } catch (err: any) {
-        setError(err.message || 'Failed to send message');
-      } finally {
-        setLoading(false);
-      }
-    },
-    [accessToken],
+    [ensureAccessToken, setCurrentRoomChat, setCurrentRoomId],
   );
 
   return {
     loading,
     error,
+    messageLoadingError,
     getRooms,
-    createRoom,
     getRoomMessages,
-    sendMessage,
   };
 };

@@ -15,7 +15,7 @@ interface AppState {
   setAuthorized: (auth: boolean) => void;
   setWallet: (wallet: ConnectedSolanaWallet) => void;
   setEmbeddedWalletVisibility: (visibility: boolean) => void;
-  setAccessToken: (accessToken: string) => void;
+  setAccessToken: (accessToken: string | null) => void;
   setTheme: (theme: ThemeType) => void;
   setAiVoice: (aiVoice: string) => void;
   setAiEmotion: (aiEmotion: string) => void;
@@ -36,7 +36,7 @@ const appStateCreator: StateCreator<AppState> = (set) => ({
   setWallet: (appWallet: ConnectedSolanaWallet) => set({ appWallet }),
   setEmbeddedWalletVisibility: (visibility: boolean) =>
     set({ embeddedWalletVisibility: visibility }),
-  setAccessToken: (accessToken: string) => set({ accessToken }),
+  setAccessToken: (accessToken: string | null) => set({ accessToken }),
   setTheme: (theme: ThemeType) =>
     set((state) => {
       const resolveTheme = (selectedTheme: ThemeType): ThemeType => {

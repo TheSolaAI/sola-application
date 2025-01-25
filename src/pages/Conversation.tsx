@@ -34,13 +34,18 @@ import { getTokenData, getTokenDataSymbol } from '../lib/solana/token_data';
 import { getLstData } from '../lib/solana/lst_data';
 import { responseToOpenai } from '../lib/utils/response';
 import { useWalletStore } from '../store/zustand/WalletState';
-import { Loader } from 'react-feather';
+import Loader from '../common/Loader/index';
 import { getPublicKeyFromSolDomain } from '../lib/solana/sns';
 import { swapLST } from '../lib/solana/swapLst';
 import { fetchLSTAddress } from '../lib/utils/lst_reader';
 import { transferSplTx } from '../lib/solana/transferSpl';
 import { getRugCheck } from '../lib/solana/rugCheck';
 import { getMarketData } from '../lib/utils/marketMacro';
+import { useParams } from 'react-router-dom';
+import { useChat } from '../hooks/useChatRoom';
+import { useRoomStore } from '../store/zustand/RoomState';
+import { toast } from 'sonner';
+import useChatHandler from '../hooks/handleAddMessage';
 
 const Conversation = () => {
   const {
@@ -55,14 +60,34 @@ const Conversation = () => {
     resetMute,
   } = useChatState();
   const { assets } = useWalletStore();
+  const { id } = useParams<{ id: string }>();
+  const { getRoomMessages, loading, error, messageLoadingError } = useChat();
+  const { setCurrentRoomId, messageList, setMessageList } = useRoomStore();
+  const { handleAddMessage } = useChatHandler();
 
   const [isWalletVisible, setIsWalletVisible] = useState(false);
   const [events, setEvents] = useState<any[]>([]);
   const audioElement = useRef<HTMLAudioElement | null>(null);
-  const [messageList, setMessageList] = useState<MessageCard[]>();
   const [fetchedToken, setFetchedToken] = useState<string>('');
   const [isLoaded, setIsLoaded] = useState<boolean>(true);
   const [localDataChannel, setLocalDataChannel] = useState(dataChannel);
+
+  useEffect(() => {
+    async function loadMessages() {
+      if (id) {
+        console.log(id);
+        await getRoomMessages(id);
+      } else {
+        setCurrentRoomId(null);
+      }
+    }
+
+    loadMessages();
+  }, [id]);
+
+  useEffect(() => {
+    toast.error('Failed to load the chat data');
+  }, [messageLoadingError]);
 
   useEffect(() => {
     setLocalDataChannel(dataChannel);
@@ -74,7 +99,7 @@ const Conversation = () => {
 
   const marketMacro = async () => {
     setMessageList((prev) => [
-      ...(prev || []),
+      ...prev,
       {
         type: 'agent',
         message: `Agent is scanning the market`,
@@ -119,7 +144,7 @@ const Conversation = () => {
     //todo create a ui for displaying the data
 
     setMessageList((prev) => [
-      ...(prev || []),
+      ...prev,
       {
         type: 'marketDataCard',
         card: marketDataCard,
@@ -127,7 +152,7 @@ const Conversation = () => {
     ]);
 
     setMessageList((prev) => [
-      ...(prev || []),
+      ...prev,
       {
         type: 'agent',
         message: `Todays BTCDOM: ${btcDominance}`,
@@ -135,7 +160,7 @@ const Conversation = () => {
     ]);
 
     setMessageList((prev) => [
-      ...(prev || []),
+      ...prev,
       {
         type: 'agent',
         message: `Todays ETHDOM: ${ethDominance} `,
@@ -158,7 +183,7 @@ const Conversation = () => {
       recipient = await getPublicKeyFromSolDomain(to);
     }
     setMessageList((prev) => [
-      ...(prev || []),
+      ...prev,
       {
         type: 'agent',
         message: `Agent is transferring ${amount} SOL to ${to}`,
@@ -172,7 +197,7 @@ const Conversation = () => {
       );
       if (balance / LAMPORTS_PER_SOL - 0.01 < amount) {
         setMessageList((prev) => [
-          ...(prev || []),
+          ...prev,
           {
             type: 'message',
             message:
@@ -199,7 +224,7 @@ const Conversation = () => {
 
       //TODO: add dynamic status and handle failed transactions
       setMessageList((prev) => [
-        ...(prev || []),
+        ...prev,
         {
           type: 'transaction',
           card: {
@@ -215,7 +240,7 @@ const Conversation = () => {
       );
     } catch (error) {
       setMessageList((prev) => [
-        ...(prev || []),
+        ...prev,
         {
           type: 'message',
           message: 'There occured a problem with performing transaction',
@@ -247,7 +272,7 @@ const Conversation = () => {
     });
 
     setMessageList((prev) => [
-      ...(prev || []),
+      ...prev,
       {
         type: 'agent',
         message: `The agent is fetching you wallet assets`,
@@ -274,7 +299,7 @@ const Conversation = () => {
       recipient = await getPublicKeyFromSolDomain(to);
     }
     setMessageList((prev) => [
-      ...(prev || []),
+      ...prev,
       {
         type: 'agent',
         message: `Agent is transferring ${amount} ${token} to ${to}`,
@@ -283,20 +308,6 @@ const Conversation = () => {
     let token_mint = tokenList[token].MINT;
     try {
       const connection = new Connection(rpc);
-
-      // if (balance < amount) {
-      //   setMessageList((prev) => [
-      //     ...(prev || []),
-      //     {
-      //       type: 'message',
-      //       message:
-      //         'Insufficient balance',
-      //     },
-      //   ]);
-      //   return responseToOpenai(
-      //     'tell the user that they dont have enough balance and ask them to fund their account',
-      //   );
-      // }
 
       const transaction = await transferSplTx(
         appWallet.address,
@@ -308,7 +319,7 @@ const Conversation = () => {
         await connection.getLatestBlockhash();
       if (!transaction) {
         setMessageList((prev) => [
-          ...(prev || []),
+          ...prev,
           {
             type: 'message',
             message: 'There occured a problem with performing transaction',
@@ -327,7 +338,7 @@ const Conversation = () => {
 
       //TODO: add dynamic status and handle failed transactions
       setMessageList((prev) => [
-        ...(prev || []),
+        ...prev,
         {
           type: 'transaction',
           card: {
@@ -343,7 +354,7 @@ const Conversation = () => {
       );
     } catch (error) {
       setMessageList((prev) => [
-        ...(prev || []),
+        ...prev,
         {
           type: 'message',
           message: `There occured a problem with performing transaction ${error}`,
@@ -354,14 +365,6 @@ const Conversation = () => {
         'tell the user that there has been a problem with making transaction and try again later',
       );
     }
-
-    // console.log(
-    //   await connection.confirmTransaction({
-    //     blockhash,
-    //     lastValidBlockHeight,
-    //     signature,
-    //   }),
-    // );
   };
 
   const handleSwap = async (
@@ -378,7 +381,7 @@ const Conversation = () => {
 
     if (!tokenList[tokenA] || !tokenList[tokenB]) {
       setMessageList((prev) => [
-        ...(prev || []),
+        ...prev,
         {
           type: 'message',
           message:
@@ -390,7 +393,7 @@ const Conversation = () => {
       );
     } else if (tokenA === tokenB) {
       setMessageList((prev) => [
-        ...(prev || []),
+        ...prev,
         {
           type: 'message',
           message: 'You cant swap between same tokens! LOL',
@@ -402,7 +405,7 @@ const Conversation = () => {
     }
 
     setMessageList((prev) => [
-      ...(prev || []),
+      ...prev,
       {
         type: 'agent',
         message: `Agent is performing the swap between ${tokenA} and ${tokenB}`,
@@ -421,7 +424,7 @@ const Conversation = () => {
     const transaction = await swapTx(params);
     if (!transaction) {
       setMessageList((prev) => [
-        ...(prev || []),
+        ...prev,
         {
           type: 'message',
           message: `Error during Swap.`,
@@ -442,15 +445,9 @@ const Conversation = () => {
       maxRetries: 10,
     });
 
-    // await connection.confirmTransaction({
-    // blockhash: latestBlockHash.blockhash,
-    // lastValidBlockHeight: latestBlockHash.lastValidBlockHeight,
-    // signature: txid
-    // });
-
     // TODO: implement dynamic status
     setMessageList((prev) => [
-      ...(prev || []),
+      ...prev,
       {
         type: 'message',
         message: 'Swap transaction sent ',
@@ -472,7 +469,7 @@ const Conversation = () => {
       );
 
     setMessageList((prev) => [
-      ...(prev || []),
+      ...prev,
       {
         type: 'agent',
         message: `Fetching your Lulo Assets`,
@@ -486,7 +483,7 @@ const Conversation = () => {
 
     if (!assets) {
       setMessageList((prev) => [
-        ...(prev || []),
+        ...prev,
         {
           type: 'message',
           message: 'Oops! Unable to fetch your lulo assets',
@@ -500,7 +497,7 @@ const Conversation = () => {
     let luloCardItem: LuloCard = assets;
 
     setMessageList((prev) => [
-      ...(prev || []),
+      ...prev,
       {
         type: 'luloCard',
         card: luloCardItem,
@@ -521,7 +518,7 @@ const Conversation = () => {
         'ask the user to contact admin as the rpc is not attached',
       );
     setMessageList((prev) => [
-      ...(prev || []),
+      ...prev,
       {
         type: 'agent',
         message: `Agent is depositing the asset`,
@@ -538,7 +535,7 @@ const Conversation = () => {
     const transaction_array = await depositLulo(params);
     if (!transaction_array) {
       setMessageList((prev) => [
-        ...(prev || []),
+        ...prev,
         {
           type: 'message',
           message: `Deposit failed. Check your balance.`,
@@ -578,7 +575,7 @@ const Conversation = () => {
       // TODO: Handle dynamic status
 
       setMessageList((prev) => [
-        ...(prev || []),
+        ...prev,
         {
           type: 'transaction',
           card: txCard,
@@ -600,7 +597,7 @@ const Conversation = () => {
         'ask the user to contact admin as the rpc is not attached',
       );
     setMessageList((prev) => [
-      ...(prev || []),
+      ...prev,
       {
         type: 'agent',
         message: `Agent is withdrawing the asset`,
@@ -624,7 +621,7 @@ const Conversation = () => {
               all = true;
               withdrawAmount = asset.balance;
               setMessageList((prev) => [
-                ...(prev || []),
+                ...prev,
                 {
                   type: 'agent',
                   message: `Lulo total must be greater than 100. Withdrawing ${Math.ceil(withdrawAmount)} ${token}`,
@@ -650,7 +647,7 @@ const Conversation = () => {
 
       if (!transaction_array) {
         setMessageList((prev) => [
-          ...(prev || []),
+          ...prev,
           {
             type: 'message',
             message: `Withdrawal failed. Check your balance.`,
@@ -683,7 +680,7 @@ const Conversation = () => {
         };
 
         setMessageList((prev) => [
-          ...(prev || []),
+          ...prev,
           {
             type: 'transaction',
             card: txCard,
@@ -702,13 +699,12 @@ const Conversation = () => {
   };
 
   const handleLaunchpadCollections = async () => {
-    setMessageList((prev) => [
-      ...(prev || []),
-      {
-        type: 'agent',
-        message: `Fetching upcoming NFT launches`,
-      },
-    ]);
+    const message: MessageCard = {
+      type: 'agent',
+      message: `Fetching upcoming NFT launches`,
+    };
+
+    handleAddMessage(message);
     try {
       const data = await fetchMagicEdenLaunchpadCollections();
 
@@ -734,7 +730,7 @@ const Conversation = () => {
       );
     } catch (error) {
       setMessageList((prev) => [
-        ...(prev || []),
+        ...prev,
         {
           type: 'message',
           message:
@@ -757,7 +753,7 @@ const Conversation = () => {
     }
 
     setMessageList((prev) => [
-      ...(prev || []),
+      ...prev,
       {
         type: 'agent',
         message: `Fetching ${tokenMint} data`,
@@ -769,7 +765,7 @@ const Conversation = () => {
         const data = await getTokenDataSymbol(tokenMint);
         if (!data) {
           setMessageList((prev) => [
-            ...(prev || []),
+            ...prev,
             {
               type: 'message',
               message: 'Oops! there has been a problem in fetching token data',
@@ -793,7 +789,7 @@ const Conversation = () => {
         ];
 
         setMessageList((prev) => [
-          ...(prev || []),
+          ...prev,
           {
             type: 'tokenCards',
             card: token_card,
@@ -806,7 +802,7 @@ const Conversation = () => {
         const data = await getTokenData(tokenMint);
         if (!data) {
           setMessageList((prev) => [
-            ...(prev || []),
+            ...prev,
             {
               type: 'message',
               message: 'Oops! there has been a problem in fetching token data',
@@ -834,7 +830,7 @@ const Conversation = () => {
         ];
 
         setMessageList((prev) => [
-          ...(prev || []),
+          ...prev,
           {
             type: 'tokenCards',
             card: token_card,
@@ -846,7 +842,7 @@ const Conversation = () => {
       }
     } catch (error) {
       setMessageList((prev) => [
-        ...(prev || []),
+        ...prev,
         {
           type: 'message',
           message: 'Oops! Encountered a problem while fetching token data.',
@@ -860,7 +856,7 @@ const Conversation = () => {
 
   const handleLSTData = async () => {
     setMessageList((prev) => [
-      ...(prev || []),
+      ...prev,
       {
         type: 'agent',
         message: `Fetching lST Data`,
@@ -870,7 +866,7 @@ const Conversation = () => {
       const data = await getLstData();
       if (!data) {
         setMessageList((prev) => [
-          ...(prev || []),
+          ...prev,
           {
             type: 'message',
             message: 'Oops! There has been a problem while fetching lst data',
@@ -884,7 +880,7 @@ const Conversation = () => {
       let lst_card: SanctumCard[] = data;
 
       setMessageList((prev) => [
-        ...(prev || []),
+        ...prev,
         {
           type: 'sanctumCard',
           card: lst_card,
@@ -895,7 +891,7 @@ const Conversation = () => {
       );
     } catch (error) {
       setMessageList((prev) => [
-        ...(prev || []),
+        ...prev,
         {
           type: 'message',
           message: 'Oops! There has been a problem while fetching lst data',
@@ -909,7 +905,7 @@ const Conversation = () => {
 
   const handleRugCheck = async (token: string) => {
     setMessageList((prev) => [
-      ...(prev || []),
+      ...prev,
       {
         type: 'agent',
         message: `Checking if ${token} is a rug.`,
@@ -927,7 +923,7 @@ const Conversation = () => {
 
       if (!data) {
         setMessageList((prev) => [
-          ...(prev || []),
+          ...prev,
           {
             type: 'message',
             message:
@@ -942,7 +938,7 @@ const Conversation = () => {
       let rug_check_card: RugCheckCard = data;
 
       setMessageList((prev) => [
-        ...(prev || []),
+        ...prev,
         {
           type: 'rugCheckCard',
           card: rug_check_card,
@@ -953,7 +949,7 @@ const Conversation = () => {
       );
     } catch (error) {
       setMessageList((prev) => [
-        ...(prev || []),
+        ...prev,
         {
           type: 'message',
           message: 'Oops! There has been a problem while identifying the data',
@@ -967,7 +963,7 @@ const Conversation = () => {
 
   const handleNFTPrice = async (nft: string) => {
     setMessageList((prev) => [
-      ...(prev || []),
+      ...prev,
       {
         type: 'agent',
         message: `Fetching NFT Data`,
@@ -979,7 +975,7 @@ const Conversation = () => {
       const data = await fetchMagicEdenNFTPrice(nft, nft_symbol);
       if (!data) {
         setMessageList((prev) => [
-          ...(prev || []),
+          ...prev,
           {
             type: 'message',
             message: 'Oops! There has been a problem while fetching NFT data',
@@ -993,7 +989,7 @@ const Conversation = () => {
       let nft_card: NFTCollectionCard = data;
 
       setMessageList((prev) => [
-        ...(prev || []),
+        ...prev,
         {
           type: 'nftCollectionCard',
           card: nft_card,
@@ -1005,7 +1001,7 @@ const Conversation = () => {
       );
     } catch (error) {
       setMessageList((prev) => [
-        ...(prev || []),
+        ...prev,
         {
           type: 'message',
           message: 'Oops! There has been a problem while fetching NFT data',
@@ -1019,7 +1015,7 @@ const Conversation = () => {
 
   const handleTrendingNFTs = async () => {
     setMessageList((prev) => [
-      ...(prev || []),
+      ...prev,
       {
         type: 'agent',
         message: `Fetching Trending NFTs`,
@@ -1030,7 +1026,7 @@ const Conversation = () => {
       const data = await fetchTrendingNFTs();
       if (!data) {
         setMessageList((prev) => [
-          ...(prev || []),
+          ...prev,
           {
             type: 'message',
             message:
@@ -1045,7 +1041,7 @@ const Conversation = () => {
       let nft_card: TrendingNFTCard[] = data;
 
       setMessageList((prev) => [
-        ...(prev || []),
+        ...prev,
         {
           type: 'trendingNFTCard',
           card: nft_card,
@@ -1055,7 +1051,7 @@ const Conversation = () => {
       return responseToOpenai('tell the user NFT data is fetched');
     } catch (error) {
       setMessageList((prev) => [
-        ...(prev || []),
+        ...prev,
         {
           type: 'message',
           message: 'Oops! There has been a problem while fetching NFT data',
@@ -1077,7 +1073,7 @@ const Conversation = () => {
       );
     }
     setMessageList((prev) => [
-      ...(prev || []),
+      ...prev,
       {
         type: 'agent',
         message: `Swapping ${lst_amount} ${lst_symbol} from Solana`,
@@ -1090,7 +1086,7 @@ const Conversation = () => {
       let address = await fetchLSTAddress(lst_symbol);
       if (address == '') {
         setMessageList((prev) => [
-          ...(prev || []),
+          ...prev,
           {
             type: 'message',
             message: `Problem while fetching LST address: ${lst_symbol}`,
@@ -1114,7 +1110,7 @@ const Conversation = () => {
       const transaction = await swapLST(params);
       if (!transaction) {
         setMessageList((prev) => [
-          ...(prev || []),
+          ...prev,
           {
             type: 'message',
             message: `Error while creating the swap transaction: ${lst_symbol}`,
@@ -1131,7 +1127,7 @@ const Conversation = () => {
         await connection.sendRawTransaction(serialzedTransaction);
 
       setMessageList((prev) => [
-        ...(prev || []),
+        ...prev,
         {
           type: 'message',
           message: `Transaction sent`,
@@ -1141,7 +1137,7 @@ const Conversation = () => {
     } catch (error) {
       console.error(error);
       setMessageList((prev) => [
-        ...(prev || []),
+        ...prev,
         {
           type: 'message',
           message: `Problem while swapping to LST:${error}`,
@@ -1152,7 +1148,7 @@ const Conversation = () => {
 
   const handleBubblemap = async (token: string) => {
     setMessageList((prev) => [
-      ...(prev || []),
+      ...prev,
       {
         type: 'agent',
         message: `getting Bubblemap for ${token}`,
@@ -1171,7 +1167,7 @@ const Conversation = () => {
     }
 
     setMessageList((prev) => [
-      ...(prev || []),
+      ...prev,
       {
         type: 'bubblemapCard',
         card: { token: token },
@@ -1316,12 +1312,6 @@ const Conversation = () => {
     setIsWalletVisible(!isWalletVisible);
   }
 
-  useEffect(() => {
-    if (appWallet && audioElement.current && messageList) {
-      setIsLoaded(true);
-    }
-  }, [appWallet, audioElement, messageList]);
-
   // WebRTC datachannel handling for message, open, close, error events.
   useEffect(() => {
     if (dataChannel) {
@@ -1450,10 +1440,10 @@ const Conversation = () => {
             } else if (output.name === 'getBlinks') {
               const { actionName } = JSON.parse(output.arguments);
               setMessageList((prev) => [
-                ...(prev || []),
+                ...prev,
                 {
                   type: 'blinkCard',
-                  link: actionName
+                  link: actionName,
                 },
               ]);
               sendClientEvent(
@@ -1471,55 +1461,61 @@ const Conversation = () => {
   }, [events, sendClientEvent]);
 
   return isLoaded ? (
-    <>
-      <main className="h-screen flex flex-col relative dark:bg-darkalign">
-        {/* Start of wallet */}
-        <section className="absolute right-0 p-4 animate-in fade-in-0 duration-300">
-          <WalletUi
-            toggleWallet={toggleWallet}
-            isWalletVisible={isWalletVisible}
-          />
-        </section>
-        {/* End of wallet */}
-
-        {/* Start of Visualizer Section */}
-        <section
-          className={`flex items-center justify-center animate-in fade-in-0 duration-300 ${
-            messageList ? 'h-1/4' : 'h-1/2'
-          }`}
-        >
-          {mediaRecorder && (
-            <LiveAudioVisualizer
-              barColor={theme == 'light' ? '#1D1D1F' : '#D8B4FE'}
-              mediaRecorder={mediaRecorder}
-              width={400}
-              height={200}
+    messageLoadingError ? (
+      <div className="text-center h-screen dark:bg-darkalign">
+        Oops! The requested chat doesn't exists.
+      </div>
+    ) : (
+      <>
+        <main className="h-screen flex flex-col relative dark:bg-darkalign">
+          {/* Start of wallet */}
+          <section className="absolute right-0 p-4 animate-in fade-in-0 duration-300">
+            <WalletUi
+              toggleWallet={toggleWallet}
+              isWalletVisible={isWalletVisible}
             />
-          )}
+          </section>
+          {/* End of wallet */}
+
+          {/* Start of Visualizer Section */}
+          <section
+            className={`flex items-center justify-center animate-in fade-in-0 duration-300 ${
+              messageList ? 'h-1/4' : 'h-1/2'
+            }`}
+          >
+            {mediaRecorder && (
+              <LiveAudioVisualizer
+                barColor={theme == 'light' ? '#1D1D1F' : '#D8B4FE'}
+                mediaRecorder={mediaRecorder}
+                width={400}
+                height={200}
+              />
+            )}
+          </section>
+          {/* End of Visualizer Section */}
+
+          {/* Start of Message display Section */}
+          <section className="flex-grow flex justify-center items-start overflow-y-auto pb-20 no-scrollbar">
+            {messageList && <MessageList messageList={messageList} />}
+          </section>
+          {/* End of Message display Section */}
+
+          {/* Start of Session Controls Section */}
+
+          {/* End of Session Controls Section */}
+        </main>
+        <section className="relative flex justify-center items-end w-full  bg-black dark:bg-darkalign animate-in fade-in-0 duration-300">
+          <div className="absolute  w-full bottom-0 left-1/2 transform -translate-x-1/2 p-4 flex justify-center bg-white dark:bg-darkalign">
+            <SessionControls
+              startSession={startSession}
+              stopSession={stopSession}
+              sendTextMessage={sendTextMessage}
+              isSessionActive={isSessionActive}
+            />
+          </div>
         </section>
-        {/* End of Visualizer Section */}
-
-        {/* Start of Message display Section */}
-        <section className="flex-grow flex justify-center items-start overflow-y-auto pb-20 no-scrollbar">
-          {messageList && <MessageList messageList={messageList} />}
-        </section>  
-        {/* End of Message display Section */}
-
-        {/* Start of Session Controls Section */}
-
-        {/* End of Session Controls Section */}
-      </main>
-      <section className="relative flex justify-center items-end w-full  bg-black dark:bg-darkalign animate-in fade-in-0 duration-300">
-        <div className="absolute  w-full bottom-0 left-1/2 transform -translate-x-1/2 p-4 flex justify-center bg-white dark:bg-darkalign">
-          <SessionControls
-            startSession={startSession}
-            stopSession={stopSession}
-            sendTextMessage={sendTextMessage}
-            isSessionActive={isSessionActive}
-          />
-        </div>
-      </section>
-    </>
+      </>
+    )
   ) : (
     <Loader />
   );

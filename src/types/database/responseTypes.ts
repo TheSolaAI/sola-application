@@ -17,7 +17,7 @@ export type UserSettingsResponse = {
 };
 
 export type ChatRoom = {
-  id: number;
+  id: string;
   name: string;
   session_id: string;
   user: number;

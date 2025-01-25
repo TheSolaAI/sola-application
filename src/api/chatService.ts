@@ -16,7 +16,7 @@ export const createRoom = (jwt: string, roomDetails: CreateRoom) =>
     headers: { Authorization: `Bearer ${jwt}` },
   });
 
-export const getRoomMessages = (jwt: string, roomId: number, params?: RoomMessages) => {
+export const getRoomMessages = (jwt: string, roomId: string, params?: RoomMessages) => {
   const query = new URLSearchParams();
   if (params?.limit) query.append('limit', params.limit.toString());
   if (params?.offset) query.append('offset', params.offset.toString());
@@ -27,7 +27,7 @@ export const getRoomMessages = (jwt: string, roomId: number, params?: RoomMessag
   );
 };
 
-export const sendRoomMessage = (jwt: string, roomId: number, message: string | JSON) =>
+export const sendRoomMessage = (jwt: string, roomId: string, message: string | JSON) =>
   dbClient.post<SendMessageResponse>(
     `chatrooms/${roomId}/messages/`,
     message,
