@@ -177,7 +177,10 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                   <NavLink
                     to={`/c/${room.id}`}
                     className={`group relative flex items-center gap-2.5 rounded-lg py-2 px-4 font-small text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 dark:text-bodydark2 ${
-                      pathname.includes(room.id) && 'bg-graydark dark:bg-meta-4'
+                      pathname === `/c/${room.id}` ||
+                      pathname.startsWith(`/c/${room.id}/`)
+                        ? 'bg-graydark dark:bg-meta-4'
+                        : ''
                     }`}
                   >
                     <MessageSquare />

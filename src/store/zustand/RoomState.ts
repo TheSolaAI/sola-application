@@ -10,11 +10,13 @@ interface RoomState {
   currentRoomId: string | null;
   currentRoomChat: ChatMessagesResponse | null;
   messageList: MessageCard[];
+  isCreatingRoom: boolean;
   setRooms: (rooms: ChatRoom[]) => void;
   setCurrentRoomId: (currentRoomId: string | null) => void;
   appendRoom: (room: ChatRoom) => void;
   setCurrentRoomChat: (currentRoomChat: ChatMessagesResponse) => void;
   setMessageList: (update: (messageList: MessageCard[]) => MessageCard[]) => void;
+  setIsCreatingRoom: (isCreatingRoom: boolean) => void; 
 }
 
 export const useRoomStore = create<RoomState>((set) => ({
@@ -22,6 +24,7 @@ export const useRoomStore = create<RoomState>((set) => ({
   currentRoomId: null,
   currentRoomChat: null,
   messageList: [],
+  isCreatingRoom: false, 
   setRooms: (rooms: ChatRoom[]) => set({ rooms }),
   setCurrentRoomId: (currentRoomId: string | null) => set({ currentRoomId }),
   appendRoom: (room: ChatRoom) =>
@@ -30,4 +33,5 @@ export const useRoomStore = create<RoomState>((set) => ({
     set({ currentRoomChat }),
   setMessageList: (update) =>
     set((state) => ({ messageList: update(state.messageList) })),
+  setIsCreatingRoom: (isCreatingRoom: boolean) => set({ isCreatingRoom }),
 }));

@@ -103,7 +103,7 @@ const Conversation = () => {
   const rpc = process.env.SOLANA_RPC;
 
   const marketMacro = async () => {
-    handleAddMessage(agentMessage('Agent analysing the market'));
+    // await handleAddMessage(agentMessage('Agent analysing the market'));
 
     let marketData = await getMarketData();
 
@@ -141,8 +141,8 @@ const Conversation = () => {
     };
 
     //todo create a ui for displaying the data
-    handleAddMessage(customMessageCards('marketDataCard', marketDataCard));
-    handleAddMessage(
+    await handleAddMessage(customMessageCards('marketDataCard', marketDataCard));
+    await handleAddMessage(
       messageCard(`Todays BTCDOM: ${btcDominance} and ETHDOM: ${ethDominance}`),
     );
 
@@ -163,7 +163,7 @@ const Conversation = () => {
       recipient = await getPublicKeyFromSolDomain(to);
     }
 
-    handleAddMessage(
+    await handleAddMessage(
       agentMessage(`Agent is transferring ${amount} SOL to ${to}`),
     );
 
@@ -173,7 +173,7 @@ const Conversation = () => {
         new PublicKey(appWallet.address),
       );
       if (balance / LAMPORTS_PER_SOL - 0.01 < amount) {
-        handleAddMessage(
+        await handleAddMessage(
           messageCard(
             'Insufficient balance. Please maintain 0.01 balance minimum',
           ),
@@ -197,13 +197,13 @@ const Conversation = () => {
       );
 
       //TODO: add dynamic status and handle failed transactions
-      handleAddMessage(transactionCard(signature));
+      await handleAddMessage(transactionCard(signature));
 
       return responseToOpenai(
         'Transaction is successful. ask what the user wants to do next',
       );
     } catch (error) {
-      handleAddMessage(
+      await handleAddMessage(
         messageCard('There occurred a problem with performing the transaction'),
       );
 
@@ -225,7 +225,7 @@ const Conversation = () => {
       asset_details += `${name}\:${amount.toFixed(2)} `;
     });
 
-    handleAddMessage(agentMessage(`The agent is fetching your wallet assets`));
+    // await handleAddMessage(agentMessage(`The agent is fetching your wallet assets`));
 
     console.log(asset_details);
     return responseToOpenai(
@@ -247,7 +247,7 @@ const Conversation = () => {
     if (to.endsWith('.sol')) {
       recipient = await getPublicKeyFromSolDomain(to);
     }
-    handleAddMessage(
+    await handleAddMessage(
       agentMessage(`Agent is transferring ${amount} ${token} to ${to}`),
     );
 
@@ -264,7 +264,7 @@ const Conversation = () => {
       const { blockhash, lastValidBlockHeight } =
         await connection.getLatestBlockhash();
       if (!transaction) {
-        handleAddMessage(
+        await handleAddMessage(
           messageCard(
             'There occurred a problem with performing the transaction',
           ),
@@ -282,13 +282,13 @@ const Conversation = () => {
       );
 
       //TODO: add dynamic status and handle failed transactions
-      handleAddMessage(transactionCard(signature));
+      await handleAddMessage(transactionCard(signature));
 
       return responseToOpenai(
         'Transaction is successful. ask what the user wants to do next',
       );
     } catch (error) {
-      handleAddMessage(
+      await handleAddMessage(
         messageCard(
           `There occurred a problem with performing the transaction ${error}`,
         ),
@@ -314,7 +314,7 @@ const Conversation = () => {
       );
 
     if (!tokenList[tokenA] || !tokenList[tokenB]) {
-      handleAddMessage(
+      await handleAddMessage(
         messageCard(
           "We don't support one of the tokens. Request admin to support it.",
         ),
@@ -324,7 +324,7 @@ const Conversation = () => {
         'tell the user that , We dont support one of the token',
       );
     } else if (tokenA === tokenB) {
-      handleAddMessage(
+      await handleAddMessage(
         messageCard("You can't swap between the same tokens! LOL"),
       );
 
@@ -333,7 +333,7 @@ const Conversation = () => {
       );
     }
 
-    handleAddMessage(
+    await handleAddMessage(
       agentMessage(
         `Agent is performing the swap between ${tokenA} and ${tokenB}`,
       ),
@@ -350,7 +350,7 @@ const Conversation = () => {
     const connection = new Connection(rpc);
     const transaction = await swapTx(params);
     if (!transaction) {
-      handleAddMessage(messageCard(`Error during Swap.`));
+      await handleAddMessage(messageCard(`Error during Swap.`));
 
       return responseToOpenai(
         'just tell the user that Swap failed and ask them to try later after some time',
@@ -368,7 +368,7 @@ const Conversation = () => {
     });
 
     // TODO: implement dynamic status
-    handleAddMessage(transactionCard(txid));
+    await handleAddMessage(transactionCard(txid));
 
     return responseToOpenai(
       'tell the user that swap transaction is sent to blockchain',
@@ -382,7 +382,7 @@ const Conversation = () => {
         'ask the user to contact admin as the rpc is not attached',
       );
 
-    handleAddMessage(agentMessage(`Fetching your Lulo Assets`));
+    // await handleAddMessage(agentMessage(`Fetching your Lulo Assets`));
 
     const params: AssetsParams = {
       owner: `${appWallet.address}`,
@@ -390,7 +390,7 @@ const Conversation = () => {
     const assets = await getAssetsLulo(params);
 
     if (!assets) {
-      handleAddMessage(messageCard('Oops! Unable to fetch your Lulo assets'));
+      await handleAddMessage(messageCard('Oops! Unable to fetch your Lulo assets'));
 
       return responseToOpenai(
         'tell the user that they dont have any assets in lulo right now',
@@ -399,7 +399,7 @@ const Conversation = () => {
 
     let luloCardItem: LuloCard = assets;
 
-    handleAddMessage(customMessageCards('luloCard', luloCardItem));
+    await handleAddMessage(customMessageCards('luloCard', luloCardItem));
 
     return responseToOpenai(
       'tell the user that their lulo assets are successfully fetched',
@@ -417,7 +417,7 @@ const Conversation = () => {
         'ask the user to contact admin as the rpc is not attached',
       );
 
-    handleAddMessage(agentMessage(`Agent is depositing the asset`));
+    // await handleAddMessage(agentMessage(`Agent is depositing the asset`));
 
     const params: DepositParams = {
       owner: `${appWallet.address}`,
@@ -429,7 +429,7 @@ const Conversation = () => {
 
     const transaction_array = await depositLulo(params);
     if (!transaction_array) {
-      handleAddMessage(messageCard(`Deposit failed. Check your balance.`));
+      await handleAddMessage(messageCard(`Deposit failed. Check your balance.`));
 
       return responseToOpenai(
         `tell the user that they dont have ${amount} worth of this ${token}`,
@@ -487,7 +487,7 @@ const Conversation = () => {
       return responseToOpenai(
         'ask the user to contact admin as the rpc is not attached',
       );
-    handleAddMessage(agentMessage(`Agent is withdrawing the asset`));
+    // await handleAddMessage(agentMessage(`Agent is withdrawing the asset`));
 
     let all = false;
 
@@ -530,7 +530,7 @@ const Conversation = () => {
       const transaction_array = await withdrawLulo(params);
 
       if (!transaction_array) {
-        handleAddMessage(messageCard(`Withdrawal failed. Check your balance.`));
+        await handleAddMessage(messageCard(`Withdrawal failed. Check your balance.`));
 
         return responseToOpenai(
           `tell the user that withdraw of ${withdrawAmount} of the token ${token} failed due to less balance.`,
@@ -584,7 +584,7 @@ const Conversation = () => {
       message: `Fetching upcoming NFT launches`,
     };
 
-    handleAddMessage(message);
+    await handleAddMessage(message);
     try {
       const data = await fetchMagicEdenLaunchpadCollections();
 
@@ -609,7 +609,7 @@ const Conversation = () => {
         'tell the user that successfully fetched upcoming NFT launches.',
       );
     } catch (error) {
-      handleAddMessage(
+      await handleAddMessage(
         messageCard(
           'Oops! There has been a problem while fetching the NFT launches',
         ),
@@ -630,13 +630,13 @@ const Conversation = () => {
       setFetchedToken(tokenMint);
     }
 
-    handleAddMessage(agentMessage(`Fetching ${tokenMint} data`));
+    // await handleAddMessage(agentMessage(`Fetching ${tokenMint} data`));
 
     try {
       if (tokenMint.startsWith('$')) {
         const data = await getTokenDataSymbol(tokenMint);
         if (!data) {
-          handleAddMessage(
+          await handleAddMessage(
             messageCard(
               'Oops! There has been a problem in fetching token data',
             ),
@@ -659,7 +659,7 @@ const Conversation = () => {
           },
         ];
 
-        handleAddMessage(customMessageCards('tokenCards', token_card));
+        await handleAddMessage(customMessageCards('tokenCards', token_card));
 
         return responseToOpenai(
           'tell the user that the token data is fetched successfully',
@@ -667,7 +667,7 @@ const Conversation = () => {
       } else {
         const data = await getTokenData(tokenMint);
         if (!data) {
-          handleAddMessage(
+          await handleAddMessage(
             messageCard(
               'Oops! There has been a problem in fetching token data',
             ),
@@ -694,14 +694,14 @@ const Conversation = () => {
           },
         ];
 
-        handleAddMessage(customMessageCards('tokenCards', token_card));
+        await handleAddMessage(customMessageCards('tokenCards', token_card));
 
         return responseToOpenai(
           'The token data has been fetched successfully.Do not repeat the address. Ask if the user needed anything else.',
         );
       }
     } catch (error) {
-      handleAddMessage(
+      await handleAddMessage(
         messageCard('Oops! Encountered a problem while fetching token data.'),
       );
 
@@ -712,12 +712,12 @@ const Conversation = () => {
   };
 
   const handleLSTData = async () => {
-    handleAddMessage(agentMessage(`Fetching lST Data`));
+    // await handleAddMessage(agentMessage(`Fetching lST Data`));
 
     try {
       const data = await getLstData();
       if (!data) {
-        handleAddMessage(
+        await handleAddMessage(
           messageCard('Oops! There has been a problem while fetching lst data'),
         );
 
@@ -728,13 +728,13 @@ const Conversation = () => {
 
       let lst_card: SanctumCard[] = data;
 
-      handleAddMessage(customMessageCards('sanctumCard', lst_card));
+      await handleAddMessage(customMessageCards('sanctumCard', lst_card));
 
       return responseToOpenai(
         'tell the user that lst data is successfully fetched',
       );
     } catch (error) {
-      handleAddMessage(
+      await handleAddMessage(
         messageCard('Oops! There has been a problem while fetching lst data'),
       );
 
@@ -745,7 +745,7 @@ const Conversation = () => {
   };
 
   const handleRugCheck = async (token: string) => {
-    handleAddMessage(agentMessage(`Checking if ${token} is a rug.`));
+    // await handleAddMessage(agentMessage(`Checking if ${token} is a rug.`));
 
     try {
       let final_token = '';
@@ -758,7 +758,7 @@ const Conversation = () => {
       const data = await getRugCheck(final_token);
 
       if (!data) {
-        handleAddMessage(
+        await handleAddMessage(
           messageCard(
             'Oops! There has been a problem while identifying the data',
           ),
@@ -771,13 +771,13 @@ const Conversation = () => {
 
       let rug_check_card: RugCheckCard = data;
 
-      handleAddMessage(customMessageCards('rugCheckCard', rug_check_card));
+      await handleAddMessage(customMessageCards('rugCheckCard', rug_check_card));
 
       return responseToOpenai(
         `tell the user that the token has a risk score of ${rug_check_card.score}. if its above 0 and less than 200, its risky, and if its above 200 then high chances that it could be a rug`,
       );
     } catch (error) {
-      handleAddMessage(
+      await handleAddMessage(
         messageCard(
           'Oops! There has been a problem while identifying the data',
         ),
@@ -790,13 +790,13 @@ const Conversation = () => {
   };
 
   const handleNFTPrice = async (nft: string) => {
-    handleAddMessage(agentMessage(`Fetching NFT Data`));
+    // await handleAddMessage(agentMessage(`Fetching NFT Data`));
 
     try {
       let nft_symbol = nft.replace(/\s+/g, '_');
       const data = await fetchMagicEdenNFTPrice(nft, nft_symbol);
       if (!data) {
-        handleAddMessage(
+        await handleAddMessage(
           messageCard('Oops! There has been a problem while fetching NFT data'),
         );
 
@@ -807,13 +807,13 @@ const Conversation = () => {
 
       let nft_card: NFTCollectionCard = data;
 
-      handleAddMessage(customMessageCards('nftCollectionCard', nft_card));
+      await handleAddMessage(customMessageCards('nftCollectionCard', nft_card));
 
       return responseToOpenai(
         'tell the user that NFT data is successfully fetched',
       );
     } catch (error) {
-      handleAddMessage(
+      await handleAddMessage(
         messageCard('Oops! There has been a problem while fetching NFT data'),
       );
 
@@ -824,12 +824,12 @@ const Conversation = () => {
   };
 
   const handleTrendingNFTs = async () => {
-    handleAddMessage(agentMessage(`Fetching Trending NFTs`));
+    // await handleAddMessage(agentMessage(`Fetching Trending NFTs`));
 
     try {
       const data = await fetchTrendingNFTs();
       if (!data) {
-        handleAddMessage(
+        await handleAddMessage(
           messageCard(
             'Oops! There has been a problem while fetching Trending NFT data',
           ),
@@ -842,11 +842,11 @@ const Conversation = () => {
 
       let nft_card: TrendingNFTCard[] = data;
 
-      handleAddMessage(customMessageCards('trendingNFTCard', nft_card));
+      await handleAddMessage(customMessageCards('trendingNFTCard', nft_card));
 
       return responseToOpenai('tell the user NFT data is fetched');
     } catch (error) {
-      handleAddMessage(
+      await handleAddMessage(
         messageCard('Oops! There has been a problem while fetching NFT data'),
       );
 
@@ -866,7 +866,7 @@ const Conversation = () => {
         'there has been a server error, prompt the user to try again later',
       );
     }
-    handleAddMessage(
+    await handleAddMessage(
       agentMessage(`Swapping ${lst_amount} ${lst_symbol} from Solana`),
     );
 
@@ -875,7 +875,7 @@ const Conversation = () => {
       //create a fn to read sanctum list and fetch address
       let address = await fetchLSTAddress(lst_symbol);
       if (address == '') {
-        handleAddMessage(
+        await handleAddMessage(
           messageCard(`Problem while fetching LST address: ${lst_symbol}`),
         );
 
@@ -896,7 +896,7 @@ const Conversation = () => {
 
       const transaction = await swapLST(params);
       if (!transaction) {
-        handleAddMessage(
+        await handleAddMessage(
           messageCard(
             `Error while creating the swap transaction: ${lst_symbol}`,
           ),
@@ -922,12 +922,12 @@ const Conversation = () => {
       ]);
     } catch (error) {
       console.error(error);
-      handleAddMessage(messageCard(`Problem while swapping to LST: ${error}`));
+      await handleAddMessage(messageCard(`Problem while swapping to LST: ${error}`));
     }
   };
 
   const handleBubblemap = async (token: string) => {
-    handleAddMessage(agentMessage(`Getting Bubblemap for ${token}`));
+    // await handleAddMessage(agentMessage(`Getting Bubblemap for ${token}`));
 
     try {
       if (token.startsWith('$')) {
@@ -940,7 +940,7 @@ const Conversation = () => {
       );
     }
 
-    handleAddMessage(customMessageCards('bubblemapCard', { token: token }));
+    await handleAddMessage(customMessageCards('bubblemapCard', { token: token }));
 
     return responseToOpenai(
       'tell the user that bubblemap is successfully fetched',

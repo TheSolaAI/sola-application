@@ -74,7 +74,7 @@ export const useChat = () => {
           const newMessages = response.data.results.map(
             (result) => result.message,
           );
-          return [...prev, ...newMessages];
+          return [...prev, ...newMessages.reverse()];
         });
         console.log('success :');
         setCurrentRoomId(roomId);
