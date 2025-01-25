@@ -14,6 +14,9 @@ import useAppState from '../../store/zustand/AppState';
 import { Switch } from '@headlessui/react';
 import { ThemeType } from '../../types/app';
 import useUser from '../../hooks/useUser';
+import { useChat } from '../../hooks/useChatRoom';
+import { useRoomStore } from '../../store/zustand/RoomState';
+import { Plus } from 'react-feather';
 
 interface SidebarProps {
   sidebarOpen: boolean;
@@ -21,9 +24,11 @@ interface SidebarProps {
 }
 
 const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
-  const { user, logout, getAccessToken } = usePrivy();
+  const { user, logout } = usePrivy();
   const location = useLocation();
   const { pathname } = location;
+
+  const { getRooms } = useChat();
 
   const trigger = useRef<any>(null);
   const sidebar = useRef<any>(null);
@@ -42,9 +47,9 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
     setDataChannel,
   } = useChatState();
 
-  const { updateSettings, setAccessToken } = useUser();
-
+  const { updateSettings } = useUser();
   const { theme } = useAppState();
+  const { rooms } = useRoomStore();
 
   const toggleTheme = async () => {
     const newTheme: ThemeType = theme === 'dark' ? 'light' : 'dark';
@@ -108,14 +113,12 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
   }, [sidebarExpanded]);
 
   useEffect(() => {
-    const fetchAccessToken = async () => {
-      const token = await getAccessToken();
-      setAccessToken(token);
-    };
+    async function getChatRooms() {
+      await getRooms();
+    }
 
-    fetchAccessToken();
+    getChatRooms();
   }, []);
-
   return (
     <aside
       ref={sidebar}
@@ -165,51 +168,32 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
           {/* <!-- Menu Group --> */}
           <div>
             <h3 className="mb-4 ml-4 text-sm font-semibold text-bodydark2 dark:text-purple-300">
-              MENU
+              CHAT
             </h3>
 
             <ul className="mb-6 flex flex-col gap-1.5">
-              {/* <!-- Menu Item Conversation --> */}
-              <li>
-                <NavLink
-                  to="/home"
-                  className={`group relative flex items-center gap-2.5 rounded-lg py-2 px-4 font-small text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 dark:text-bodydark2 ${
-                    pathname.includes('home') && 'bg-graydark dark:bg-meta-4 '
-                  }`}
-                >
-                  <MessageSquare />
-                  Main Conversation
-                </NavLink>
-              </li>
-              {/* <!-- Menu Item Conversation --> */}
+              {rooms.map((room: { id: string; name: string }) => (
+                <li key={room.id}>
+                  <NavLink
+                    to={`/c/${room.id}`}
+                    className={`group relative flex items-center gap-2.5 rounded-lg py-2 px-4 font-small text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 dark:text-bodydark2 ${
+                      pathname.includes(room.id) && 'bg-graydark dark:bg-meta-4'
+                    }`}
+                  >
+                    <MessageSquare />
+                    {room.name}
+                  </NavLink>
+                </li>
+              ))}
 
-              {/* <!-- Menu Item Wallet --> */}
               <li>
                 <NavLink
-                  to="/wallet"
-                  className={`group relative flex items-center gap-2.5 rounded-lg py-2 px-4 font-small text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 dark:text-bodydark2 ${
-                    pathname.includes('wallet') && 'bg-graydark dark:bg-meta-4'
-                  }`}
+                  to={`/`}
+                  className={`group relative flex items-center gap-2.5 rounded-lg py-2 px-4 w-full font-small text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 dark:text-bodydark2`}
                 >
-                  <CreditCard className="" />
-                  Wallet Management
+                  <Plus /> New Chat
                 </NavLink>
               </li>
-              {/* <!-- Menu Item Wallet --> */}
-
-              {/* <!-- Menu OnRamp --> */}
-              <li>
-                <NavLink
-                  to="/onramp"
-                  className={`group relative flex items-center gap-2.5 rounded-lg py-2 px-4 font-small text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 dark:text-bodydark2 ${
-                    pathname.includes('onramp') && 'bg-graydark dark:bg-meta-4'
-                  }`}
-                >
-                  <DollarSign />
-                  On Ramp
-                </NavLink>
-              </li>
-              {/* <!-- Menu Menu OnRamp --> */}
             </ul>
           </div>
 
@@ -324,6 +308,34 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 </SidebarLinkGroup>
                 {/* <!-- Menu Item Ui Elements --> */}
               </li>
+
+              {/* <!-- Menu Item Wallet --> */}
+              <li>
+                <NavLink
+                  to="/wallet"
+                  className={`group relative flex items-center gap-2.5 rounded-lg py-2 px-4 font-small text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 dark:text-bodydark2 ${
+                    pathname.includes('wallet') && 'bg-graydark dark:bg-meta-4'
+                  }`}
+                >
+                  <CreditCard className="" />
+                  Wallet Management
+                </NavLink>
+              </li>
+              {/* <!-- Menu Item Wallet --> */}
+
+              {/* <!-- Menu OnRamp --> */}
+              <li>
+                <NavLink
+                  to="/onramp"
+                  className={`group relative flex items-center gap-2.5 rounded-lg py-2 px-4 font-small text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 dark:text-bodydark2 ${
+                    pathname.includes('onramp') && 'bg-graydark dark:bg-meta-4'
+                  }`}
+                >
+                  <DollarSign />
+                  On Ramp
+                </NavLink>
+              </li>
+              {/* <!-- Menu Menu OnRamp --> */}
 
               <li>
                 {/* <!-- Toggle Theme Element --> */}

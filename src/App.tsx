@@ -15,11 +15,11 @@ import useUser from './hooks/useUser';
 function App() {
   const { authenticated, getAccessToken } = usePrivy();
   const { createWallet, wallets } = useSolanaWallets();
-  const { setWallet } = useAppState();
+  const { setWallet, setAccessToken } = useAppState();
   const { authorized, setAuthorized } = useAppState();
   const { pathname } = useLocation();
   const memoizedCreateWallet = useCallback(createWallet, []);
-  const { setAccessToken, fetchSettings } = useUser();
+  const { fetchSettings } = useUser();
 
   const initializeWallet = async () => {
     try {
@@ -31,8 +31,6 @@ function App() {
   };
 
   const updateUserSettings = async () => {
-    const accessToken = await getAccessToken();
-    setAccessToken(accessToken ?? '');
     console.log(await fetchSettings());
   };
 
@@ -57,6 +55,12 @@ function App() {
   useEffect(() => {
     const initializeApp = async () => {
       if (authenticated) {
+        const jwt = await getAccessToken();
+        if (!jwt) {
+          throw new Error('Failed to fetch access token.');
+        }
+        setAccessToken(jwt);
+        console.log(jwt)
         await initializeWallet();
         await updateUserSettings();
       }
@@ -79,7 +83,7 @@ function App() {
             }
           />
           <Route
-            path="/home"
+            path="/c/:id"
             element={
               <>
                 <PageTitle title="Home" />

@@ -12,3 +12,17 @@ export type UserSettings = {
   voice_preference?: AiVoice;
   emotion_choice?: AiEmotion;
 };
+
+export type CreateRoom = {
+  name: string;
+  session_id: string;
+}
+
+export type RoomMessages = {
+  limit?: number;
+  offset?: number;
+}
+
+export type SendChatMessage = {
+  message: string | JSON
+}

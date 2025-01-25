@@ -7,8 +7,10 @@ import Clarity from '@microsoft/clarity';
 import App from './App';
 import './css/style.css';
 import './css/satoshi.css';
+import { Toaster } from 'sonner';
 
 Sentry.init({
+  enabled: process.env.ENVIORNMENT === 'production',
   dsn: 'https://9b7886f252a8435b9083cf088a03039d@o4508596709097472.ingest.us.sentry.io/4508601347866624',
   integrations: [
     Sentry.browserTracingIntegration(),
@@ -51,11 +53,11 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
             fundingMethodConfig: {
               moonpay: {
                 paymentMethod: 'credit_debit_card',
-                uiConfig: {accentColor: '#1D1D1F', theme: 'dark'},
-              }
-            }
+                uiConfig: { accentColor: '#1D1D1F', theme: 'dark' },
+              },
+            },
           }}
-        >
+        > <Toaster position='top-right' richColors/>
           <App />
         </PrivyProvider>
       )}

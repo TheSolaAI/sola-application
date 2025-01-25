@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
-import { registerUser } from '../database/register';
-import { getUserSettings, updateUserSetting } from '../database/userSettings';
+import { registerUser } from '../api/register';
+import { getUserSettings, updateUserSetting } from '../api/userSettings';
 import { RegisterUser, UserSettings } from '../types/database/requstTypes';
 import useAppState from '../store/zustand/AppState';
 import {
@@ -9,8 +9,7 @@ import {
 } from '../types/database/responseTypes';
 
 const useUser = () => {
-  const { setTheme, setAiVoice, setAiEmotion } = useAppState();
-  const [accessToken, setAccessToken] = useState<string | null>(null);
+  const { setTheme, setAiVoice, setAiEmotion, accessToken } = useAppState();
 
   // Register a user
   const register = useCallback(
@@ -84,7 +83,7 @@ const useUser = () => {
     [accessToken],
   );
 
-  return { register, fetchSettings, updateSettings, setAccessToken };
+  return { register, fetchSettings, updateSettings };
 };
 
 export default useUser;
