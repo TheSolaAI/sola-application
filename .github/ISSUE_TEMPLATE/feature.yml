@@ -1,7 +1,8 @@
 name: 💡 Feature Request
 description: Request a new feature or enhancement.
+labels: ['feature']
 assignees:
-  - 'HaranK007'
+  - '0Xsolcreator'
 title: '💡 [FEATURE] '
 body:
   - type: textarea
