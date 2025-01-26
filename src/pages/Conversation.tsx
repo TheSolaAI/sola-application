@@ -106,9 +106,8 @@ const Conversation = () => {
     // await handleAddMessage(agentMessage('Agent analysing the market'));
 
     let marketData = await getMarketData();
-
+    
     let market: string = marketData['market'];
-
     let voice = marketData['voice'];
     let stats = marketData['stats'];
     let btcDominance = stats['btcDominance'];
@@ -123,13 +122,17 @@ const Conversation = () => {
     marketInfo.map((item) => {
       try {
         let text = item.split('[Source]')[0];
-        let link = item.split('[Source]')[1];
-
-        link = link.slice(1, -1);
-        marketAnalysis.push({
-          text: text,
-          link: link,
-        });
+        let linkPart = item.split('[Source]')[1];
+      
+        if (linkPart) {
+          let link = linkPart.slice(1, -1);
+          marketAnalysis.push({
+            text: text,
+            link: link,
+          });
+        } else {
+          console.warn("Missing link for item:", item);
+        }
       } catch (e) {
         console.log(e);
       }

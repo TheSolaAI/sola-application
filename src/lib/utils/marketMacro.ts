@@ -10,6 +10,5 @@ export const getMarketData = async () => {
   let market_url = url + 'data/market/market';;
   const response = await axios.get(market_url);
   return response.data;
+  
 };
-
- 
