@@ -1,6 +1,5 @@
 import { getNFTLaunchpad } from './functions/getLaunchpadCollections';
 import { swapTokens } from './functions/swapTokens';
-import { toggleWallet } from './functions/toggleWallet';
 import { getLuloAssets } from './functions/getLuloAssets';
 import { depositLulo } from './functions/depositLulo';
 import { withdrawLulo } from './functions/withdrawLulo';
@@ -9,16 +8,13 @@ import { getTokenData } from './functions/getTokenData';
 import { getLstData } from './functions/getLstData';
 import { getNFTPrice } from './functions/getNFTPrice';
 import { getTrendingNFTs } from './functions/getTrendingNFTs';
-
 import { swapLST } from './functions/swapLSTfromClick';
-// import { test } from './functions/test';
 import { transferSpl } from './functions/transferSpl';
-import { fetchWallet } from './functions/fetchWallet';
 import { getRugCheck } from './functions/getRugCheck';
 import { getMarketData } from './functions/getMarketData';
-
 import { getBubblemap } from './functions/getBubblemap';
 import { getBlinks } from './functions/getBlinks';
+import { walletManagement } from './functions/walletActions';
 
 export const createToolsConfig = (aiVoice: string, aiEmotion: string) => {
   const instructions = `
@@ -41,7 +37,7 @@ export const createToolsConfig = (aiVoice: string, aiEmotion: string) => {
       instructions,
       voice: aiVoice.toLowerCase(),
       tools: [
-        toggleWallet,
+        walletManagement,
         swapTokens,
         getNFTLaunchpad,
         getLuloAssets,
@@ -54,7 +50,6 @@ export const createToolsConfig = (aiVoice: string, aiEmotion: string) => {
         getTrendingNFTs,
         swapLST,
         transferSpl,
-        fetchWallet,
         getRugCheck,
         getMarketData,
         getBubblemap,

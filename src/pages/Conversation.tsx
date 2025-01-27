@@ -106,7 +106,7 @@ const Conversation = () => {
     // await handleAddMessage(agentMessage('Agent analysing the market'));
 
     let marketData = await getMarketData();
-    
+
     let market: string = marketData['market'];
     let voice = marketData['voice'];
     let stats = marketData['stats'];
@@ -123,7 +123,7 @@ const Conversation = () => {
       try {
         let text = item.split('[Source]')[0];
         let linkPart = item.split('[Source]')[1];
-      
+
         if (linkPart) {
           let link = linkPart.slice(1, -1);
           marketAnalysis.push({
@@ -131,7 +131,7 @@ const Conversation = () => {
             link: link,
           });
         } else {
-          console.warn("Missing link for item:", item);
+          console.warn('Missing link for item:', item);
         }
       } catch (e) {
         console.log(e);
@@ -144,7 +144,9 @@ const Conversation = () => {
     };
 
     //todo create a ui for displaying the data
-    await handleAddMessage(customMessageCards('marketDataCard', marketDataCard));
+    await handleAddMessage(
+      customMessageCards('marketDataCard', marketDataCard),
+    );
     await handleAddMessage(
       messageCard(`Todays BTCDOM: ${btcDominance} and ETHDOM: ${ethDominance}`),
     );
@@ -217,24 +219,30 @@ const Conversation = () => {
     }
   };
 
-  const fetchWallet = async () => {
-    let asset_details = '';
-    const user_assets = assets;
-    user_assets.forEach((item) => {
-      const balance = item.balance;
-      const decimal = item.decimals;
-      const name = item.symbol;
-      const amount = balance / 10 ** decimal;
-      asset_details += `${name}\:${amount.toFixed(2)} `;
+  const getWalletAssets = async () => {
+    const assetDetails = assets.map((item) => {
+      const amount = (item.balance / 10 ** item.decimals).toFixed(2);
+      return { symbol: item.symbol, amount: parseFloat(amount) };
     });
 
-    // await handleAddMessage(agentMessage(`The agent is fetching your wallet assets`));
+    const totalAmount = assets
+      .reduce((acc, asset) => acc + asset.balance / 10 ** asset.decimals, 0)
+      .toFixed(2);
 
-    console.log(asset_details);
+    setMessageList((prev) => {
+      return [
+        ...prev,
+        agentMessage(`The agent is fetching your wallet assets`),
+      ];
+    });
+
+    setIsWalletVisible(true);
+
     return responseToOpenai(
-      `here is your asset list ${asset_details}. Do not stop till u say top 5 assets. Dont stop in halfway.`,
+      `user assets ${assetDetails}, total value ${totalAmount}. Note: if the user has enquired abt pauticular asset balance, try to tell details about the pauticular asset only`,
     );
   };
+
   const transferSpl = async (
     amount: number,
     token: 'SOLA' | 'USDC' | 'BONK' | 'USDT' | 'JUP',
@@ -393,7 +401,9 @@ const Conversation = () => {
     const assets = await getAssetsLulo(params);
 
     if (!assets) {
-      await handleAddMessage(messageCard('Oops! Unable to fetch your Lulo assets'));
+      await handleAddMessage(
+        messageCard('Oops! Unable to fetch your Lulo assets'),
+      );
 
       return responseToOpenai(
         'tell the user that they dont have any assets in lulo right now',
@@ -432,7 +442,9 @@ const Conversation = () => {
 
     const transaction_array = await depositLulo(params);
     if (!transaction_array) {
-      await handleAddMessage(messageCard(`Deposit failed. Check your balance.`));
+      await handleAddMessage(
+        messageCard(`Deposit failed. Check your balance.`),
+      );
 
       return responseToOpenai(
         `tell the user that they dont have ${amount} worth of this ${token}`,
@@ -533,7 +545,9 @@ const Conversation = () => {
       const transaction_array = await withdrawLulo(params);
 
       if (!transaction_array) {
-        await handleAddMessage(messageCard(`Withdrawal failed. Check your balance.`));
+        await handleAddMessage(
+          messageCard(`Withdrawal failed. Check your balance.`),
+        );
 
         return responseToOpenai(
           `tell the user that withdraw of ${withdrawAmount} of the token ${token} failed due to less balance.`,
@@ -774,7 +788,9 @@ const Conversation = () => {
 
       let rug_check_card: RugCheckCard = data;
 
-      await handleAddMessage(customMessageCards('rugCheckCard', rug_check_card));
+      await handleAddMessage(
+        customMessageCards('rugCheckCard', rug_check_card),
+      );
 
       return responseToOpenai(
         `tell the user that the token has a risk score of ${rug_check_card.score}. if its above 0 and less than 200, its risky, and if its above 200 then high chances that it could be a rug`,
@@ -925,7 +941,9 @@ const Conversation = () => {
       ]);
     } catch (error) {
       console.error(error);
-      await handleAddMessage(messageCard(`Problem while swapping to LST: ${error}`));
+      await handleAddMessage(
+        messageCard(`Problem while swapping to LST: ${error}`),
+      );
     }
   };
 
@@ -943,7 +961,9 @@ const Conversation = () => {
       );
     }
 
-    await handleAddMessage(customMessageCards('bubblemapCard', { token: token }));
+    await handleAddMessage(
+      customMessageCards('bubblemapCard', { token: token }),
+    );
 
     return responseToOpenai(
       'tell the user that bubblemap is successfully fetched',
@@ -1122,17 +1142,8 @@ const Conversation = () => {
       ) {
         for (const output of mostRecentEvent.response.output) {
           if (output.type === 'function_call') {
-            if (output.name === 'toggleWallet') {
-              const { action } = JSON.parse(output.arguments);
-
-              if (action === 'open' && !isWalletVisible) {
-                toggleWallet();
-              } else if (action === 'close' && isWalletVisible) {
-                toggleWallet();
-              }
-              sendClientEvent(
-                responseToOpenai('Ask what the user wants to do next.'),
-              );
+            const functionName = output.name;
+            if (functionName === 'wallet_management') {
             } else if (output.name === 'transferSolTx') {
               const { quantity, address } = JSON.parse(output.arguments);
               let response = await transferSol(quantity, address);
@@ -1187,9 +1198,6 @@ const Conversation = () => {
             } else if (output.name === 'transferSpl') {
               const { amount, token, address } = JSON.parse(output.arguments);
               let response = await transferSpl(amount, token, address);
-              sendClientEvent(response);
-            } else if (output.name === 'fetchWallet') {
-              let response = await fetchWallet();
               sendClientEvent(response);
             } else if (output.name === 'getRugCheck') {
               const { token } = JSON.parse(output.arguments);
