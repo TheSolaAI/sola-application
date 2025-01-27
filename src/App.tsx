@@ -16,7 +16,6 @@ function App() {
   const { authenticated, getAccessToken } = usePrivy();
   const { createWallet, wallets } = useSolanaWallets();
   const { setWallet, setAccessToken } = useAppState();
-  // const { authorized, setAuthorized } = useAppState();
   const { pathname } = useLocation();
   const memoizedCreateWallet = useCallback(createWallet, []);
   const { fetchSettings } = useUser();
@@ -33,12 +32,6 @@ function App() {
   const updateUserSettings = async () => {
     console.log(await fetchSettings());
   };
-
-  // useEffect(() => {
-  //   if (authenticated !== authorized) {
-  //     setAuthorized(authenticated);
-  //   }
-  // }, [authenticated, authorized, setAuthorized]);
 
   // Adding Wallet to the global state.
   useEffect(() => {

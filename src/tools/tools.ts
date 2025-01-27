@@ -14,7 +14,7 @@ import { getRugCheck } from './functions/getRugCheck';
 import { getMarketData } from './functions/getMarketData';
 import { getBubblemap } from './functions/getBubblemap';
 import { getBlinks } from './functions/getBlinks';
-import { walletManagement } from './functions/walletActions';
+import { walletActions } from './functions/walletActions';
 
 export const createToolsConfig = (aiVoice: string, aiEmotion: string) => {
   const instructions = `
@@ -37,7 +37,7 @@ export const createToolsConfig = (aiVoice: string, aiEmotion: string) => {
       instructions,
       voice: aiVoice.toLowerCase(),
       tools: [
-        walletManagement,
+        walletActions,
         swapTokens,
         getNFTLaunchpad,
         getLuloAssets,

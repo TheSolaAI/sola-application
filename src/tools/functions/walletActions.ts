@@ -1,22 +1,21 @@
-export const walletManagement = {
+const functionDescription =
+  "call this function when the user wants to check his wallet balance or want to Fund their wallet";
+
+export const walletActions = {
   type: 'function',
-  function: {
-    name: 'wallet_management',
-    description:
-      "Manage user's wallet including balance inquiry, funding",
+  name: 'walletActions',
+  description: functionDescription,
+  parameters: {
+    type: 'object',
     strict: true,
-    parameters: {
-      type: 'object',
-      required: ['action'],
-      properties: {
-        action: {
-          type: 'string',
-          description:
-            "Action to be performed, can be 'check_balance', 'fund_wallet', or 'export_key'",
-          enum: ['check_balance', 'fund_wallet'],
-        },
+    required: ['action'],
+    properties: {
+      action: {
+        type: 'string',
+        description:
+          "Action to be performed, can be 'check_balance', 'fund_wallet'",
+        enum: ['check_balance', 'fund_wallet'],
       },
-      additionalProperties: false,
     },
   },
 };

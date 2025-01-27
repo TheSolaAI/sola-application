@@ -49,7 +49,7 @@ import useChatHandler from '../hooks/handleAddMessage';
 import { agentMessage } from '../lib/chat-message/agentMessage';
 import { customMessageCards } from '../lib/chat-message/customMessageCards';
 import { messageCard, transactionCard } from '../lib/chat-message/messageCard';
-// import { useFundWallet } from '@privy-io/react-auth/solana';
+import { useFundWallet } from '@privy-io/react-auth/solana';
 
 const Conversation = () => {
   const {
@@ -69,7 +69,7 @@ const Conversation = () => {
   const { setCurrentRoomId, messageList, setMessageList, currentRoomId } =
     useRoomStore();
   const { handleAddMessage } = useChatHandler();
-  // const { fundWallet } = useFundWallet();
+  const { fundWallet } = useFundWallet();
 
   const [isWalletVisible, setIsWalletVisible] = useState(false);
   const [events, setEvents] = useState<any[]>([]);
@@ -222,27 +222,29 @@ const Conversation = () => {
   };
 
   const getWalletAssets = async () => {
-    const assetDetails = assets.map((item) => {
-      const amount = (item.balance / 10 ** item.decimals).toFixed(2);
-      return { symbol: item.symbol, amount: parseFloat(amount) };
-    });
-
-    const totalAmount = assets
-      .reduce((acc, asset) => acc + asset.balance / 10 ** asset.decimals, 0)
-      .toFixed(2);
-
     setMessageList((prev) => {
       return [
         ...prev,
         agentMessage(`The agent is fetching your wallet assets`),
       ];
     });
+    const assetDetails = assets.map((item) => {
+      const amount = (item.balance / 10 ** item.decimals).toFixed(2);
+      return { symbol: item.symbol, amount: parseFloat(amount) };
+    });
+
+    const totalAmount = assets
+      .reduce((acc, asset) => acc + (asset.totalPrice || 0), 0)
+      .toFixed(2);
+
+    const assetDetailsString = assetDetails
+      .map((asset) => `${asset.symbol}: ${asset.amount}`)
+      .join(', ');
+
+    const responseString = `Your wallet assets are: ${assetDetailsString}. Total value: ${totalAmount}.`;
 
     setIsWalletVisible(true);
-
-    return responseToOpenai(
-      `user assets ${assetDetails}, total value ${totalAmount}. Note: if the user has enquired abt pauticular asset balance, try to tell details about the pauticular asset only`,
-    );
+    return responseToOpenai(responseString);
   };
 
   const transferSpl = async (
@@ -1145,7 +1147,7 @@ const Conversation = () => {
         for (const output of mostRecentEvent.response.output) {
           if (output.type === 'function_call') {
             const functionName = output.name;
-            if (functionName === 'wallet_management') {
+            if (functionName === 'walletActions') {
               const { action } = JSON.parse(output.arguments);
               let response = null;
               switch (action) {
@@ -1161,12 +1163,12 @@ const Conversation = () => {
                 case 'fund_wallet': {
                   if (!appWallet)
                     throw new Error("You don't have a wallet selected");
-                  // await fundWallet(appWallet.address, {
-                  //   card: {
-                  //     preferredProvider: 'moonpay',
-                  //   },
-                  //   amount: '',
-                  // });
+                  await fundWallet(appWallet.address, {
+                    card: {
+                      preferredProvider: 'moonpay',
+                    },
+                    amount: '',
+                  });
                   break;
                 }
               }
