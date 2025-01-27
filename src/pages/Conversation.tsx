@@ -49,6 +49,7 @@ import useChatHandler from '../hooks/handleAddMessage';
 import { agentMessage } from '../lib/chat-message/agentMessage';
 import { customMessageCards } from '../lib/chat-message/customMessageCards';
 import { messageCard, transactionCard } from '../lib/chat-message/messageCard';
+// import { useFundWallet } from '@privy-io/react-auth/solana';
 
 const Conversation = () => {
   const {
@@ -68,6 +69,7 @@ const Conversation = () => {
   const { setCurrentRoomId, messageList, setMessageList, currentRoomId } =
     useRoomStore();
   const { handleAddMessage } = useChatHandler();
+  // const { fundWallet } = useFundWallet();
 
   const [isWalletVisible, setIsWalletVisible] = useState(false);
   const [events, setEvents] = useState<any[]>([]);
@@ -1144,6 +1146,30 @@ const Conversation = () => {
           if (output.type === 'function_call') {
             const functionName = output.name;
             if (functionName === 'wallet_management') {
+              const { action } = JSON.parse(output.arguments);
+              let response = null;
+              switch (action) {
+                case 'check_balance': {
+                  try {
+                    response = await getWalletAssets();
+                    sendClientEvent(response);
+                  } catch (error) {
+                    throw new Error('Failed to retrieve wallet assets');
+                  }
+                  break;
+                }
+                case 'fund_wallet': {
+                  if (!appWallet)
+                    throw new Error("You don't have a wallet selected");
+                  // await fundWallet(appWallet.address, {
+                  //   card: {
+                  //     preferredProvider: 'moonpay',
+                  //   },
+                  //   amount: '',
+                  // });
+                  break;
+                }
+              }
             } else if (output.name === 'transferSolTx') {
               const { quantity, address } = JSON.parse(output.arguments);
               let response = await transferSol(quantity, address);
