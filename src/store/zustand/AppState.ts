@@ -3,7 +3,6 @@ import { create, StateCreator } from 'zustand';
 import { ThemeType } from '../../types/app';
 
 interface AppState {
-  authorized: boolean;
   appWallet: ConnectedSolanaWallet | null;
   appWallets: ConnectedSolanaWallet[];
   embeddedWalletVisibility: boolean;
@@ -12,7 +11,6 @@ interface AppState {
   aiVoice: string;
   aiEmotion: string;
   disclaimer: boolean;
-  setAuthorized: (auth: boolean) => void;
   setWallet: (wallet: ConnectedSolanaWallet) => void;
   setEmbeddedWalletVisibility: (visibility: boolean) => void;
   setAccessToken: (accessToken: string | null) => void;
@@ -23,7 +21,6 @@ interface AppState {
 }
 
 const appStateCreator: StateCreator<AppState> = (set) => ({
-  authorized: false,
   appWallet: null,
   appWallets: [],
   embeddedWalletVisibility: false,
@@ -32,7 +29,6 @@ const appStateCreator: StateCreator<AppState> = (set) => ({
   aiVoice: 'ash',
   aiEmotion: 'Chearfull and Energetic',
   disclaimer: true,
-  setAuthorized: (authorized: boolean) => set({ authorized }),
   setWallet: (appWallet: ConnectedSolanaWallet) => set({ appWallet }),
   setEmbeddedWalletVisibility: (visibility: boolean) =>
     set({ embeddedWalletVisibility: visibility }),

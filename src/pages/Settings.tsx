@@ -7,8 +7,8 @@ import { AiEmotion, AiVoice } from '../types/database/aiConfig';
 import { usePrivy } from '@privy-io/react-auth';
 
 const Settings: React.FC = () => {
-  const { aiVoice, aiEmotion } = useAppState();
-  const { updateSettings, setAccessToken } = useUser();
+  const { aiVoice, aiEmotion, setAccessToken } = useAppState();
+  const { updateSettings } = useUser();
   const { getAccessToken } = usePrivy();
 
   const [isVoiceOpen, setIsVoiceOpen] = useState<boolean>(false);
