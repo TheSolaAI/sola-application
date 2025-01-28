@@ -4,22 +4,34 @@ import { usePrivy } from '@privy-io/react-auth';
 import { useSolanaWallets } from '@privy-io/react-auth/solana';
 import PageTitle from './components/PageTitle';
 import Conversaction from './pages/Conversation';
-import DefaultLayout from './layout/DefaultLayout';
+import MasterLayout from './layout/MasterLayout.tsx';
 import Onbording from './pages/Onbording';
 import WalletManagement from './pages/WalletManagement';
 import useAppState from './store/zustand/AppState';
 import Settings from './pages/Settings';
 import OnRamp from './pages/OnRamp';
 import useUser from './hooks/useUser';
+import useThemeManager from './store/zustand/ThemeManager.ts';
 
 function App() {
+  /**
+   * Global State Management
+   */
   const { authenticated, getAccessToken } = usePrivy();
   const { createWallet, wallets } = useSolanaWallets();
-  const { setWallet, setAccessToken } = useAppState();
-  const { authorized, setAuthorized } = useAppState();
+  const { setWallet, setAccessToken, authorized, setAuthorized } =
+    useAppState();
   const { pathname } = useLocation();
   const memoizedCreateWallet = useCallback(createWallet, []);
   const { fetchSettings } = useUser();
+  const { initManager } = useThemeManager();
+
+  /**
+   * Master UseEffect Run at app starts. Sets up app theme
+   */
+  useEffect(() => {
+    initManager();
+  }, []);
 
   const initializeWallet = async () => {
     try {
@@ -60,7 +72,6 @@ function App() {
           throw new Error('Failed to fetch access token.');
         }
         setAccessToken(jwt);
-        console.log(jwt)
         await initializeWallet();
         await updateUserSettings();
       }
@@ -71,7 +82,7 @@ function App() {
 
   const MemoizedAuthenticatedRoutes = useCallback(
     () => (
-      <DefaultLayout>
+      <MasterLayout>
         <Routes>
           <Route
             path="/"
@@ -119,7 +130,7 @@ function App() {
             }
           />
         </Routes>
-      </DefaultLayout>
+      </MasterLayout>
     ),
     [],
   );

@@ -1,0 +1,20 @@
+{
+  "light": {
+    "background": "#FFFFFF",
+    "sec_background": "#F8F9FA",
+    "textColor": "#1F2937",
+    "secTextColor": "#6B7280"
+  },
+  "dark": {
+    "background": "#1F2338",
+    "sec_background": "#323A56",
+    "textColor": "#FFFFFF",
+    "secTextColor": "#A0AEC0"
+  },
+  "custom": {
+    "background": "#FFFBF0",
+    "sec_background": "#FFF4E6",
+    "textColor": "#3B3A39",
+    "secTextColor": "#856404"
+  }
+}
