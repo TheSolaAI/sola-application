@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 import { registerUser } from '../api/register';
 import { getUserSettings, updateUserSetting } from '../api/userSettings';
 import { RegisterUser, UserSettings } from '../types/database/requstTypes';

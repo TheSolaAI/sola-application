@@ -15,7 +15,7 @@ import {
 import { SwapParams } from '../types/swap';
 import { swapTx } from '../lib/solana/swapTx';
 import { createToolsConfig } from '../tools/tools';
-import SessionControls from '../components/SessionControls';
+import {SessionControls} from '../components/SessionControls';
 import WalletUi from '../components/wallet/WalletUi';
 import MessageList from '../components/ui/MessageList';
 import { tokenList } from '../store/tokens/tokenMapping';
@@ -47,6 +47,7 @@ import { customMessageCards } from '../lib/chat-message/customMessageCards';
 import { messageCard, transactionCard } from '../lib/chat-message/messageCard';
 import { useFundWallet } from '@privy-io/react-auth/solana';
 import { useLuloActions } from '../hooks/useLuloActions';
+import PipLayout from '../components/PiP/PipLayout';
 
 const Conversation = () => {
   const {
@@ -1059,7 +1060,12 @@ const Conversation = () => {
       <>
         <main className="h-screen flex flex-col relative dark:bg-darkalign">
           {/* Start of wallet */}
-          <section className="absolute right-0 p-4 animate-in fade-in-0 duration-300">
+          <section className="absolute flex justify-between w-full p-4 animate-in fade-in-0 duration-300">
+            <PipLayout
+              startSession={startSession}
+              stopSession={stopSession}
+              isSessionActive={isSessionActive}
+            />
             <WalletUi
               toggleWallet={toggleWallet}
               isWalletVisible={isWalletVisible}
