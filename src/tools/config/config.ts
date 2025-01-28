@@ -8,6 +8,7 @@ import { getMarketData } from '../functions/getMarketData';
 import { getNFTPrice } from '../functions/getNFTPrice';
 import { getRugCheck } from '../functions/getRugCheck';
 import { getTokenData } from '../functions/getTokenData';
+import { getTopHolders } from '../functions/getTopHolders';
 import { getTrendingNFTs } from '../functions/getTrendingNFTs';
 import { swapLST } from '../functions/swapLSTfromClick';
 import { swapTokens } from '../functions/swapTokens';
@@ -16,38 +17,42 @@ import { transferSpl } from '../functions/transferSpl';
 import { walletActions } from '../functions/walletActions';
 import { withdrawLulo } from '../functions/withdrawLulo';
 
-export const freeTools = [walletActions,
-        swapTokens,
-        getNFTLaunchpad,
-        getLuloAssets,
-        depositLulo,
-        withdrawLulo,
-        transferSolTx,
-        getTokenData,
-        getLstData,
-        getNFTPrice,
-        getTrendingNFTs,
-        swapLST,
-        transferSpl,
-        getRugCheck,
-        getMarketData,
-        getBubblemap,
-        getBlinks,];
+export const freeTools = [
+  walletActions,
+  swapTokens,
+  transferSolTx,
+  getTokenData,
+  getTopHolders,
+  getLstData,
+  getNFTPrice,
+  getTrendingNFTs,
+  swapLST,
+  transferSpl,
+  getRugCheck,
+  getMarketData,
+  getBubblemap,
+  getBlinks,
+  getNFTLaunchpad,
+  getLuloAssets,
+  depositLulo,
+  withdrawLulo,
+];
 export const fullTools = [
-    swapTokens,
-        getNFTLaunchpad,
-        getLuloAssets,
-        depositLulo,
-        withdrawLulo,
-        transferSolTx,
-        getTokenData,
-        getLstData,
-        getNFTPrice,
-        getTrendingNFTs,
-        swapLST,
-        transferSpl,
-        getRugCheck,
-        getMarketData,
-        getBubblemap,
-        getBlinks,
+  swapTokens,
+  transferSolTx,
+  getTokenData,
+  getTopHolders,
+  getLstData,
+  getNFTPrice,
+  getTrendingNFTs,
+  swapLST,
+  transferSpl,
+  getRugCheck,
+  getMarketData,
+  getBubblemap,
+  getBlinks,
+  getNFTLaunchpad,
+  getLuloAssets,
+  depositLulo,
+  withdrawLulo,
 ];

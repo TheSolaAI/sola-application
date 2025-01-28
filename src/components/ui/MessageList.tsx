@@ -14,6 +14,7 @@ import {
   NFTCollectionCard,
   MarketDataCard,
   BubblemapCard,
+  TopHolder,
 } from '../../types/messageCard';
 import {
   Dialog,
@@ -23,7 +24,7 @@ import {
   Transition,
   TransitionChild,
 } from '@headlessui/react';
-import { Copy, X } from 'react-feather';
+import { Copy, ExternalLink, X } from 'react-feather';
 import useAppState from '../../store/zustand/AppState';
 import axios from 'axios';
 import { Connection, VersionedTransaction } from '@solana/web3.js';
@@ -293,7 +294,7 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                           className="px-4 py-2 text-xs font-medium text-white rounded-lg hover:scale-105 hover:shadow-lg transition-all"
                         >
                           <img
-                            src="./dexscreener.png"
+                            src="/dexscreener.png"
                             alt="Dex Icon"
                             className="h-4 w-4"
                           />
@@ -303,7 +304,7 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                           onClick={() => handleExpand(token.address)}
                         >
                           <img
-                            src="./graph.png"
+                            src="/graph.png"
                             alt="Expand Icon"
                             className="h-4 w-4"
                           />
@@ -313,7 +314,7 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                           onClick={() => handleBubbleMap(token.address)}
                         >
                           <img
-                            src="./bubbles.svg"
+                            src="/bubbles.svg"
                             alt="Expand Icon"
                             className="h-4 w-4"
                           />
@@ -345,7 +346,7 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                           >
                             Close
                           </button>
-              
+
                           <iframe
                             src={`https://www.gmgn.cc/kline/sol/${token.address}`}
                             className="w-full h-full"
@@ -363,12 +364,12 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                           >
                             Close
                           </button>
-                          
+
                           <iframe
-                              src={`https://app.bubblemaps.io/sol/token/${token.address}`}
-                            className='w-full h-full'
+                            src={`https://app.bubblemaps.io/sol/token/${token.address}`}
+                            className="w-full h-full"
                             allowFullScreen
-                            />
+                          />
                         </div>
                       </div>
                     )}
@@ -531,9 +532,7 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                     ))}
                   </div>
                 </div>
-
               </div>
-                
             );
 
           case 'sanctumCard':
@@ -759,16 +758,73 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
               <div className="mb-4 h-100 bg-graydark rounded-xl shadow-md overflow-hidden dark:bg-darkalign2 dark:text-bodydark2">
                 <iframe
                   src={`https://app.bubblemaps.io/sol/token/${bubblemapCard.token}`}
-                  className='w-full h-full'
+                  className="w-full h-full"
                 />
               </div>
             );
+
           case 'blinkCard':
-            const blink = item.link || ''
+            const blink = item.link || '';
             return (
-              <div className='p-4 flex w-full justify-center '><RenderBlinks actionName={blink} /></div>
-              
-            )            
+              <div className="p-4 flex w-full justify-center ">
+                <RenderBlinks actionName={blink} />
+              </div>
+            );
+            
+          case 'topHoldersCard':
+            const topHolders = item.card as TopHolder[];
+            return (
+              <div className=" rounded-lg p-4 my-4 shadow-md bg-[#F5F5F5] h-full dark:bg-darkalign2 dark:text-bodydark2">
+                {' '}
+                <h2 className="text-lg font-semibold mb-4 text-bodydark2">
+                  Top Holders Information
+                </h2>
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-700">
+                    {' '}
+                    <thead>
+                      <tr>
+                        <th className="px-4 py-2 font-medium text-left uppercase tracking-wider">
+                          Owner
+                        </th>
+                        <th className="px-4 py-2 font-medium text-righ uppercase tracking-wider">
+                          Balance
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {topHolders.map((value, index) => (
+                        <tr key={index}>
+                          {' '}
+                          <td className="p-4 whitespace-nowrap">
+                            <div className="flex items-center">
+                              <span className="truncate">
+                                {value.owner.slice(0, 5)}...
+                                {value.owner.slice(-5)}
+                              </span>{' '}
+                              <button
+                                onClick={() => {
+                                  window.open(
+                                    `https://solscan.io/account/${value.owner}`,
+                                    '_blank',
+                                  );
+                                }}
+                                className="mx-4 text-xs font-medium rounded-lg hover:scale-105 hover:shadow-lg transition-all"
+                              >
+                                <ExternalLink className="h-4 w-4" />
+                              </button>
+                            </div>
+                          </td>
+                          <td className="px-4 py-2 text-center whitespace-nowrap">
+                            {formatNumber(value.amount)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            );
           default:
             return null;
         }

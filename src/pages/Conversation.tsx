@@ -11,11 +11,12 @@ import {
   RugCheckCard,
   MarketDataCard,
   MarketInfo,
+  TopHolder,
 } from '../types/messageCard';
 import { SwapParams } from '../types/swap';
 import { swapTx } from '../lib/solana/swapTx';
 import { createToolsConfig } from '../tools/tools';
-import {SessionControls} from '../components/SessionControls';
+import { SessionControls } from '../components/SessionControls';
 import WalletUi from '../components/wallet/WalletUi';
 import MessageList from '../components/ui/MessageList';
 import { tokenList } from '../store/tokens/tokenMapping';
@@ -48,6 +49,7 @@ import { messageCard, transactionCard } from '../lib/chat-message/messageCard';
 import { useFundWallet } from '@privy-io/react-auth/solana';
 import { useLuloActions } from '../hooks/useLuloActions';
 import PipLayout from '../components/PiP/PipLayout';
+import { getTopHolders } from '../lib/solana/topHolders';
 
 const Conversation = () => {
   const {
@@ -73,7 +75,6 @@ const Conversation = () => {
   const [isWalletVisible, setIsWalletVisible] = useState(false);
   const [events, setEvents] = useState<any[]>([]);
   const audioElement = useRef<HTMLAudioElement | null>(null);
-  const [fetchedToken, setFetchedToken] = useState<string>('');
   const [isLoaded, setIsLoaded] = useState<boolean>(true);
   const [localDataChannel, setLocalDataChannel] = useState(dataChannel);
 
@@ -99,7 +100,7 @@ const Conversation = () => {
     setLocalDataChannel(dataChannel);
   }, [dataChannel]);
 
-  const { appWallet, theme, aiEmotion, aiVoice,tier } = useAppState();
+  const { appWallet, theme, aiEmotion, aiVoice, tier } = useAppState();
 
   const rpc = process.env.SOLANA_RPC;
 
@@ -434,19 +435,14 @@ const Conversation = () => {
   };
 
   const handleTokenData = async (tokenMint: string) => {
-    if (fetchedToken == tokenMint) {
-      return responseToOpenai(
-        'I have already fetch the data. tell them to input the address of the token.Ask if the user needed anything else.',
-      );
-    } else {
-      setFetchedToken(tokenMint);
-    }
-
-    // await handleAddMessage(agentMessage(`Fetching ${tokenMint} data`));
+    setMessageList((prev) => [
+      ...prev,
+      agentMessage(`Fetching ${tokenMint} data`),
+    ]);
 
     try {
-      if (tokenMint.startsWith('$')) {
-        const data = await getTokenDataSymbol(tokenMint);
+      if (tokenMint.length < 44) {
+        const data = await getTokenDataSymbol('$' + tokenMint);
         if (!data) {
           await handleAddMessage(
             messageCard(
@@ -455,7 +451,7 @@ const Conversation = () => {
           );
 
           return responseToOpenai(
-            'tell the user that there has been a problem with fetching token data and ask them to try later.',
+            'tell the user that there has been a problem with fetching token data.',
           );
         }
 
@@ -470,6 +466,10 @@ const Conversation = () => {
             priceChange: data.price_change_24.toString(),
           },
         ];
+
+        updateMessage(
+          `symbol: ${tokenMint}, address: ${token_card[0].address}, price: ${token_card[0].price}, marketCap: ${token_card[0].marketCap}`,
+        );
 
         await handleAddMessage(customMessageCards('tokenCards', token_card));
 
@@ -506,10 +506,14 @@ const Conversation = () => {
           },
         ];
 
+        updateMessage(
+          `address: ${token_card[0].address}, price: ${token_card[0].price}, marketCap: ${token_card[0].marketCap}`,
+        );
+
         await handleAddMessage(customMessageCards('tokenCards', token_card));
 
         return responseToOpenai(
-          'The token data has been fetched successfully.Do not repeat the address. Ask if the user needed anything else.',
+          'The token data has been fetched successfully.',
         );
       }
     } catch (error) {
@@ -557,11 +561,17 @@ const Conversation = () => {
   };
 
   const handleRugCheck = async (token: string) => {
-    // await handleAddMessage(agentMessage(`Checking if ${token} is a rug.`));
+    setMessageList((prev) => [
+      ...prev,
+      agentMessage(`Checking if ${token} is a rug.`),
+    ]);
+
+    console.log(token.length);
 
     try {
       let final_token = '';
-      if (token.startsWith('$')) {
+      console.log(token.length);
+      if (token.length === 44 || token.startsWith('$')) {
         final_token = token;
       } else {
         final_token = `$${token}`;
@@ -588,7 +598,7 @@ const Conversation = () => {
       );
 
       return responseToOpenai(
-        `tell the user that the token has a risk score of ${rug_check_card.score}. if its above 0 and less than 200, its risky, and if its above 200 then high chances that it could be a rug`,
+        `tell the user that the token has a risk score of ${rug_check_card.score} and has ${rug_check_card.issues.length} issues`,
       );
     } catch (error) {
       await handleAddMessage(
@@ -604,7 +614,7 @@ const Conversation = () => {
   };
 
   const handleNFTPrice = async (nft: string) => {
-    // await handleAddMessage(agentMessage(`Fetching NFT Data`));
+    setMessageList((prev) => [...prev, agentMessage(`Fetching NFT Data`)]);
 
     try {
       let nft_symbol = nft.replace(/\s+/g, '_');
@@ -743,12 +753,20 @@ const Conversation = () => {
   };
 
   const handleBubblemap = async (token: string) => {
-    // await handleAddMessage(agentMessage(`Getting Bubblemap for ${token}`));
+    setMessageList((prev) => [
+      ...prev,
+      agentMessage(`Getting Bubblemap for ${token}`),
+    ]);
 
     try {
-      if (token.startsWith('$')) {
-        const tokenDetails = await getTokenDataSymbol(token);
-        token = tokenDetails?.metadata.description || 'NaN';
+      if (token.length !== 44) {
+        if (token.startsWith('$')) {
+          const tokenDetails = await getTokenDataSymbol(token);
+          token = tokenDetails?.metadata.description || 'NaN';
+        } else {
+          const tokenDetails = await getTokenDataSymbol('$' + token);
+          token = tokenDetails?.metadata.description || 'NaN';
+        }
       }
     } catch (error) {
       return responseToOpenai(
@@ -763,6 +781,51 @@ const Conversation = () => {
     return responseToOpenai(
       'tell the user that bubblemap is successfully fetched',
     );
+  };
+
+  const handleTopHolders = async (token: string) => {
+    let tokenInput = '';
+    if (token.length === 44 || token.startsWith('$')) {
+      tokenInput = token;
+    } else {
+      tokenInput = '$' + token;
+    }
+    setMessageList((prev) => [
+      ...prev,
+      agentMessage(`Fetching top holders of ${tokenInput}.`),
+    ]);
+
+    try {
+      const data = await getTopHolders(tokenInput);
+      if (!data) {
+        handleAddMessage(
+          messageCard(
+            'Oops! There has been a problem while identifying the data',
+          ),
+        );
+
+        return responseToOpenai(
+          'tell the user that there has been a problem identifying the data, do not repeat the address, only repeat if its a ticker',
+        );
+      }
+
+      let topHoldersCard: TopHolder[] = data;
+      handleAddMessage(customMessageCards('topHoldersCard', topHoldersCard));
+
+      return responseToOpenai(
+        'Tell user that top holders data is successfully fetched.',
+      );
+    } catch (error) {
+      handleAddMessage(
+        messageCard(
+          'Oops! There has been a problem while identifying the data',
+        ),
+      );
+
+      return responseToOpenai(
+        'tell the user that there has been a problem while the token data. Do not repeat the token address, only repeat if its a ticker',
+      );
+    }
   };
 
   const startSession = async () => {
@@ -871,7 +934,24 @@ const Conversation = () => {
     [localDataChannel, setEvents], // Only depend on localDataChannel and setEvents
   );
 
-  function sendTextMessage(message: any) {
+  const updateMessage = (message: string) => {
+    const event = {
+      type: 'conversation.item.create',
+      item: {
+        type: 'message',
+        role: 'system',
+        content: [
+          {
+            type: 'input_text',
+            text: message,
+          },
+        ],
+      },
+    };
+    sendClientEvent(event);
+  };
+
+  const sendTextMessage = (message: any) => {
     const event = {
       type: 'conversation.item.create',
       item: {
@@ -888,7 +968,7 @@ const Conversation = () => {
 
     sendClientEvent(event);
     sendClientEvent({ type: 'response.create' });
-  }
+  };
 
   function toggleWallet() {
     setIsWalletVisible(!isWalletVisible);
@@ -926,7 +1006,7 @@ const Conversation = () => {
         firstEvent.type === 'session.created' &&
         !events.some((e) => e.type === 'session.update')
       ) {
-        sendClientEvent(createToolsConfig(aiVoice, aiEmotion,tier));
+        sendClientEvent(createToolsConfig(aiVoice, aiEmotion, tier));
       }
 
       const mostRecentEvent = events[0];
@@ -1042,6 +1122,10 @@ const Conversation = () => {
                   'tell the user that you have opened the asked blink.',
                 ),
               );
+            } else if (output.name === 'getTopHolders') {
+              const { tokenInput } = JSON.parse(output.arguments);
+              let response = await handleTopHolders(tokenInput);
+              sendClientEvent(response);
             }
           }
         }
