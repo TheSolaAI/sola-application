@@ -2,7 +2,6 @@ import { ConnectedSolanaWallet } from '@privy-io/react-auth';
 import { create, StateCreator } from 'zustand';
 
 interface AppState {
-  authorized: boolean;
   appWallet: ConnectedSolanaWallet | null;
   appWallets: ConnectedSolanaWallet[];
   embeddedWalletVisibility: boolean;
@@ -10,17 +9,18 @@ interface AppState {
   aiVoice: string;
   aiEmotion: string;
   disclaimer: boolean;
-  setAuthorized: (auth: boolean) => void;
+  tier:number,
   setWallet: (wallet: ConnectedSolanaWallet) => void;
   setEmbeddedWalletVisibility: (visibility: boolean) => void;
   setAccessToken: (accessToken: string | null) => void;
   setAiVoice: (aiVoice: string) => void;
   setAiEmotion: (aiEmotion: string) => void;
   setDisclaimer: (disclaimer: boolean) => void;
+  setTier: (tier: number) => void;
 }
 
 const appStateCreator: StateCreator<AppState> = (set) => ({
-  authorized: false,
+  tier:0,
   appWallet: null,
   appWallets: [],
   embeddedWalletVisibility: false,
@@ -28,7 +28,6 @@ const appStateCreator: StateCreator<AppState> = (set) => ({
   aiVoice: 'ash',
   aiEmotion: 'Chearfull and Energetic',
   disclaimer: true,
-  setAuthorized: (authorized: boolean) => set({ authorized }),
   setWallet: (appWallet: ConnectedSolanaWallet) => set({ appWallet }),
   setEmbeddedWalletVisibility: (visibility: boolean) =>
     set({ embeddedWalletVisibility: visibility }),
@@ -36,6 +35,7 @@ const appStateCreator: StateCreator<AppState> = (set) => ({
   setAiVoice: (aiVoice: string) => set({ aiVoice }),
   setAiEmotion: (aiEmotion: string) => set({ aiEmotion }),
   setDisclaimer: (disclaimer: boolean) => set({ disclaimer }),
+  setTier: (tier: number) => set({ tier }),
 });
 
 export const useAppState = create<AppState>(appStateCreator);

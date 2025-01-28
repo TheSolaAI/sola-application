@@ -12,6 +12,7 @@ import Settings from './pages/Settings';
 import OnRamp from './pages/OnRamp';
 import useUser from './hooks/useUser';
 import useThemeManager from './store/zustand/ThemeManager.ts';
+import { tokenGate } from './lib/solana/tokenGate';
 
 function App() {
   /**
@@ -19,9 +20,9 @@ function App() {
    */
   const { authenticated, getAccessToken } = usePrivy();
   const { createWallet, wallets } = useSolanaWallets();
-  const { setWallet, setAccessToken, authorized, setAuthorized } =
-    useAppState();
+  const { setWallet, setAccessToken } = useAppState();
   const { pathname } = useLocation();
+  const { tier,setTier} = useAppState();
   const memoizedCreateWallet = useCallback(createWallet, []);
   const { fetchSettings } = useUser();
   const { initManager } = useThemeManager();
@@ -45,12 +46,6 @@ function App() {
   const updateUserSettings = async () => {
     console.log(await fetchSettings());
   };
-
-  useEffect(() => {
-    if (authenticated !== authorized) {
-      setAuthorized(authenticated);
-    }
-  }, [authenticated, authorized, setAuthorized]);
 
   // Adding Wallet to the global state.
   useEffect(() => {
@@ -79,6 +74,19 @@ function App() {
 
     initializeApp();
   }, [authenticated, memoizedCreateWallet, wallets.length]);
+  useEffect(() => {
+
+    const fetchTier = async () => {
+      const result = await tokenGate(wallets[0].address);
+      if (result === false) {
+        setTier(0);
+        return;
+      }
+      setTier(result.data.tier)
+    };
+
+    fetchTier();
+  }, []); 
 
   const MemoizedAuthenticatedRoutes = useCallback(
     () => (
@@ -136,11 +144,13 @@ function App() {
   );
   const MemoizedUnauthenticatedRoutes = useCallback(() => <Onbording />, []);
 
-  return authorized ? (
-    <MemoizedAuthenticatedRoutes />
-  ) : (
+  return authenticated ? (
+      <MemoizedAuthenticatedRoutes />
+    ) :
+    (
     <MemoizedUnauthenticatedRoutes />
   );
 }
 
 export default App;
+
