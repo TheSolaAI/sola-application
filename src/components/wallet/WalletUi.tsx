@@ -63,35 +63,31 @@ function WalletUi({ toggleWallet, isWalletVisible }: WalletUiProps) {
             ${
               isWalletVisible
                 ? 'translate-x-0 translate-y-0 opacity-100'
-                : 'translate-x-0 translate-y-0 opacity-0'
+                : 'translate-x-0 translate-y-0 opacity-0 hidden'
             }
           `}
         >
-          <div
-            className="z-9 w-full flex justify-between items-center bg-strokedark gap-2 p-2 rounded-xl hover:bg-opacity-80 cursor-pointer"
-          >
+          <div className="z-9 w-full flex justify-between items-center bg-strokedark gap-2 p-2 rounded-xl hover:bg-opacity-80 cursor-pointer">
             <div>
-            {appWallet.address.slice(0, 4)}...
+              {appWallet.address.slice(0, 4)}...
               {appWallet.address.slice(-4)}
-              </div>
+            </div>
             <div>
-            <button
-            onClick={() => {
-              navigator.clipboard.writeText(appWallet.address);
-              }}>
-              <img
-                src="./copy.svg"
-                
-                alt="Dex Icon"
-                className="h-4 w-4 mr-3 "
-                  
-              />
-            </button>
-            <button
-            onClick={viewWalletInExplorer}>
-            <ExternalLink height={16} />
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(appWallet.address);
+                }}
+              >
+                <img
+                  src="./copy.svg"
+                  alt="Dex Icon"
+                  className="h-4 w-4 mr-3 "
+                />
               </button>
-              </div>
+              <button className={`${isWalletVisible? 'visible': 'hidden'}`} onClick={viewWalletInExplorer}>
+                <ExternalLink height={16} />
+              </button>
+            </div>
           </div>
           <div className="flex justify-between items-center my-4">
             <div className="text-sm font-semibold">Tokens</div>
