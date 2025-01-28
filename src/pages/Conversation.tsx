@@ -98,7 +98,7 @@ const Conversation = () => {
     setLocalDataChannel(dataChannel);
   }, [dataChannel]);
 
-  const { appWallet, theme, aiEmotion, aiVoice } = useAppState();
+  const { appWallet, theme, aiEmotion, aiVoice,tier } = useAppState();
 
   const rpc = process.env.SOLANA_RPC;
 
@@ -925,11 +925,10 @@ const Conversation = () => {
         firstEvent.type === 'session.created' &&
         !events.some((e) => e.type === 'session.update')
       ) {
-        sendClientEvent(createToolsConfig(aiVoice, aiEmotion));
+        sendClientEvent(createToolsConfig(aiVoice, aiEmotion,tier));
       }
 
       const mostRecentEvent = events[0];
-
       if (
         mostRecentEvent.type === 'response.done' &&
         mostRecentEvent.response.output
