@@ -1,5 +1,9 @@
-const defaultTheme = require('tailwindcss/defaultTheme');
 const colors = require('tailwindcss/colors');
+const { createThemes } = require('tw-colors');
+import * as dynamicThemes from './src/constants/themes.json';
+/**
+ * Dynamically loads the themes from JSON and creates the TailwindCSS theme object
+ */
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
@@ -9,16 +13,8 @@ module.exports = {
     fontFamily: {
       satoshi: ['Satoshi', 'sans-serif'],
     },
-    screens: {
-      '2xsm': '375px',
-      xsm: '425px',
-      '3xl': '2000px',
-      ...defaultTheme.screens,
-    },
     extend: {
       colors: {
-        current: 'currentColor',
-        transparent: 'transparent',
         white: '#FFFFFF',
         black: {
           ...colors.black,
@@ -266,5 +262,5 @@ module.exports = {
       },
     },
   },
-  plugins: [require("tailwindcss-animate"),],
+  plugins: [require('tailwindcss-animate'), createThemes(dynamicThemes)],
 };
