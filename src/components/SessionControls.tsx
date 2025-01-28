@@ -7,7 +7,9 @@ interface SessionStoppedProps {
   startSession: () => void;
 }
 
-const SessionStopped: React.FC<SessionStoppedProps> = ({ startSession }) => {
+export const SessionStopped: React.FC<SessionStoppedProps> = ({
+  startSession,
+}) => {
   const [isActivating, setIsActivating] = useState(false);
 
   const handleStartSession = () => {
@@ -32,10 +34,10 @@ const SessionStopped: React.FC<SessionStoppedProps> = ({ startSession }) => {
 
 interface SessionActiveProps {
   stopSession: () => void;
-  sendTextMessage: (message: string) => void;
+  sendTextMessage?: (message: string) => void;
 }
 
-const SessionActive: React.FC<SessionActiveProps> = ({
+export const SessionActive: React.FC<SessionActiveProps> = ({
   stopSession,
   sendTextMessage,
 }) => {
@@ -43,6 +45,8 @@ const SessionActive: React.FC<SessionActiveProps> = ({
   const { isMuted, toggleMute } = useChatState();
 
   const handleSendClientEvent = () => {
+    if (!sendTextMessage)
+      return console.error('Sending Text Message is not defined.');
     if (message.trim()) {
       sendTextMessage(message);
       setMessage('');
@@ -59,20 +63,24 @@ const SessionActive: React.FC<SessionActiveProps> = ({
 
   return (
     <div className="flex items-center justify-center w-full h-full gap-4">
-      <input
-        type="text"
-        placeholder="Send a text message..."
-        className="border border-[#E7E7E7] bg-graydark rounded-2xl p-4 min-w-full flex text-bodydark1 dark:bg-bodydark2 dark:border-none"
-        value={message}
-        onKeyDown={handleKeyDown}
-        onChange={handleChange}
-      />
-      <Button
-        onClick={handleSendClientEvent}
-        className="rounded-3xl p-4 w-16 h-16 bg-body text-graydark"
-      >
-        <Send height={16} />
-      </Button>
+      {sendTextMessage && (
+        <>
+          <input
+            type="text"
+            placeholder="Send a text message..."
+            className="border border-[#E7E7E7] bg-graydark rounded-2xl p-4 min-w-full flex text-bodydark1 dark:bg-bodydark2 dark:border-none"
+            value={message}
+            onKeyDown={handleKeyDown}
+            onChange={handleChange}
+          />
+          <Button
+            onClick={handleSendClientEvent}
+            className="rounded-3xl p-4 w-16 h-16 bg-body text-graydark"
+          >
+            <Send height={16} />
+          </Button>
+        </>
+      )}
       <Button
         onClick={toggleMute}
         className="rounded-3xl p-4 w-20 h-16 bg-body text-graydark"
@@ -97,7 +105,7 @@ interface SessionControlsProps {
   isSessionActive: boolean;
 }
 
-const SessionControls: React.FC<SessionControlsProps> = ({
+export const SessionControls: React.FC<SessionControlsProps> = ({
   startSession,
   stopSession,
   sendTextMessage,
@@ -114,5 +122,3 @@ const SessionControls: React.FC<SessionControlsProps> = ({
     )}
   </div>
 );
-
-export default SessionControls;

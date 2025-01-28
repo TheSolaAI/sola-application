@@ -3,13 +3,24 @@ import { usePipStore } from '../../store/zustand/PipState';
 import PiPWindow from './PipWindow';
 import { Minimize, Maximize } from 'react-feather';
 import { toast } from 'sonner';
+import { SessionActive, SessionStopped } from '../SessionControls';
 
-export default function PipLayout() {
+interface PipLayoutProps {
+  startSession: () => void;
+  stopSession: () => void;
+  isSessionActive: boolean;
+}
+
+export default function PipLayout({
+  startSession,
+  stopSession,
+  isSessionActive,
+}: PipLayoutProps) {
   const { isSupported, requestPipWindow, pipWindow, closePipWindow } =
     usePipStore();
 
   const startPiP = useCallback(() => {
-    requestPipWindow(500, 500);
+    requestPipWindow(100, 100);
   }, [requestPipWindow]);
 
   return (
@@ -23,12 +34,18 @@ export default function PipLayout() {
             <PiPWindow pipWindow={pipWindow}>
               <div
                 style={{
-                  flex: 1,
-                  textAlign: 'center',
-                }}
+                    display: 'flex', 
+                    justifyContent: 'center', 
+                    alignItems: 'center', 
+                    width: '100%', 
+                    height:'100%'
+                  }}
               >
-                <h3>Sola PIP</h3>
-                <button>Clicks</button>
+                {isSessionActive ? (
+                  <SessionActive stopSession={stopSession} />
+                ) : (
+                  <SessionStopped startSession={startSession} />
+                )}
               </div>
             </PiPWindow>
           )}
