@@ -31,7 +31,6 @@ import { tokenList } from '../../store/tokens/tokenMapping';
 import { SwapParams } from '../../types/swap';
 import { responseToOpenai } from '../../lib/utils/response';
 import { ConnectedSolanaWallet } from '@privy-io/react-auth';
-import { Blink } from '@dialectlabs/blinks';
 import RenderBlinks from './RenderBlinks';
 
 const wallet_service_url = process.env.WALLET_SERVICE_URL;

@@ -4,8 +4,6 @@ import { Connection, PublicKey } from '@solana/web3.js';
 import { transferSolTx } from '../lib/solana/transferSol';
 import {
   MessageCard,
-  LuloCard,
-  TransactionCard,
   TokenCard,
   SanctumCard,
   NFTCollectionCard,
@@ -26,8 +24,6 @@ import {
   fetchMagicEdenNFTPrice,
   fetchTrendingNFTs,
 } from '../lib/solana/magiceden';
-import { AssetsParams, DepositParams, WithdrawParams } from '../types/lulo';
-import { depositLulo, getAssetsLulo, withdrawLulo } from '../lib/solana/lulo';
 import useAppState from '../store/zustand/AppState';
 import useChatState from '../store/zustand/ChatState';
 import { getTokenData, getTokenDataSymbol } from '../lib/solana/token_data';
@@ -50,6 +46,7 @@ import { agentMessage } from '../lib/chat-message/agentMessage';
 import { customMessageCards } from '../lib/chat-message/customMessageCards';
 import { messageCard, transactionCard } from '../lib/chat-message/messageCard';
 import { useFundWallet } from '@privy-io/react-auth/solana';
+import { useLuloActions } from '../hooks/useLuloActions';
 
 const Conversation = () => {
   const {
@@ -70,7 +67,8 @@ const Conversation = () => {
     useRoomStore();
   const { handleAddMessage } = useChatHandler();
   const { fundWallet } = useFundWallet();
-
+  const { handleDepositLulo, handleUserAssetsLulo, handleWithdrawLulo } =
+    useLuloActions();
   const [isWalletVisible, setIsWalletVisible] = useState(false);
   const [events, setEvents] = useState<any[]>([]);
   const audioElement = useRef<HTMLAudioElement | null>(null);
@@ -388,214 +386,6 @@ const Conversation = () => {
     return responseToOpenai(
       'tell the user that swap transaction is sent to blockchain',
     );
-  };
-
-  const handleUserAssetsLulo = async () => {
-    if (!appWallet) return null;
-    if (!rpc)
-      return responseToOpenai(
-        'ask the user to contact admin as the rpc is not attached',
-      );
-
-    // await handleAddMessage(agentMessage(`Fetching your Lulo Assets`));
-
-    const params: AssetsParams = {
-      owner: `${appWallet.address}`,
-    };
-    const assets = await getAssetsLulo(params);
-
-    if (!assets) {
-      await handleAddMessage(
-        messageCard('Oops! Unable to fetch your Lulo assets'),
-      );
-
-      return responseToOpenai(
-        'tell the user that they dont have any assets in lulo right now',
-      );
-    }
-
-    let luloCardItem: LuloCard = assets;
-
-    await handleAddMessage(customMessageCards('luloCard', luloCardItem));
-
-    return responseToOpenai(
-      'tell the user that their lulo assets are successfully fetched',
-    );
-  };
-
-  //TODO: Structure the Message Types
-  const handleDepositLulo = async (
-    amount: number,
-    token: 'USDT' | 'USDS' | 'USDC',
-  ) => {
-    if (!appWallet) return null;
-    if (!rpc)
-      return responseToOpenai(
-        'ask the user to contact admin as the rpc is not attached',
-      );
-
-    // await handleAddMessage(agentMessage(`Agent is depositing the asset`));
-
-    const params: DepositParams = {
-      owner: `${appWallet.address}`,
-      depositAmount: amount,
-      mintAddress: tokenList[token].MINT,
-    };
-
-    const connection = new Connection(rpc);
-
-    const transaction_array = await depositLulo(params);
-    if (!transaction_array) {
-      await handleAddMessage(
-        messageCard(`Deposit failed. Check your balance.`),
-      );
-
-      return responseToOpenai(
-        `tell the user that they dont have ${amount} worth of this ${token}`,
-      );
-    }
-
-    for (const transaction in transaction_array) {
-      let tx = transaction_array[transaction];
-      let { blockhash, lastValidBlockHeight } =
-        await connection.getLatestBlockhash();
-      tx.message.recentBlockhash = blockhash;
-      let txCard: TransactionCard = {
-        title: `1}`,
-        status: '1',
-        link: `1`,
-      };
-      try {
-        const signedTransaction = await appWallet.signTransaction(
-          transaction_array[transaction],
-        );
-        const signature = await connection.sendRawTransaction(
-          signedTransaction.serialize(),
-        );
-        txCard = {
-          title: `Deposit ${amount} ${token}`,
-          status: 'Transaction Sent',
-          link: `https://solscan.io/tx/${signature}`,
-        };
-      } catch (error: any) {
-        error.getLogs();
-      }
-
-      // TODO: Handle dynamic status
-
-      setMessageList((prev) => [
-        ...prev,
-        {
-          type: 'transaction',
-          card: txCard,
-        },
-      ]);
-    }
-    return responseToOpenai(
-      'tell the user that transaction is sent to blockchain',
-    );
-  };
-
-  //TODO: Handle Message display
-  const handleWithdrawLulo = async (
-    amount: number,
-    token: 'USDT' | 'USDS' | 'USDC',
-  ) => {
-    if (!appWallet) return null;
-    if (!rpc)
-      return responseToOpenai(
-        'ask the user to contact admin as the rpc is not attached',
-      );
-    // await handleAddMessage(agentMessage(`Agent is withdrawing the asset`));
-
-    let all = false;
-
-    const assetParams: AssetsParams = {
-      owner: `${appWallet.address}`,
-    };
-    let withdrawAmount = amount;
-    const connection = new Connection(rpc);
-
-    let assets = await getAssetsLulo(assetParams);
-    if (assets) {
-      let asset_list = assets.tokenBalance;
-      asset_list.map((asset) => {
-        if (asset.mint === tokenList[token].MINT) {
-          if (asset.balance > 0) {
-            if (asset.balance - amount < 100) {
-              all = true;
-              withdrawAmount = asset.balance;
-              handleAddMessage(
-                agentMessage(
-                  `Lulo total must be greater than 100. Withdrawing ${Math.ceil(withdrawAmount)} ${token}`,
-                ),
-              );
-            }
-          }
-        }
-      });
-    }
-
-    withdrawAmount = Math.ceil(withdrawAmount);
-
-    const params: WithdrawParams = {
-      owner: `${appWallet.address}`,
-      withdrawAmount: withdrawAmount,
-      mintAddress: tokenList[token].MINT,
-      withdrawAll: all,
-    };
-
-    try {
-      const transaction_array = await withdrawLulo(params);
-
-      if (!transaction_array) {
-        await handleAddMessage(
-          messageCard(`Withdrawal failed. Check your balance.`),
-        );
-
-        return responseToOpenai(
-          `tell the user that withdraw of ${withdrawAmount} of the token ${token} failed due to less balance.`,
-        );
-      }
-
-      for (const transaction in transaction_array) {
-        let tx = transaction_array[transaction];
-        let { blockhash, lastValidBlockHeight } =
-          await connection.getLatestBlockhash();
-        tx.message.recentBlockhash = blockhash;
-
-        const signedTransaction = await appWallet.signTransaction(
-          transaction_array[transaction],
-        );
-
-        const signature = await connection.sendRawTransaction(
-          signedTransaction.serialize(),
-        );
-
-        // TODO: Handle dynamic status
-        let txCard: TransactionCard = {
-          title: `Withdraw ${withdrawAmount} ${token}`,
-          status: 'Sent transaction',
-          link: `https://solscan.io/tx/${signature}`,
-        };
-
-        setMessageList((prev) => [
-          ...prev,
-          {
-            type: 'transaction',
-            card: txCard,
-          },
-        ]);
-      }
-      return responseToOpenai(
-        'The transaction is sent . ask what the user wants to do next',
-      );
-    } catch (error) {
-      console.error('error while performing the swap, ', error);
-      return responseToOpenai(
-        'Just tell the user that Swap failed and ask them to try later after some time',
-      );
-    }
   };
 
   //TODO: Handle the Message response
