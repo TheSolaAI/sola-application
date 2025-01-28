@@ -73,7 +73,6 @@ const Conversation = () => {
   const [isWalletVisible, setIsWalletVisible] = useState(false);
   const [events, setEvents] = useState<any[]>([]);
   const audioElement = useRef<HTMLAudioElement | null>(null);
-  const [fetchedToken, setFetchedToken] = useState<string>('');
   const [isLoaded, setIsLoaded] = useState<boolean>(true);
   const [localDataChannel, setLocalDataChannel] = useState(dataChannel);
 
@@ -560,11 +559,17 @@ const Conversation = () => {
   };
 
   const handleRugCheck = async (token: string) => {
-    // await handleAddMessage(agentMessage(`Checking if ${token} is a rug.`));
+    setMessageList((prev) => [
+      ...prev,
+      agentMessage(`Checking if ${token} is a rug.`),
+    ]);
+
+    console.log(token.length);
 
     try {
       let final_token = '';
-      if (token.startsWith('$')) {
+      console.log(token.length);
+      if (token.length === 44 || token.startsWith('$')) {
         final_token = token;
       } else {
         final_token = `$${token}`;
@@ -591,7 +596,7 @@ const Conversation = () => {
       );
 
       return responseToOpenai(
-        `tell the user that the token has a risk score of ${rug_check_card.score}. if its above 0 and less than 200, its risky, and if its above 200 then high chances that it could be a rug`,
+        `tell the user that the token has a risk score of ${rug_check_card.score} and has ${rug_check_card.issues.length} issues`,
       );
     } catch (error) {
       await handleAddMessage(
@@ -607,7 +612,7 @@ const Conversation = () => {
   };
 
   const handleNFTPrice = async (nft: string) => {
-    // await handleAddMessage(agentMessage(`Fetching NFT Data`));
+    setMessageList((prev) => [...prev, agentMessage(`Fetching NFT Data`)]);
 
     try {
       let nft_symbol = nft.replace(/\s+/g, '_');
