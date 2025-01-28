@@ -6,14 +6,14 @@ export async function getTopHolders(
 ): Promise<TopHolder[] | null> {
   try {
     const response = await axios.get<any>(
-      data_service_url + 'data/token/top_holders?address=' + token,
+      data_service_url + 'data/token/top_holders?token=' + token,
       {
         headers: {
           'Content-Type': 'application/json',
         },
       },
     );
-    const topHolders: TopHolder[] = response.data;
+    const topHolders: TopHolder[] = response.data.topHolders;
     return topHolders;
   } catch (error) {
     console.error('Error fetching Top Holders:', error);

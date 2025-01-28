@@ -784,13 +784,19 @@ const Conversation = () => {
   };
 
   const handleTopHolders = async (token: string) => {
+    let tokenInput = '';
+    if (token.length === 44 || token.startsWith('$')) {
+      tokenInput = token;
+    } else {
+      tokenInput = '$' + token;
+    }
     setMessageList((prev) => [
       ...prev,
-      agentMessage(`Fetching top holders of ${token}.`),
+      agentMessage(`Fetching top holders of ${tokenInput}.`),
     ]);
 
     try {
-      const data = await getTopHolders(token);
+      const data = await getTopHolders(tokenInput);
       if (!data) {
         handleAddMessage(
           messageCard(
