@@ -122,25 +122,28 @@ const Conversation = () => {
       .map((line) => line.replace(/^-\s*/, ''));
 
     let marketAnalysis: MarketInfo[] = [];
-
-    marketInfo.map((item) => {
+    console.log(marketInfo)
+    marketInfo.forEach((item) => {
       try {
-        let text = item.split('[Source]')[0];
-        let linkPart = item.split('[Source]')[1];
-
-        if (linkPart) {
-          let link = linkPart.slice(1, -1);
+        
+        const regex = /(.*)\[source\]\((.*)\)/i;
+        const match = item.match(regex);
+    
+        if (match) {
+          const text = match[1].trim(); 
+          const link = match[2].trim(); 
           marketAnalysis.push({
             text: text,
             link: link,
           });
         } else {
-          console.warn('Missing link for item:', item);
+          console.warn('No valid [source] found for item:', item);
         }
       } catch (e) {
-        console.log(e);
+        console.error('Error processing item:', item, e);
       }
     });
+    
 
     let marketDataCard: MarketDataCard = {
       marketAnalysis: marketAnalysis,
@@ -445,6 +448,7 @@ const Conversation = () => {
     try {
       if (tokenMint.length < 44) {
         const data = await getTokenDataSymbol('$' + tokenMint);
+        console.log(data)
         if (!data) {
           await handleAddMessage(
             messageCard(
