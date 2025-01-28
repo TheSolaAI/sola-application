@@ -50,6 +50,7 @@ import { useFundWallet } from '@privy-io/react-auth/solana';
 import { useLuloActions } from '../hooks/useLuloActions';
 import PipLayout from '../components/PiP/PipLayout';
 import { getTopHolders } from '../lib/solana/topHolders';
+import useThemeManager from '../store/zustand/ThemeManager';
 
 const Conversation = () => {
   const {
@@ -100,7 +101,8 @@ const Conversation = () => {
     setLocalDataChannel(dataChannel);
   }, [dataChannel]);
 
-  const { appWallet, theme, aiEmotion, aiVoice, tier } = useAppState();
+  const { appWallet, aiEmotion, aiVoice, tier } = useAppState();
+  const { theme } = useThemeManager();
 
   const rpc = process.env.SOLANA_RPC;
 
@@ -1165,7 +1167,7 @@ const Conversation = () => {
           >
             {mediaRecorder && (
               <LiveAudioVisualizer
-                barColor={theme == 'light' ? '#1D1D1F' : '#D8B4FE'}
+                barColor={theme.name == 'light' ? '#1D1D1F' : '#D8B4FE'}
                 mediaRecorder={mediaRecorder}
                 width={400}
                 height={200}

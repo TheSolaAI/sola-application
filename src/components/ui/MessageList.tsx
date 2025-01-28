@@ -662,13 +662,13 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
           case 'rugCheckCard':
             const rugCheckCard = item.card as RugCheckCard;
 
-            // Determine score color based on the number of risks
+            const issues = rugCheckCard?.issues || [];
             const scoreColor =
-              rugCheckCard.issues.length === 0
+              issues.length === 0
                 ? 'text-green-500'
-                : rugCheckCard.issues.length === 1
+                : issues.length === 1
                   ? 'text-yellow-500'
-                  : rugCheckCard.issues.length === 2
+                  : issues.length === 2
                     ? 'text-orange-500'
                     : 'text-red-500';
 
@@ -770,7 +770,7 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                 <RenderBlinks actionName={blink} />
               </div>
             );
-            
+
           case 'topHoldersCard':
             const topHolders = item.card as TopHolder[];
             return (

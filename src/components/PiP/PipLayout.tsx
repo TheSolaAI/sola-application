@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { usePipStore } from '../../store/zustand/PipState';
 import PiPWindow from './PipWindow';
 import { Minimize, Maximize } from 'react-feather';
@@ -19,9 +19,16 @@ export default function PipLayout({
   const { isSupported, requestPipWindow, pipWindow, closePipWindow } =
     usePipStore();
 
+  const [hasShownToast, setHasShownToast] = useState(false);
+
   const startPiP = useCallback(() => {
     requestPipWindow(100, 100);
   }, [requestPipWindow]);
+
+  if (!isSupported && !hasShownToast) {
+    toast.error("Your browser doesn't support Picture-in-Picture");
+    setHasShownToast(true);
+  }
 
   return (
     <div>
@@ -34,12 +41,12 @@ export default function PipLayout({
             <PiPWindow pipWindow={pipWindow}>
               <div
                 style={{
-                    display: 'flex', 
-                    justifyContent: 'center', 
-                    alignItems: 'center', 
-                    width: '100%', 
-                    height:'100%'
-                  }}
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  width: '100%',
+                  height: '100%',
+                }}
               >
                 {isSessionActive ? (
                   <SessionActive stopSession={stopSession} />
@@ -51,7 +58,7 @@ export default function PipLayout({
           )}
         </>
       ) : (
-        toast.error("Your browser doesn't support Picture-in-Picture")
+        null
       )}
     </div>
   );
