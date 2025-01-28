@@ -293,7 +293,7 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                           className="px-4 py-2 text-xs font-medium text-white rounded-lg hover:scale-105 hover:shadow-lg transition-all"
                         >
                           <img
-                            src="./dexscreener.png"
+                            src="/dexscreener.png"
                             alt="Dex Icon"
                             className="h-4 w-4"
                           />
@@ -303,7 +303,7 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                           onClick={() => handleExpand(token.address)}
                         >
                           <img
-                            src="./graph.png"
+                            src="/graph.png"
                             alt="Expand Icon"
                             className="h-4 w-4"
                           />
@@ -313,7 +313,7 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                           onClick={() => handleBubbleMap(token.address)}
                         >
                           <img
-                            src="./bubbles.svg"
+                            src="/bubbles.svg"
                             alt="Expand Icon"
                             className="h-4 w-4"
                           />

@@ -15,7 +15,7 @@ import {
 import { SwapParams } from '../types/swap';
 import { swapTx } from '../lib/solana/swapTx';
 import { createToolsConfig } from '../tools/tools';
-import {SessionControls} from '../components/SessionControls';
+import { SessionControls } from '../components/SessionControls';
 import WalletUi from '../components/wallet/WalletUi';
 import MessageList from '../components/ui/MessageList';
 import { tokenList } from '../store/tokens/tokenMapping';
@@ -99,7 +99,7 @@ const Conversation = () => {
     setLocalDataChannel(dataChannel);
   }, [dataChannel]);
 
-  const { appWallet, theme, aiEmotion, aiVoice,tier } = useAppState();
+  const { appWallet, theme, aiEmotion, aiVoice, tier } = useAppState();
 
   const rpc = process.env.SOLANA_RPC;
 
@@ -434,19 +434,14 @@ const Conversation = () => {
   };
 
   const handleTokenData = async (tokenMint: string) => {
-    if (fetchedToken == tokenMint) {
-      return responseToOpenai(
-        'I have already fetch the data. tell them to input the address of the token.Ask if the user needed anything else.',
-      );
-    } else {
-      setFetchedToken(tokenMint);
-    }
-
-    // await handleAddMessage(agentMessage(`Fetching ${tokenMint} data`));
+    setMessageList((prev) => [
+      ...prev,
+      agentMessage(`Fetching ${tokenMint} data`),
+    ]);
 
     try {
-      if (tokenMint.startsWith('$')) {
-        const data = await getTokenDataSymbol(tokenMint);
+      if (tokenMint.length < 44) {
+        const data = await getTokenDataSymbol('$' + tokenMint);
         if (!data) {
           await handleAddMessage(
             messageCard(
@@ -455,7 +450,7 @@ const Conversation = () => {
           );
 
           return responseToOpenai(
-            'tell the user that there has been a problem with fetching token data and ask them to try later.',
+            'tell the user that there has been a problem with fetching token data.',
           );
         }
 
@@ -470,6 +465,10 @@ const Conversation = () => {
             priceChange: data.price_change_24.toString(),
           },
         ];
+
+        updateMessage(
+          `symbol: ${tokenMint}, address: ${token_card[0].address}, price: ${token_card[0].price}, marketCap: ${token_card[0].marketCap}`,
+        );
 
         await handleAddMessage(customMessageCards('tokenCards', token_card));
 
@@ -506,10 +505,14 @@ const Conversation = () => {
           },
         ];
 
+        updateMessage(
+          `address: ${token_card[0].address}, price: ${token_card[0].price}, marketCap: ${token_card[0].marketCap}`,
+        );
+
         await handleAddMessage(customMessageCards('tokenCards', token_card));
 
         return responseToOpenai(
-          'The token data has been fetched successfully.Do not repeat the address. Ask if the user needed anything else.',
+          'The token data has been fetched successfully.',
         );
       }
     } catch (error) {
@@ -871,7 +874,24 @@ const Conversation = () => {
     [localDataChannel, setEvents], // Only depend on localDataChannel and setEvents
   );
 
-  function sendTextMessage(message: any) {
+  const updateMessage = (message: string) => {
+    const event = {
+      type: 'conversation.item.create',
+      item: {
+        type: 'message',
+        role: 'system',
+        content: [
+          {
+            type: 'input_text',
+            text: message,
+          },
+        ],
+      },
+    };
+    sendClientEvent(event);
+  };
+
+  const sendTextMessage = (message: any) => {
     const event = {
       type: 'conversation.item.create',
       item: {
@@ -888,7 +908,7 @@ const Conversation = () => {
 
     sendClientEvent(event);
     sendClientEvent({ type: 'response.create' });
-  }
+  };
 
   function toggleWallet() {
     setIsWalletVisible(!isWalletVisible);
@@ -926,7 +946,7 @@ const Conversation = () => {
         firstEvent.type === 'session.created' &&
         !events.some((e) => e.type === 'session.update')
       ) {
-        sendClientEvent(createToolsConfig(aiVoice, aiEmotion,tier));
+        sendClientEvent(createToolsConfig(aiVoice, aiEmotion, tier));
       }
 
       const mostRecentEvent = events[0];
