@@ -7,10 +7,11 @@ import {
   RegisterUserResponse,
   UserSettingsResponse,
 } from '../types/database/responseTypes';
+import useThemeManager from '../store/zustand/ThemeManager';
 
 const useUser = () => {
-  const { setTheme, setAiVoice, setAiEmotion, accessToken } = useAppState();
-
+  const { setAiVoice, setAiEmotion, accessToken } = useAppState();
+  const { setTheme } = useThemeManager();
   // Register a user
   const register = useCallback(
     async (user: RegisterUser): Promise<RegisterUserResponse | null> => {
@@ -68,9 +69,8 @@ const useUser = () => {
         updatedSettings.voice_preference &&
           setAiVoice(updatedSettings.voice_preference);
       }
-      updatedSettings.emotion_choice && setAiEmotion(
-        updatedSettings.emotion_choice,
-      );
+      updatedSettings.emotion_choice &&
+        setAiEmotion(updatedSettings.emotion_choice);
       try {
         const updatedResponse = updateUserSetting(accessToken, updatedSettings);
 
