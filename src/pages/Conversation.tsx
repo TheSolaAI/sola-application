@@ -11,6 +11,7 @@ import {
   RugCheckCard,
   MarketDataCard,
   MarketInfo,
+  TopHolder,
 } from '../types/messageCard';
 import { SwapParams } from '../types/swap';
 import { swapTx } from '../lib/solana/swapTx';
@@ -48,6 +49,7 @@ import { messageCard, transactionCard } from '../lib/chat-message/messageCard';
 import { useFundWallet } from '@privy-io/react-auth/solana';
 import { useLuloActions } from '../hooks/useLuloActions';
 import PipLayout from '../components/PiP/PipLayout';
+import { getTopHolders } from '../lib/solana/topHolders';
 
 const Conversation = () => {
   const {
@@ -781,6 +783,45 @@ const Conversation = () => {
     );
   };
 
+  const handleTopHolders = async (token: string) => {
+    setMessageList((prev) => [
+      ...prev,
+      agentMessage(`Fetching top holders of ${token}.`),
+    ]);
+
+    try {
+      const data = await getTopHolders(token);
+      if (!data) {
+        handleAddMessage(
+          messageCard(
+            'Oops! There has been a problem while identifying the data',
+          ),
+        );
+
+        return responseToOpenai(
+          'tell the user that there has been a problem identifying the data, do not repeat the address, only repeat if its a ticker',
+        );
+      }
+
+      let topHoldersCard: TopHolder[] = data;
+      handleAddMessage(customMessageCards('topHoldersCard', topHoldersCard));
+
+      return responseToOpenai(
+        'Tell user that top holders data is successfully fetched.',
+      );
+    } catch (error) {
+      handleAddMessage(
+        messageCard(
+          'Oops! There has been a problem while identifying the data',
+        ),
+      );
+
+      return responseToOpenai(
+        'tell the user that there has been a problem while the token data. Do not repeat the token address, only repeat if its a ticker',
+      );
+    }
+  };
+
   const startSession = async () => {
     let url = process.env.DATA_SERVICE_URL;
     try {
@@ -1075,6 +1116,10 @@ const Conversation = () => {
                   'tell the user that you have opened the asked blink.',
                 ),
               );
+            } else if (output.name === 'getTopHolders') {
+              const { tokenInput } = JSON.parse(output.arguments);
+              let response = await handleTopHolders(tokenInput);
+              sendClientEvent(response);
             }
           }
         }
