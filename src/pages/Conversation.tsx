@@ -751,12 +751,20 @@ const Conversation = () => {
   };
 
   const handleBubblemap = async (token: string) => {
-    // await handleAddMessage(agentMessage(`Getting Bubblemap for ${token}`));
+    setMessageList((prev) => [
+      ...prev,
+      agentMessage(`Getting Bubblemap for ${token}`),
+    ]);
 
     try {
-      if (token.startsWith('$')) {
-        const tokenDetails = await getTokenDataSymbol(token);
-        token = tokenDetails?.metadata.description || 'NaN';
+      if (token.length !== 44) {
+        if (token.startsWith('$')) {
+          const tokenDetails = await getTokenDataSymbol(token);
+          token = tokenDetails?.metadata.description || 'NaN';
+        } else {
+          const tokenDetails = await getTokenDataSymbol('$' + token);
+          token = tokenDetails?.metadata.description || 'NaN';
+        }
       }
     } catch (error) {
       return responseToOpenai(
