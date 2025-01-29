@@ -1,8 +1,9 @@
 import axios from 'axios';
 import axiosRetry from 'axios-retry';
 
+const auth_service_url = process.env.AUTH_SERVICE_URL;
 const dbClient = axios.create({
-  baseURL: 'https://auth-service.solaai.tech/api/v1/',
+  baseURL: auth_service_url,
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
