@@ -8,6 +8,7 @@ import {
   DollarSign,
   MessageSquare,
   CreditCard,
+  Trash2,
 } from 'react-feather';
 import useChatState from '../store/zustand/ChatState.ts';
 import { useChat } from '../hooks/useChatRoom.ts';
@@ -24,7 +25,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
   const location = useLocation();
   const { pathname } = location;
 
-  const { getRooms } = useChat();
+  const { getRooms, delRooms } = useChat();
 
   const trigger = useRef<any>(null);
   const sidebar = useRef<any>(null);
@@ -165,15 +166,22 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 <li key={room.id}>
                   <NavLink
                     to={`/c/${room.id}`}
-                    className={`group relative flex items-center gap-2.5 rounded-lg py-2 px-4 font-small text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 dark:text-bodydark2 ${
+                    className={`group relative flex w-full items-center justify-between rounded-lg py-2 px-4 font-small text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 dark:text-bodydark2 ${
                       pathname === `/c/${room.id}` ||
                       pathname.startsWith(`/c/${room.id}/`)
                         ? 'bg-graydark dark:bg-meta-4'
                         : ''
                     }`}
                   >
-                    <MessageSquare />
-                    {room.name}
+                    <div className="flex gap-4">
+                      <MessageSquare />
+                      {room.name}
+                    </div>
+
+                    <Trash2
+                      className="cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity hover:opacity-80"
+                      onClick={() => delRooms(room.id)}
+                    />
                   </NavLink>
                 </li>
               ))}

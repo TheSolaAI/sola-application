@@ -94,7 +94,7 @@ const Conversation = () => {
       stopSession();
       await startSession();
     };
-  
+
     manageSession();
     loadMessages();
   }, [id]);

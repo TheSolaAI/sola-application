@@ -11,6 +11,11 @@ export const getRooms = (jwt: string) =>
     headers: { Authorization: `Bearer ${jwt}` },
   });
 
+export const delRoom = (jwt: string, id: string) =>
+  dbClient.delete(`chatrooms/${id}/`, {
+    headers: { Authorization: `Bearer ${jwt}` },
+  });
+
 export const createRoom = (jwt: string, roomDetails: CreateRoom) =>
   dbClient.post<ChatRoom>('chatrooms/', roomDetails, {
     headers: { Authorization: `Bearer ${jwt}` },
