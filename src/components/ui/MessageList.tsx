@@ -29,7 +29,7 @@ import useAppState from '../../store/zustand/AppState';
 import axios from 'axios';
 import { Connection, VersionedTransaction } from '@solana/web3.js';
 import { tokenList } from '../../store/tokens/tokenMapping';
-import { SwapParams } from '../../types/swap';
+import { SwapParams } from '../../types/jupiter';
 import { responseToOpenai } from '../../lib/utils/response';
 import { ConnectedSolanaWallet } from '@privy-io/react-auth';
 import RenderBlinks from './RenderBlinks';

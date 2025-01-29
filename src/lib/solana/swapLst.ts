@@ -1,4 +1,4 @@
-import { SwapParams, SwapResponse } from '../../types/swap';
+import { SwapParams, SwapResponse } from '../../types/jupiter';
 import axios from 'axios';
 import { VersionedTransaction } from '@solana/web3.js';
 
