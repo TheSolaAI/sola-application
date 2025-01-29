@@ -1,5 +1,5 @@
 const functionDescription =
-  'Call this function when the user wants to know the price of a nft by giving the name.';
+  'To get the price of on an NFT. NOTE: The user must specify the word NFT';
 
 export const getNFTPrice = {
   type: 'function',

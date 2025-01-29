@@ -1,48 +1,35 @@
 import React, { useState, ChangeEvent, KeyboardEvent } from 'react';
-import { Mic, Send, MicOff, XCircle } from 'react-feather';
+import { Mic, Send, MicOff } from 'react-feather';
 import useChatState from '../store/zustand/ChatState';
 import { Button } from '@headlessui/react';
 
-interface SessionStoppedProps {
-  startSession: () => void;
-}
+const quotes = [
+  'Connecting SOLA...',
+  'Waking Up your Assistant...',
+  'Summoning SOLA AI...',
+  'Charging brain cells...',
+];
 
-export const SessionStopped: React.FC<SessionStoppedProps> = ({
-  startSession,
-}) => {
-  const [isActivating, setIsActivating] = useState(false);
-
-  const handleStartSession = () => {
-    if (isActivating) return;
-
-    setIsActivating(true);
-    startSession();
-  };
-
+export const SessionStopped = () => {
   return (
     <div className="flex items-center justify-center w-full h-full">
-      <Button
-        onClick={handleStartSession}
-        className="flex gap-2 items-center bg-bodydark1 py-4 px-6 rounded-full text-base text-graydark"
-      >
-        <Mic height={16} />{' '}
-        {isActivating ? 'Connecting...' : 'Start Conversation'}
-      </Button>
+      <div className="flex gap-2 items-center bg-bodydark1 py-4 px-6 rounded-full text-base text-graydark">
+        {quotes[Math.floor(Math.random() * quotes.length)]}
+      </div>
     </div>
   );
 };
 
 interface SessionActiveProps {
-  stopSession: () => void;
   sendTextMessage?: (message: string) => void;
 }
 
 export const SessionActive: React.FC<SessionActiveProps> = ({
-  stopSession,
   sendTextMessage,
 }) => {
   const [message, setMessage] = useState('');
-  const { isMuted, toggleMute } = useChatState();
+  const isMuted = useChatState((state) => state.isMuted);
+  const toggleMute = useChatState((state) => state.toggleMute);
 
   const handleSendClientEvent = () => {
     if (!sendTextMessage)
@@ -87,38 +74,24 @@ export const SessionActive: React.FC<SessionActiveProps> = ({
       >
         {isMuted ? <MicOff height={16} /> : <Mic height={16} />}
       </Button>
-
-      <Button
-        onClick={stopSession}
-        className="rounded-3xl p-4 w-16 h-16 bg-body text-graydark"
-      >
-        <XCircle height={16} />
-      </Button>
     </div>
   );
 };
 
 interface SessionControlsProps {
-  startSession: () => void;
-  stopSession: () => void;
   sendTextMessage: (message: string) => void;
   isSessionActive: boolean;
 }
 
 export const SessionControls: React.FC<SessionControlsProps> = ({
-  startSession,
-  stopSession,
   sendTextMessage,
   isSessionActive,
 }) => (
   <div className="flex gap-4 h-full rounded-md">
     {isSessionActive ? (
-      <SessionActive
-        stopSession={stopSession}
-        sendTextMessage={sendTextMessage}
-      />
+      <SessionActive sendTextMessage={sendTextMessage} />
     ) : (
-      <SessionStopped startSession={startSession} />
+      <SessionStopped />
     )}
   </div>
 );
