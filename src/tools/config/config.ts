@@ -16,6 +16,7 @@ import { transferSolTx } from '../functions/transferSolTx';
 import { transferSpl } from '../functions/transferSpl';
 import { walletActions } from '../functions/walletActions';
 import { withdrawLulo } from '../functions/withdrawLulo';
+import { limitOrder } from '../functions/limitOrder';
 
 export const freeTools = [
   walletActions,
@@ -36,6 +37,7 @@ export const freeTools = [
   depositLulo,
   withdrawLulo,
   getBlinks,
+  limitOrder
 ];
 export const fullTools = [
   walletActions,
@@ -56,4 +58,5 @@ export const fullTools = [
   depositLulo,
   withdrawLulo,
   getBlinks,
+  limitOrder
 ];

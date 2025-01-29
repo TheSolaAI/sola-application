@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { LiveAudioVisualizer } from 'react-audio-visualize';
-import { Connection, PublicKey } from '@solana/web3.js';
+import { Connection, PublicKey, VersionedTransaction } from '@solana/web3.js';
 import { transferSolTx } from '../lib/solana/transferSol';
 import {
   MessageCard,
@@ -13,7 +13,7 @@ import {
   MarketInfo,
   TopHolder,
 } from '../types/messageCard';
-import { SwapParams } from '../types/swap';
+import { LimitOrderParams, SwapParams } from '../types/jupiter';
 import { swapTx } from '../lib/solana/swapTx';
 import { createToolsConfig } from '../tools/tools';
 import { SessionControls } from '../components/SessionControls';
@@ -51,6 +51,7 @@ import { useLuloActions } from '../hooks/useLuloActions';
 import PipLayout from '../components/PiP/PipLayout';
 import { getTopHolders } from '../lib/solana/topHolders';
 import useThemeManager from '../store/zustand/ThemeManager';
+import { limitOrderTx } from '../lib/solana/limitOrderTx';
 
 const Conversation = () => {
   const {
@@ -392,6 +393,61 @@ const Conversation = () => {
 
     return responseToOpenai(
       'tell the user that swap transaction is sent to blockchain',
+    );
+  };
+
+  const handleLimitOrder = async (
+    amount: number,
+    token: 'SOL' | 'SOLA' | 'USDC' | 'BONK' | 'USDT' | 'JUP' | 'WIF',
+    action: "BUY" | "SELL",
+    limitPrice: number,
+  ) => {
+    if (!appWallet) return null;
+    if (!rpc)
+      return responseToOpenai(
+        'ask the user to contact admin as the rpc is not attached',
+      );
+
+    await handleAddMessage(
+      agentMessage(
+        `Agent is creating order to ${action.toLowerCase()} ${amount} ${token} at $${limitPrice}`,
+      ),
+    );
+
+    const params: LimitOrderParams = {
+      token_mint_a: tokenList[token].MINT,
+      token_mint_b: tokenList['USDC'].MINT,
+      public_key: `${appWallet.address}`,
+      amount: amount,
+      limit_price: limitPrice,
+      action: action,
+    };
+
+    const connection = new Connection(rpc);
+    const resp = await limitOrderTx(params);
+    const transaction = resp?.tx;
+    if (!transaction) {
+      await handleAddMessage(messageCard(`Error creating limit order.`));
+
+      return responseToOpenai(
+        'just tell the user that the order has been failed',
+      );
+    }
+    
+    const transactionBuffer = Buffer.from(transaction, 'base64');
+    const final_tx = VersionedTransaction.deserialize(transactionBuffer);
+    const signedTransaction = await appWallet.signTransaction(final_tx);
+
+    const rawTransaction = signedTransaction.serialize();
+
+    const txid = await connection.sendRawTransaction(rawTransaction, {
+      skipPreflight: true,
+      maxRetries: 10,
+    });
+
+    await handleAddMessage(transactionCard(txid));
+    return responseToOpenai(
+      'tell the user that limit order has been created',
     );
   };
 
@@ -1135,6 +1191,12 @@ const Conversation = () => {
               let response = await handleTopHolders(tokenInput);
               sendClientEvent(response);
             }
+              else if (output.name === 'limitOrder') {
+              const { token, amount, limitPrice, action } = JSON.parse(output.arguments);
+              
+                let response = await handleLimitOrder(amount, token, action, limitPrice);
+                sendClientEvent(response);
+              }
           }
         }
       }
