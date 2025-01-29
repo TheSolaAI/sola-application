@@ -67,7 +67,7 @@ export const Sidebar = () => {
       {/* Sidebar */}
       <div
         ref={sidebarRef}
-        className={`flex flex-col transition-all duration-300 ease-in-out ${isCollapsed ? 'w-16' : 'w-64'} fixed bg-sec_background lg:static lg:translate-x-0 ${isMobileOpen ? 'translate-x-0' : '-translate-x-full'} z-40 h-full rounded-lg p-4 pt-6 lg:m-2 lg:h-[calc(100%-1rem)]`}
+        className={`flex flex-col transition-all duration-300 ease-in-out ${isCollapsed ? 'w-16' : 'w-64'} fixed bg-sec_background lg:static lg:translate-x-0 ${isMobileOpen ? 'translate-x-0' : '-translate-x-full'} z-40 h-full rounded-lg p-4 pt-6 lg:m-2 lg:h-[calc(100%-1rem)] shadow-black/25 shadow-[0px_0px_15px_1px]`}
       >
         <div className="flex flex-row items-center justify-between">
           <h1 className="text-2xl font-bold text-textColor">
@@ -82,7 +82,7 @@ export const Sidebar = () => {
           <img
             src="../../../public/logo.png"
             alt="Logo"
-            className="hidden w-[40px] rounded-lg lg:block"
+            className="hidden w-[40px] h-[40px] rounded-lg lg:block"
           />
         </div>
         {/*New Chat Button*/}

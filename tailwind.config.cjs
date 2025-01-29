@@ -12,11 +12,6 @@ module.exports = {
     extend: {
       colors: {
         white: '#FFFFFF',
-        black: {
-          ...colors.black,
-          DEFAULT: '#1C2434',
-          2: '#010101',
-        },
         red: {
           ...colors.red,
           DEFAULT: '#FB5454',
