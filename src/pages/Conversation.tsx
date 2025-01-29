@@ -424,32 +424,40 @@ const Conversation = () => {
     };
 
     const connection = new Connection(rpc);
-    const resp = await limitOrderTx(params);
-    const transaction = resp?.tx;
-    if (!transaction) {
-      await handleAddMessage(messageCard(`Error creating limit order.`));
+    try {
+      const resp = await limitOrderTx(params);
+      const transaction = resp?.tx;
+      if (!transaction) {
+        await handleAddMessage(messageCard(`Error creating limit order.`));
 
+        return responseToOpenai(
+          'tell the user that the order has been failed and ask them to try later after some time',
+        );
+      }
+    
+      const transactionBuffer = Buffer.from(transaction, 'base64');
+      const final_tx = VersionedTransaction.deserialize(transactionBuffer);
+      const signedTransaction = await appWallet.signTransaction(final_tx);
+
+      const rawTransaction = signedTransaction.serialize();
+
+      const txid = await connection.sendRawTransaction(rawTransaction, {
+        skipPreflight: true,
+        maxRetries: 10,
+      });
+
+      await handleAddMessage(transactionCard(txid));
       return responseToOpenai(
-        'just tell the user that the order has been failed',
+        'tell the user that limit order has been created',
       );
     }
-    
-    const transactionBuffer = Buffer.from(transaction, 'base64');
-    const final_tx = VersionedTransaction.deserialize(transactionBuffer);
-    const signedTransaction = await appWallet.signTransaction(final_tx);
-
-    const rawTransaction = signedTransaction.serialize();
-
-    const txid = await connection.sendRawTransaction(rawTransaction, {
-      skipPreflight: true,
-      maxRetries: 10,
-    });
-
-    await handleAddMessage(transactionCard(txid));
-    return responseToOpenai(
-      'tell the user that limit order has been created',
-    );
-  };
+ catch (error) {
+      console.error('Error creating limit order:', error);
+      return responseToOpenai(
+        'tell the user that the order has been failed and ask them to try later after some time',
+      );
+    }
+};
 
   //TODO: Handle the Message response
   const handleLaunchpadCollections = async () => {
