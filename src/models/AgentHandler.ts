@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-interface Agent {
+export interface Agent {
   agentID: string;
   name: string;
   description: string;
