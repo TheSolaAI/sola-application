@@ -19,19 +19,18 @@ import { createToolsConfig } from '../tools/tools';
 import { SessionControls } from '../components/SessionControls';
 import WalletUi from '../components/wallet/WalletUi';
 import MessageList from '../components/ui/MessageList';
-import { tokenList } from '../store/tokens/tokenMapping';
+import { tokenList } from '../config/tokens/tokenMapping';
 import {
   fetchMagicEdenLaunchpadCollections,
   fetchMagicEdenNFTPrice,
   fetchTrendingNFTs,
 } from '../lib/solana/magiceden';
-import useAppState from '../store/zustand/AppState';
-import useChatState from '../store/zustand/ChatState';
+import useAppState from '../models/AppState.ts';
+import useChatState from '../models/ChatState.ts';
 import { getTokenData, getTokenDataSymbol } from '../lib/solana/token_data';
 import { getLstData } from '../lib/solana/lst_data';
 import { responseToOpenai } from '../lib/utils/response';
-import { useWalletStore } from '../store/zustand/WalletState';
-import Loader from '../common/Loader/index';
+import { useWalletStore } from '../models/WalletState.ts';
 import { getPublicKeyFromSolDomain } from '../lib/solana/sns';
 import { swapLST } from '../lib/solana/swapLst';
 import { fetchLSTAddress } from '../lib/utils/lst_reader';
@@ -40,7 +39,7 @@ import { getRugCheck } from '../lib/solana/rugCheck';
 import { getMarketData } from '../lib/utils/marketMacro';
 import { useParams } from 'react-router-dom';
 import { useChat } from '../hooks/useChatRoom';
-import { useRoomStore } from '../store/zustand/RoomState';
+import { useRoomStore } from '../models/RoomState.ts';
 import { toast } from 'sonner';
 import useChatHandler from '../hooks/handleAddMessage';
 import { agentMessage } from '../lib/chat-message/agentMessage';
@@ -50,7 +49,8 @@ import { useFundWallet } from '@privy-io/react-auth/solana';
 import { useLuloActions } from '../hooks/useLuloActions';
 import PipLayout from '../components/PiP/PipLayout';
 import { getTopHolders } from '../lib/solana/topHolders';
-import useThemeManager from '../store/zustand/ThemeManager';
+import Loader from '../components/general/Loader.tsx';
+import useThemeManager from '../models/ThemeManager.ts';
 import { limitOrderTx } from '../lib/solana/limitOrderTx';
 
 const Conversation = () => {

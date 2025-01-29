@@ -2,9 +2,9 @@ import { CreditCard, ExternalLink } from 'react-feather';
 import { fetchFilteredAssets } from '../../lib/solana/wallet';
 import { useState, useEffect } from 'react';
 import useSWR from 'swr';
-import useAppState from '../../store/zustand/AppState';
+import useAppState from '../../models/AppState.ts';
 import { Asset } from '../../types/walletBalance';
-import { useWalletStore } from '../../store/zustand/WalletState';
+import { useWalletStore } from '../../models/WalletState.ts';
 import { Button } from '@headlessui/react';
 
 interface WalletUiProps {
@@ -84,7 +84,10 @@ function WalletUi({ toggleWallet, isWalletVisible }: WalletUiProps) {
                   className="h-4 w-4 mr-3 "
                 />
               </button>
-              <button className={`${isWalletVisible? 'visible': 'hidden'}`} onClick={viewWalletInExplorer}>
+              <button
+                className={`${isWalletVisible ? 'visible' : 'hidden'}`}
+                onClick={viewWalletInExplorer}
+              >
                 <ExternalLink height={16} />
               </button>
             </div>

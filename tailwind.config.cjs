@@ -1,10 +1,6 @@
 const colors = require('tailwindcss/colors');
 const { createThemes } = require('tw-colors');
-import * as dynamicThemes from './src/constants/themes.json';
-/**
- * Dynamically loads the themes from JSON and creates the TailwindCSS theme object
- */
-
+import * as dynamicThemes from './src/config/themes.json';
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
@@ -31,7 +27,6 @@ module.exports = {
         bodydark: '#AEB7C0',
         bodydark1: '#1D1D1F',
         bodydark2: '#87878A',
-        primary: '#3C50E0',
         secondary: '#80CAEE',
         stroke: '#E2E8F0',
         gray: {

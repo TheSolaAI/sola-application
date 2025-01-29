@@ -1,5 +1,5 @@
 import { useFundWallet } from '@privy-io/react-auth/solana';
-import useAppState from '../store/zustand/AppState';
+import useAppState from '../models/AppState.ts';
 import { Button } from '@headlessui/react';
 import { useState } from 'react';
 

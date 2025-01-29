@@ -2,8 +2,8 @@ import { create } from 'zustand';
 import {
   ChatMessagesResponse,
   ChatRoom,
-} from '../../types/database/responseTypes';
-import { MessageCard } from '../../types/messageCard';
+} from '../types/database/responseTypes.ts';
+import { MessageCard } from '../types/messageCard.ts';
 
 interface RoomState {
   rooms: ChatRoom[];

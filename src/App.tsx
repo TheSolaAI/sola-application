@@ -7,11 +7,11 @@ import Conversaction from './pages/Conversation';
 import MasterLayout from './layout/MasterLayout.tsx';
 import Onbording from './pages/Onbording';
 import WalletManagement from './pages/WalletManagement';
-import useAppState from './store/zustand/AppState';
+import useAppState from './models/AppState.ts';
 import Settings from './pages/Settings';
 import OnRamp from './pages/OnRamp';
 import useUser from './hooks/useUser';
-import useThemeManager from './store/zustand/ThemeManager.ts';
+import useThemeManager from './models/ThemeManager.ts';
 import { tokenGate } from './lib/solana/tokenGate';
 
 function App() {
@@ -22,7 +22,7 @@ function App() {
   const { createWallet, wallets } = useSolanaWallets();
   const { setWallet, setAccessToken } = useAppState();
   const { pathname } = useLocation();
-  const { tier,setTier} = useAppState();
+  const { tier, setTier } = useAppState();
   const memoizedCreateWallet = useCallback(createWallet, []);
   const { fetchSettings } = useUser();
   const { initManager } = useThemeManager();
@@ -75,18 +75,17 @@ function App() {
     initializeApp();
   }, [authenticated, memoizedCreateWallet, wallets.length]);
   useEffect(() => {
-
     const fetchTier = async () => {
       const result = await tokenGate(wallets[0].address);
       if (result === false) {
         setTier(0);
         return;
       }
-      setTier(result.data.tier)
+      setTier(result.data.tier);
     };
 
     fetchTier();
-  }, []); 
+  }, []);
 
   const MemoizedAuthenticatedRoutes = useCallback(
     () => (
@@ -145,12 +144,10 @@ function App() {
   const MemoizedUnauthenticatedRoutes = useCallback(() => <Onbording />, []);
 
   return authenticated ? (
-      <MemoizedAuthenticatedRoutes />
-    ) :
-    (
+    <MemoizedAuthenticatedRoutes />
+  ) : (
     <MemoizedUnauthenticatedRoutes />
   );
 }
 
 export default App;
-

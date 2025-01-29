@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { usePipStore } from '../../store/zustand/PipState';
+import { usePipStore } from '../../models/PipState.ts';
 import PiPWindow from './PipWindow';
 import { Minimize, Maximize } from 'react-feather';
 import { toast } from 'sonner';
@@ -57,9 +57,7 @@ export default function PipLayout({
             </PiPWindow>
           )}
         </>
-      ) : (
-        null
-      )}
+      ) : null}
     </div>
   );
 }

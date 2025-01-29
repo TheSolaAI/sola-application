@@ -1,14 +1,20 @@
 import { useCallback } from 'react';
-import { useRoomStore } from '../store/zustand/RoomState';
+import { useRoomStore } from '../models/RoomState.ts';
 import { CreateRoom } from '../types/database/requstTypes';
 import { MessageCard } from '../types/messageCard';
-import useAppState from '../store/zustand/AppState';
+import useAppState from '../models/AppState.ts';
 import { createRoom, sendRoomMessage } from '../api/chatService';
 import { useNavigate } from 'react-router-dom';
 
 const useChatHandler = () => {
-  const { currentRoomId, setCurrentRoomId, setMessageList, appendRoom, isCreatingRoom, setIsCreatingRoom } =
-    useRoomStore();
+  const {
+    currentRoomId,
+    setCurrentRoomId,
+    setMessageList,
+    appendRoom,
+    isCreatingRoom,
+    setIsCreatingRoom,
+  } = useRoomStore();
   const { accessToken } = useAppState();
   const navigate = useNavigate();
 
@@ -27,7 +33,7 @@ const useChatHandler = () => {
         return null;
       }
     },
-    [appendRoom, setCurrentRoomId, accessToken]
+    [appendRoom, setCurrentRoomId, accessToken],
   );
 
   const sendMessage = useCallback(
@@ -40,52 +46,59 @@ const useChatHandler = () => {
         console.error('Error sending message:', error);
       }
     },
-    [accessToken]
+    [accessToken],
   );
 
   const handleAddMessage = useCallback(
     async (message: MessageCard) => {
       setMessageList((prev) => [...prev, message]);
-  
+
       const roomDetails: CreateRoom = {
         name: Math.floor(Math.random() * 1000000).toString(),
         session_id: Math.random().toString(),
       };
-  
+
       try {
         let roomId = currentRoomId;
-  
+
         if (!currentRoomId && roomDetails) {
           if (!isCreatingRoom) {
-            setIsCreatingRoom(true); 
-  
+            setIsCreatingRoom(true);
+
             console.log('roomID', roomId, 'roomdetails', roomDetails);
             const roomResponse = await createChatRoom(roomDetails);
-  
+
             if (!roomResponse) {
               console.error('Failed to create room.');
               setIsCreatingRoom(false);
               return;
             }
-  
+
             roomId = roomResponse.id;
-            setIsCreatingRoom(false); 
+            setIsCreatingRoom(false);
             navigate(`/c/${roomId}`);
           }
         }
-  
+
         if (roomId) {
           console.log(roomId);
           await sendMessage(roomId, message);
         }
       } catch (error) {
         console.error('Error in handleAddMessage:', error);
-        setIsCreatingRoom(false); 
+        setIsCreatingRoom(false);
       }
     },
-    [currentRoomId, createChatRoom, sendMessage, setMessageList, navigate, isCreatingRoom, setIsCreatingRoom],
+    [
+      currentRoomId,
+      createChatRoom,
+      sendMessage,
+      setMessageList,
+      navigate,
+      isCreatingRoom,
+      setIsCreatingRoom,
+    ],
   );
-  
 
   return { handleAddMessage, createChatRoom, sendMessage };
 };

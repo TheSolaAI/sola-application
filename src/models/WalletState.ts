@@ -1,5 +1,5 @@
-import {create} from 'zustand';
-import { Asset } from '../../types/walletBalance';
+import { create } from 'zustand';
+import { Asset } from '../types/walletBalance.ts';
 
 interface WalletState {
   assets: Asset[];

@@ -1,5 +1,5 @@
 import { StateCreator, create } from 'zustand';
-import themeJSON from '../../constants/themes.json';
+import themeJSON from '../config/themes.json';
 
 interface Theme {
   name: string;

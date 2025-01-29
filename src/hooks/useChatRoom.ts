@@ -5,8 +5,8 @@ import {
   delRoom as deleteRoom,
 } from '../api/chatService';
 import { RoomMessages } from '../types/database/requstTypes';
-import { useRoomStore } from '../store/zustand/RoomState';
-import useAppState from '../store/zustand/AppState';
+import { useRoomStore } from '../models/RoomState.ts';
+import useAppState from '../models/AppState.ts';
 import { usePrivy } from '@privy-io/react-auth';
 import { useNavigate } from 'react-router-dom';
 import useChatState from '../store/zustand/ChatState';

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { ChevronDown } from 'react-feather';
-import useAppState from '../store/zustand/AppState';
-import { AIVOICE, AIEMOTION } from '../store/ai/aiConfig';
+import useAppState from '../models/AppState.ts';
+import { AIVOICE, AIEMOTION } from '../config/ai/aiConfig';
 import useUser from '../hooks/useUser';
 import { AiEmotion, AiVoice } from '../types/database/aiConfig';
 import { usePrivy } from '@privy-io/react-auth';

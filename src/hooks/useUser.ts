@@ -2,12 +2,12 @@ import { useCallback } from 'react';
 import { registerUser } from '../api/register';
 import { getUserSettings, updateUserSetting } from '../api/userSettings';
 import { RegisterUser, UserSettings } from '../types/database/requstTypes';
-import useAppState from '../store/zustand/AppState';
+import useAppState from '../models/AppState.ts';
 import {
   RegisterUserResponse,
   UserSettingsResponse,
 } from '../types/database/responseTypes';
-import useThemeManager from '../store/zustand/ThemeManager';
+import useThemeManager from '../models/ThemeManager.ts';
 
 const useUser = () => {
   const { setAiVoice, setAiEmotion, accessToken } = useAppState();

@@ -2,13 +2,13 @@ import { customMessageCards } from '../lib/chat-message/customMessageCards';
 import { messageCard } from '../lib/chat-message/messageCard';
 import { depositLulo, getAssetsLulo, withdrawLulo } from '../lib/solana/lulo';
 import { responseToOpenai } from '../lib/utils/response';
-import useAppState from '../store/zustand/AppState';
+import useAppState from '../models/AppState.ts';
 import { AssetsParams, DepositParams, WithdrawParams } from '../types/lulo';
 import { LuloCard, TransactionCard } from '../types/messageCard';
 import useChatHandler from '../hooks/handleAddMessage';
-import { tokenList } from '../store/tokens/tokenMapping';
+import { tokenList } from '../config/tokens/tokenMapping';
 import { Connection } from '@solana/web3.js';
-import { useRoomStore } from '../store/zustand/RoomState';
+import { useRoomStore } from '../models/RoomState.ts';
 import { agentMessage } from '../lib/chat-message/agentMessage';
 
 export const useLuloActions = () => {
