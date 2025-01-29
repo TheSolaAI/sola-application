@@ -410,7 +410,7 @@ const Conversation = () => {
 
     await handleAddMessage(
       agentMessage(
-        `Agent is creating order to ${action.toLowerCase()} ${amount} ${token} at ${limitPrice}`,
+        `Agent is creating order to ${action.toLowerCase()} ${amount} ${token} at $${limitPrice}`,
       ),
     );
 
@@ -433,7 +433,7 @@ const Conversation = () => {
         'just tell the user that the order has been failed',
       );
     }
-    const latestBlockHash = await connection.getLatestBlockhash();
+    
     const transactionBuffer = Buffer.from(transaction, 'base64');
     const final_tx = VersionedTransaction.deserialize(transactionBuffer);
     const signedTransaction = await appWallet.signTransaction(final_tx);
@@ -445,9 +445,7 @@ const Conversation = () => {
       maxRetries: 10,
     });
 
-
     await handleAddMessage(transactionCard(txid));
-
     return responseToOpenai(
       'tell the user that limit order has been created',
     );
@@ -1195,7 +1193,7 @@ const Conversation = () => {
             }
               else if (output.name === 'limitOrder') {
               const { token, amount, limitPrice, action } = JSON.parse(output.arguments);
-              console.log(amount, token, action, limitPrice);
+              
                 let response = await handleLimitOrder(amount, token, action, limitPrice);
                 sendClientEvent(response);
               }
