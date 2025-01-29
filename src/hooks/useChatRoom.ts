@@ -2,22 +2,56 @@ import { useState, useCallback } from 'react';
 import {
   getRooms as fetchRooms,
   getRoomMessages as fetchRoomMessages,
+  delRoom as deleteRoom,
 } from '../api/chatService';
 import { RoomMessages } from '../types/database/requstTypes';
 import { useRoomStore } from '../store/zustand/RoomState';
 import useAppState from '../store/zustand/AppState';
 import { usePrivy } from '@privy-io/react-auth';
+import { useNavigate } from 'react-router-dom';
+import useChatState from '../store/zustand/ChatState';
 
 export const useChat = () => {
-  const { setRooms, setCurrentRoomChat, setCurrentRoomId, setMessageList } =
-    useRoomStore();
+  const {
+    setRooms,
+    removeRoom,
+    setCurrentRoomChat,
+    setCurrentRoomId,
+    setMessageList,
+  } = useRoomStore();
+  const {
+    getPeerConnection,
+    dataChannel,
+    setIsSessionActive,
+    setDataChannel,
+    resetMute,
+    setPeerConnection,
+  } = useChatState();
   const { accessToken, setAccessToken } = useAppState();
   const { getAccessToken } = usePrivy();
+  const navigate = useNavigate();
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [messageLoadingError, setMessageLoadingError] = useState<string | null>(
     null,
   );
+
+  function stopSession() {
+    const pc = getPeerConnection();
+
+    if (dataChannel) {
+      dataChannel.close();
+    }
+    if (pc) {
+      pc.close();
+      setPeerConnection(null);
+    }
+
+    setIsSessionActive(false);
+    setDataChannel(null);
+    resetMute();
+  }
 
   const ensureAccessToken = useCallback(async (): Promise<string | null> => {
     if (accessToken) {
@@ -51,6 +85,28 @@ export const useChat = () => {
     }
   }, [ensureAccessToken, setRooms]);
 
+  const delRooms = useCallback(
+    async (id: string) => {
+      setLoading(true);
+      setError(null);
+      const token = await ensureAccessToken();
+      if (!token) {
+        return null;
+      }
+      try {
+        const response = await deleteRoom(token, id);
+        removeRoom(id);
+        stopSession();
+        navigate('/');
+      } catch (err: any) {
+        setError(err.message || 'Failed to delete room');
+      } finally {
+        setLoading(false);
+      }
+    },
+    [ensureAccessToken],
+  );
+
   const getRoomMessages = useCallback(
     async (roomId: string, params?: RoomMessages) => {
       setLoading(true);
@@ -69,7 +125,7 @@ export const useChat = () => {
         setMessageList((prev) => {
           if (!response.data || !Array.isArray(response.data.results)) {
             console.error('Invalid response format:', response);
-            return prev; 
+            return prev;
           }
           const newMessages = response.data.results.map(
             (result) => result.message,
@@ -96,5 +152,6 @@ export const useChat = () => {
     messageLoadingError,
     getRooms,
     getRoomMessages,
+    delRooms,
   };
 };
