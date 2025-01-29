@@ -26,14 +26,14 @@ export const useAgentHandler = create<AgentHandler>(() => ({
       name: 'BeatMaker',
       description:
         'Designed for deep market analysis with a focus on long-term investments',
-      logo: 'https://avatar.iran.liara.run/public/41',
+      logo: 'https://avatar.iran.liara.run/public/42',
     },
     {
       agentID: '3',
       name: 'Smasher',
       description:
         'Designed for high-risk trading and quick profits. Smasher has an aggresive trading strategy',
-      logo: 'https://avatar.iran.liara.run/public/38',
+      logo: 'https://avatar.iran.liara.run/public/37',
     },
   ],
 }));

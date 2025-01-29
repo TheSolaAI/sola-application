@@ -1,78 +1,16 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Trash2, Upload, X } from 'react-feather';
+import React, { useRef, useState } from 'react';
+import { Trash2, Upload } from 'react-feather';
+import { Dropdown } from '../general/DropDown.tsx';
 
-interface EditRoomProps {
-  isOpen: boolean;
+interface EditRoomContentProps {
   onClose: () => void;
-  anchorEl: null | HTMLElement;
-  roomID: string;
 }
 
-export const EditRoom: React.FC<EditRoomProps> = ({
-  isOpen,
-  onClose,
-  anchorEl,
-  roomID,
-}) => {
-  /**
-   * Refs
-   */
-  const popupRef = useRef<HTMLDivElement>(null);
+const EditRoomContent: React.FC<EditRoomContentProps> = ({ onClose }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  /**
-   * Local State
-   */
-  const [position, setPosition] = useState({ top: 0, left: 0, width: 0 });
-  const [isMobile, setIsMobile] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-
-  // TODO: Remove these once the agents are linked with the chat
   const [name, setName] = useState('');
-  const [roomIcon, setRoomIcon] = useState('');
-
-  /**
-   * Checks if the device is in mobile view
-   */
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
-
-  useEffect(() => {
-    if (isOpen && anchorEl && popupRef.current && !isMobile) {
-      const anchorRect = anchorEl.getBoundingClientRect();
-      setPosition({
-        top: anchorRect.bottom + window.scrollY + 10,
-        left: anchorRect.left + window.scrollX - 5,
-        width: Math.max(anchorRect.width, 300), // Minimum width for better UX
-      });
-    }
-  }, [isOpen, anchorEl, isMobile]);
-
-  useEffect(() => {
-    const handleClickOutside = (event: any) => {
-      if (
-        popupRef.current &&
-        !popupRef.current.contains(event.target) &&
-        anchorEl &&
-        !anchorEl.contains(event.target)
-      ) {
-        onClose();
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isOpen, onClose, anchorEl]);
+  const [roomIcon] = useState('');
 
   const handleNameSubmit = () => {
     console.log('Name submitted');
@@ -94,8 +32,8 @@ export const EditRoom: React.FC<EditRoomProps> = ({
     }
   };
 
-  const content = (
-    <div className="space-y-6">
+  return (
+    <div className="space-y-6 lg:w-[250px]">
       {/* Chat Icon Section */}
       <div className="flex flex-col items-center gap-4">
         <div className="relative">
@@ -155,58 +93,31 @@ export const EditRoom: React.FC<EditRoomProps> = ({
       </div>
     </div>
   );
+};
 
-  if (!isOpen) return null;
+interface EditRoomProps {
+  isOpen: boolean;
+  onClose: () => void;
+  anchorEl: null | HTMLElement;
+  roomID: string;
+}
 
-  if (isMobile) {
-    return (
-      <AnimatePresence>
-        <motion.div
-          className="fixed inset-0 bg-black/50 z-40"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          onClick={onClose}
-        />
-        <motion.div
-          ref={popupRef}
-          className="fixed bottom-0 left-0 right-0 z-50 rounded-t-xl border-t border-border bg-background p-6 max-h-[80vh] overflow-y-auto w-screen"
-          initial={{ y: '100%' }}
-          animate={{ y: 0 }}
-          exit={{ y: '100%' }}
-          transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-        >
-          <div className="w-12 h-1.5 bg-gray-300 rounded-full mx-auto mb-6" />
-          <div className="flex justify-between items-center mb-6">
-            <h1 className="text-xl font-bold text-textColor">Chat Settings</h1>
-          </div>
-          {content}
-        </motion.div>
-      </AnimatePresence>
-    );
-  }
-
+export const EditRoom: React.FC<EditRoomProps> = ({
+  isOpen,
+  onClose,
+  anchorEl,
+}) => {
   return (
-    <motion.div
-      ref={popupRef}
-      initial={{ opacity: 0, y: -10 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -10 }}
-      transition={{ duration: 0.3, ease: 'easeOut' }}
-      className="fixed z-50 rounded-xl border-border border-[0.5px] bg-background p-4"
-      style={{
-        top: `${position.top}px`,
-        left: `${position.left}px`,
-        width: `${position.width}px`,
-      }}
+    <Dropdown
+      isOpen={isOpen}
+      onClose={onClose}
+      anchorEl={anchorEl}
+      title="Chat Settings"
+      mobileTitle="Chat Settings"
+      width="auto"
+      direction="up"
     >
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-xl font-bold text-textColor">Chat Settings</h1>
-        <button onClick={onClose} className="p-2 hover:bg-surface rounded-full">
-          <X className="w-5 h-5 text-textColor" />
-        </button>
-      </div>
-      {content}
-    </motion.div>
+      <EditRoomContent onClose={onClose} />
+    </Dropdown>
   );
 };

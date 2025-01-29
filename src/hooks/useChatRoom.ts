@@ -9,7 +9,7 @@ import { useRoomStore } from '../models/RoomState.ts';
 import useAppState from '../models/AppState.ts';
 import { usePrivy } from '@privy-io/react-auth';
 import { useNavigate } from 'react-router-dom';
-import useChatState from '../store/zustand/ChatState';
+import useChatState from '../models/ChatState.ts';
 
 export const useChat = () => {
   const {

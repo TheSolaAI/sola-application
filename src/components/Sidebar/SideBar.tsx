@@ -1,4 +1,4 @@
-import { ChevronLeft, Edit, Edit2, Menu } from 'react-feather';
+import { ChevronLeft, Edit, Edit2, Menu, Settings, User } from 'react-feather';
 import { useState, useEffect, useRef } from 'react';
 import useThemeManager from '../../models/ThemeManager.ts';
 import { useChat } from '../../hooks/useChatRoom.ts';
@@ -6,6 +6,7 @@ import { useRoomStore } from '../../models/RoomState.ts';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { AgentSelect } from './AgentSelect.tsx';
 import { EditRoom } from './EditRoom.tsx';
+import useUser from '../../hooks/useUser.ts';
 
 export const Sidebar = () => {
   const navigate = useNavigate();
@@ -22,8 +23,9 @@ export const Sidebar = () => {
    */
   const { theme } = useThemeManager();
   const { getRooms } = useChat();
-  const { rooms, currentRoomId } = useRoomStore();
+  const { rooms } = useRoomStore();
   const { pathname } = useLocation();
+  const { user } = useUser();
 
   /**
    * Local State
@@ -145,8 +147,7 @@ export const Sidebar = () => {
                     ref={(el) => el && (editButtonRefs.current[room.id] = el)}
                     onClick={(e) => handleEditClick(e, room.id)}
                     className={` transition-opacity duration-300 group-hover:opacity-100 
-                    ${pathname === `/c/${room.id}` || pathname.startsWith(`/c/${room.id}/`) ? 'lg:opacity-100' : 'lg:opacity-0'}
-                    lg:opacity-100`}
+                    ${pathname === `/c/${room.id}` || pathname.startsWith(`/c/${room.id}/`) ? 'lg:opacity-100' : 'lg:opacity-0'}`}
                   >
                     <Edit2 size={16} color={theme.textColor} />
                   </button>
@@ -163,6 +164,20 @@ export const Sidebar = () => {
               </div>
             );
           })}
+        </div>
+        {/* Tokens Left Status */}
+        <div className="flex flex-row justify-between gap-5 mt-auto bg-gradient-to-r from-primaryDark to-primary p-[10px] rounded-xl mb-6 items-center shadow-primaryDark shadow-[0px_0px_10px_3px]">
+          <h1 className="font-medium text-textColor">Sola AI Tokens:</h1>
+          <h1 className={'font-bold text-textColor text-3xl'}> 22</h1>
+        </div>
+        {/* Bottom Profile Opener */}
+        <div
+          className={
+            'flex flex-row items-center justify-start gap-5 hover:bg-background rounded-xl p-3 cursor-pointer -m-2'
+          }
+        >
+          <Settings size={24} color={theme.textColor} />
+          <h1 className="text-secText font-semibold">Settings</h1>
         </div>
       </div>
     </>
