@@ -1,7 +1,7 @@
 import axios from 'axios';
 import axiosRetry from 'axios-retry';
 
-const auth_service_url = process.env.AUTH_SERVICE_URL+"api/v1";
+const auth_service_url = process.env.AUTH_SERVICE_URL;
 const dbClient = axios.create({
   baseURL: auth_service_url,
   timeout: 10000,
