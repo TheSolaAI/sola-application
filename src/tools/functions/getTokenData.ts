@@ -1,5 +1,5 @@
 const functionDescription =
-  `Use this function to get the details or price of a token.`;
+  `Use this function to get the details or price of a token. NOTE: The user must specify the word Token`;
 
 export const getTokenData = {
   type: 'function',
