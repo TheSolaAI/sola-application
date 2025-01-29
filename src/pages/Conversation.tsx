@@ -431,7 +431,7 @@ const Conversation = () => {
         await handleAddMessage(messageCard(`Error creating limit order.`));
 
         return responseToOpenai(
-          'just tell the user that the order has been failed and ask them to try later after some time',
+          'tell the user that the order has been failed and ask them to try later after some time',
         );
       }
     
@@ -454,10 +454,10 @@ const Conversation = () => {
  catch (error) {
       console.error('Error creating limit order:', error);
       return responseToOpenai(
-        'just tell the user that the order has been failed and ask them to try later after some time',
+        'tell the user that the order has been failed and ask them to try later after some time',
       );
     }
-  };
+};
 
   //TODO: Handle the Message response
   const handleLaunchpadCollections = async () => {
