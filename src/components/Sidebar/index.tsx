@@ -10,13 +10,13 @@ import {
   CreditCard,
 } from 'react-feather';
 import useChatState from '../../store/zustand/ChatState';
-import useAppState from '../../store/zustand/AppState';
 import { Switch } from '@headlessui/react';
 import { ThemeType } from '../../types/app';
 import useUser from '../../hooks/useUser';
 import { useChat } from '../../hooks/useChatRoom';
 import { useRoomStore } from '../../store/zustand/RoomState';
 import { Plus } from 'react-feather';
+import useThemeManager from '../../store/zustand/ThemeManager';
 
 interface SidebarProps {
   sidebarOpen: boolean;
@@ -48,11 +48,11 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
   } = useChatState();
 
   const { updateSettings } = useUser();
-  const { theme } = useAppState();
+  const { theme } = useThemeManager();
   const { rooms } = useRoomStore();
 
   const toggleTheme = async () => {
-    const newTheme: ThemeType = theme === 'dark' ? 'light' : 'dark';
+    const newTheme: ThemeType = theme.name === 'dark' ? 'light' : 'dark';
     await updateSettings({ theme: newTheme });
   };
 
@@ -347,7 +347,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 >
                   App Theme{' '}
                   <Switch
-                    checked={theme === 'light' ? false : true}
+                    checked={theme.name === 'light' ? false : true}
                     onChange={toggleTheme}
                     className="group relative flex h-7 w-14 cursor-pointer rounded-full bg-bodydark2 p-1 transition-colors duration-200 ease-in-out focus:outline-none data-[focus]:outline-1 data-[focus]:outline-white data-[checked]:bg-purple-300"
                   >

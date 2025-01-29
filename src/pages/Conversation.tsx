@@ -90,16 +90,18 @@ const Conversation = () => {
       }
     }
 
+    const manageSession = async () => {
+      stopSession();
+      await startSession();
+    };
+  
+    manageSession();
     loadMessages();
   }, [id]);
 
   useEffect(() => {
     if (messageLoadingError) toast.error('Failed to load the chat data');
   }, [messageLoadingError]);
-
-  useEffect(() => {
-    setLocalDataChannel(dataChannel);
-  }, [dataChannel]);
 
   const { appWallet, aiEmotion, aiVoice, tier } = useAppState();
   const { theme } = useThemeManager();
@@ -122,16 +124,15 @@ const Conversation = () => {
       .map((line) => line.replace(/^-\s*/, ''));
 
     let marketAnalysis: MarketInfo[] = [];
-    console.log(marketInfo)
+    console.log(marketInfo);
     marketInfo.forEach((item) => {
       try {
-        
         const regex = /(.*)\[source\]\((.*)\)/i;
         const match = item.match(regex);
-    
+
         if (match) {
-          const text = match[1].trim(); 
-          const link = match[2].trim(); 
+          const text = match[1].trim();
+          const link = match[2].trim();
           marketAnalysis.push({
             text: text,
             link: link,
@@ -143,7 +144,6 @@ const Conversation = () => {
         console.error('Error processing item:', item, e);
       }
     });
-    
 
     let marketDataCard: MarketDataCard = {
       marketAnalysis: marketAnalysis,
@@ -448,7 +448,7 @@ const Conversation = () => {
     try {
       if (tokenMint.length < 44) {
         const data = await getTokenDataSymbol('$' + tokenMint);
-        console.log(data)
+        console.log(data);
         if (!data) {
           await handleAddMessage(
             messageCard(
@@ -982,6 +982,8 @@ const Conversation = () => {
 
   // WebRTC datachannel handling for message, open, close, error events.
   useEffect(() => {
+    setLocalDataChannel(dataChannel);
+
     if (dataChannel) {
       dataChannel.addEventListener('message', (e) => {
         setEvents((prev) => [JSON.parse(e.data), ...prev]);
@@ -1195,8 +1197,6 @@ const Conversation = () => {
         <section className="relative flex justify-center items-end w-full  bg-black dark:bg-darkalign animate-in fade-in-0 duration-300">
           <div className="absolute  w-full bottom-0 left-1/2 transform -translate-x-1/2 p-4 flex justify-center bg-white dark:bg-darkalign">
             <SessionControls
-              startSession={startSession}
-              stopSession={stopSession}
               sendTextMessage={sendTextMessage}
               isSessionActive={isSessionActive}
             />

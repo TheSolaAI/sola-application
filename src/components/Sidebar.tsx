@@ -10,7 +10,6 @@ import {
   CreditCard,
 } from 'react-feather';
 import useChatState from '../store/zustand/ChatState.ts';
-import useUser from '../hooks/useUser.ts';
 import { useChat } from '../hooks/useChatRoom.ts';
 import { useRoomStore } from '../store/zustand/RoomState.ts';
 import { Plus } from 'react-feather';
