@@ -17,6 +17,7 @@ import { transferSpl } from '../functions/transferSpl';
 import { walletActions } from '../functions/walletActions';
 import { withdrawLulo } from '../functions/withdrawLulo';
 import { limitOrder } from '../functions/limitOrder';
+import { getLimitOrders } from '../functions/getLimitOrder';
 
 export const freeTools = [
   walletActions,
@@ -37,7 +38,8 @@ export const freeTools = [
   depositLulo,
   withdrawLulo,
   getBlinks,
-  limitOrder
+  limitOrder,
+  getLimitOrders
 ];
 export const fullTools = [
   walletActions,
@@ -58,5 +60,6 @@ export const fullTools = [
   depositLulo,
   withdrawLulo,
   getBlinks,
-  limitOrder
+  limitOrder,
+  getLimitOrders
 ];

@@ -1,4 +1,4 @@
-import { LimitOrderParams, LimitOrderResponse } from '../../types/jupiter';
+import { LimitOrderParams, LimitOrderResponse, ShowLimitOrderParams, ShowLimitOrderResponse } from '../../types/jupiter';
 import axios from 'axios';
 
 
@@ -10,7 +10,7 @@ export async function limitOrderTx(
 
   try {
     const response = await axios.post<any>(
-      wallet_service_url+ "api/wallet/jup/limit-order",
+      wallet_service_url+ "api/wallet/jup/limit-order/create",
       params,
       {
         headers: {
@@ -22,6 +22,26 @@ export async function limitOrderTx(
     return resp
   } catch (error) {
     console.error('Error creating limit order:', error);
+    return null;
+  }
+}
+
+export async function getLimitOrders(
+  publicKey: string,
+): Promise<ShowLimitOrderResponse | null> {
+  try {
+    const response = await axios.get<any>(
+      wallet_service_url + 'api/wallet/jup/limit-order/show',
+      {
+        params: {
+          public_key: publicKey,
+        },
+      },
+    );
+    const resp:ShowLimitOrderResponse = response.data;
+    return resp;
+  } catch (error) {
+    console.error('Error fetching limit order:', error);
     return null;
   }
 }

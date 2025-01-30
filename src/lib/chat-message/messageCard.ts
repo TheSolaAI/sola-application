@@ -1,4 +1,5 @@
-import { MessageCard } from '../../types/messageCard';
+import { ShowLimitOrder } from '../../types/jupiter';
+import { MessageCard, ShowLimitOrderCard } from '../../types/messageCard';
 
 export const messageCard = (message: string): MessageCard => {
   return {
@@ -16,4 +17,14 @@ export const transactionCard = (signature : string): MessageCard => {
           link: `https://solscan.io/tx/${signature}`,
         },
       }
+}
+
+export const showLimitOrderCard = (orders: ShowLimitOrder[]): MessageCard => {
+  let card: ShowLimitOrderCard = {
+    orders: orders
+  }
+  return {
+      type: 'limitOrder',
+      card: card,
+    }
 }

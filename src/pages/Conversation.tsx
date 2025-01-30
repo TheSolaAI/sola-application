@@ -45,13 +45,13 @@ import { toast } from 'sonner';
 import useChatHandler from '../hooks/handleAddMessage';
 import { agentMessage } from '../lib/chat-message/agentMessage';
 import { customMessageCards } from '../lib/chat-message/customMessageCards';
-import { messageCard, transactionCard } from '../lib/chat-message/messageCard';
+import { messageCard, showLimitOrderCard, transactionCard } from '../lib/chat-message/messageCard';
 import { useFundWallet } from '@privy-io/react-auth/solana';
 import { useLuloActions } from '../hooks/useLuloActions';
 import PipLayout from '../components/PiP/PipLayout';
 import { getTopHolders } from '../lib/solana/topHolders';
 import useThemeManager from '../store/zustand/ThemeManager';
-import { limitOrderTx } from '../lib/solana/limitOrderTx';
+import { getLimitOrders, limitOrderTx } from '../lib/solana/limitOrderTx';
 
 const Conversation = () => {
   const {
@@ -457,8 +457,44 @@ const Conversation = () => {
         'tell the user that the order has been failed and ask them to try later after some time',
       );
     }
-};
-
+  };
+  
+  const handleGetLimitOrders = async () => {
+    if (!appWallet) return null;
+   
+    await handleAddMessage(
+      agentMessage(
+        `Agent is fetching limit orders`,
+      ),
+    );
+    
+    try {
+      const resp = await getLimitOrders(appWallet.address);
+      const limitOrders = resp?.orders;
+      if (!limitOrders) {
+        await handleAddMessage(messageCard(`Error fetching limit orders`))
+        return responseToOpenai(
+          'tell the user that the limit orders has been failed and ask them to try later after some time',
+        );
+      }
+      if (limitOrders.length === 0) {
+        await handleAddMessage(messageCard(`No limit orders found`));
+        return responseToOpenai(
+          'tell the user that they dont have any limit order',
+        );
+      }
+      await handleAddMessage(showLimitOrderCard(limitOrders));
+      return responseToOpenai(
+        'tell the user that limit orders have been fetched',
+      );
+    }
+    catch (error) {
+      console.error('Error fetching limit orders:', error);
+      return responseToOpenai(
+        'tell the user that the limit orders has been failed and ask them to try later after some time',
+      );
+    }
+  }
   //TODO: Handle the Message response
   const handleLaunchpadCollections = async () => {
     const message: MessageCard = {
@@ -1199,12 +1235,16 @@ const Conversation = () => {
               let response = await handleTopHolders(tokenInput);
               sendClientEvent(response);
             }
-              else if (output.name === 'limitOrder') {
+            else if (output.name === 'limitOrder') {
               const { token, amount, limitPrice, action } = JSON.parse(output.arguments);
               
-                let response = await handleLimitOrder(amount, token, action, limitPrice);
-                sendClientEvent(response);
-              }
+              let response = await handleLimitOrder(amount, token, action, limitPrice);
+              sendClientEvent(response);
+            }
+            else if (output.name === 'getLimitOrders') { 
+              let response = await handleGetLimitOrders();
+              sendClientEvent(response);
+            }
           }
         }
       }
