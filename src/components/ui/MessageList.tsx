@@ -538,11 +538,11 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
           case 'limitOrder':
             const showLimitOrderCard = item.card as ShowLimitOrderCard;
               return (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-4 my-4 dark:bg-darkalign2 dark:text-bodydark2">
+                <div className="grid grid-cols-1 w-full sm:grid-cols-2 md:grid-cols-2 gap-4 my-4 rounded-xl dark:bg-darkalign2 dark:text-bodydark2">
                   {showLimitOrderCard.orders.map((order, index) => (
                     <div
                       key={order.order_id}
-                      className="group relative w-full overflow-hidden block rounded-xl bg-[#F5F5F5] border p-3"
+                      className="group relative w-full overflow-hidden block  p-4"
                     >
                       <div className="flex items-center gap-3">
                         <div>

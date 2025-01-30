@@ -427,6 +427,7 @@ const Conversation = () => {
     try {
       const resp = await limitOrderTx(params);
       const transaction = resp?.tx;
+      console.log("asdl;kfals;kfd", transaction)
       if (!transaction) {
         await handleAddMessage(messageCard(`Error creating limit order.`));
 
