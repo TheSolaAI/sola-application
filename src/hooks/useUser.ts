@@ -40,7 +40,6 @@ const useUser = () => {
       try {
         const settings = await getUserSettings(accessToken);
         if (settings) {
-          setTheme(settings.theme ?? 'light');
           setAiVoice(settings.voice_preference || 'sage');
           setAiEmotion(
             settings.emotion_choice || 'playfully cheeky and very sarcastic',
