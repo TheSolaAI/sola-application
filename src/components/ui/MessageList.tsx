@@ -15,6 +15,7 @@ import {
   MarketDataCard,
   BubblemapCard,
   TopHolder,
+  ShowLimitOrderCard,
 } from '../../types/messageCard';
 import {
   Dialog,
@@ -534,6 +535,44 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                 </div>
               </div>
             );
+          case 'limitOrder':
+            const showLimitOrderCard = item.card as ShowLimitOrderCard;
+              return (
+                <div className="grid grid-cols-1 w-full sm:grid-cols-2 md:grid-cols-2 gap-4 my-4 rounded-xl dark:bg-darkalign2 dark:text-bodydark2">
+                  {showLimitOrderCard.orders.map((order, index) => (
+                    <div
+                      key={order.order_id}
+                      className="group relative w-full overflow-hidden block  p-4"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div>
+                          <h3 className="truncate text-sm font-medium">
+                            Order ID: {order.order_id}
+                          </h3>
+                          <p className="mt-1 text-xs font-medium">
+                            Created At: {new Date(order.created_at).toLocaleString()}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="mt-2">
+                        <p className="text-xs text-gray-500">
+                          Input Amount: {parseFloat(order.input_amount).toFixed(2)}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          Input Mint: {order.input_mint.substring(0, 3)}...{order.input_mint.slice(-3)}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          Output Amount: {parseFloat(order.output_amount).toFixed(2)}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          Output Mint: {order.output_mint.substring(0, 3)}...{order.output_mint.slice(-3)}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              );
+
 
           case 'sanctumCard':
             const sanctumCards = item.card as SanctumCard[];

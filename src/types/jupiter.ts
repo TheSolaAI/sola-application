@@ -25,3 +25,20 @@ export type LimitOrderResponse = {
   order: string;
   tx: string;
 };
+
+export type ShowLimitOrderResponse = {
+  orders: ShowLimitOrder[];
+}
+
+export interface ShowLimitOrder { 
+  created_at: string;
+  input_amount: string;
+  input_mint: string;
+  order_id: string;
+  output_amount: string;
+  output_mint: string;
+}
+
+export type ShowLimitOrderParams = {
+  public_key: string;
+};

@@ -1,33 +1,32 @@
 const functionDescription =
-  'Call this function when the user wants to create a limit order. The user will tell to buy or sell a token at a specific price.';
+  'Creates a limit order to buy or sell a token at a specified price.';
+
 export const limitOrder = {
-    type: 'function',
-    name: 'limitOrder',
-    description: functionDescription,
-    parameters: {
-        type: 'object',
-        strict: true,
-        properties: {
-            action: {
-                type: 'string',
-                enum: ['BUY,SELL'],
-                description:
-                    'The action to be done, buy or sell.',
-            },
-            amount: {
-                type: 'number',
-                description:
-                    'The token amount specified by the user',
-            },
-            token: {
-                type: 'string',
-                description: 'The token that the user wants to buy or sell.',
-            },
-            limitPrice:{ 
-                type: 'number',
-                description: 'The limit price specified by the user',
-            }
+  type: 'function',
+  name: 'limitOrder',
+  description: functionDescription,
+  parameters: {
+    type: 'object',
+    strict: true,
+    properties: {
+      action: {
+        type: 'string',
+        enum: ['BUY', 'SELL'],
+        description: 'Order action: either "BUY" or "SELL".',
+      },
+      amount: {
+        type: 'number',
+        description: 'The amount of token that the user wants to buy or sell',
+      },
+      token: {
+        type: 'string',
+        description: 'The token that the user wants to buy or sell',
+      },
+      limitPrice: {
+        type: 'number',
+        description: 'The limit price specified by the user in usd or dollars',
+      },
     },
-    required: ['action', 'amount', 'token','limitPrice'], 
+    required: ['action', 'amount', 'token', 'limitPrice'],
   },
 };
