@@ -1,6 +1,6 @@
 /**
  * Handles the application's routing.
- * 
+ *
  * - Unauthorized users are redirected to the Onboarding page.
  * - Authorized users have access to routes within the MasterLayout.
  */
