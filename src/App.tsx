@@ -4,7 +4,7 @@ import { useSolanaWallets } from '@privy-io/react-auth/solana';
 import useAppState from './store/zustand/AppState';
 import useUser from './hooks/useUser';
 import useThemeManager from './store/zustand/ThemeManager.ts';
-import AppRoutes from './routes/appRoutes.tsx';
+import AppRoutes from './routes/AppRoutes.tsx';
 // import { tokenGate } from './lib/solana/tokenGate';
 
 function App() {
