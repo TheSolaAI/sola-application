@@ -34,7 +34,7 @@ export async function getLimitOrders(
       wallet_service_url + 'api/wallet/jup/limit-order/show',
       {
         params: {
-          public_key: publicKey,
+          address: publicKey,
         },
       },
     );
