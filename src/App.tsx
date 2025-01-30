@@ -42,23 +42,26 @@ function App() {
     console.log(await fetchSettings());
   }, [authenticated, ready, user]);
 
-  const initializeApp =  useCallback(async () => {
+  /**
+   * Callback function that handles createing embedded wallet and update user settings on user login
+   */
+  const initializeApp = useCallback(async () => {
     if (authenticated && ready) {
       const jwt = await getAccessToken();
-      console.log(jwt)
+      console.log(jwt);
       if (!jwt) {
         throw new Error('Failed to fetch access token.');
       }
       setAccessToken(jwt);
       await initializeWallet();
-      //TODO: get tire status here
+      //TODO: get user tire status here
       await updateUserSettings();
 
       if (wallets.length > 0) {
         setWallet(wallets[0]);
       }
     }
-  }, [authenticated, ready])
+  }, [authenticated, ready]);
 
   /**
    * Master UseEffect Run at app starts. Sets up app theme
