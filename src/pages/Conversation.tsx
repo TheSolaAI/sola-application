@@ -73,8 +73,14 @@ const Conversation = () => {
   const { assets } = useWalletStore();
   const { id } = useParams<{ id: string }>();
   const { getRoomMessages, loading, error, messageLoadingError } = useChat();
-  const { setCurrentRoomId, messageList, setMessageList, currentRoomId } =
-    useRoomStore();
+  const {
+    setCurrentRoomId,
+    messageList,
+    setMessageList,
+    isCreatingRoom,
+    setIsCreatingRoom,
+    currentRoomId
+  } = useRoomStore();
   const { handleAddMessage, handleAddAiTranscript } = useChatHandler();
   const { fundWallet } = useFundWallet();
   const { handleDepositLulo, handleUserAssetsLulo, handleWithdrawLulo } =
@@ -87,12 +93,9 @@ const Conversation = () => {
 
   useEffect(() => {
     async function loadMessages() {
-      console.log('page id', id);
       if (id) {
         setMessageList(() => []);
         await getRoomMessages(id);
-      } else {
-        setCurrentRoomId(null);
       }
     }
 
@@ -101,12 +104,13 @@ const Conversation = () => {
       await startSession();
     };
 
-    manageSession();
+    loadMessages();
 
-    if (id) {
-      loadMessages();  
+    if (!isCreatingRoom) {
+      manageSession();
     }
 
+    setIsCreatingRoom(false);
     setCurrentRoomId(id || null);
   }, [id]);
 
