@@ -37,8 +37,8 @@ export type DepositResponse = {
 };
 
 export type WithdrawParams = {
-  owner: String;
-  mintAddress: String;
+  owner: string;
+  mintAddress: string;
   withdrawAmount: number;
   withdrawAll: boolean;
 };

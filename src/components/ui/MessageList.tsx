@@ -402,6 +402,7 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                     }
                     target="_blank"
                     className="flex gap-4"
+                    rel="noreferrer"
                   >
                     <img
                       src={nftCollectionCard.image || '/placeholder.png'}
@@ -538,6 +539,7 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                         className="bg-gray-200 dark:bg-darkalign1 text-gray-800 dark:text-bodydark p-2 rounded-md text-sm font-medium"
                         href={analysis.link}
                         target="_blank"
+                        rel="noreferrer"
                       >
                         {analysis.text}
                       </a>

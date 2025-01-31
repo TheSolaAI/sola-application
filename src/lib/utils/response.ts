@@ -1,4 +1,4 @@
-export const responseToOpenai = (message: String) => {
+export const responseToOpenai = (message: string) => {
   let msg = {
     type: 'response.create',
     response: {
