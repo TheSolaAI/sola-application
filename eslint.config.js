@@ -14,6 +14,12 @@ export default [
     languageOptions: {
       parser: tsParser,
       sourceType: 'module',
+      globals: {
+        console: 'readonly', // `console` is a global and can't be re-assigned
+        window: 'readonly', // `window` is available in the browser
+        document: 'readonly', // `document` is available in the browser
+        navigator: 'readonly', // `navigator` is available in the browser
+      },
     },
     plugins: {
       '@typescript-eslint': tsPlugin,
@@ -26,14 +32,16 @@ export default [
       ...reactPlugin.configs.recommended.rules,
       ...reactHooksPlugin.configs.recommended.rules,
       'prettier/prettier': 'error',
-      'no-console': 'warn',
+      'no-console': 'off',
       'no-debugger': 'error',
+      'no-undef': 'error',
       '@typescript-eslint/no-unused-vars': [
         'warn',
         { argsIgnorePattern: '^_' },
       ],
       'react/prop-types': 'off',
       'react/react-in-jsx-scope': 'off',
+      'react-hooks/exhaustive-deps': 'warn',
     },
     settings: {
       react: {
