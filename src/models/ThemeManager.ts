@@ -42,7 +42,7 @@ const ThemeManager: StateCreator<ThemeStore> = (set, get) => {
       let savedTheme = 'system';
 
       try {
-        savedTheme = localStorage.getItem('theme') || 'system';
+        savedTheme = localStorage.getItem('theme') || 'light';
       } catch (error) {
         console.warn('LocalStorage not accessible, using default theme.');
       }
