@@ -5,9 +5,11 @@ interface Theme {
   name: string;
   baseTheme: 'light' | 'dark';
   background: `#${string}`;
+  backgroundContrast: `#${string}`;
   sec_background: `#${string}`;
   surface: `#${string}`;
   textColor: `#${string}`;
+  textColorContrast: `#${string}`;
   secText: `#${string}`;
   border: `#${string}`;
   primary: `#${string}`;
