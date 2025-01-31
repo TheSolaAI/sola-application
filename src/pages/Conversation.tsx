@@ -1119,6 +1119,10 @@ const Conversation = () => {
       }
 
       const mostRecentEvent = events[0];
+      if(mostRecentEvent.type === 'response.audio_transcript.done'){
+        handleAddMessage(messageCard(`${mostRecentEvent.transcript}`))
+      }
+      
       if (
         mostRecentEvent.type === 'response.done' &&
         mostRecentEvent.response.output
