@@ -11,7 +11,7 @@ export const swapTokens = {
     properties: {
       swapType: {
         type: 'string',
-        enum: ['EXACT_IN', 'EXACT_OUT', 'EXACT_DOLLAR'], 
+        enum: ['EXACT_IN', 'EXACT_OUT', 'EXACT_DOLLAR'],
         description:
           'The type of swap: EXACT_IN specifies the number of token a to be swapped, EXACT_OUT specifies the number of token b to be received, and EXACT_DOLLAR specifies the dollar amount to be swapped.',
       },

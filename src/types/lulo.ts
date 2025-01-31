@@ -1,51 +1,48 @@
 export interface TokenBalance {
-    balance: number;
-    mint: string;
-    usdValue: number;
+  balance: number;
+  mint: string;
+  usdValue: number;
 }
 
 export interface DepositTransaction {
-    protocol: string;
-    totalDeposit: number;
-    transaction: string;
+  protocol: string;
+  totalDeposit: number;
+  transaction: string;
 }
 
 export interface WithdrawTransaction {
-    protocol: string;
-    transaction: string;
+  protocol: string;
+  transaction: string;
 }
 
 export type AssetsParams = {
-    owner: string;
-
+  owner: string;
 };
 
 export type AssetsResponse = {
-    depositValue: number;
-    interestEarned: number;
-    tokenBalance: TokenBalance[];
-    totalValue: number
-}
+  depositValue: number;
+  interestEarned: number;
+  tokenBalance: TokenBalance[];
+  totalValue: number;
+};
 
 export type DepositParams = {
-    owner: string;
-    depositAmount: number;
-    mintAddress: string;
+  owner: string;
+  depositAmount: number;
+  mintAddress: string;
 };
 
 export type DepositResponse = {
-    transactions: DepositTransaction[][]
+  transactions: DepositTransaction[][];
 };
 
 export type WithdrawParams = {
-    owner: String,
-    mintAddress: String,
-    withdrawAmount: number,
-    withdrawAll: boolean,
+  owner: String;
+  mintAddress: String;
+  withdrawAmount: number;
+  withdrawAll: boolean;
 };
 
 export type WithdrawResponse = {
-    transactions: WithdrawTransaction[][]
+  transactions: WithdrawTransaction[][];
 };
-
-

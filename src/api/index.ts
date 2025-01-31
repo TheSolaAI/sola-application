@@ -11,13 +11,17 @@ const dbClient = axios.create({
 });
 
 axiosRetry(dbClient, {
-  retries: 3, 
+  retries: 3,
   retryDelay: (retryCount) => {
     console.log(`Retrying request... Attempt ${retryCount}`);
     return retryCount * 1000;
   },
   retryCondition: (error) => {
-    return error.code === 'ECONNABORTED' || axiosRetry.isNetworkError(error) || axiosRetry.isRetryableError(error);
+    return (
+      error.code === 'ECONNABORTED' ||
+      axiosRetry.isNetworkError(error) ||
+      axiosRetry.isRetryableError(error)
+    );
   },
 });
 

@@ -13,6 +13,4 @@ export const getLstData = {
 };
 
 //TODO: Shift the trigger logic here from conversation.tsx
-export function getLstDataFunction() {
-  
-}
+export function getLstDataFunction() {}

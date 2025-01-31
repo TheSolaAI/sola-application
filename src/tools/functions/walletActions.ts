@@ -1,5 +1,5 @@
 const functionDescription =
-  "call this function when the user wants to check his wallet balance or want to Fund their wallet";
+  'call this function when the user wants to check his wallet balance or want to Fund their wallet';
 
 export const walletActions = {
   type: 'function',

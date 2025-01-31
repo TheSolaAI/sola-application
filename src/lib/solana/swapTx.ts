@@ -15,7 +15,7 @@ export async function swapTx(
   // console.log('wallet_service_url', wallet_service_url);
   try {
     const response = await axios.post<any>(
-      wallet_service_url+ "api/wallet/jup/swap",
+      wallet_service_url + 'api/wallet/jup/swap',
       params,
       {
         headers: {

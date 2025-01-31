@@ -10,8 +10,7 @@ export const getBubblemap = {
     properties: {
       token: {
         type: 'string',
-        description:
-          'This is the token address or symbol.',
+        description: 'This is the token address or symbol.',
       },
     },
     required: ['token'],

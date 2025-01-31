@@ -1,4 +1,4 @@
-import { create } from "zustand";
+import { create } from 'zustand';
 
 interface PipState {
   isSupported: boolean;
@@ -9,7 +9,7 @@ interface PipState {
 }
 
 export const usePipStore = create<PipState>((set, get) => ({
-  isSupported: "documentPictureInPicture" in window,
+  isSupported: 'documentPictureInPicture' in window,
   pipWindow: null,
   setPipWindow: (pipWindow) => set({ pipWindow }),
 
@@ -25,13 +25,13 @@ export const usePipStore = create<PipState>((set, get) => ({
         height,
       });
 
-      pip.addEventListener("pagehide", () => {
+      pip.addEventListener('pagehide', () => {
         get().setPipWindow(null);
       });
 
       set({ pipWindow: pip });
     } catch (error) {
-      console.error("Failed to request PiP window:", error);
+      console.error('Failed to request PiP window:', error);
     }
   },
 

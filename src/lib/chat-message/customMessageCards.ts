@@ -6,4 +6,3 @@ export const customMessageCards = (type: any, card: any): MessageCard => {
     card: card,
   };
 };
-

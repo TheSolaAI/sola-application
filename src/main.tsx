@@ -57,7 +57,9 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
               },
             },
           }}
-        > <Toaster position='top-right' richColors/>
+        >
+          {' '}
+          <Toaster position="top-right" richColors />
           <App />
         </PrivyProvider>
       )}

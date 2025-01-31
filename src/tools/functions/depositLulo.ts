@@ -23,7 +23,5 @@ export const depositLulo = {
   },
 };
 
-
-
 //TODO: Shift the trigger logic here from conversation.tsx
 export function depositLuloFunction() {}
