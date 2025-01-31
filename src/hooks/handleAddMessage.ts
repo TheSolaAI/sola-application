@@ -63,19 +63,16 @@ const useChatHandler = () => {
 
         if (!currentRoomId && roomDetails) {
           if (!isCreatingRoom) {
-            setIsCreatingRoom(true);
 
-            console.log('roomID', roomId, 'roomdetails', roomDetails);
             const roomResponse = await createChatRoom(roomDetails);
 
             if (!roomResponse) {
               console.error('Failed to create room.');
-              setIsCreatingRoom(false);
               return;
             }
 
             roomId = roomResponse.id;
-            setIsCreatingRoom(false);
+            setIsCreatingRoom(true);
             navigate(`/c/${roomId}`);
           }
         }
@@ -86,7 +83,6 @@ const useChatHandler = () => {
         }
       } catch (error) {
         console.error('Error in handleAddMessage:', error);
-        setIsCreatingRoom(false);
       }
     },
     [
@@ -112,19 +108,17 @@ const useChatHandler = () => {
 
         if (!currentRoomId && roomDetails) {
           if (!isCreatingRoom) {
-            setIsCreatingRoom(true);
 
             console.log('roomID', roomId, 'roomdetails', roomDetails);
             const roomResponse = await createChatRoom(roomDetails);
 
             if (!roomResponse) {
               console.error('Failed to create room.');
-              setIsCreatingRoom(false);
               return;
             }
 
             roomId = roomResponse.id;
-            setIsCreatingRoom(false);
+            setIsCreatingRoom(true);
             navigate(`/c/${roomId}`);
           }
         }
@@ -135,7 +129,6 @@ const useChatHandler = () => {
         }
       } catch (error) {
         console.error('Error in handleAddMessage:', error);
-        setIsCreatingRoom(false);
       }
     },
     [
