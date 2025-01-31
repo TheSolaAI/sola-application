@@ -17,7 +17,7 @@ function Onboarding() {
         <div className={'flex flex-row items-center gap-x-6'}>
           <img src="/logo.png" className={`h-11 w-11 rounded-xl`} />
           <a href="/" className="text-xl font-semibold text-textColor">
-            Solana AI
+            Sola AI
           </a>
         </div>
 
@@ -41,7 +41,7 @@ function Onboarding() {
       <div className="max-w-4xl  px-6 sm:px-8 py-12">
         <div className="text-center sm:text-left space-y-6">
           <h2 className="text-3xl sm:text-4xl font-semibold text-textColor">
-            Welcome to Solana AI. Voice assistant on Solana.
+            Welcome to Sola AI. Voice assistant on Solana.
           </h2>
           <p className="text-lg text-secText text-center">
             Redefine your on-chain experience through voice commands.
@@ -53,7 +53,7 @@ function Onboarding() {
               disabled={disableLogin}
               type="secondary"
             >
-              Login to Solana AI
+              Login to Sola AI
             </AwesomeButton>
             <a
               href="https://docs.solaai.xyz/"
