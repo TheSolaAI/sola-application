@@ -1,18 +1,18 @@
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { LiveAudioVisualizer } from 'react-audio-visualize';
 import { Connection, PublicKey, VersionedTransaction } from '@solana/web3.js';
 import { transferSolTx } from '../lib/solana/transferSol';
 import {
-  MessageCard,
-  TokenCard,
-  SanctumCard,
-  NFTCollectionCard,
-  TrendingNFTCard,
-  RugCheckCard,
+  AiTranscription,
   MarketDataCard,
   MarketInfo,
+  MessageCard,
+  NFTCollectionCard,
+  RugCheckCard,
+  SanctumCard,
+  TokenCard,
   TopHolder,
-  AiTranscription,
+  TrendingNFTCard,
 } from '../types/messageCard';
 import { LimitOrderParams, SwapParams } from '../types/jupiter';
 import { swapTx } from '../lib/solana/swapTx';
@@ -20,19 +20,18 @@ import { createToolsConfig } from '../tools/tools';
 import { SessionControls } from '../components/SessionControls';
 import WalletUi from '../components/wallet/WalletUi';
 import MessageList from '../components/ui/MessageList';
-import { tokenList } from '../store/tokens/tokenMapping';
+import { tokenList } from '../config/tokens/tokenMapping';
 import {
   fetchMagicEdenLaunchpadCollections,
   fetchMagicEdenNFTPrice,
   fetchTrendingNFTs,
 } from '../lib/solana/magiceden';
-import useAppState from '../store/zustand/AppState';
-import useChatState from '../store/zustand/ChatState';
+import useAppState from '../models/AppState.ts';
+import useChatState from '../models/ChatState.ts';
 import { getTokenData, getTokenDataSymbol } from '../lib/solana/token_data';
 import { getLstData } from '../lib/solana/lst_data';
 import { responseToOpenai } from '../lib/utils/response';
-import { useWalletStore } from '../store/zustand/WalletState';
-import Loader from '../common/Loader/index';
+import { useWalletStore } from '../models/WalletState.ts';
 import { getPublicKeyFromSolDomain } from '../lib/solana/sns';
 import { swapLST } from '../lib/solana/swapLst';
 import { fetchLSTAddress } from '../lib/utils/lst_reader';
@@ -41,7 +40,7 @@ import { getRugCheck } from '../lib/solana/rugCheck';
 import { getMarketData } from '../lib/utils/marketMacro';
 import { useParams } from 'react-router-dom';
 import { useChat } from '../hooks/useChatRoom';
-import { useRoomStore } from '../store/zustand/RoomState';
+import { useRoomStore } from '../models/RoomState.ts';
 import { toast } from 'sonner';
 import useChatHandler from '../hooks/handleAddMessage';
 import { agentMessage } from '../lib/chat-message/agentMessage';
@@ -55,8 +54,9 @@ import { useFundWallet } from '@privy-io/react-auth/solana';
 import { useLuloActions } from '../hooks/useLuloActions';
 import PipLayout from '../components/PiP/PipLayout';
 import { getTopHolders } from '../lib/solana/topHolders';
-import useThemeManager from '../store/zustand/ThemeManager';
 import { getLimitOrders, limitOrderTx } from '../lib/solana/limitOrderTx';
+import useThemeManager from '../models/ThemeManager.ts';
+import Loader from '../components/general/Loader.tsx';
 
 const Conversation = () => {
   const {
@@ -1310,12 +1310,12 @@ const Conversation = () => {
 
   return isLoaded ? (
     messageLoadingError ? (
-      <div className="text-center h-screen dark:bg-darkalign">
+      <div className="text-center h-screen ">
         Oops! The requested chat doesn't exists.
       </div>
     ) : (
       <>
-        <main className="h-screen flex flex-col relative dark:bg-darkalign">
+        <main className="h-screen flex flex-col relative ">
           {/* Start of wallet */}
           <section className="absolute flex justify-between w-full p-4 animate-in fade-in-0 duration-300">
             <PipLayout
@@ -1360,7 +1360,7 @@ const Conversation = () => {
           {/* End of Session Controls Section */}
         </main>
         <section className="relative flex justify-center items-end w-full  bg-black dark:bg-darkalign animate-in fade-in-0 duration-300">
-          <div className="absolute  w-full bottom-0 left-1/2 transform -translate-x-1/2 p-4 flex justify-center bg-white dark:bg-darkalign">
+          <div className="absolute  w-full bottom-0 left-1/2 transform -translate-x-1/2 p-4 flex justify-center">
             <SessionControls
               sendTextMessage={sendTextMessage}
               isSessionActive={isSessionActive}

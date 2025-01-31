@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useSolanaWallets } from '@privy-io/react-auth';
-import useAppState from '../store/zustand/AppState';
+import useAppState from '../models/AppState.ts';
 import { Switch } from '@headlessui/react';
 
 function WalletManagement() {
@@ -21,11 +21,15 @@ function WalletManagement() {
 
   return (
     <div className="bg-white h-screen p-4 dark:bg-darkalign animate-in fade-in-0 duration-300">
-      <div className='bg-graydark rounded-lg p-4 dark:bg-darkalign2'>
-        <h1 className="font-bold text-xl dark:text-purple-300">WALLET MANAGEMENT :</h1>
+      <div className="bg-graydark rounded-lg p-4 dark:bg-darkalign2">
+        <h1 className="font-bold text-xl dark:text-purple-300">
+          WALLET MANAGEMENT :
+        </h1>
         <div className="flex flex-col gap-4 p-4 m-4 ">
           <div>
-            <span className="text-boxdark font-medium dark:text-bodydark2">Switch Wallet : </span>
+            <span className="text-boxdark font-medium dark:text-bodydark2">
+              Switch Wallet :{' '}
+            </span>
             <div className="relative inline-block text-left">
               <div>
                 <button

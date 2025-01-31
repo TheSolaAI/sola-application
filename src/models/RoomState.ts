@@ -2,10 +2,10 @@ import { create } from 'zustand';
 import {
   ChatMessagesResponse,
   ChatRoom,
-} from '../../types/database/responseTypes';
-import { MessageCard } from '../../types/messageCard';
+} from '../types/database/responseTypes.ts';
+import { MessageCard } from '../types/messageCard.ts';
 
-interface RoomState {
+export interface RoomState {
   rooms: ChatRoom[];
   currentRoomId: string | null;
   currentRoomChat: ChatMessagesResponse | null;
@@ -21,6 +21,8 @@ interface RoomState {
   ) => void;
   setIsCreatingRoom: (isCreatingRoom: boolean) => void;
 }
+
+// TODO: Add Agent id used to create the room here
 
 export const useRoomStore = create<RoomState>((set) => ({
   rooms: [],

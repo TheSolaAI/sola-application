@@ -1,6 +1,6 @@
 import React, { useState, ReactNode } from 'react';
 import Sidebar from '../components/Sidebar/index';
-import useAppState from '../store/zustand/AppState';
+import useAppState from '../models/AppState.ts';
 import Disclaimer from '../components/ui/Disclaimer';
 
 const DefaultLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
@@ -8,7 +8,6 @@ const DefaultLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { disclaimer, setDisclaimer } = useAppState();
   return (
     <>
-    
       <div className="dark:bg-boxdark-2 dark:text-bodydark">
         {/* <!-- ===== Page Wrapper Start ===== --> */}
         <Disclaimer isOpen={disclaimer} setIsOpen={setDisclaimer} />
@@ -21,9 +20,7 @@ const DefaultLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
           <div className="relative flex flex-1 flex-col overflow-y-auto overflow-x-hidden">
             {/* <!-- ===== Main Content Start ===== --> */}
             <main>
-              <div className="mx-auto max-w-screen-2xl ">
-                {children}
-              </div>
+              <div className="mx-auto max-w-screen-2xl ">{children}</div>
             </main>
             {/* <!-- ===== Main Content End ===== --> */}
           </div>

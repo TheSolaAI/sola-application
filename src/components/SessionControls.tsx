@@ -1,6 +1,6 @@
 import React, { useState, ChangeEvent, KeyboardEvent } from 'react';
 import { Mic, Send, MicOff } from 'react-feather';
-import useChatState from '../store/zustand/ChatState';
+import useChatState from '../models/ChatState.ts';
 import { Button } from '@headlessui/react';
 
 const quotes = [

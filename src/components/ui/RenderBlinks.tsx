@@ -1,36 +1,39 @@
 import '@dialectlabs/blinks/index.css';
 
 import {
-    Blink,
-    useAction,
-    useActionsRegistryInterval,
-  } from '@dialectlabs/blinks';
-  import { useActionSolanaWalletAdapter } from '../../hooks/useActionSolanaWalletAdapter';
-  import { BLINKGAMES } from '../../store/blinks/games'; 
-  interface RenderBlinksProps {
-    actionName: string;
-  }
-  function RenderBlinks({ actionName }: RenderBlinksProps) {
-    useActionsRegistryInterval();
+  Blink,
+  useAction,
+  useActionsRegistryInterval,
+} from '@dialectlabs/blinks';
+import { useActionSolanaWalletAdapter } from '../../hooks/useActionSolanaWalletAdapter';
+import { BLINKGAMES } from '../../config/blinks/games';
+interface RenderBlinksProps {
+  actionName: string;
+}
+function RenderBlinks({ actionName }: RenderBlinksProps) {
+  useActionsRegistryInterval();
 
-    if (!(actionName in BLINKGAMES)) {
-      return <div>Invalid action name</div>;
-    }
-    
-    const rpc = process.env.SOLANA_RPC || 'https://api.mainnet-beta.solana.com';
-    const { adapter } = useActionSolanaWalletAdapter(rpc);
-    const { action, isLoading } = useAction({
-      url: `solana-action:${BLINKGAMES[actionName as keyof typeof BLINKGAMES]}`,
-    });
-    return (
-      <>
-        {!isLoading && action ? (
-          <div className='w-3/5'><Blink action={action} adapter={adapter} /></div>
-          
-        ) : (
-          <div className='text-gray-700 text-sm dark:text-graydark'>Loading blinks</div>
-        )}
-      </>
-    );
+  if (!(actionName in BLINKGAMES)) {
+    return <div>Invalid action name</div>;
   }
-  export default RenderBlinks;
+
+  const rpc = process.env.SOLANA_RPC || 'https://api.mainnet-beta.solana.com';
+  const { adapter } = useActionSolanaWalletAdapter(rpc);
+  const { action, isLoading } = useAction({
+    url: `solana-action:${BLINKGAMES[actionName as keyof typeof BLINKGAMES]}`,
+  });
+  return (
+    <>
+      {!isLoading && action ? (
+        <div className="w-3/5">
+          <Blink action={action} adapter={adapter} />
+        </div>
+      ) : (
+        <div className="text-gray-700 text-sm dark:text-graydark">
+          Loading blinks
+        </div>
+      )}
+    </>
+  );
+}
+export default RenderBlinks;

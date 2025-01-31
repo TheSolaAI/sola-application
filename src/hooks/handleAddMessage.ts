@@ -1,8 +1,8 @@
 import { useCallback } from 'react';
-import { useRoomStore } from '../store/zustand/RoomState';
+import { useRoomStore } from '../models/RoomState.ts';
 import { CreateRoom } from '../types/database/requstTypes';
 import { MessageCard } from '../types/messageCard';
-import useAppState from '../store/zustand/AppState';
+import useAppState from '../models/AppState.ts';
 import { createRoom, sendRoomMessage } from '../api/chatService';
 import { useNavigate } from 'react-router-dom';
 

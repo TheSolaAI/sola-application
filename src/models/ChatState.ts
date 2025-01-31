@@ -1,5 +1,5 @@
 import { create, StateCreator } from 'zustand';
-import { MessageCard } from '../../types/messageCard';
+import { MessageCard } from '../types/messageCard.ts';
 
 interface ChatState {
   roomId: number | null;

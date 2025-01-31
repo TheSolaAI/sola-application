@@ -27,11 +27,11 @@ import {
   TransitionChild,
 } from '@headlessui/react';
 import { Copy, ExternalLink, X } from 'react-feather';
-import useAppState from '../../store/zustand/AppState';
+import useAppState from '../../models/AppState.ts';
 import axios from 'axios';
 import { Connection, VersionedTransaction } from '@solana/web3.js';
-import { tokenList } from '../../store/tokens/tokenMapping';
-import { SwapParams } from '../../types/jupiter';
+import { tokenList } from '../../config/tokens/tokenMapping';
+import { SwapParams } from '../../types/swap';
 import { responseToOpenai } from '../../lib/utils/response';
 import { ConnectedSolanaWallet } from '@privy-io/react-auth';
 import RenderBlinks from './RenderBlinks';
