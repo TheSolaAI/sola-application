@@ -84,9 +84,6 @@ const Conversation = () => {
   const audioElement = useRef<HTMLAudioElement | null>(null);
   const [isLoaded, setIsLoaded] = useState<boolean>(true);
   const [localDataChannel, setLocalDataChannel] = useState(dataChannel);
-  const [aiTranscription, setAiTranscription] = useState('');
-
-  const isFirstLoad = useRef(true);
 
   useEffect(() => {
     async function loadMessages() {
@@ -106,15 +103,11 @@ const Conversation = () => {
 
     manageSession();
 
-    if (id && currentRoomId !== null) {
-      loadMessages();
+    if (id) {
+      loadMessages();  
     }
 
     setCurrentRoomId(id || null);
-
-    if (isFirstLoad.current && id) {
-      isFirstLoad.current = false;
-    }
   }, [id]);
 
   useEffect(() => {
