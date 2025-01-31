@@ -569,7 +569,19 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                     <div className="mt-2">
                       <p className="text-xs text-gray-500">
                         Input Amount:{' '}
-                        {parseFloat(order.input_amount).toFixed(2)}
+                        {(
+                          parseFloat(order.input_amount) /
+                          Math.pow(
+                            10,
+                            Object.entries(tokenList).find(
+                              ([_, v]) => v.MINT === order.input_mint,
+                            )![1].DECIMALS,
+                          )
+                        ).toFixed(
+                          Object.entries(tokenList).find(
+                            ([_, v]) => v.MINT === order.input_mint,
+                          )![1].DECIMALS,
+                        )}
                       </p>
                       <p className="text-xs text-gray-500">
                         Input Mint: {order.input_mint.substring(0, 3)}...
@@ -577,7 +589,19 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                       </p>
                       <p className="text-xs text-gray-500">
                         Output Amount:{' '}
-                        {parseFloat(order.output_amount).toFixed(2)}
+                        {(
+                          parseFloat(order.output_amount) /
+                          Math.pow(
+                            10,
+                            Object.entries(tokenList).find(
+                              ([_, v]) => v.MINT === order.output_mint,
+                            )![1].DECIMALS,
+                          )
+                        ).toFixed(
+                          Object.entries(tokenList).find(
+                            ([_, v]) => v.MINT === order.output_mint,
+                          )![1].DECIMALS,
+                        )}
                       </p>
                       <p className="text-xs text-gray-500">
                         Output Mint: {order.output_mint.substring(0, 3)}...
