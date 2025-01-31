@@ -5949,10 +5949,10 @@ sonic-boom@^3.0.0:
   dependencies:
     atomic-sleep "^1.0.0"
 
-sonner@^1.7.2:
-  version "1.7.2"
-  resolved "https://registry.yarnpkg.com/sonner/-/sonner-1.7.2.tgz#d3e5e414be6aa888da5da5ec558444b43203441c"
-  integrity sha512-zMbseqjrOzQD1a93lxahm+qMGxWovdMxBlkTbbnZdNqVLt4j+amF9PQxUCL32WfztOFt9t9ADYkejAL3jF9iNA==
+sonner@^1.7.3:
+  version "1.7.3"
+  resolved "https://registry.yarnpkg.com/sonner/-/sonner-1.7.3.tgz#83d5b5e916f16bf1ccfe81922daea2c4c953c26c"
+  integrity sha512-KXLWQfyR6AHpYZuQk8eO8fCbZSJY3JOpgsu/tbGc++jgPjj8JsR1ZpO8vFhqR/OxvWMQCSAmnSShY0gr4FPqHg==
 
 source-map-js@^1.2.0, source-map-js@^1.2.1:
   version "1.2.1"
