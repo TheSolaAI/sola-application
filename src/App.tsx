@@ -1,10 +1,10 @@
 import { useEffect, useCallback } from 'react';
 import { usePrivy, WalletWithMetadata } from '@privy-io/react-auth';
 import { useSolanaWallets } from '@privy-io/react-auth/solana';
-import useAppState from './store/zustand/AppState';
 import useUser from './hooks/useUser';
-import useThemeManager from './store/zustand/ThemeManager.ts';
 import AppRoutes from './routes/AppRoutes.tsx';
+import useAppState from './models/AppState.ts';
+import useThemeManager from './models/ThemeManager.ts';
 // import { tokenGate } from './lib/solana/tokenGate';
 
 function App() {
@@ -43,7 +43,7 @@ function App() {
   }, [authenticated, ready, user]);
 
   /**
-   * Callback function that handles createing embedded wallet and update user settings on user login
+   * Callback function that handles creating embedded wallet and update user settings on user login
    */
   const initializeApp = useCallback(async () => {
     if (authenticated && ready) {

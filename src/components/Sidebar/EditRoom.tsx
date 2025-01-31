@@ -115,7 +115,7 @@ export const EditRoom: React.FC<EditRoomProps> = ({
       title="Chat Settings"
       mobileTitle="Chat Settings"
       width="auto"
-      direction="up"
+      direction="down"
     >
       <EditRoomContent onClose={onClose} />
     </Dropdown>

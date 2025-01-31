@@ -1,12 +1,13 @@
-import { ChevronLeft, Edit, Edit2, Menu, Settings, User } from 'react-feather';
-import { useState, useEffect, useRef } from 'react';
+import { ChevronLeft, Edit, Edit2, Menu, User } from 'react-feather';
+import { useEffect, useRef, useState } from 'react';
 import useThemeManager from '../../models/ThemeManager.ts';
 import { useChat } from '../../hooks/useChatRoom.ts';
 import { useRoomStore } from '../../models/RoomState.ts';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { AgentSelect } from './AgentSelect.tsx';
 import { EditRoom } from './EditRoom.tsx';
-import useUser from '../../hooks/useUser.ts';
+import { usePrivy } from '@privy-io/react-auth';
+import { ProfileDropDown } from './ProfileDropDown.tsx';
 
 export const Sidebar = () => {
   const navigate = useNavigate();
@@ -17,6 +18,7 @@ export const Sidebar = () => {
   const sidebarRef = useRef<HTMLDivElement>(null);
   const agentSelectRef = useRef<HTMLButtonElement>(null);
   const editButtonRefs = useRef<{ [key: string]: HTMLButtonElement }>({});
+  const profileRef = useRef<HTMLButtonElement>(null);
 
   /**
    * models
@@ -25,7 +27,7 @@ export const Sidebar = () => {
   const { getRooms } = useChat();
   const { rooms } = useRoomStore();
   const { pathname } = useLocation();
-  const { user } = useUser();
+  const { user } = usePrivy();
 
   /**
    * Local State
@@ -34,6 +36,7 @@ export const Sidebar = () => {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [agentSelectOpen, setAgentSelectOpen] = useState(false);
   const [editingRoom, setEditingRoom] = useState<string | null>(null);
+  const [profileOpen, setProfileOpen] = useState(false);
 
   /**
    * Fully opens or closes the sidebar. Only called in mobile view.
@@ -124,7 +127,7 @@ export const Sidebar = () => {
         />
 
         {/*  ChatRooms List*/}
-        <div className="mt-[10px] flex flex-col items-start space-y-4">
+        <div className="mt-[10px] flex flex-col items-start space-y-2">
           {rooms.map((room) => {
             const isEditing = editingRoom === room.id;
 
@@ -166,19 +169,26 @@ export const Sidebar = () => {
           })}
         </div>
         {/* Tokens Left Status */}
-        <div className="flex flex-row justify-between gap-5 mt-auto bg-gradient-to-r from-primaryDark to-primary p-[10px] rounded-xl mb-6 items-center shadow-primaryDark shadow-[0px_0px_10px_3px]">
+        <div className="flex flex-row justify-between gap-5 mt-auto bg-gradient-to-r from-primaryDark to-primary p-[10px] rounded-xl mb-10 items-center shadow-primaryDark shadow-[0px_0px_10px_1px]">
           <h1 className="font-medium text-textColor">Sola AI Tokens:</h1>
-          <h1 className={'font-bold text-textColor text-3xl'}> 22</h1>
+          <h1 className={'font-bold text-textColor text-3xl'}> ∞</h1>
         </div>
         {/* Bottom Profile Opener */}
-        <div
+        <button
           className={
             'flex flex-row items-center justify-start gap-5 hover:bg-background rounded-xl p-3 cursor-pointer -m-2'
           }
+          ref={profileRef}
+          onClick={() => setProfileOpen(!profileOpen)}
         >
-          <Settings size={24} color={theme.textColor} />
-          <h1 className="text-secText font-semibold">Settings</h1>
-        </div>
+          <User size={24} color={theme.textColor} />
+          <h1 className="text-secText font-semibold">{user?.email?.address}</h1>
+        </button>
+        <ProfileDropDown
+          anchorEl={profileRef.current!}
+          isOpen={profileOpen}
+          onClose={() => setProfileOpen(false)}
+        />
       </div>
     </>
   );

@@ -54,8 +54,9 @@ import { useFundWallet } from '@privy-io/react-auth/solana';
 import { useLuloActions } from '../hooks/useLuloActions';
 import PipLayout from '../components/PiP/PipLayout';
 import { getTopHolders } from '../lib/solana/topHolders';
-import useThemeManager from '../store/zustand/ThemeManager';
 import { getLimitOrders, limitOrderTx } from '../lib/solana/limitOrderTx';
+import useThemeManager from '../models/ThemeManager.ts';
+import Loader from '../components/general/Loader.tsx';
 
 const Conversation = () => {
   const {

@@ -115,8 +115,8 @@ export const Dropdown: React.FC<DropdownProps> = ({
         transition={{ duration: 0.3, ease: 'easeOut' }}
         className="fixed z-50 rounded-xl border-border border-[0.5px] bg-background p-2"
         style={{
-          top: position.top ? `${position.top}px` : 'auto',
-          left: position.left ? `${position.left}px` : 'auto',
+          top: position.top ? `${position.top + 5}px` : 'auto',
+          left: position.left ? `${position.left - 5}px` : 'auto',
           width: position.width ? `${position.width}px` : 'auto',
           bottom: position.bottom ? `${position.bottom}px` : 'auto',
         }}
