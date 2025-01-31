@@ -4,6 +4,7 @@ import { ShowLimitOrder } from './jupiter';
 export type MessageCard = {
   type:
     | 'message'
+    | 'aiTranscription'
     | 'card'
     | 'cards'
     | 'nftcards'
@@ -24,6 +25,7 @@ export type MessageCard = {
     | 'limitOrder';
   message?: string;
   card?:
+  | AiTranscription
   | SingleCard
   | MultipleCards
   | NFTCard[]
@@ -41,6 +43,10 @@ export type MessageCard = {
   | ShowLimitOrderCard;
   link?: string;
 };
+
+export interface AiTranscription {
+  id: string;
+}
 
 export interface TransactionCard {
   title: string;
