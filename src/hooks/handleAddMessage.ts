@@ -63,19 +63,16 @@ const useChatHandler = () => {
 
         if (!currentRoomId && roomDetails) {
           if (!isCreatingRoom) {
-            setIsCreatingRoom(true);
 
-            console.log('roomID', roomId, 'roomdetails', roomDetails);
             const roomResponse = await createChatRoom(roomDetails);
 
             if (!roomResponse) {
               console.error('Failed to create room.');
-              setIsCreatingRoom(false);
               return;
             }
 
             roomId = roomResponse.id;
-            setIsCreatingRoom(false);
+            setIsCreatingRoom(true);
             navigate(`/c/${roomId}`);
           }
         }
@@ -86,7 +83,6 @@ const useChatHandler = () => {
         }
       } catch (error) {
         console.error('Error in handleAddMessage:', error);
-        setIsCreatingRoom(false);
       }
     },
     [
@@ -100,7 +96,58 @@ const useChatHandler = () => {
     ],
   );
 
-  return { handleAddMessage, createChatRoom, sendMessage };
+  const handleAddAiTranscript = useCallback(
+    async (message: MessageCard) => {
+      const roomDetails: CreateRoom = {
+        name: Math.floor(Math.random() * 1000000).toString(),
+        session_id: Math.random().toString(),
+      };
+
+      try {
+        let roomId = currentRoomId;
+
+        if (!currentRoomId && roomDetails) {
+          if (!isCreatingRoom) {
+
+            console.log('roomID', roomId, 'roomdetails', roomDetails);
+            const roomResponse = await createChatRoom(roomDetails);
+
+            if (!roomResponse) {
+              console.error('Failed to create room.');
+              return;
+            }
+
+            roomId = roomResponse.id;
+            setIsCreatingRoom(true);
+            navigate(`/c/${roomId}`);
+          }
+        }
+
+        if (roomId) {
+          console.log(roomId);
+          await sendMessage(roomId, message);
+        }
+      } catch (error) {
+        console.error('Error in handleAddMessage:', error);
+      }
+    },
+    [
+      currentRoomId,
+      createChatRoom,
+      sendMessage,
+      setMessageList,
+      navigate,
+      isCreatingRoom,
+      setIsCreatingRoom,
+    ],
+  );
+
+  return {
+    handleAddMessage,
+    handleAddAiTranscript,
+    createChatRoom,
+    sendMessage,
+  };
 };
 
 export default useChatHandler;

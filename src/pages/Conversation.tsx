@@ -12,6 +12,7 @@ import {
   MarketDataCard,
   MarketInfo,
   TopHolder,
+  AiTranscription,
 } from '../types/messageCard';
 import { LimitOrderParams, SwapParams } from '../types/jupiter';
 import { swapTx } from '../lib/solana/swapTx';
@@ -44,14 +45,17 @@ import { toast } from 'sonner';
 import useChatHandler from '../hooks/handleAddMessage';
 import { agentMessage } from '../lib/chat-message/agentMessage';
 import { customMessageCards } from '../lib/chat-message/customMessageCards';
-import { messageCard, transactionCard } from '../lib/chat-message/messageCard';
+import {
+  messageCard,
+  showLimitOrderCard,
+  transactionCard,
+} from '../lib/chat-message/messageCard';
 import { useFundWallet } from '@privy-io/react-auth/solana';
 import { useLuloActions } from '../hooks/useLuloActions';
 import PipLayout from '../components/PiP/PipLayout';
 import { getTopHolders } from '../lib/solana/topHolders';
-import Loader from '../components/general/Loader.tsx';
-import useThemeManager from '../models/ThemeManager.ts';
-import { limitOrderTx } from '../lib/solana/limitOrderTx';
+import useThemeManager from '../store/zustand/ThemeManager';
+import { getLimitOrders, limitOrderTx } from '../lib/solana/limitOrderTx';
 
 const Conversation = () => {
   const {
@@ -68,9 +72,15 @@ const Conversation = () => {
   const { assets } = useWalletStore();
   const { id } = useParams<{ id: string }>();
   const { getRoomMessages, loading, error, messageLoadingError } = useChat();
-  const { setCurrentRoomId, messageList, setMessageList, currentRoomId } =
-    useRoomStore();
-  const { handleAddMessage } = useChatHandler();
+  const {
+    setCurrentRoomId,
+    messageList,
+    setMessageList,
+    isCreatingRoom,
+    setIsCreatingRoom,
+    currentRoomId,
+  } = useRoomStore();
+  const { handleAddMessage, handleAddAiTranscript } = useChatHandler();
   const { fundWallet } = useFundWallet();
   const { handleDepositLulo, handleUserAssetsLulo, handleWithdrawLulo } =
     useLuloActions();
@@ -83,11 +93,8 @@ const Conversation = () => {
   useEffect(() => {
     async function loadMessages() {
       if (id) {
-        console.log(id);
         setMessageList(() => []);
         await getRoomMessages(id);
-      } else {
-        setCurrentRoomId(null);
       }
     }
 
@@ -96,8 +103,14 @@ const Conversation = () => {
       await startSession();
     };
 
-    manageSession();
     loadMessages();
+
+    if (!isCreatingRoom) {
+      manageSession();
+    }
+
+    setIsCreatingRoom(false);
+    setCurrentRoomId(id || null);
   }, [id]);
 
   useEffect(() => {
@@ -399,7 +412,7 @@ const Conversation = () => {
   const handleLimitOrder = async (
     amount: number,
     token: 'SOL' | 'SOLA' | 'USDC' | 'BONK' | 'USDT' | 'JUP' | 'WIF',
-    action: "BUY" | "SELL",
+    action: 'BUY' | 'SELL',
     limitPrice: number,
   ) => {
     if (!appWallet) return null;
@@ -427,6 +440,7 @@ const Conversation = () => {
     try {
       const resp = await limitOrderTx(params);
       const transaction = resp?.tx;
+
       if (!transaction) {
         await handleAddMessage(messageCard(`Error creating limit order.`));
 
@@ -434,7 +448,7 @@ const Conversation = () => {
           'tell the user that the order has been failed and ask them to try later after some time',
         );
       }
-    
+
       const transactionBuffer = Buffer.from(transaction, 'base64');
       const final_tx = VersionedTransaction.deserialize(transactionBuffer);
       const signedTransaction = await appWallet.signTransaction(final_tx);
@@ -450,15 +464,45 @@ const Conversation = () => {
       return responseToOpenai(
         'tell the user that limit order has been created',
       );
-    }
- catch (error) {
+    } catch (error) {
       console.error('Error creating limit order:', error);
       return responseToOpenai(
         'tell the user that the order has been failed and ask them to try later after some time',
       );
     }
-};
+  };
 
+  const handleGetLimitOrders = async () => {
+    if (!appWallet) return null;
+
+    await handleAddMessage(agentMessage(`Agent is fetching limit orders`));
+
+    try {
+      const resp = await getLimitOrders(appWallet.address);
+      const limitOrders = resp?.orders;
+      if (!limitOrders) {
+        await handleAddMessage(messageCard(`Error fetching limit orders`));
+        return responseToOpenai(
+          'tell the user that the limit orders has been failed and ask them to try later after some time',
+        );
+      }
+      if (limitOrders.length === 0) {
+        await handleAddMessage(messageCard(`No limit orders found`));
+        return responseToOpenai(
+          'tell the user that they dont have any limit order',
+        );
+      }
+      await handleAddMessage(showLimitOrderCard(limitOrders));
+      return responseToOpenai(
+        'tell the user that limit orders have been fetched',
+      );
+    } catch (error) {
+      console.error('Error fetching limit orders:', error);
+      return responseToOpenai(
+        'tell the user that the limit orders has been failed and ask them to try later after some time',
+      );
+    }
+  };
   //TODO: Handle the Message response
   const handleLaunchpadCollections = async () => {
     const message: MessageCard = {
@@ -1082,12 +1126,53 @@ const Conversation = () => {
       }
 
       const mostRecentEvent = events[0];
-      if (
+      console.log(mostRecentEvent);
+      if (mostRecentEvent.type === 'response.audio_transcript.delta') {
+        setMessageList((prev) => {
+          let lastMessage = prev[prev.length - 1];
+
+          if (lastMessage?.type === 'aiTranscription') {
+            let item = lastMessage.card as AiTranscription;
+
+            if (item.id === mostRecentEvent.response_id) {
+              let updatedLastMessage = {
+                ...lastMessage,
+                message: lastMessage.message + mostRecentEvent.delta,
+              };
+              return [...prev.slice(0, -1), updatedLastMessage];
+            }
+          }
+          return [
+            ...prev,
+            {
+              type: 'aiTranscription',
+              message: mostRecentEvent.delta,
+              card: { id: mostRecentEvent.response_id },
+            },
+          ];
+        });
+      } else if (
         mostRecentEvent.type === 'response.done' &&
         mostRecentEvent.response.output
       ) {
         for (const output of mostRecentEvent.response.output) {
-          if (output.type === 'function_call') {
+          if (output.type === 'message') {
+            setMessageList((prev) => {
+              let lastMessage = prev[prev.length - 1];
+
+              if (lastMessage?.type === 'aiTranscription') {
+                let updatedLastMessage = {
+                  ...lastMessage,
+                  message: output.content[0].transcript,
+                };
+                return [...prev.slice(0, -1), updatedLastMessage];
+              }
+              return [...prev];
+            });
+            handleAddAiTranscript(
+              messageCard(`${output.content[0].transcript}`),
+            );
+          } else if (output.type === 'function_call') {
             const functionName = output.name;
             if (functionName === 'walletActions') {
               const { action } = JSON.parse(output.arguments);
@@ -1198,13 +1283,22 @@ const Conversation = () => {
               const { tokenInput } = JSON.parse(output.arguments);
               let response = await handleTopHolders(tokenInput);
               sendClientEvent(response);
+            } else if (output.name === 'limitOrder') {
+              const { token, amount, limitPrice, action } = JSON.parse(
+                output.arguments,
+              );
+
+              let response = await handleLimitOrder(
+                amount,
+                token,
+                action,
+                limitPrice,
+              );
+              sendClientEvent(response);
+            } else if (output.name === 'getLimitOrders') {
+              let response = await handleGetLimitOrders();
+              sendClientEvent(response);
             }
-              else if (output.name === 'limitOrder') {
-              const { token, amount, limitPrice, action } = JSON.parse(output.arguments);
-              
-                let response = await handleLimitOrder(amount, token, action, limitPrice);
-                sendClientEvent(response);
-              }
           }
         }
       }

@@ -1,8 +1,10 @@
 import { TokenBalance } from './lulo';
+import { ShowLimitOrder } from './jupiter';
 
 export type MessageCard = {
   type:
     | 'message'
+    | 'aiTranscription'
     | 'card'
     | 'cards'
     | 'nftcards'
@@ -19,25 +21,32 @@ export type MessageCard = {
     | 'marketDataCard'
     | 'trendingNFTCard'
     | 'bubblemapCard'
-    | 'blinkCard';
+    | 'blinkCard'
+    | 'limitOrder';
   message?: string;
   card?:
-    | SingleCard
-    | MultipleCards
-    | NFTCard[]
-    | TokenCard[]
-    | NFTCollectionCard
-    | LuloCard
-    | TransactionCard
-    | SanctumCard[]
-    | RugCheckCard
-    | TopHolder[]
-    | MarketDataCard
-    | MarketDataCard
-    | TrendingNFTCard[]
-    | BubblemapCard;
+  | AiTranscription
+  | SingleCard
+  | MultipleCards
+  | NFTCard[]
+  | TokenCard[]
+  | NFTCollectionCard
+  | LuloCard
+  | TransactionCard
+  | SanctumCard[]
+  | RugCheckCard
+  | TopHolder[]
+  | MarketDataCard
+  | MarketDataCard
+  | TrendingNFTCard[]
+  | BubblemapCard
+  | ShowLimitOrderCard;
   link?: string;
 };
+
+export interface AiTranscription {
+  id: string;
+}
 
 export interface TransactionCard {
   title: string;
@@ -149,4 +158,8 @@ export interface CoinInfo {
 export interface MarketInfo {
   text: string;
   link: string;
+}
+
+export interface ShowLimitOrderCard {
+  orders: ShowLimitOrder[];
 }
