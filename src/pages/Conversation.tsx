@@ -14,7 +14,7 @@ import {
   TopHolder,
   TrendingNFTCard,
 } from '../types/messageCard';
-import { LimitOrderParams, ShowLimitOrderParams, SwapParams } from '../types/jupiter';
+import { LimitOrderParams, SwapParams } from '../types/jupiter';
 import { swapTx } from '../lib/solana/swapTx';
 import { createToolsConfig } from '../tools/tools';
 import { SessionControls } from '../components/SessionControls';
@@ -57,8 +57,6 @@ import { getTopHolders } from '../lib/solana/topHolders';
 import { getLimitOrders, limitOrderTx } from '../lib/solana/limitOrderTx';
 import useThemeManager from '../models/ThemeManager.ts';
 import Loader from '../components/general/Loader.tsx';
-import ApiClient from '../api/ApiClient.ts';
-
 
 const Conversation = () => {
   const {
@@ -92,8 +90,7 @@ const Conversation = () => {
   const audioElement = useRef<HTMLAudioElement | null>(null);
   const [isLoaded, setIsLoaded] = useState<boolean>(true);
   const [localDataChannel, setLocalDataChannel] = useState(dataChannel);
-  const appState = useAppState()
-  
+  const appState = useAppState();
 
   useEffect(() => {
     async function loadMessages() {
@@ -484,7 +481,7 @@ const Conversation = () => {
     if (!currentWallet) return null;
 
     await handleAddMessage(agentMessage(`Agent is fetching limit orders`));
-    console.log("calling fn 2")
+    console.log('calling fn 2');
     try {
       const resp = await getLimitOrders(currentWallet.address);
       const limitOrders = resp?.orders;
@@ -954,79 +951,78 @@ const Conversation = () => {
     let url = process.env.DATA_SERVICE_URL;
     try {
       const tokenResponse = await fetch(`${url}data/session/create`, {
-        method: "GET", // or "POST" if required
+        method: 'GET', // or "POST" if required
         headers: {
-            "Authorization": `Bearer ${appState.accessToken}`, // Replace with your token
-            "Content-Type": "application/json"
-        }
+          Authorization: `Bearer ${appState.accessToken}`, // Replace with your token
+          'Content-Type': 'application/json',
+        },
       });
-    
-        const data = await tokenResponse.json()
-        const EPHEMERAL_KEY = data.client_secret?.value
 
-        // Create a peer connection
-        const pc = new RTCPeerConnection();
+      const data = await tokenResponse.json();
+      const EPHEMERAL_KEY = data.client_secret?.value;
 
-        // Set up to play remote audio from the model
-        audioElement.current = document.createElement('audio');
-        audioElement.current.autoplay = true;
-        pc.ontrack = (e) => {
-          const stream = e.streams[0];
-          if (audioElement.current) {
-            audioElement.current.srcObject = stream;
-          }
+      // Create a peer connection
+      const pc = new RTCPeerConnection();
 
-          if (MediaRecorder.isTypeSupported('audio/webm')) {
-            const recorder = new MediaRecorder(stream, {
-              mimeType: 'audio/webm',
-            });
-            setMediaRecorder(recorder);
-            recorder.start();
-          } else {
-            console.error('MediaRecorder does not support audio/webm format.');
-          }
-        };
-
-        // Add local audio track for microphone input in the browser
-        const ms = await navigator.mediaDevices.getUserMedia({
-          audio: true,
-        });
-        pc.addTrack(ms.getTracks()[0]);
-
-        // Set up data channel for sending and receiving events
-        const dc = pc.createDataChannel('oai-events');
-        setDataChannel(dc);
-
-        // Start the session using the Session Description Protocol (SDP)
-        const offer = await pc.createOffer();
-        await pc.setLocalDescription(offer);
-
-        const baseUrl = 'https://api.openai.com/v1/realtime';
-        const model = 'gpt-4o-mini-realtime-preview-2024-12-17';
-
-        const sdpResponse = await fetch(`${baseUrl}?model=${model}`, {
-          method: 'POST',
-          body: offer.sdp,
-          headers: {
-            Authorization: `Bearer ${EPHEMERAL_KEY}`,
-            'Content-Type': 'application/sdp',
-          },
-        });
-
-        if (!sdpResponse.ok) {
-          throw new Error('Failed to fetch SDP response');
+      // Set up to play remote audio from the model
+      audioElement.current = document.createElement('audio');
+      audioElement.current.autoplay = true;
+      pc.ontrack = (e) => {
+        const stream = e.streams[0];
+        if (audioElement.current) {
+          audioElement.current.srcObject = stream;
         }
 
-        const answer: RTCSessionDescriptionInit = {
-          type: 'answer',
-          sdp: await sdpResponse.text(),
-        };
+        if (MediaRecorder.isTypeSupported('audio/webm')) {
+          const recorder = new MediaRecorder(stream, {
+            mimeType: 'audio/webm',
+          });
+          setMediaRecorder(recorder);
+          recorder.start();
+        } else {
+          console.error('MediaRecorder does not support audio/webm format.');
+        }
+      };
 
-        await pc.setRemoteDescription(answer);
-        setPeerConnection(pc);
-        setIsSessionActive(true);
+      // Add local audio track for microphone input in the browser
+      const ms = await navigator.mediaDevices.getUserMedia({
+        audio: true,
+      });
+      pc.addTrack(ms.getTracks()[0]);
+
+      // Set up data channel for sending and receiving events
+      const dc = pc.createDataChannel('oai-events');
+      setDataChannel(dc);
+
+      // Start the session using the Session Description Protocol (SDP)
+      const offer = await pc.createOffer();
+      await pc.setLocalDescription(offer);
+
+      const baseUrl = 'https://api.openai.com/v1/realtime';
+      const model = 'gpt-4o-mini-realtime-preview-2024-12-17';
+
+      const sdpResponse = await fetch(`${baseUrl}?model=${model}`, {
+        method: 'POST',
+        body: offer.sdp,
+        headers: {
+          Authorization: `Bearer ${EPHEMERAL_KEY}`,
+          'Content-Type': 'application/sdp',
+        },
+      });
+
+      if (!sdpResponse.ok) {
+        throw new Error('Failed to fetch SDP response');
       }
-     catch (error) {
+
+      const answer: RTCSessionDescriptionInit = {
+        type: 'answer',
+        sdp: await sdpResponse.text(),
+      };
+
+      await pc.setRemoteDescription(answer);
+      setPeerConnection(pc);
+      setIsSessionActive(true);
+    } catch (error) {
       console.error('Error starting session:', error);
     }
   };
@@ -1049,8 +1045,8 @@ const Conversation = () => {
 
   const sendClientEvent = useCallback(
     (message: any) => {
-      console.log("message:", message)
-      console.log(appState.tier)
+      console.log('message:', message);
+      console.log(appState.tier);
       if (localDataChannel && localDataChannel.readyState === 'open') {
         message.event_id = message.event_id || crypto.randomUUID();
         localDataChannel.send(JSON.stringify(message));
@@ -1309,7 +1305,7 @@ const Conversation = () => {
               );
               sendClientEvent(response);
             } else if (output.name === 'getLimitOrders') {
-              console.log("calling fn")
+              console.log('calling fn');
               let response = await handleGetLimitOrders();
               sendClientEvent(response);
             }
@@ -1373,7 +1369,9 @@ const Conversation = () => {
           {/* End of Session Controls Section */}
         </main>
         <section className="relative animate-in fade-in-0 duration-300">
-          <div className={`absolute  w-full bottom-0 left-1/2 transform -translate-x-1/2 py-2 flex items-center justify-center`}>
+          <div
+            className={`absolute w-full bottom-0 left-1/2 transform -translate-x-1/2 py-2 flex items-center justify-center mb-5`}
+          >
             <SessionControls
               sendTextMessage={sendTextMessage}
               isSessionActive={isSessionActive}
