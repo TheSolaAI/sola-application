@@ -1343,7 +1343,7 @@ const Conversation = () => {
           {/* End of Visualizer Section */}
 
           {/* Start of Message display Section */}
-          <section className="pb-20">
+          <section className="pb-20 overflow-y-scroll no-scrollbar">
             {messageList && currentRoomId && (
               <MessageList messageList={messageList} />
             )}

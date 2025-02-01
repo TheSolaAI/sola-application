@@ -25,7 +25,7 @@ import {
   Transition,
   TransitionChild,
 } from '@headlessui/react';
-import { Copy, ExternalLink, X } from 'react-feather';
+import { Copy, ExternalLink, X } from 'lucide-react';
 import useAppState from '../../models/AppState.ts';
 import axios from 'axios';
 import { Connection, VersionedTransaction } from '@solana/web3.js';
@@ -143,7 +143,7 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
   }
 
   return (
-    <div className="mx-2 md:py-4 md:px-24 w-full flex flex-col overflow-hidden">
+    <div className="mx-2 md:py-4 md:px-24 w-full flex flex-col overflow-y-scroll no-scrollbar">
       {messageList.map((item, index) => {
         switch (item.type) {
           case 'aiTranscription':
@@ -158,10 +158,12 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
               <GridBox index={index} col={3}>
                 <div className="flex p-4 bg-sec_background text-secText overflow-scroll">
                   <div>
-                    <img src="/solscan.png" alt="solscan" className='w-8 h-8' />
+                    <img src="/solscan.png" alt="solscan" className="w-8 h-8" />
                   </div>
                   <div className="flex flex-col">
-                    <span className='font-semibold text-lg'>{transactionCard.title}</span>
+                    <span className="font-semibold text-lg">
+                      {transactionCard.title}
+                    </span>
                     <span>{transactionCard.status}</span>
                     <a
                       href={transactionCard.link}
@@ -176,44 +178,10 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
               </GridBox>
             );
           }
-          // case 'card': {
-          //   const singleCard = item.card as SingleCard;
-          //   return (
-          //     <div
-          //       key={index}
-          //       className="mb-4 bg-[#F5F5F5] rounded-lg p-4 shadow-md overflow-auto dark:bg-darkalign2 dark:text-bodydark2 no-scrollbar transition-opacity duration-500 opacity-100 transform"
-          //     >
-          //       <h4 className="mb-2 text-lg font-semibold text-bodydark1">
-          //         {singleCard.title}
-          //       </h4>
-          //       <p className="text-gray-400">
-          //         Status: {singleCard.status} <br />
-          //         Date: {singleCard.date}
-          //       </p>
-          //     </div>
-          //   );
-          // }
-          // case 'cards': {
-          //   const multipleCards = item.card as MultipleCards;
-          //   return (
-          //     <div
-          //       key={index}
-          //       className="grid grid-cols-2 gap-4 mb-4 overflow-auto dark:bg-darkalign2 dark:text-bodydark2 no-scrollbar transition-opacity duration-500 opacity-100 transform"
-          //     >
-          //       {multipleCards.map((subCard, subIndex) => (
-          //         <div
-          //           key={subIndex}
-          //           className="bg-[#F5F5F5] rounded-lg p-3 text-center shadow-sm text-bodydark1"
-          //         >
-          //           {subCard.metric}: {subCard.value}
-          //         </div>
-          //       ))}
-          //     </div>
-          //   );
-          // }
+
           case 'agent':
             return (
-              <div key={index} className="mb-4 flex items-center gap-3">
+              <div key={index} className="m-1 flex items-center gap-3">
                 <span className="w-2 h-2 bg-green-500 rounded-full" />
                 <span className="text-bodydark2">{item.message}</span>
               </div>
@@ -222,27 +190,25 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
           case 'tokenCards': {
             const tokens = item.card as TokenCard[];
             return (
-              <div className="grid grid-cols-1 gap-6 my-4">
-                {tokens.map((token, tokenIndex) => (
-                  <a
-                    key={tokenIndex}
-                    className="group relative block rounded-xl bg-[#F5F5F5] p-4 h-full dark:bg-darkalign2 dark:text-bodydark2"
+              <GridBox index={index} col={3}>
+                {tokens.map((token, tIndex) => (
+                  <div
+                    key={tIndex}
+                    className="p-2 rounded-lg bg-sec_background text-secText"
                   >
-                    <div className="flex items-center justify-between gap-4">
-                      {/* Left Section: Image and Details */}
-                      <div className="flex items-center gap-4">
+                    <div className="flex justify-between items-start">
+                      <div className="flex gap-4 items-center">
                         <img
                           src={token.image || '/placeholder.png'}
                           alt={token.metadata?.name || 'Token'}
-                          className="h-10 w-10 rounded-lg bg-graydark"
+                          className="h-fit rounded-lg bg-graydark"
                         />
                         <div>
-                          {/* Token Name and Price */}
                           <h3 className="truncate text-sm font-medium">
                             {token.metadata?.name || 'Unknown'}
                           </h3>
                           <p className="mt-1 text-xs font-medium">
-                            $ {token.price}
+                            ${token.price}
                           </p>
                           <p
                             className={`text-xs font-medium ${
@@ -253,117 +219,36 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                                   : 'text-bodydark2'
                             }`}
                           >
-                            {token.priceChange
-                              ? `${token.priceChange}%`
-                              : 'Unknown'}
+                            {token.priceChange || 'Unknown'}%
                           </p>
-
-                          {/* Indented Section for Other Parameters */}
                         </div>
                       </div>
-
-                      {/* Right Section: Buttons */}
-                      <div className="flex gap-1">
-                        <button
-                          className="px-4 py-2 text-xs font-medium text-white rounded-lg hover:scale-105 hover:shadow-lg transition-all"
-                          onClick={() => {
-                            navigator.clipboard.writeText(token.address);
-                          }}
-                        >
-                          <Copy className="h-4 w-4 text-bodydark1 dark:bg-darkalign2 dark:text-bodydark2" />
-                        </button>
-                        <button
-                          onClick={() => {
-                            window.open(
-                              `https://dexscreener.com/solana/${token.address}`,
-                              '_blank',
-                            );
-                          }}
-                          className="px-4 py-2 text-xs font-medium text-white rounded-lg hover:scale-105 hover:shadow-lg transition-all"
-                        >
-                          <img
-                            src="/dexscreener.png"
-                            alt="Dex Icon"
-                            className="h-4 w-4"
-                          />
-                        </button>
-                        <button
-                          className="flex items-center justify-center px-4 py-2 text-xs font-medium text-white rounded-lg hover:scale-105 hover:shadow-lg transition-all"
-                          onClick={() => handleExpand(token.address)}
-                        >
-                          <img
-                            src="/graph.png"
-                            alt="Expand Icon"
-                            className="h-4 w-4"
-                          />
-                        </button>
-                        <button
-                          className="flex items-center justify-center px-4 py-2 text-xs font-medium text-white rounded-lg hover:scale-105 hover:shadow-lg transition-all"
-                          onClick={() => handleBubbleMap(token.address)}
-                        >
-                          <img
-                            src="/bubbles.svg"
-                            alt="Expand Icon"
-                            className="h-4 w-4"
-                          />
-                        </button>
-                        <button className="flex items-center justify-center px-4 py-2 text-xs font-medium text-white rounded-lg"></button>
-                        <button className="flex items-center justify-center px-4 py-2 text-xs font-medium text-white rounded-lg"></button>
-                      </div>
-                    </div>
-                    <div className="flex flex-row gap-6 mt-2">
-                      {/* Market Cap */}
-                      <p className="text-s font-medium text-bodydark2">
-                        Market Cap: ${' '}
-                        {formatNumber(Number(token.marketCap)) || 'Unknown'}
-                      </p>
-
-                      <p className="text-s font-medium text-bodydark2">
-                        24H Volume: ${' '}
-                        {formatNumber(Number(token.volume)) || 'Unknown'}
-                      </p>
+                      <button
+                        onClick={() =>
+                          window.open(
+                            `https://dexscreener.com/solana/${token.address}`,
+                            '_blank',
+                          )
+                        }
+                        className="p-1 rounded-lg bg-sec_background hover:opacity-80 transition"
+                      >
+                        <ExternalLink className="w-4 h-4 text-primaryDark" />
+                      </button>
                     </div>
 
-                    {/* Chart Section */}
-                    {expandedToken === token.address && (
-                      <div className="fixed inset-0 z-50 bg-black bg-opacity-75 flex items-center justify-center">
-                        <div className="relative w-full max-w-4xl h-screen bg-white shadow-lg rounded-lg overflow-hidden">
-                          <button
-                            className="absolute top-4 right-4 bg-gray-700 text-white px-4 py-2 rounded-lg shadow-lg"
-                            onClick={() => setExpandedToken(null)}
-                          >
-                            Close
-                          </button>
-
-                          <iframe
-                            src={`https://www.gmgn.cc/kline/sol/${token.address}`}
-                            className="w-full h-full"
-                            allowFullScreen
-                          ></iframe>
-                        </div>
-                      </div>
-                    )}
-                    {bubbleMap === token.address && (
-                      <div className="fixed inset-0 z-50 bg-black bg-opacity-75 flex items-center justify-center">
-                        <div className="relative w-full max-w-4xl h-screen bg-white shadow-lg rounded-lg overflow-hidden">
-                          <button
-                            className="absolute top-4 right-4 bg-gray-700 text-white px-4 py-2 rounded-lg shadow-lg"
-                            onClick={() => setBubbleMap(null)}
-                          >
-                            Close
-                          </button>
-
-                          <iframe
-                            src={`https://app.bubblemaps.io/sol/token/${token.address}`}
-                            className="w-full h-full"
-                            allowFullScreen
-                          />
-                        </div>
-                      </div>
-                    )}
-                  </a>
+                    <div className="flex flex-row gap-2 text-sm mt-2">
+                      {[
+                        { label: 'MC', value: token.marketCap },
+                        { label: '24H Vol', value: token.volume },
+                      ].map(({ label, value }, i) => (
+                        <p key={i}>
+                          {label}: ${formatNumber(Number(value)) || 'Unknown'}
+                        </p>
+                      ))}
+                    </div>
+                  </div>
                 ))}
-              </div>
+              </GridBox>
             );
           }
           case 'nftCollectionCard': {
