@@ -2,19 +2,17 @@ import { useState } from 'react';
 import { useSolanaWallets } from '@privy-io/react-auth';
 import useAppState from '../models/AppState.ts';
 import { Switch } from '@headlessui/react';
+import { useWalletHandler } from '../models/WalletHandler.ts';
 
 function WalletManagement() {
-  const {
-    appWallet,
-    setWallet,
-    embeddedWalletVisibility,
-    setEmbeddedWalletVisibility,
-  } = useAppState();
+  const { setWallet, embeddedWalletVisibility, setEmbeddedWalletVisibility } =
+    useAppState();
+  const { currentWallet } = useWalletHandler();
   const { wallets } = useSolanaWallets();
 
   const [isOpen, setIsOpen] = useState(false);
   const [selectedWallet, setSelectedWallet] = useState(
-    appWallet?.walletClientType || 'Select Wallet',
+    currentWallet?.walletClientType || 'Select Wallet',
   );
 
   const toggleDropdown = () => setIsOpen(!isOpen);

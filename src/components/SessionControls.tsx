@@ -1,5 +1,5 @@
-import React, { useState, ChangeEvent, KeyboardEvent } from 'react';
-import { Mic, Send, MicOff } from 'lucide-react';
+import React, { ChangeEvent, KeyboardEvent, useState } from 'react';
+import { Mic, MicOff, Send } from 'lucide-react';
 import useChatState from '../models/ChatState.ts';
 import { Button } from '@headlessui/react';
 
@@ -87,7 +87,7 @@ export const SessionControls: React.FC<SessionControlsProps> = ({
   sendTextMessage,
   isSessionActive,
 }) => (
-  <div className="flex gap-4 h-full w-full justify-center">
+  <div className="flex gap-10 h-full w-full justify-center">
     {isSessionActive ? (
       <SessionActive sendTextMessage={sendTextMessage} />
     ) : (

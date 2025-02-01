@@ -2,7 +2,6 @@ import { customMessageCards } from '../lib/chat-message/customMessageCards';
 import { messageCard } from '../lib/chat-message/messageCard';
 import { depositLulo, getAssetsLulo, withdrawLulo } from '../lib/solana/lulo';
 import { responseToOpenai } from '../lib/utils/response';
-import useAppState from '../models/AppState.ts';
 import { AssetsParams, DepositParams, WithdrawParams } from '../types/lulo';
 import { LuloCard, TransactionCard } from '../types/messageCard';
 import useChatHandler from '../hooks/handleAddMessage';
@@ -10,15 +9,16 @@ import { tokenList } from '../config/tokens/tokenMapping';
 import { Connection } from '@solana/web3.js';
 import { useRoomStore } from '../models/RoomState.ts';
 import { agentMessage } from '../lib/chat-message/agentMessage';
+import { useWalletHandler } from '../models/WalletHandler.ts';
 
 export const useLuloActions = () => {
-  const { appWallet } = useAppState();
+  const { currentWallet } = useWalletHandler();
   const rpc = process.env.SOLANA_RPC;
   const { handleAddMessage } = useChatHandler();
   const { setMessageList } = useRoomStore();
 
   const handleUserAssetsLulo = async () => {
-    if (!appWallet) return null;
+    if (!currentWallet) return null;
     if (!rpc)
       return responseToOpenai(
         'ask the user to contact admin as the rpc is not attached',
@@ -27,7 +27,7 @@ export const useLuloActions = () => {
     // await handleAddMessage(agentMessage(`Fetching your Lulo Assets`));
 
     const params: AssetsParams = {
-      owner: `${appWallet.address}`,
+      owner: `${currentWallet.address}`,
     };
     const assets = await getAssetsLulo(params);
 
@@ -55,7 +55,7 @@ export const useLuloActions = () => {
     amount: number,
     token: 'USDT' | 'USDS' | 'USDC',
   ) => {
-    if (!appWallet) return null;
+    if (!currentWallet) return null;
     if (!rpc)
       return responseToOpenai(
         'ask the user to contact admin as the rpc is not attached',
@@ -64,7 +64,7 @@ export const useLuloActions = () => {
     // await handleAddMessage(agentMessage(`Agent is depositing the asset`));
 
     const params: DepositParams = {
-      owner: `${appWallet.address}`,
+      owner: `${currentWallet.address}`,
       depositAmount: amount,
       mintAddress: tokenList[token].MINT,
     };
@@ -93,7 +93,7 @@ export const useLuloActions = () => {
         link: `1`,
       };
       try {
-        const signedTransaction = await appWallet.signTransaction(
+        const signedTransaction = await currentWallet.signTransaction(
           transaction_array[transaction],
         );
         const signature = await connection.sendRawTransaction(
@@ -128,7 +128,7 @@ export const useLuloActions = () => {
     amount: number,
     token: 'USDT' | 'USDS' | 'USDC',
   ) => {
-    if (!appWallet) return null;
+    if (!currentWallet) return null;
     if (!rpc)
       return responseToOpenai(
         'ask the user to contact admin as the rpc is not attached',
@@ -138,7 +138,7 @@ export const useLuloActions = () => {
     let all = false;
 
     const assetParams: AssetsParams = {
-      owner: `${appWallet.address}`,
+      owner: `${currentWallet.address}`,
     };
     let withdrawAmount = amount;
     const connection = new Connection(rpc);
@@ -166,7 +166,7 @@ export const useLuloActions = () => {
     withdrawAmount = Math.ceil(withdrawAmount);
 
     const params: WithdrawParams = {
-      owner: `${appWallet.address}`,
+      owner: `${currentWallet.address}`,
       withdrawAmount: withdrawAmount,
       mintAddress: tokenList[token].MINT,
       withdrawAll: all,
@@ -191,7 +191,7 @@ export const useLuloActions = () => {
           await connection.getLatestBlockhash();
         tx.message.recentBlockhash = blockhash;
 
-        const signedTransaction = await appWallet.signTransaction(
+        const signedTransaction = await currentWallet.signTransaction(
           transaction_array[transaction],
         );
 

@@ -1,20 +1,15 @@
 import React, { Fragment, useState } from 'react';
 
 import {
-  TrendingNFTCard,
+  BubblemapCard,
+  LuloCard,
+  MarketDataCard,
   MessageCard,
-  SingleCard,
   MultipleCards,
   NFTCard,
-  TransactionCard,
-  TokenCard,
-  LuloCard,
+  NFTCollectionCard,
   RugCheckCard,
   SanctumCard,
-  NFTCollectionCard,
-  MarketDataCard,
-  BubblemapCard,
-  TopHolder,
   ShowLimitOrderCard,
 } from '../../types/messageCard';
 import {
@@ -26,7 +21,6 @@ import {
   TransitionChild,
 } from '@headlessui/react';
 import { Copy, ExternalLink, X } from 'react-feather';
-import useAppState from '../../models/AppState.ts';
 import axios from 'axios';
 import { Connection, VersionedTransaction } from '@solana/web3.js';
 import { tokenList } from '../../config/tokens/tokenMapping';
@@ -34,6 +28,7 @@ import { SwapParams } from '../../types/jupiter.ts';
 import { responseToOpenai } from '../../lib/utils/response';
 import { ConnectedSolanaWallet } from '@privy-io/react-auth';
 import RenderBlinks from './RenderBlinks';
+import { useWalletHandler } from '../../models/WalletHandler.ts';
 
 const wallet_service_url = process.env.WALLET_SERVICE_URL;
 
@@ -57,7 +52,7 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
   const handleBubbleMap = (tokenAddress: string) => {
     setBubbleMap((prev) => (prev === tokenAddress ? null : tokenAddress));
   };
-  let { appWallet } = useAppState();
+  let { currentWallet } = useWalletHandler();
 
   const rpc = process.env.SOLANA_RPC;
   function closeModal() {
@@ -725,7 +720,7 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                                       invokeSwap(
                                         sanctumAmount,
                                         sanctumAddress,
-                                        appWallet,
+                                        currentWallet,
                                       );
                                     }}
                                   >
