@@ -31,7 +31,7 @@ import useChatState from '../models/ChatState.ts';
 import { getTokenData, getTokenDataSymbol } from '../lib/solana/token_data';
 import { getLstData } from '../lib/solana/lst_data';
 import { responseToOpenai } from '../lib/utils/response';
-import { useWalletHandler } from '../models/WalletHandler.ts';
+import { useWalletStore } from '../models/WalletState.ts';
 import { getPublicKeyFromSolDomain } from '../lib/solana/sns';
 import { swapLST } from '../lib/solana/swapLst';
 import { fetchLSTAddress } from '../lib/utils/lst_reader';
@@ -70,7 +70,7 @@ const Conversation = () => {
     getPeerConnection,
     resetMute,
   } = useChatState();
-  const { assets } = useWalletHandler();
+  const { assets } = useWalletStore();
   const { id } = useParams<{ id: string }>();
   const { getRoomMessages, loading, error, messageLoadingError } = useChat();
   const {
