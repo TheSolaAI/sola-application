@@ -926,7 +926,6 @@ const Conversation = () => {
 
       let topHoldersCard: TopHolder[] = data;
       handleAddMessage(customMessageCards('topHoldersCard', topHoldersCard));
-
       return responseToOpenai(
         'Tell user that top holders data is successfully fetched.',
       );
@@ -1251,10 +1250,6 @@ const Conversation = () => {
               const { amount, token, address } = JSON.parse(output.arguments);
               let response = await transferSpl(amount, token, address);
               sendClientEvent(response);
-            } else if (output.name === 'transferSpl') {
-              const { amount, token, address } = JSON.parse(output.arguments);
-              let response = await transferSpl(amount, token, address);
-              sendClientEvent(response);
             } else if (output.name === 'getRugCheck') {
               const { token } = JSON.parse(output.arguments);
               let response = await handleRugCheck(token);
@@ -1311,7 +1306,7 @@ const Conversation = () => {
   return isLoaded ? (
     messageLoadingError ? (
       <div className="text-center h-screen ">
-        Oops! The requested chat doesn't exists.
+        Oops! The requested chat doesn&apos;t exists.
       </div>
     ) : (
       <>

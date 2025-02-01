@@ -25,22 +25,22 @@ export type MessageCard = {
     | 'limitOrder';
   message?: string;
   card?:
-  | AiTranscription
-  | SingleCard
-  | MultipleCards
-  | NFTCard[]
-  | TokenCard[]
-  | NFTCollectionCard
-  | LuloCard
-  | TransactionCard
-  | SanctumCard[]
-  | RugCheckCard
-  | TopHolder[]
-  | MarketDataCard
-  | MarketDataCard
-  | TrendingNFTCard[]
-  | BubblemapCard
-  | ShowLimitOrderCard;
+    | AiTranscription
+    | SingleCard
+    | MultipleCards
+    | NFTCard[]
+    | TokenCard[]
+    | NFTCollectionCard
+    | LuloCard
+    | TransactionCard
+    | SanctumCard[]
+    | RugCheckCard
+    | TopHolder[]
+    | MarketDataCard
+    | MarketDataCard
+    | TrendingNFTCard[]
+    | BubblemapCard
+    | ShowLimitOrderCard;
   link?: string;
 };
 

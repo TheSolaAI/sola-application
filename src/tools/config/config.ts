@@ -39,7 +39,7 @@ export const freeTools = [
   withdrawLulo,
   getBlinks,
   limitOrder,
-  getLimitOrders
+  getLimitOrders,
 ];
 export const fullTools = [
   walletActions,
@@ -61,5 +61,5 @@ export const fullTools = [
   withdrawLulo,
   getBlinks,
   limitOrder,
-  getLimitOrders
+  getLimitOrders,
 ];

@@ -24,15 +24,15 @@ export const tokenList = {
     DECIMALS: 6,
   },
   SOLA: {
-    MINT: "B5UsiUYcTD3PcQa8r2uXcVgRmDL8jUYuXPiYjrY7pump",
+    MINT: 'B5UsiUYcTD3PcQa8r2uXcVgRmDL8jUYuXPiYjrY7pump',
     DECIMALS: 6,
   },
   BONK: {
-    MINT: "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263",
-    DECIMALS:6
+    MINT: 'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263',
+    DECIMALS: 6,
   },
   WIF: {
-    MINT: "EKpQGSJtjMFqKZ9KQanSqYXRcF8fBopzLHYxdM65zcjm",
-    DECIMALS:6
-  }
+    MINT: 'EKpQGSJtjMFqKZ9KQanSqYXRcF8fBopzLHYxdM65zcjm',
+    DECIMALS: 6,
+  },
 };

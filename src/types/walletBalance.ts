@@ -6,4 +6,4 @@ export type Asset = {
   decimals: number;
   pricePerToken?: number;
   totalPrice?: number;
-}
+};

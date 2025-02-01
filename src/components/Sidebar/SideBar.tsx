@@ -122,7 +122,9 @@ export const Sidebar = () => {
           anchorEl={agentSelectRef.current}
           onSelect={() => {
             navigate(`/`);
-            isMobileOpen && toggleMobile();
+            if (isMobileOpen) {
+              toggleMobile();
+            }
           }}
         />
 

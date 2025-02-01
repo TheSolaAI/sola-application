@@ -10,8 +10,7 @@ export const getTopHolders = {
     properties: {
       tokenInput: {
         type: 'string',
-        description:
-          'The address or symbol of the token',
+        description: 'The address or symbol of the token',
       },
     },
     required: ['tokenInput'],

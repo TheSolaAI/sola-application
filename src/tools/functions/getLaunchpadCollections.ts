@@ -8,13 +8,10 @@ export const getNFTLaunchpad = {
   parameters: {
     type: 'object',
     strict: true,
-    properties: {
-    },
+    properties: {},
     required: [],
   },
 };
 
 //TODO: Shift the trigger logic here from conversation.tsx
-export function getNFTLaunchpadFunction() {
-  
-}
+export function getNFTLaunchpadFunction() {}

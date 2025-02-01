@@ -51,7 +51,7 @@ export const useChat = () => {
     setIsSessionActive(false);
     setDataChannel(null);
     resetMute();
-    console.log("delete stop session executed")
+    console.log('delete stop session executed');
   }
 
   const ensureAccessToken = useCallback(async (): Promise<string | null> => {

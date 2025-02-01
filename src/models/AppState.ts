@@ -9,7 +9,7 @@ interface AppState {
   aiVoice: string;
   aiEmotion: string;
   disclaimer: boolean;
-  tier:number,
+  tier: number;
   setWallet: (wallet: ConnectedSolanaWallet) => void;
   setEmbeddedWalletVisibility: (visibility: boolean) => void;
   setAccessToken: (accessToken: string | null) => void;
@@ -20,7 +20,7 @@ interface AppState {
 }
 
 const appStateCreator: StateCreator<AppState> = (set) => ({
-  tier:0,
+  tier: 0,
   appWallet: null,
   appWallets: [],
   embeddedWalletVisibility: false,
