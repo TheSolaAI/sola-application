@@ -34,7 +34,7 @@ function App() {
         throw new Error('Failed to fetch access token.');
       }
       setAccessToken(jwt);
-      ApiClient.setAccessToken(jwt)
+      ApiClient.setAccessToken(jwt);
       //TODO: get user tire status here
       await updateUserSettings();
     }
@@ -52,7 +52,7 @@ function App() {
   }, [initializeApp]);
 
   return (
-    <WalletProvider>
+    <WalletProvider isAuthenticated={authenticated && ready}>
       <AppRoutes isAuthenticated={authenticated && ready} />
     </WalletProvider>
   );
