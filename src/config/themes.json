@@ -2,7 +2,7 @@
   "light": {
     "baseTheme": "light",
     "baseBackground": "#FFFFFF",
-    "background": "#FFFFFF",
+    "background": "#EDEDED",
     "backgroundContrast": "#1b1b1b",
     "sec_background": "#f2f2f3",
     "surface": "#f2f2f3",
