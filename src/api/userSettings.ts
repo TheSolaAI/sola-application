@@ -1,4 +1,4 @@
-import dbClient from './dbClient';
+import dbClient from '.';
 import { UserSettingsResponse } from '../types/database/responseTypes';
 import { UserSettings } from '../types/database/requstTypes';
 

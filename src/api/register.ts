@@ -1,6 +1,6 @@
 import { RegisterUserResponse } from '../types/database/responseTypes';
 import { RegisterUser } from '../types/database/requstTypes';
-import dbClient from './dbClient';
+import dbClient from './index';
 
 export const registerUser = async (
   user: RegisterUser,

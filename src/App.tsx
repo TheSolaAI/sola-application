@@ -1,11 +1,10 @@
-import { useCallback, useEffect } from 'react';
-import { usePrivy } from '@privy-io/react-auth';
+import { useEffect, useCallback } from 'react';
+import { usePrivy, WalletWithMetadata } from '@privy-io/react-auth';
 import { useSolanaWallets } from '@privy-io/react-auth/solana';
 import useUser from './hooks/useUser';
 import AppRoutes from './routes/AppRoutes.tsx';
 import useAppState from './models/AppState.ts';
 import useThemeManager from './models/ThemeManager.ts';
-
 // import { tokenGate } from './lib/solana/tokenGate';
 
 function App() {
@@ -13,11 +12,31 @@ function App() {
    * Global State Management
    */
   const { authenticated, getAccessToken, ready, user } = usePrivy();
-  const { wallets } = useSolanaWallets();
+  const { createWallet, wallets } = useSolanaWallets();
   const { setWallet, setAccessToken } = useAppState();
   // const { tier, setTier } = useAppState();
+  const memoizedCreateWallet = useCallback(createWallet, []);
   const { fetchSettings } = useUser();
   const { initManager } = useThemeManager();
+
+  /**
+   * Callback functions to create embedded wallet and update user settings on user login
+   */
+  const initializeWallet = useCallback(async () => {
+    const hasEmbeddedWallet = !!user?.linkedAccounts.find(
+      (account): account is WalletWithMetadata =>
+        account.type === 'wallet' &&
+        account.walletClientType === 'privy' &&
+        account.chainType === 'solana',
+    );
+    if (!hasEmbeddedWallet) {
+      try {
+        await memoizedCreateWallet();
+      } catch (error) {
+        console.error('Error initializing wallet:', error);
+      }
+    }
+  }, [authenticated, ready, user]);
 
   const updateUserSettings = useCallback(async () => {
     console.log(await fetchSettings());
@@ -34,6 +53,7 @@ function App() {
         throw new Error('Failed to fetch access token.');
       }
       setAccessToken(jwt);
+      await initializeWallet();
       //TODO: get user tire status here
       await updateUserSettings();
 
