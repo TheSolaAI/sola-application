@@ -9,6 +9,7 @@ import { EditRoom } from './EditRoom.tsx';
 import { ProfileDropDown } from './ProfileDropDown.tsx';
 import useIsMobile from '../utils/isMobile.tsx';
 import { VscPinned } from 'react-icons/vsc';
+import { ChartCandlestick } from 'lucide-react';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -138,7 +139,7 @@ export const Sidebar: FC<SidebarProps> = ({
         <div className="flex flex-row items-center justify-between">
           <h1 className="text-2xl font-bold text-textColor">
             Sola AI
-            <span className="fixed ml-2 rounded-full bg-primary px-2 py-1 text-xs text-red-50">
+            <span className="fixed ml-2 rounded-full bg-primaryDark px-2 py-1 text-xs text-textColor">
               Beta
             </span>
           </h1>
@@ -152,7 +153,7 @@ export const Sidebar: FC<SidebarProps> = ({
             src="/logo.png"
             alt="Logo"
             className="hidden w-[40px] h-[40px] rounded-lg lg:block"
-          /> */}
+          />
         </div>
 
         {/*New ChatRoom Button*/}
@@ -180,8 +181,8 @@ export const Sidebar: FC<SidebarProps> = ({
           }}
         />
 
-        {/*  ChatRooms List - Now Scrollable */}
-        <div className="mt-[10px] flex-1 pr-4 overflow-y-auto scrollbar scrollbar-thumb-primaryDark">
+        {/*  ChatRooms List */}
+        <div className="mt-[10px] flex-1 overflow-y-auto scrollbar scrollbar-thumb-primaryDark">
           <div className="flex flex-col items-start space-y-2">
             {rooms.map((room) => {
               const isEditing = editingRoom === room.id;
@@ -196,7 +197,10 @@ export const Sidebar: FC<SidebarProps> = ({
                     className={`group font-small flex w-full items-center gap-3 rounded-xl p-3 transition-color duration-300 ease-in-out  
               ${pathname === `/c/${room.id}` || pathname.startsWith(`/c/${room.id}/`) ? 'bg-background' : ''}`}
                   >
-                    <ChartCandlestick className={'w-4 h-4'} color={theme.textColor} />
+                    <ChartCandlestick
+                      className={'w-4 h-4'}
+                      color={theme.textColor}
+                    />
 
                     <h1 className="text-textColor font-normal flex-1">
                       {room.name}
