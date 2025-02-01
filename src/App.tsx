@@ -1,10 +1,11 @@
 import { useCallback, useEffect } from 'react';
 import { usePrivy } from '@privy-io/react-auth';
-import { useSolanaWallets } from '@privy-io/react-auth/solana';
 import useUser from './hooks/useUser';
 import AppRoutes from './routes/AppRoutes.tsx';
 import useAppState from './models/AppState.ts';
 import useThemeManager from './models/ThemeManager.ts';
+import { WalletProvider } from './models/provider/WalletProvider.tsx';
+import ApiClient from './api/ApiClient.ts';
 
 // import { tokenGate } from './lib/solana/tokenGate';
 
@@ -13,11 +14,10 @@ function App() {
    * Global State Management
    */
   const { authenticated, getAccessToken, ready, user } = usePrivy();
-  const { wallets } = useSolanaWallets();
-  const { setWallet, setAccessToken } = useAppState();
+  const { setAccessToken } = useAppState();
   // const { tier, setTier } = useAppState();
   const { fetchSettings } = useUser();
-  const { initManager } = useThemeManager();
+  const { initThemeManager } = useThemeManager();
 
   const updateUserSettings = useCallback(async () => {
     console.log(await fetchSettings());
@@ -34,12 +34,9 @@ function App() {
         throw new Error('Failed to fetch access token.');
       }
       setAccessToken(jwt);
+      ApiClient.setAccessToken(jwt);
       //TODO: get user tire status here
       await updateUserSettings();
-
-      if (wallets.length > 0) {
-        setWallet(wallets[0]);
-      }
     }
   }, [authenticated, ready]);
 
@@ -47,14 +44,18 @@ function App() {
    * Master UseEffect Run at app starts. Sets up app theme
    */
   useEffect(() => {
-    initManager();
+    initThemeManager();
   }, []);
 
   useEffect(() => {
     initializeApp();
   }, [initializeApp]);
 
-  return <AppRoutes isAuthenticated={authenticated && ready} />;
+  return (
+    <WalletProvider>
+      <AppRoutes isAuthenticated={authenticated && ready} />
+    </WalletProvider>
+  );
 }
 
 export default App;

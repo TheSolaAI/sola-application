@@ -12,7 +12,7 @@ export default function AgentTranscription({
   index,
 }: AgentTranscriptionProps) {
   const { theme } = useThemeManager();
-  
+
   return (
     <div
       key={index}

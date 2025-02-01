@@ -1,16 +1,16 @@
 import { useFundWallet } from '@privy-io/react-auth/solana';
-import useAppState from '../models/AppState.ts';
 import { Button } from '@headlessui/react';
 import { useState } from 'react';
+import { useWalletHandler } from '../models/WalletHandler.ts';
 
 const OnRamp = () => {
   const { fundWallet } = useFundWallet();
-  const { appWallet } = useAppState();
+  const { currentWallet } = useWalletHandler();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleFundWallet = async () => {
-    if (!appWallet?.address) {
+    if (currentWallet?.address) {
       console.error('No wallet address available.');
       setError('No wallet connected. Please connect your wallet.');
       return;
@@ -20,7 +20,7 @@ const OnRamp = () => {
     setError(null);
 
     try {
-      await fundWallet(appWallet.address, {
+      await fundWallet(currentWallet!.address, {
         card: {
           preferredProvider: 'moonpay',
         },
@@ -35,7 +35,7 @@ const OnRamp = () => {
     }
   };
 
-  if (!appWallet?.address) {
+  if (currentWallet?.address) {
     return (
       <div className="text-red-500 text-center">
         No wallet connected. Please connect your wallet.

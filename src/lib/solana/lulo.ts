@@ -1,4 +1,4 @@
-import axios, { AxiosRequestConfig } from 'axios';
+import ApiClient from '../../api/ApiClient';
 import {
   DepositParams,
   DepositResponse,
@@ -15,45 +15,24 @@ const wallet_service_url = process.env.WALLET_SERVICE_URL;
 export async function getAssetsLulo(
   params: AssetsParams,
 ): Promise<AssetsResponse | null> {
-  const config: AxiosRequestConfig = {
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    params: {
-      ...params,
-    },
-  };
-
-  try {
-    const response = await axios.get<any>(
-      wallet_service_url + 'api/wallet/lulo/assets',
-      config,
-    );
-    const assets: AssetsResponse = response.data;
-    return assets;
-  } catch (error) {
-    console.error('Error fetching assets:', error);
-    return null;
-  }
+  let resp = await ApiClient.get<AssetsResponse>(
+    wallet_service_url + 'api/wallet/lulo/assets?owner=' + params.owner,
+  );
+  return resp;
 }
 
 export async function depositLulo(
   params: DepositParams,
 ): Promise<VersionedTransaction[] | null> {
+  const response = await ApiClient.post<DepositResponse>(
+    wallet_service_url + 'api/wallet/lulo/deposit',
+    params,
+  );
+  if (!response) {
+    return null;
+  }
+  const deposit_transactions = response['transactions'][0];
   try {
-    const response = await axios.post<any>(
-      wallet_service_url + 'api/wallet/lulo/deposit',
-      params,
-      {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      },
-    );
-    const result: DepositResponse = response.data;
-
-    const deposit_transactions = result['transactions'][0];
-
     let transactions = [];
     for (let i in deposit_transactions) {
       const transaction = deposit_transactions[i].transaction;
@@ -70,22 +49,20 @@ export async function depositLulo(
 export async function withdrawLulo(
   params: WithdrawParams,
 ): Promise<VersionedTransaction[] | null> {
+  const response = await ApiClient.post<WithdrawResponse>(
+    wallet_service_url + 'api/wallet/lulo/withdraw',
+    params,
+  );
+  if (!response) {
+    return null;
+  }
+
+  const withdraw_transactions: WithdrawTransaction[] | null =
+    response.transactions[0];
+  if (!withdraw_transactions) {
+    return null;
+  }
   try {
-    const response = await axios.post<any>(
-      wallet_service_url + 'api/wallet/lulo/withdraw',
-      params,
-      {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      },
-    );
-    const result: WithdrawResponse = response.data;
-    const withdraw_transactions: WithdrawTransaction[] | null =
-      result.transactions[0];
-    if (!withdraw_transactions) {
-      return null;
-    }
     let transactions = [];
     for (let i in withdraw_transactions) {
       const transaction = withdraw_transactions[i].transaction;

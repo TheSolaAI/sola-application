@@ -1,21 +1,19 @@
 import React, { Fragment, useState } from 'react';
 
 import {
-  TrendingNFTCard,
-  MessageCard,
-  SingleCard,
-  MultipleCards,
-  NFTCard,
-  TransactionCard,
-  TokenCard,
+  BubblemapCard,
   LuloCard,
+  MarketDataCard,
+  MessageCard,
+  NFTCard,
+  NFTCollectionCard,
   RugCheckCard,
   SanctumCard,
-  NFTCollectionCard,
-  MarketDataCard,
-  BubblemapCard,
-  TopHolder,
   ShowLimitOrderCard,
+  TokenCard,
+  TopHolder,
+  TransactionCard,
+  TrendingNFTCard,
 } from '../../types/messageCard';
 import {
   Dialog,
@@ -26,7 +24,6 @@ import {
   TransitionChild,
 } from '@headlessui/react';
 import { Copy, ExternalLink, X } from 'lucide-react';
-import useAppState from '../../models/AppState.ts';
 import axios from 'axios';
 import { Connection, VersionedTransaction } from '@solana/web3.js';
 import { tokenList } from '../../config/tokens/tokenMapping';
@@ -37,6 +34,7 @@ import RenderBlinks from './RenderBlinks';
 import AgentTranscription from './AgentTransacriptions.tsx';
 import MessageBox from './MessageBox.tsx';
 import GridBox from './GridBox.tsx';
+import { useWalletHandler } from '../../models/WalletHandler.ts';
 
 const wallet_service_url = process.env.WALLET_SERVICE_URL;
 
@@ -60,7 +58,7 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
   const handleBubbleMap = (tokenAddress: string) => {
     setBubbleMap((prev) => (prev === tokenAddress ? null : tokenAddress));
   };
-  let { appWallet } = useAppState();
+  let { currentWallet } = useWalletHandler();
 
   const rpc = process.env.SOLANA_RPC;
   function closeModal() {
@@ -587,7 +585,7 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                                       invokeSwap(
                                         sanctumAmount,
                                         sanctumAddress,
-                                        appWallet,
+                                        currentWallet,
                                       );
                                     }}
                                   >

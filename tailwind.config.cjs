@@ -1,6 +1,7 @@
 const colors = require('tailwindcss/colors');
 const { createThemes } = require('tw-colors');
 import * as dynamicThemes from './src/config/themes.json';
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
@@ -254,7 +255,7 @@ module.exports = {
   },
   plugins: [
     require('tailwindcss-animate'),
-    createThemes(dynamicThemes),
     require('tailwind-scrollbar'),
+    createThemes(dynamicThemes),
   ],
 };
