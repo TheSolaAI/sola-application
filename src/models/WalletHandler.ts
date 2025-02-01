@@ -52,6 +52,9 @@ export const useWalletHandler = create<WalletHandler>((set, get) => ({
         set({ currentWallet: get().wallets[0] });
       }
     } else {
+      if (get().wallets.length === 0) {
+        return;
+      }
       set({ currentWallet: get().wallets[0] });
       localStorage.setItem('defaultWallet', get().wallets[0].address);
     }
