@@ -36,6 +36,7 @@ import { ConnectedSolanaWallet } from '@privy-io/react-auth';
 import RenderBlinks from './RenderBlinks';
 import AgentTranscription from './AgentTransacriptions.tsx';
 import MessageBox from './MessageBox.tsx';
+import GridBox from './GridBox.tsx';
 
 const wallet_service_url = process.env.WALLET_SERVICE_URL;
 
@@ -146,75 +147,70 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
       {messageList.map((item, index) => {
         switch (item.type) {
           case 'aiTranscription':
-            
             return <AgentTranscription item={item} index={index} />;
 
           case 'message':
-            return (
-              <MessageBox item={item} index={index} />
-            );
+            return <MessageBox item={item} index={index} />;
 
           case 'transaction': {
             const transactionCard = item.card as TransactionCard;
             return (
-              <div
-                key={index}
-                className="flex items-center justify-between mb-4 p-4 bg-[#F5F5F5] rounded-lg dark:bg-darkalign2 dark:text-bodydark2"
-              >
-                <div>
-                  <h4 className="text-lg font-semibold">
-                    {transactionCard.title}
-                  </h4>
-                  <p className="text-xs">
-                    Confirmation : {transactionCard.status}
-                  </p>
-                  <a
-                    href={transactionCard.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-500 hover:underline text-sm"
-                  >
-                    View details on Solscan ↗
-                  </a>
-                </div>
-              </div>
-            );
-          }
-          case 'card': {
-            const singleCard = item.card as SingleCard;
-            return (
-              <div
-                key={index}
-                className="mb-4 bg-[#F5F5F5] rounded-lg p-4 shadow-md overflow-auto dark:bg-darkalign2 dark:text-bodydark2 no-scrollbar transition-opacity duration-500 opacity-100 transform"
-              >
-                <h4 className="mb-2 text-lg font-semibold text-bodydark1">
-                  {singleCard.title}
-                </h4>
-                <p className="text-gray-400">
-                  Status: {singleCard.status} <br />
-                  Date: {singleCard.date}
-                </p>
-              </div>
-            );
-          }
-          case 'cards': {
-            const multipleCards = item.card as MultipleCards;
-            return (
-              <div
-                key={index}
-                className="grid grid-cols-2 gap-4 mb-4 overflow-auto dark:bg-darkalign2 dark:text-bodydark2 no-scrollbar transition-opacity duration-500 opacity-100 transform"
-              >
-                {multipleCards.map((subCard, subIndex) => (
-                  <div
-                    key={subIndex}
-                    className="bg-[#F5F5F5] rounded-lg p-3 text-center shadow-sm text-bodydark1"
-                  >
-                    {subCard.metric}: {subCard.value}
+              <GridBox index={index} col={3}>
+                <div className="flex p-4 bg-sec_background text-secText overflow-scroll">
+                  <div>
+                    <img src="/solscan.png" alt="solscan" className='w-8 h-8' />
                   </div>
-                ))}
-              </div>
+                  <div className="flex flex-col">
+                    <span className='font-semibold text-lg'>{transactionCard.title}</span>
+                    <span>{transactionCard.status}</span>
+                    <a
+                      href={transactionCard.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-500 hover:underline text-sm"
+                    >
+                      View details on Solscan ↗
+                    </a>
+                  </div>
+                </div>
+              </GridBox>
             );
           }
+          // case 'card': {
+          //   const singleCard = item.card as SingleCard;
+          //   return (
+          //     <div
+          //       key={index}
+          //       className="mb-4 bg-[#F5F5F5] rounded-lg p-4 shadow-md overflow-auto dark:bg-darkalign2 dark:text-bodydark2 no-scrollbar transition-opacity duration-500 opacity-100 transform"
+          //     >
+          //       <h4 className="mb-2 text-lg font-semibold text-bodydark1">
+          //         {singleCard.title}
+          //       </h4>
+          //       <p className="text-gray-400">
+          //         Status: {singleCard.status} <br />
+          //         Date: {singleCard.date}
+          //       </p>
+          //     </div>
+          //   );
+          // }
+          // case 'cards': {
+          //   const multipleCards = item.card as MultipleCards;
+          //   return (
+          //     <div
+          //       key={index}
+          //       className="grid grid-cols-2 gap-4 mb-4 overflow-auto dark:bg-darkalign2 dark:text-bodydark2 no-scrollbar transition-opacity duration-500 opacity-100 transform"
+          //     >
+          //       {multipleCards.map((subCard, subIndex) => (
+          //         <div
+          //           key={subIndex}
+          //           className="bg-[#F5F5F5] rounded-lg p-3 text-center shadow-sm text-bodydark1"
+          //         >
+          //           {subCard.metric}: {subCard.value}
+          //         </div>
+          //       ))}
+          //     </div>
+          //   );
+          // }
           case 'agent':
             return (
               <div key={index} className="mb-4 flex items-center gap-3">
