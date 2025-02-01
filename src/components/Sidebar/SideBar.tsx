@@ -130,7 +130,7 @@ export const Sidebar = () => {
         />
 
         {/*  ChatRooms List - Now Scrollable */}
-        <div className="mt-[10px] flex-1 pr-4 overflow-y-auto scrollbar scrollbar-thumb-primaryDark">
+        <div className="mt-[10px] flex-1 pr-4 overflow-y-auto scrollbar-thin ">
           <div className="flex flex-col items-start space-y-2">
             {rooms.map((room) => {
               const isEditing = editingRoom === room.id;
@@ -140,7 +140,7 @@ export const Sidebar = () => {
                   <NavLink
                     to={`/c/${room.id}`}
                     className={`group font-small flex w-full items-center gap-3 rounded-xl p-3 transition-color hover:bg-primary duration-300 ease-in-out  
-              ${pathname === `/c/${room.id}` || pathname.startsWith(`/c/${room.id}/`) ? ' border-l-8 border-primary' : ''}`}
+              ${pathname === `/c/${room.id}` || pathname.startsWith(`/c/${room.id}/`) ? 'bg-primary' : ''}`}
                   >
                     <ChartCandlestick
                       className={'w-4 h-4'}

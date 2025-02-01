@@ -19,7 +19,7 @@ export default function MessageBox({ item, index }: MessageBoxProps) {
       <div className='opacity-0'>
         <Bot color={theme.secText} />
       </div>
-      <div className="bg-sec_background text-secText p-2 w-full  rounded-lg break-words whitespace-norma">
+      <div className="bg-sec_background text-secText p-2 w-full  rounded-lg break-words whitespace-normal">
         {item.message}
       </div>
     </div>
