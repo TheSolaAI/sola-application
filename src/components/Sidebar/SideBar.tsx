@@ -85,13 +85,13 @@ export const Sidebar = () => {
       {/* Sidebar */}
       <div
         ref={sidebarRef}
-        className={`flex flex-col transition-all duration-300 ease-in-out fixed bg-sec_background lg:static lg:translate-x-0 ${isMobileOpen ? 'translate-x-0' : '-translate-x-full'} z-40 h-full w-fit rounded-lg p-4 pt-6 lg:m-2 lg:h-[calc(100%-1rem)] shadow-black/25 shadow-[0px_0px_10px_1px]`}
+        className={`flex flex-col w-60 md:w-72 transition-all duration-300 ease-in-out fixed bg-sec_background lg:static lg:translate-x-0 ${isMobileOpen ? 'translate-x-0' : '-translate-x-full'} z-40 h-full w-fit rounded-lg p-4 pt-6 lg:m-2 lg:h-[calc(100%-1rem)] shadow-black/25 shadow-[0px_0px_10px_1px]`}
       >
         {/* Header */}
         <div className="flex flex-row items-center justify-between">
           <h1 className="text-2xl font-bold text-textColor">
             Sola AI
-            <span className="fixed ml-2 rounded-full bg-primary px-2 py-1 text-xs text-red-50">
+            <span className="fixed ml-2 rounded-full bg-primaryDark px-2 py-1 text-xs text-red-50">
               Beta
             </span>
           </h1>
