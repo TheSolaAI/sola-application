@@ -22,8 +22,8 @@ function ComingSoon() {
           Coming Soon!
         </h2>
         <p className="text-gray-600 text-lg leading-relaxed mb-8 dark:text-bodydark">
-          We're working hard to bring you the best settings experience. This
-          feature is coming soon!
+          We&apos;re working hard to bring you the best settings experience.
+          This feature is coming soon!
         </p>
         <div className="flex justify-center">
           <button className="bg-boxdark-2 hover:bg-boxdark/90 text-bodydark font-medium py-3 px-6 rounded-lg transition duration-300 focus:outline-none focus:ring-2 focus:ring-indigo-300">

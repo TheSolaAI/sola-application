@@ -62,12 +62,15 @@ const useUser = () => {
         return null;
       }
       {
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         updatedSettings.theme && setTheme(updatedSettings.theme);
       }
       {
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         updatedSettings.voice_preference &&
           setAiVoice(updatedSettings.voice_preference);
       }
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       updatedSettings.emotion_choice &&
         setAiEmotion(updatedSettings.emotion_choice);
       try {
