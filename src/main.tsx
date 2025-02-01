@@ -53,6 +53,11 @@ const RootApp = () => {
                 connectors: solanaConnectors,
               },
             },
+            embeddedWallets: {
+              solana: {
+                createOnLogin: 'all-users',
+              },
+            },
             fundingMethodConfig: {
               moonpay: {
                 paymentMethod: 'credit_debit_card',
