@@ -5,7 +5,7 @@ export async function getTopHolders(
   token: string,
 ): Promise<TopHolder[] | null> {
   const resp = await ApiClient.get<TopHolder[]>(
-    data_service_url + 'api/data/token/top_holders?token=' + token,
+    data_service_url + 'data/token/top_holders?token=' + token,
   );
   return resp;
 }

@@ -478,15 +478,17 @@ const Conversation = () => {
   };
 
   const handleGetLimitOrders = async () => {
+    console.log("calling fn 1")
     if (!appWallet) return null;
 
     await handleAddMessage(agentMessage(`Agent is fetching limit orders`));
-
+    console.log("calling fn 2")
     try {
       let params: ShowLimitOrderParams = {
         public_key: appWallet.address
       }
       const resp = await getLimitOrders(params);
+      console.log("calling fn 3")
       const limitOrders = resp?.orders;
       if (!limitOrders) {
         await handleAddMessage(messageCard(`Error fetching limit orders`));
@@ -562,7 +564,7 @@ const Conversation = () => {
     ]);
 
     try {
-      if (tokenMint.length < 44) {
+      if (tokenMint.length < 35) {
         const data = await getTokenDataSymbol('$' + tokenMint);
         console.log(data);
         if (!data) {
@@ -1048,8 +1050,9 @@ const Conversation = () => {
 
   const sendClientEvent = useCallback(
     (message: any) => {
+      console.log("message:", message)
+      console.log(appState.tier)
       if (localDataChannel && localDataChannel.readyState === 'open') {
-        console.log(message);
         message.event_id = message.event_id || crypto.randomUUID();
         localDataChannel.send(JSON.stringify(message));
         setEvents((prev) => [message, ...prev]);
@@ -1307,6 +1310,7 @@ const Conversation = () => {
               );
               sendClientEvent(response);
             } else if (output.name === 'getLimitOrders') {
+              console.log("calling fn")
               let response = await handleGetLimitOrders();
               sendClientEvent(response);
             }
