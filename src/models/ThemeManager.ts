@@ -4,6 +4,7 @@ import themeJSONRaw from '../config/themes.json';
 interface Theme {
   name: string;
   baseTheme: 'light' | 'dark';
+  baseBackground: `#${string}`;
   background: `#${string}`;
   backgroundContrast: `#${string}`;
   sec_background: `#${string}`;

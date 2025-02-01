@@ -1,15 +1,28 @@
 import { ChevronLeft, Edit, Edit2, Menu, User } from 'react-feather';
-import { useEffect, useRef, useState } from 'react';
+import { FC, useEffect, useRef, useState } from 'react';
 import useThemeManager from '../../models/ThemeManager.ts';
 import { useChat } from '../../hooks/useChatRoom.ts';
 import { useRoomStore } from '../../models/RoomState.ts';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { AgentSelect } from './AgentSelect.tsx';
 import { EditRoom } from './EditRoom.tsx';
-import { usePrivy } from '@privy-io/react-auth';
 import { ProfileDropDown } from './ProfileDropDown.tsx';
+import useIsMobile from '../utils/isMobile.tsx';
+import { VscPinned } from 'react-icons/vsc';
 
-export const Sidebar = () => {
+interface SidebarProps {
+  isOpen: boolean;
+  setIsOpen: (open: boolean) => void;
+  canAutoClose: boolean;
+  setCanAutoClose: (autoClose: boolean) => void;
+}
+
+export const Sidebar: FC<SidebarProps> = ({
+  isOpen,
+  setIsOpen,
+  canAutoClose,
+  setCanAutoClose,
+}) => {
   const navigate = useNavigate();
 
   /**
@@ -21,33 +34,57 @@ export const Sidebar = () => {
   const profileRef = useRef<HTMLButtonElement>(null);
 
   /**
-   * models
+   * Global State
    */
   const { theme } = useThemeManager();
   const { getRooms } = useChat();
   const { rooms } = useRoomStore();
   const { pathname } = useLocation();
-  const { user } = usePrivy();
 
   /**
    * Local State
    */
-  const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [agentSelectOpen, setAgentSelectOpen] = useState(false);
   const [editingRoom, setEditingRoom] = useState<string | null>(null);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [autoOpened, setAutoOpened] = useState(false);
+  const isMobile = useIsMobile();
 
   /**
-   * Fully opens or closes the sidebar. Only called in mobile view.
+   * Open the sidebar when mouse hovers over the left edge
+   * Only triggers if canAutoClose is true and we're on desktop
    */
-  const toggleMobile = () => setIsMobileOpen(!isMobileOpen);
+  const handleMouseEnter = () => {
+    if (!isMobile && !isOpen && canAutoClose) {
+      setIsOpen(true);
+      setAutoOpened(true);
+    }
+  };
+
+  /**
+   * Close the sidebar if it was auto-opened when mouse leaves
+   * Only triggers if canAutoClose is true and the sidebar was auto-opened
+   */
+  const handleMouseLeave = () => {
+    if (!isMobile && canAutoClose && autoOpened) {
+      setIsOpen(false);
+      setAutoOpened(false);
+    }
+  };
 
   /**
    * Close the sidebar when clicking outside.
+   * On desktop, only closes if canAutoClose is true
    */
   const handleClickOutside = (e: MouseEvent) => {
     if (sidebarRef.current && !sidebarRef.current.contains(e.target as Node)) {
-      setIsMobileOpen(false);
+      setAgentSelectOpen(false);
+      setProfileOpen(false);
+
+      // On mobile, always close
+      if (isMobile) {
+        setIsOpen(false);
+      }
     }
   };
 
@@ -73,10 +110,17 @@ export const Sidebar = () => {
 
   return (
     <>
+      {/*Used to detect mouse over in collapsed mode - only shown if canAutoClose is true*/}
+      {!isMobile && !isOpen && canAutoClose && (
+        <div
+          className="fixed left-0 top-0 h-full w-6 z-50"
+          onMouseEnter={handleMouseEnter}
+        />
+      )}
       {/* Mobile Menu Button */}
       <button
-        onClick={toggleMobile}
-        className={`transition-duration-500 fixed left-8 top-8 z-50 ease-in-out lg:hidden ${isMobileOpen ? 'opacity-0' : 'opacity-100'}`}
+        onClick={() => setIsOpen(!isOpen)}
+        className={`transition-duration-500 fixed left-8 top-8 z-50 ease-in-out lg:hidden ${isOpen ? 'opacity-0' : 'opacity-100'}`}
       >
         <Menu size={24} color={theme.textColor} />
       </button>
@@ -84,7 +128,11 @@ export const Sidebar = () => {
       {/* Sidebar */}
       <div
         ref={sidebarRef}
-        className={`flex flex-col transition-all duration-300 ease-in-out fixed bg-sec_background lg:static lg:translate-x-0 ${isMobileOpen ? 'translate-x-0' : '-translate-x-full'} z-40 h-full rounded-lg p-4 pt-6 lg:m-2 lg:h-[calc(100%-1rem)] shadow-black/25 shadow-[0px_0px_15px_1px]`}
+        className={`flex flex-col transition-all duration-300 ease-in-out bg-sec_background p-4 pt-6 shadow-black/25 shadow-[0px_0px_15px_1px] z-40 h-full rounded-lg
+        ${isMobile ? 'fixed left-0 top-0 w-64' : 'lg:static lg:w-64'} 
+        ${isOpen ? 'translate-x-0' : isMobile ? '-translate-x-full' : 'lg:-ml-64'}
+        `}
+        onMouseLeave={handleMouseLeave}
       >
         {/* Header */}
         <div className="flex flex-row items-center justify-between">
@@ -94,9 +142,12 @@ export const Sidebar = () => {
               Beta
             </span>
           </h1>
-          <button onClick={toggleMobile} className="lg:hidden">
-            <ChevronLeft size={24} color={theme.textColor} />
-          </button>
+          {/* Only show close button on mobile or if canAutoClose is true */}
+          {(isMobile || canAutoClose) && (
+            <button onClick={() => setIsOpen(false)} className="lg:hidden">
+              <ChevronLeft size={24} color={theme.textColor} />
+            </button>
+          )}
           <img
             src="/logo.png"
             alt="Logo"
@@ -118,11 +169,14 @@ export const Sidebar = () => {
 
         <AgentSelect
           isOpen={agentSelectOpen}
-          onClose={() => setAgentSelectOpen(false)}
+          onClose={() => {
+            setAgentSelectOpen(false);
+            if (isMobile) setIsOpen(false);
+          }}
           anchorEl={agentSelectRef.current}
           onSelect={() => {
             navigate(`/`);
-            isMobileOpen && toggleMobile();
+            setAgentSelectOpen(false);
           }}
         />
 
@@ -136,6 +190,9 @@ export const Sidebar = () => {
                 <div key={room.id} className="w-full">
                   <NavLink
                     to={`/c/${room.id}`}
+                    onClick={() => {
+                      if (isMobile) setIsOpen(false);
+                    }}
                     className={`group font-small flex w-full items-center gap-3 rounded-xl p-3 transition-color duration-300 ease-in-out  
               ${pathname === `/c/${room.id}` || pathname.startsWith(`/c/${room.id}/`) ? 'bg-background' : ''}`}
                   >
@@ -177,22 +234,43 @@ export const Sidebar = () => {
             <h1 className="font-medium text-textColor">Sola AI Tokens:</h1>
             <h1 className={'font-bold text-textColor text-3xl'}> ∞</h1>
           </div>
-          <button
-            className={
-              'flex flex-row items-center justify-start gap-5 hover:bg-background rounded-xl p-3 cursor-pointer -m-2'
-            }
-            ref={profileRef}
-            onClick={() => setProfileOpen(!profileOpen)}
-          >
-            <User size={24} color={theme.textColor} />
-            <h1 className="text-secText font-semibold">
-              {user?.email?.address}
-            </h1>
-          </button>
+          <div className="flex flex-row items-center justify-between">
+            <button
+              ref={profileRef}
+              onClick={() => setProfileOpen(!profileOpen)}
+            >
+              <User size={24} color={theme.textColor} />
+            </button>
+
+            <button>
+              {!isMobile && !canAutoClose ? (
+                <ChevronLeft
+                  size={24}
+                  color={theme.textColor}
+                  onClick={() => {
+                    setIsOpen(false);
+                    setCanAutoClose(true);
+                  }}
+                />
+              ) : (
+                <VscPinned
+                  size={24}
+                  color={theme.textColor}
+                  onClick={() => {
+                    setIsOpen(true);
+                    setCanAutoClose(false);
+                  }}
+                />
+              )}
+            </button>
+          </div>
           <ProfileDropDown
             anchorEl={profileRef.current!}
             isOpen={profileOpen}
-            onClose={() => setProfileOpen(false)}
+            onClose={() => {
+              setProfileOpen(false);
+              if (isMobile) setIsOpen(false);
+            }}
           />
         </div>
       </div>

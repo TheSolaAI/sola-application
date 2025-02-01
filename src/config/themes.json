@@ -1,6 +1,7 @@
 {
   "light": {
     "baseTheme": "light",
+    "baseBackground": "#FFFFFF",
     "background": "#FFFFFF",
     "backgroundContrast": "#1b1b1b",
     "sec_background": "#f2f2f3",
@@ -14,6 +15,7 @@
   },
   "dark": {
     "baseTheme": "dark",
+    "baseBackground": "#000000",
     "background": "#151515",
     "backgroundContrast": "#fafafa",
     "sec_background": "#1B1B1B",
@@ -23,19 +25,6 @@
     "secText": "#A0AEC0",
     "border": "#484848",
     "primary": "#9278b2",
-    "primaryDark": "#7C3AED"
-  },
-  "custom": {
-    "baseTheme": "dark",
-    "background": "#FFFBF0",
-    "backgroundContrast": "#FFF4E6",
-    "sec_background": "#FFF4E6",
-    "surface": "#FFFBF0",
-    "textColor": "#3B3A39",
-    "textColorContrast": "#FFFFFF",
-    "secText": "#856404",
-    "border": "#E5E7EB",
-    "primary": "#180161",
     "primaryDark": "#7C3AED"
   }
 }

@@ -55,7 +55,7 @@ export const ProfileDropDown: FC<ProfileDropDownProps> = ({
       title="Profile"
       mobileTitle="Profile"
       direction="up"
-      width="component"
+      width="auto"
     >
       <div className="w-full">
         {/*Settings*/}
@@ -71,7 +71,7 @@ export const ProfileDropDown: FC<ProfileDropDownProps> = ({
           <Settings className="text-secText w-5 h-5" />
         </button>
         <button
-          className="w-full hover:bg-surface flex-row flex items-center justify-between p-3 rounded-xl"
+          className="w-full hover:bg-surface flex-row flex items-center justify-between p-3 rounded-xl gap-x-5"
           onClick={() => {
             //   Navigate to wallet configuration page
             navigation('/wallet');
