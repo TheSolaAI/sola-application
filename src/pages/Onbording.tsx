@@ -11,12 +11,15 @@ function Onboarding() {
   const { theme, setTheme } = useThemeManager();
 
   return (
-    <div className="bg-background h-screen overflow-hidden flex flex-col items-center justify-center">
-      {/*Top Bar*/}
-      <div className="absolute top-0 w-full p-4 bg-primaryDark z-10 flex flex-row justify-between">
+    <div className="bg-background h-screen overflow-hidden flex flex-col gap-4 items-center justify-center">
+      {/*Top Bar starts*/}
+      <div className="absolute top-0 w-full p-4 bg-primaryDark z-10 flex flex-row justify-between gap-2">
         <div className={'flex flex-row items-center gap-x-6'}>
           <img src="/logo.png" className={`h-11 w-11 rounded-xl`} />
-          <a href="/" className="text-xl font-semibold text-textColor">
+          <a
+            href="/"
+            className=" hidden text-xl font-semibold text-textColor sm:block"
+          >
             Sola AI
           </a>
         </div>
@@ -38,8 +41,9 @@ function Onboarding() {
           </AwesomeButton>
         </div>
       </div>
-      <div className="max-w-4xl  px-6 sm:px-8 py-12">
-        <div className="text-center sm:text-left space-y-6">
+      {/*Top Bar ends*/}
+      <div className="max-w-4xl px-6 sm:px-8 py-12">
+        <div className="text-center  space-y-6 mt-24">
           <h2 className="text-3xl sm:text-4xl font-semibold text-textColor">
             Welcome to Sola AI. Voice assistant on Solana.
           </h2>
