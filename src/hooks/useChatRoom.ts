@@ -10,6 +10,7 @@ import useAppState from '../models/AppState.ts';
 import { usePrivy } from '@privy-io/react-auth';
 import { useNavigate } from 'react-router-dom';
 import useChatState from '../models/ChatState.ts';
+import ApiClient from '../api/ApiClient.ts';
 
 export const useChat = () => {
   const {
@@ -51,7 +52,7 @@ export const useChat = () => {
     setIsSessionActive(false);
     setDataChannel(null);
     resetMute();
-    console.log("delete stop session executed")
+    console.log('delete stop session executed');
   }
 
   const ensureAccessToken = useCallback(async (): Promise<string | null> => {
@@ -61,13 +62,14 @@ export const useChat = () => {
     try {
       const newAccessToken = await getAccessToken();
       setAccessToken(newAccessToken);
+      ApiClient.setAccessToken(newAccessToken);
       return newAccessToken;
     } catch (err: any) {
       console.error('Failed to get access token:', err.message);
       setError('Failed to get access token');
       return null;
     }
-  }, [accessToken, getAccessToken, setAccessToken]);
+  }, [accessToken, getAccessToken, setAccessToken,ApiClient]);
 
   const getRooms = useCallback(async () => {
     setLoading(true);

@@ -3,15 +3,13 @@ import { TokenGate } from '../../types/token_data';
 
 const url = process.env.WALLET_SERVICE_URL;
 
-export const tokenGate = async (
-  address: string,
-) => {
-    try {
+export const tokenGate = async (address: string) => {
+  try {
     let verify_url = `${url}/api/wallet/verify/access`;
     const response = await axios.post(verify_url, {
-        address,
+      address,
     });
-    let data:TokenGate = response.data
+    let data: TokenGate = response.data;
     return data;
   } catch (error) {
     console.error(error);
@@ -19,18 +17,16 @@ export const tokenGate = async (
   }
 };
 
-export const nftGate = async (
-    address: string,
-  ) => {
-      try {
-      let verify_url = `${url}/api/wallet/verify/access`;
-      const response = await axios.post(verify_url, {
-        address,
-      });
-      let data:TokenGate = response.data
-      return data;
-    } catch (error) {
-      console.error(error);
-      return false;
-    }
-  };
+export const nftGate = async (address: string) => {
+  try {
+    let verify_url = `${url}/api/wallet/verify/access`;
+    const response = await axios.post(verify_url, {
+      address,
+    });
+    let data: TokenGate = response.data;
+    return data;
+  } catch (error) {
+    console.error(error);
+    return false;
+  }
+};

@@ -9,17 +9,15 @@ export const swapLST = {
     type: 'object',
     strict: true,
     properties: {
-        quantity: {
-            type: 'number',
-            description: 'Quantity of solana to swap.'
-        },
-        lst: {
-          type: 'string',
-          description: 'The LST to swap'
-        }
+      quantity: {
+        type: 'number',
+        description: 'Quantity of solana to swap.',
+      },
+      lst: {
+        type: 'string',
+        description: 'The LST to swap',
+      },
     },
-    required: ['quantity','lst']
+    required: ['quantity', 'lst'],
   },
 };
-
-

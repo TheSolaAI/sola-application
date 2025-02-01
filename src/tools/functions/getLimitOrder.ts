@@ -13,6 +13,4 @@ export const getLimitOrders = {
 };
 
 //TODO: Shift the trigger logic here from conversation.tsx
-export function getLimitOrderFunction() {
-  
-}
+export function getLimitOrderFunction() {}

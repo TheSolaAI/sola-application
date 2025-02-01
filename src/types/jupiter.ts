@@ -1,4 +1,4 @@
-import { VersionedTransaction } from "@solana/web3.js";
+import { VersionedTransaction } from '@solana/web3.js';
 
 export type SwapParams = {
   input_mint: string;
@@ -9,17 +9,17 @@ export type SwapParams = {
 };
 
 export type SwapResponse = {
-  transaction: VersionedTransaction;
+  transaction: string;
 };
 
 export type LimitOrderParams = {
-  token_mint_a: string;  
-  token_mint_b: string;  
-  public_key: string;    
-  amount: number;        
-  limit_price: number;   
-  action: "BUY" | "SELL";  
-}
+  token_mint_a: string;
+  token_mint_b: string;
+  public_key: string;
+  amount: number;
+  limit_price: number;
+  action: 'BUY' | 'SELL';
+};
 
 export type LimitOrderResponse = {
   order: string;
@@ -28,9 +28,9 @@ export type LimitOrderResponse = {
 
 export type ShowLimitOrderResponse = {
   orders: ShowLimitOrder[];
-}
+};
 
-export interface ShowLimitOrder { 
+export interface ShowLimitOrder {
   created_at: string;
   input_amount: string;
   input_mint: string;

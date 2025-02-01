@@ -8,14 +8,9 @@ export const getTrendingNFTs = {
   parameters: {
     type: 'object',
     strict: true,
-    properties: {
-
-    },
-    
+    properties: {},
   },
 };
 
 //TODO: Shift the trigger logic here from conversation.tsx
-export function getTrendingNFTsFunction() {
-  
-}
+export function getTrendingNFTsFunction() {}

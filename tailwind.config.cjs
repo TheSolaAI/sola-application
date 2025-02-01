@@ -252,5 +252,9 @@ module.exports = {
       },
     },
   },
-  plugins: [require('tailwindcss-animate'), createThemes(dynamicThemes)],
+  plugins: [
+    require('tailwindcss-animate'),
+    createThemes(dynamicThemes),
+    require('tailwind-scrollbar'),
+  ],
 };

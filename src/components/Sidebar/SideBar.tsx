@@ -138,7 +138,7 @@ export const Sidebar: FC<SidebarProps> = ({
         <div className="flex flex-row items-center justify-between">
           <h1 className="text-2xl font-bold text-textColor">
             Sola AI
-            <span className="fixed ml-2 rounded-full bg-red-500 px-2 py-1 text-xs text-red-50">
+            <span className="fixed ml-2 rounded-full bg-primary px-2 py-1 text-xs text-red-50">
               Beta
             </span>
           </h1>
@@ -152,7 +152,7 @@ export const Sidebar: FC<SidebarProps> = ({
             src="/logo.png"
             alt="Logo"
             className="hidden w-[40px] h-[40px] rounded-lg lg:block"
-          />
+          /> */}
         </div>
 
         {/*New ChatRoom Button*/}
@@ -181,7 +181,7 @@ export const Sidebar: FC<SidebarProps> = ({
         />
 
         {/*  ChatRooms List - Now Scrollable */}
-        <div className="mt-[10px] flex-1 overflow-y-auto">
+        <div className="mt-[10px] flex-1 pr-4 overflow-y-auto scrollbar scrollbar-thumb-primaryDark">
           <div className="flex flex-col items-start space-y-2">
             {rooms.map((room) => {
               const isEditing = editingRoom === room.id;
@@ -196,12 +196,9 @@ export const Sidebar: FC<SidebarProps> = ({
                     className={`group font-small flex w-full items-center gap-3 rounded-xl p-3 transition-color duration-300 ease-in-out  
               ${pathname === `/c/${room.id}` || pathname.startsWith(`/c/${room.id}/`) ? 'bg-background' : ''}`}
                   >
-                    <img
-                      src={'https://avatar.iran.liara.run/public/43'}
-                      alt={'agent-image'}
-                      className={'w-10 h-10'}
-                    />
-                    <h1 className="text-textColor font-medium flex-1">
+                    <ChartCandlestick className={'w-4 h-4'} color={theme.textColor} />
+
+                    <h1 className="text-textColor font-normal flex-1">
                       {room.name}
                     </h1>
                     <button
@@ -230,9 +227,9 @@ export const Sidebar: FC<SidebarProps> = ({
 
         {/* Bottom Section */}
         <div className="mt-4">
-          <div className="flex flex-row justify-between gap-5 bg-gradient-to-r from-primaryDark to-primary p-[10px] rounded-xl mb-10 items-center shadow-primaryDark shadow-[0px_0px_10px_1px]">
-            <h1 className="font-medium text-textColor">Sola AI Tokens:</h1>
-            <h1 className={'font-bold text-textColor text-3xl'}> ∞</h1>
+          <div className="flex flex-row justify-center items-center gap-5 bg-gradient-to-r from-primaryDark to-primary p-[10px] rounded-xl mb-10  shadow-primaryDark ">
+            <h1 className="font-semibold text-textColor">$SOLA :</h1>
+            <h1 className={'font-bold text-textColor text-2xl'}> ∞</h1>
           </div>
           <div className="flex flex-row items-center justify-between">
             <button

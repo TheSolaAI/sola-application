@@ -1,6 +1,10 @@
-import { freeTools,fullTools } from './config/config';
+import { freeTools, fullTools } from './config/config';
 
-export const createToolsConfig = (aiVoice: string, aiEmotion: string,tier:number) => {
+export const createToolsConfig = (
+  aiVoice: string,
+  aiEmotion: string,
+  tier: number,
+) => {
   const instructions = `
     Your name is Sola, a voice assistant specializing in the Solana blockchain and its ecosystem, powered by the SOLA token. Your role is to provide accurate, real-time information and actionable advice in a professional tone.
 

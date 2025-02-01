@@ -5,6 +5,7 @@ import AppRoutes from './routes/AppRoutes.tsx';
 import useAppState from './models/AppState.ts';
 import useThemeManager from './models/ThemeManager.ts';
 import { WalletProvider } from './models/provider/WalletProvider.tsx';
+import ApiClient from './api/ApiClient.ts';
 
 // import { tokenGate } from './lib/solana/tokenGate';
 
@@ -33,6 +34,7 @@ function App() {
         throw new Error('Failed to fetch access token.');
       }
       setAccessToken(jwt);
+      ApiClient.setAccessToken(jwt)
       //TODO: get user tire status here
       await updateUserSettings();
     }
