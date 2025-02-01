@@ -6,7 +6,7 @@ class ApiClient {
   });
 
   
-  static setAccessToken(token: string) {
+  static setAccessToken(token: string|null) {
     this.api.defaults.headers["Authorization"] = `Bearer ${token}`;
   }
 
