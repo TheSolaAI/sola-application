@@ -1354,8 +1354,8 @@ const Conversation = () => {
 
           {/* End of Session Controls Section */}
         </main>
-        <section className="relative flex justify-center items-end w-full  bg-black dark:bg-darkalign animate-in fade-in-0 duration-300">
-          <div className="absolute  w-full bottom-0 left-1/2 transform -translate-x-1/2 p-4 flex justify-center">
+        <section className="relative animate-in fade-in-0 duration-300">
+          <div className={`absolute  w-full bottom-0 left-1/2 transform -translate-x-1/2 py-2 flex items-center justify-center`}>
             <SessionControls
               sendTextMessage={sendTextMessage}
               isSessionActive={isSessionActive}

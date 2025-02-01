@@ -1,5 +1,5 @@
 import React, { useState, ChangeEvent, KeyboardEvent } from 'react';
-import { Mic, Send, MicOff } from 'react-feather';
+import { Mic, Send, MicOff } from 'lucide-react';
 import useChatState from '../models/ChatState.ts';
 import { Button } from '@headlessui/react';
 
@@ -13,7 +13,7 @@ const quotes = [
 export const SessionStopped = () => {
   return (
     <div className="flex items-center justify-center w-full h-full">
-      <div className="flex gap-2 items-center bg-bodydark1 py-4 px-6 rounded-full text-base text-graydark">
+      <div className="flex gap-2 items-center bg-sec_background py-4 px-6 rounded-full text-base text-textColor">
         {quotes[Math.floor(Math.random() * quotes.length)]}
       </div>
     </div>
@@ -49,28 +49,28 @@ export const SessionActive: React.FC<SessionActiveProps> = ({
   };
 
   return (
-    <div className="flex items-center justify-center w-full h-full gap-4">
+    <div className="flex items-center justify-center h-full w-full gap-2 px-2">
       {sendTextMessage && (
-        <>
+        <div className="relative flex-1 max-w-full md:max-w-[600px]">
           <input
             type="text"
             placeholder="Send a text message..."
-            className="border border-[#E7E7E7] bg-graydark rounded-2xl p-4 min-w-full flex text-bodydark1 dark:bg-bodydark2 dark:border-none"
+            className=" bg-sec_background rounded-full p-4 pr-16 flex text-textColor w-full sm:w-[300px] md:w-[600px]"
             value={message}
             onKeyDown={handleKeyDown}
             onChange={handleChange}
           />
           <Button
             onClick={handleSendClientEvent}
-            className="rounded-3xl p-4 w-16 h-16 bg-body text-graydark"
+            className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-3 w-12 h-12 bg-sec_background text-textColor flex items-center justify-center"
           >
             <Send height={16} />
           </Button>
-        </>
+        </div>
       )}
       <Button
         onClick={toggleMute}
-        className="rounded-3xl p-4 w-20 h-16 bg-body text-graydark"
+        className="rounded-full flex justify-center items-center p-4 w-14 h-14 bg-primaryDark text-textColorContrast"
       >
         {isMuted ? <MicOff height={16} /> : <Mic height={16} />}
       </Button>
@@ -87,7 +87,7 @@ export const SessionControls: React.FC<SessionControlsProps> = ({
   sendTextMessage,
   isSessionActive,
 }) => (
-  <div className="flex gap-4 h-full rounded-md">
+  <div className="flex gap-4 h-full w-full justify-center">
     {isSessionActive ? (
       <SessionActive sendTextMessage={sendTextMessage} />
     ) : (

@@ -1,6 +1,6 @@
 import { FC } from 'react';
 import { Dropdown } from '../general/DropDown.tsx';
-import { CreditCard, LogOut, Settings } from 'react-feather';
+import { LogOut, Settings, CreditCard } from 'lucide-react';
 import useChatState from '../../models/ChatState.ts';
 import { usePrivy } from '@privy-io/react-auth';
 import { useNavigate } from 'react-router-dom';
@@ -60,7 +60,7 @@ export const ProfileDropDown: FC<ProfileDropDownProps> = ({
       <div className="w-full">
         {/*Settings*/}
         <button
-          className="w-full hover:bg-surface flex-row flex items-center justify-between p-3 rounded-xl"
+          className="w-full hover:bg-primary/85 flex-row flex items-center justify-between p-3 rounded-xl"
           onClick={() => {
             //   Navigate to settings page
             navigation('/settings/configuration');
@@ -71,14 +71,14 @@ export const ProfileDropDown: FC<ProfileDropDownProps> = ({
           <Settings className="text-secText w-5 h-5" />
         </button>
         <button
-          className="w-full hover:bg-surface flex-row flex items-center justify-between p-3 rounded-xl"
+          className="w-full hover:bg-primary/85 flex-row flex items-center justify-between p-3 rounded-xl"
           onClick={() => {
             //   Navigate to wallet configuration page
             navigation('/wallet');
             onClose();
           }}
         >
-          <h1 className="text-textColor font-medium text-md">
+          <h1 className="text-textColor text-left font-medium text-md">
             Wallet Configuration
           </h1>
           <CreditCard className="text-secText w-5 h-5" />
