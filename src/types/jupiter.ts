@@ -9,7 +9,7 @@ export type SwapParams = {
 };
 
 export type SwapResponse = {
-  transaction: VersionedTransaction;
+  transaction: string;
 };
 
 export type LimitOrderParams = {
