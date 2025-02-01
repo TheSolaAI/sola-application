@@ -34,6 +34,7 @@ import { SwapParams } from '../../types/jupiter.ts';
 import { responseToOpenai } from '../../lib/utils/response';
 import { ConnectedSolanaWallet } from '@privy-io/react-auth';
 import RenderBlinks from './RenderBlinks';
+import AgentTranscription from './AgentTransacriptions.tsx';
 
 const wallet_service_url = process.env.WALLET_SERVICE_URL;
 
@@ -143,6 +144,9 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
     <div className="p-4 rounded-lg text-bodydark1 w-3/5 no-scrollbar">
       {messageList.map((item, index) => {
         switch (item.type) {
+          case 'aiTranscription':
+            return <AgentTranscription item={item} index={index} />;
+
           case 'message':
             return (
               <div
@@ -160,16 +164,6 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                     Solscan Link
                   </a>
                 )}
-              </div>
-            );
-
-          case 'aiTranscription':
-            return (
-              <div
-                key={index}
-                className="mb-4 bg-[#F5F5F5] p-3 rounded-lg text-bodydark1 leading-relaxed overflow-auto no-scrollbar dark:bg-darkalign2 dark:text-bodydark2 transition-opacity duration-500 opacity-100 transform"
-              >
-                {item.message}
               </div>
             );
 
