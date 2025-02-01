@@ -142,7 +142,10 @@ export const Sidebar = () => {
                     className={`group font-small flex w-full items-center gap-3 rounded-xl p-3 transition-color hover:bg-primary duration-300 ease-in-out  
               ${pathname === `/c/${room.id}` || pathname.startsWith(`/c/${room.id}/`) ? ' border-l-8 border-primary' : ''}`}
                   >
-                    <ChartCandlestick className={'w-4 h-4'} color={theme.textColor} />
+                    <ChartCandlestick
+                      className={'w-4 h-4'}
+                      color={theme.textColor}
+                    />
 
                     <h1 className="text-textColor font-normal flex-1">
                       {room.name}
@@ -186,7 +189,7 @@ export const Sidebar = () => {
           >
             <User size={24} color={theme.textColor} />
             <h1 className="text-secText font-light">
-              {user?.id.slice(4,9)}...{user?.id.slice(-5)}
+              {user?.id.slice(4, 9)}...{user?.id.slice(-5)}
             </h1>
           </button>
           <ProfileDropDown
