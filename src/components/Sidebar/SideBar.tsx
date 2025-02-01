@@ -8,6 +8,7 @@ import { AgentSelect } from './AgentSelect.tsx';
 import { EditRoom } from './EditRoom.tsx';
 import { usePrivy } from '@privy-io/react-auth';
 import { ProfileDropDown } from './ProfileDropDown.tsx';
+import { ChartCandlestick } from 'lucide-react';
 
 export const Sidebar = () => {
   const navigate = useNavigate();
@@ -84,24 +85,24 @@ export const Sidebar = () => {
       {/* Sidebar */}
       <div
         ref={sidebarRef}
-        className={`flex flex-col transition-all duration-300 ease-in-out fixed bg-sec_background lg:static lg:translate-x-0 ${isMobileOpen ? 'translate-x-0' : '-translate-x-full'} z-40 h-full rounded-lg p-4 pt-6 lg:m-2 lg:h-[calc(100%-1rem)] shadow-black/25 shadow-[0px_0px_15px_1px]`}
+        className={`flex flex-col transition-all duration-300 ease-in-out fixed bg-sec_background lg:static lg:translate-x-0 ${isMobileOpen ? 'translate-x-0' : '-translate-x-full'} z-40 h-full w-fit rounded-lg p-4 pt-6 lg:m-2 lg:h-[calc(100%-1rem)] shadow-black/25 shadow-[0px_0px_10px_1px]`}
       >
         {/* Header */}
         <div className="flex flex-row items-center justify-between">
           <h1 className="text-2xl font-bold text-textColor">
             Sola AI
-            <span className="fixed ml-2 rounded-full bg-red-500 px-2 py-1 text-xs text-red-50">
+            <span className="fixed ml-2 rounded-full bg-primary px-2 py-1 text-xs text-red-50">
               Beta
             </span>
           </h1>
           <button onClick={toggleMobile} className="lg:hidden">
             <ChevronLeft size={24} color={theme.textColor} />
           </button>
-          <img
+          {/* <img
             src="/logo.png"
             alt="Logo"
             className="hidden w-[40px] h-[40px] rounded-lg lg:block"
-          />
+          /> */}
         </div>
 
         {/*New ChatRoom Button*/}
@@ -127,7 +128,7 @@ export const Sidebar = () => {
         />
 
         {/*  ChatRooms List - Now Scrollable */}
-        <div className="mt-[10px] flex-1 overflow-y-auto">
+        <div className="mt-[10px] flex-1 pr-4 overflow-y-auto scrollbar scrollbar-thumb-primaryDark">
           <div className="flex flex-col items-start space-y-2">
             {rooms.map((room) => {
               const isEditing = editingRoom === room.id;
@@ -136,15 +137,12 @@ export const Sidebar = () => {
                 <div key={room.id} className="w-full">
                   <NavLink
                     to={`/c/${room.id}`}
-                    className={`group font-small flex w-full items-center gap-3 rounded-xl p-3 transition-color duration-300 ease-in-out  
-              ${pathname === `/c/${room.id}` || pathname.startsWith(`/c/${room.id}/`) ? 'bg-background' : ''}`}
+                    className={`group font-small flex w-full items-center gap-3 rounded-xl p-3 transition-color hover:bg-primary duration-300 ease-in-out  
+              ${pathname === `/c/${room.id}` || pathname.startsWith(`/c/${room.id}/`) ? ' border-l-8 border-primary' : ''}`}
                   >
-                    <img
-                      src={'https://avatar.iran.liara.run/public/43'}
-                      alt={'agent-image'}
-                      className={'w-10 h-10'}
-                    />
-                    <h1 className="text-textColor font-medium flex-1">
+                    <ChartCandlestick className={'w-4 h-4'} color={theme.textColor} />
+
+                    <h1 className="text-textColor font-normal flex-1">
                       {room.name}
                     </h1>
                     <button
@@ -173,20 +171,20 @@ export const Sidebar = () => {
 
         {/* Bottom Section */}
         <div className="mt-4">
-          <div className="flex flex-row justify-between gap-5 bg-gradient-to-r from-primaryDark to-primary p-[10px] rounded-xl mb-10 items-center shadow-primaryDark shadow-[0px_0px_10px_1px]">
-            <h1 className="font-medium text-textColor">Sola AI Tokens:</h1>
-            <h1 className={'font-bold text-textColor text-3xl'}> ∞</h1>
+          <div className="flex flex-row justify-center items-center gap-5 bg-gradient-to-r from-primaryDark to-primary p-[10px] rounded-xl mb-10  shadow-primaryDark ">
+            <h1 className="font-semibold text-textColor">$SOLA :</h1>
+            <h1 className={'font-bold text-textColor text-2xl'}> ∞</h1>
           </div>
           <button
             className={
-              'flex flex-row items-center justify-start gap-5 hover:bg-background rounded-xl p-3 cursor-pointer -m-2'
+              'flex flex-row items-center justify-start w-full gap-5 hover:bg-primary rounded-xl p-3 cursor-pointer'
             }
             ref={profileRef}
             onClick={() => setProfileOpen(!profileOpen)}
           >
             <User size={24} color={theme.textColor} />
-            <h1 className="text-secText font-semibold">
-              {user?.email?.address}
+            <h1 className="text-secText font-light">
+              {user?.id.slice(4,9)}...{user?.id.slice(-5)}
             </h1>
           </button>
           <ProfileDropDown
