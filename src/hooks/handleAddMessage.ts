@@ -63,7 +63,6 @@ const useChatHandler = () => {
 
         if (!currentRoomId && roomDetails) {
           if (!isCreatingRoom) {
-
             const roomResponse = await createChatRoom(roomDetails);
 
             if (!roomResponse) {
@@ -108,7 +107,6 @@ const useChatHandler = () => {
 
         if (!currentRoomId && roomDetails) {
           if (!isCreatingRoom) {
-
             console.log('roomID', roomId, 'roomdetails', roomDetails);
             const roomResponse = await createChatRoom(roomDetails);
 

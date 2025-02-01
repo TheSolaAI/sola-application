@@ -22,7 +22,9 @@ export async function getTokenData(params: string): Promise<TokenData | null> {
   }
 }
 
-export async function getTokenDataSymbol(params: string): Promise<TokenData | null> {
+export async function getTokenDataSymbol(
+  params: string,
+): Promise<TokenData | null> {
   try {
     const response = await axios.post<any>(
       data_service_url + 'data/token/symbol',
@@ -41,16 +43,14 @@ export async function getTokenDataSymbol(params: string): Promise<TokenData | nu
         name: token_data.name,
         symbol: token_data.symbol,
         description: token_data.token_address,
-        token_standard: token_data.url
+        token_standard: token_data.url,
       },
       price: token_data.price,
       volume: token_data.volume,
       price_change_24: token_data.price_change_24,
-    }
-      return token_card;
-    }
-    
-  catch (error) {
+    };
+    return token_card;
+  } catch (error) {
     console.error('Error fetching assets:', error);
     return null;
   }

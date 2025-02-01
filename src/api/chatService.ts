@@ -1,4 +1,4 @@
-import dbClient from '.';
+import dbClient from './dbClient.ts';
 import { CreateRoom, RoomMessages } from '../types/database/requstTypes';
 import {
   ChatMessagesResponse,

@@ -31,7 +31,7 @@ import useChatState from '../models/ChatState.ts';
 import { getTokenData, getTokenDataSymbol } from '../lib/solana/token_data';
 import { getLstData } from '../lib/solana/lst_data';
 import { responseToOpenai } from '../lib/utils/response';
-import { useWalletStore } from '../models/WalletState.ts';
+import { useWalletHandler } from '../models/WalletHandler.ts';
 import { getPublicKeyFromSolDomain } from '../lib/solana/sns';
 import { swapLST } from '../lib/solana/swapLst';
 import { fetchLSTAddress } from '../lib/utils/lst_reader';
@@ -70,7 +70,7 @@ const Conversation = () => {
     getPeerConnection,
     resetMute,
   } = useChatState();
-  const { assets } = useWalletStore();
+  const { assets } = useWalletHandler();
   const { id } = useParams<{ id: string }>();
   const { getRoomMessages, loading, error, messageLoadingError } = useChat();
   const {
@@ -926,7 +926,6 @@ const Conversation = () => {
 
       let topHoldersCard: TopHolder[] = data;
       handleAddMessage(customMessageCards('topHoldersCard', topHoldersCard));
-
       return responseToOpenai(
         'Tell user that top holders data is successfully fetched.',
       );
@@ -1251,10 +1250,6 @@ const Conversation = () => {
               const { amount, token, address } = JSON.parse(output.arguments);
               let response = await transferSpl(amount, token, address);
               sendClientEvent(response);
-            } else if (output.name === 'transferSpl') {
-              const { amount, token, address } = JSON.parse(output.arguments);
-              let response = await transferSpl(amount, token, address);
-              sendClientEvent(response);
             } else if (output.name === 'getRugCheck') {
               const { token } = JSON.parse(output.arguments);
               let response = await handleRugCheck(token);
@@ -1311,7 +1306,7 @@ const Conversation = () => {
   return isLoaded ? (
     messageLoadingError ? (
       <div className="text-center h-screen ">
-        Oops! The requested chat doesn't exists.
+        Oops! The requested chat doesn&apos;t exists.
       </div>
     ) : (
       <>

@@ -53,6 +53,11 @@ const RootApp = () => {
                 connectors: solanaConnectors,
               },
             },
+            embeddedWallets: {
+              solana: {
+                createOnLogin: 'all-users',
+              },
+            },
             fundingMethodConfig: {
               moonpay: {
                 paymentMethod: 'credit_debit_card',
@@ -70,6 +75,7 @@ const RootApp = () => {
             },
           }}
         >
+          {' '}
           <Toaster position="top-right" richColors />
           <App />
         </PrivyProvider>

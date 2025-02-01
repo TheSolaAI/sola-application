@@ -13,6 +13,4 @@ export const getLuloAssets = {
 };
 
 //TODO: Shift the trigger logic here from conversation.tsx
-export function getLuloAssetsFunction() {
-  
-}
+export function getLuloAssetsFunction() {}

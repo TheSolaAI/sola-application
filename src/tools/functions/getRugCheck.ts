@@ -8,14 +8,12 @@ export const getRugCheck = {
   parameters: {
     type: 'object',
     strict: true,
-      properties: {
+    properties: {
       token: {
         type: 'string',
         description: 'The name or address of the token',
       },
     },
     required: ['token'],
-},
-  
+  },
 };
-

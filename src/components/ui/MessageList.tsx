@@ -16,7 +16,6 @@ import {
   BubblemapCard,
   TopHolder,
   ShowLimitOrderCard,
-  AiTranscription,
 } from '../../types/messageCard';
 import {
   Dialog,
@@ -31,7 +30,7 @@ import useAppState from '../../models/AppState.ts';
 import axios from 'axios';
 import { Connection, VersionedTransaction } from '@solana/web3.js';
 import { tokenList } from '../../config/tokens/tokenMapping';
-import { SwapParams } from '../../types/swap';
+import { SwapParams } from '../../types/jupiter.ts';
 import { responseToOpenai } from '../../lib/utils/response';
 import { ConnectedSolanaWallet } from '@privy-io/react-auth';
 import RenderBlinks from './RenderBlinks';
@@ -174,7 +173,7 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
               </div>
             );
 
-          case 'transaction':
+          case 'transaction': {
             const transactionCard = item.card as TransactionCard;
             return (
               <div
@@ -199,8 +198,8 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                 </div>
               </div>
             );
-
-          case 'card':
+          }
+          case 'card': {
             const singleCard = item.card as SingleCard;
             return (
               <div
@@ -216,8 +215,8 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                 </p>
               </div>
             );
-
-          case 'cards':
+          }
+          case 'cards': {
             const multipleCards = item.card as MultipleCards;
             return (
               <div
@@ -234,7 +233,7 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                 ))}
               </div>
             );
-
+          }
           case 'agent':
             return (
               <div key={index} className="mb-4 flex items-center gap-3">
@@ -243,7 +242,7 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
               </div>
             );
 
-          case 'tokenCards':
+          case 'tokenCards': {
             const tokens = item.card as TokenCard[];
             return (
               <div className="grid grid-cols-1 gap-6 my-4">
@@ -389,8 +388,8 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                 ))}
               </div>
             );
-
-          case 'nftCollectionCard':
+          }
+          case 'nftCollectionCard': {
             const nftCollectionCard = item.card as NFTCollectionCard;
             return (
               <div className="grid grid-cols-1 gap-6 my-4">
@@ -402,6 +401,7 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                     }
                     target="_blank"
                     className="flex gap-4"
+                    rel="noreferrer"
                   >
                     <img
                       src={nftCollectionCard.image || '/placeholder.png'}
@@ -424,8 +424,8 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                 </div>
               </div>
             );
-
-          case 'luloCard':
+          }
+          case 'luloCard': {
             const lulo = item.card as LuloCard;
 
             const tokenBalance = lulo.tokenBalance;
@@ -461,7 +461,11 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                     >
                       <div className="flex items-center gap-3">
                         <img
-                          src={`/${token.mint}.png` || '/placeholder.png'}
+                          src={
+                            token.mint
+                              ? `/${token.mint}.png`
+                              : '/placeholder.png'
+                          }
                           alt="Token"
                           className="h-10 w-10 rounded-lg "
                         />
@@ -483,8 +487,8 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                 </div>
               </>
             );
-
-          case 'nftcards':
+          }
+          case 'nftcards': {
             const nftCards = item.card as NFTCard;
             return (
               <div
@@ -517,8 +521,8 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                 </div>
               </div>
             );
-
-          case 'marketDataCard':
+          }
+          case 'marketDataCard': {
             const marketdataCard = item.card as MarketDataCard;
             console.log(marketdataCard);
             return (
@@ -538,6 +542,7 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                         className="bg-gray-200 dark:bg-darkalign1 text-gray-800 dark:text-bodydark p-2 rounded-md text-sm font-medium"
                         href={analysis.link}
                         target="_blank"
+                        rel="noreferrer"
                       >
                         {analysis.text}
                       </a>
@@ -546,7 +551,8 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                 </div>
               </div>
             );
-          case 'limitOrder':
+          }
+          case 'limitOrder': {
             const showLimitOrderCard = item.card as ShowLimitOrderCard;
             return (
               <div className="grid grid-cols-1 w-full sm:grid-cols-2 md:grid-cols-2 gap-4 my-4 rounded-xl dark:bg-darkalign2 dark:text-bodydark2">
@@ -612,8 +618,8 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                 ))}
               </div>
             );
-
-          case 'sanctumCard':
+          }
+          case 'sanctumCard': {
             const sanctumCards = item.card as SanctumCard[];
             console.log(sanctumCards);
             return (
@@ -736,8 +742,8 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                 ))}
               </div>
             );
-
-          case 'rugCheckCard':
+          }
+          case 'rugCheckCard': {
             const rugCheckCard = item.card as RugCheckCard;
 
             const issues = rugCheckCard?.issues || [];
@@ -795,8 +801,8 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                 </div>
               </div>
             );
-
-          case 'trendingNFTCard':
+          }
+          case 'trendingNFTCard': {
             const trendingNFTCard = item.card as TrendingNFTCard[];
             return (
               <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-2 gap-3 my-4">
@@ -830,7 +836,8 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                 ))}
               </div>
             );
-          case 'bubblemapCard':
+          }
+          case 'bubblemapCard': {
             const bubblemapCard = item.card as BubblemapCard;
             return (
               <div className="mb-4 h-100 bg-graydark rounded-xl shadow-md overflow-hidden dark:bg-darkalign2 dark:text-bodydark2">
@@ -840,16 +847,16 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                 />
               </div>
             );
-
-          case 'blinkCard':
+          }
+          case 'blinkCard': {
             const blink = item.link || '';
             return (
               <div className="p-4 flex w-full justify-center ">
                 <RenderBlinks actionName={blink} />
               </div>
             );
-
-          case 'topHoldersCard':
+          }
+          case 'topHoldersCard': {
             const topHolders = item.card as TopHolder[];
             return (
               <div className=" rounded-lg p-4 my-4 shadow-md bg-[#F5F5F5] h-full dark:bg-darkalign2 dark:text-bodydark2">
@@ -903,6 +910,7 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                 </div>
               </div>
             );
+          }
           default:
             return null;
         }

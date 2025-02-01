@@ -8,23 +8,23 @@ export const messageCard = (message: string): MessageCard => {
   };
 };
 
-export const transactionCard = (signature : string): MessageCard => {
-    return {
-        type: 'transaction',
-        card: {
-          title: 'Transaction',
-          status: 'Pending',
-          link: `https://solscan.io/tx/${signature}`,
-        },
-      }
-}
+export const transactionCard = (signature: string): MessageCard => {
+  return {
+    type: 'transaction',
+    card: {
+      title: 'Transaction',
+      status: 'Pending',
+      link: `https://solscan.io/tx/${signature}`,
+    },
+  };
+};
 
 export const showLimitOrderCard = (orders: ShowLimitOrder[]): MessageCard => {
   let card: ShowLimitOrderCard = {
-    orders: orders
-  }
+    orders: orders,
+  };
   return {
-      type: 'limitOrder',
-      card: card,
-    }
-}
+    type: 'limitOrder',
+    card: card,
+  };
+};
