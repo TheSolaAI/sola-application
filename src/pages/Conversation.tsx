@@ -118,7 +118,8 @@ const Conversation = () => {
     if (messageLoadingError) toast.error('Failed to load the chat data');
   }, [messageLoadingError]);
 
-  const { appWallet, aiEmotion, aiVoice, tier } = useAppState();
+  const { aiEmotion, aiVoice, tier } = useAppState();
+  const { currentWallet } = useWalletHandler();
   const { theme } = useThemeManager();
 
   const rpc = process.env.SOLANA_RPC;
@@ -179,7 +180,7 @@ const Conversation = () => {
   };
 
   const transferSol = async (amount: number, to: string) => {
-    if (!appWallet) return null;
+    if (!currentWallet) return null;
     if (!rpc)
       return responseToOpenai(
         'Ask the user to contact admin as the rpc is not attached',
@@ -197,7 +198,7 @@ const Conversation = () => {
     try {
       const connection = new Connection(rpc);
       let balance = await connection.getBalance(
-        new PublicKey(appWallet.address),
+        new PublicKey(currentWallet.address),
       );
       if (balance / LAMPORTS_PER_SOL - 0.01 < amount) {
         await handleAddMessage(
@@ -211,14 +212,15 @@ const Conversation = () => {
       }
 
       const transaction = await transferSolTx(
-        appWallet.address,
+        currentWallet.address,
         recipient,
         amount * LAMPORTS_PER_SOL,
       );
       const { blockhash, lastValidBlockHeight } =
         await connection.getLatestBlockhash();
       transaction.recentBlockhash = blockhash;
-      const signedTransaction = await appWallet.signTransaction(transaction);
+      const signedTransaction =
+        await currentWallet.signTransaction(transaction);
       const signature = await connection.sendRawTransaction(
         signedTransaction.serialize(),
       );
@@ -272,7 +274,7 @@ const Conversation = () => {
     token: 'SOLA' | 'USDC' | 'BONK' | 'USDT' | 'JUP',
     to: string,
   ) => {
-    if (!appWallet) return null;
+    if (!currentWallet) return null;
     if (!rpc)
       return responseToOpenai(
         'Ask the user to contact admin as the rpc is not attached',
@@ -291,7 +293,7 @@ const Conversation = () => {
       const connection = new Connection(rpc);
 
       const transaction = await transferSplTx(
-        appWallet.address,
+        currentWallet.address,
         recipient,
         amount,
         token_mint,
@@ -311,7 +313,8 @@ const Conversation = () => {
       }
 
       transaction.recentBlockhash = blockhash;
-      const signedTransaction = await appWallet.signTransaction(transaction);
+      const signedTransaction =
+        await currentWallet.signTransaction(transaction);
       const signature = await connection.sendRawTransaction(
         signedTransaction.serialize(),
       );
@@ -342,7 +345,7 @@ const Conversation = () => {
     tokenB: 'SOL' | 'SOLA' | 'USDC' | 'BONK' | 'USDT' | 'JUP' | 'WIF',
     swapType: 'EXACT_IN' | 'EXACT_OUT' | 'EXACT_DOLLAR',
   ) => {
-    if (!appWallet) return null;
+    if (!currentWallet) return null;
     if (!rpc)
       return responseToOpenai(
         'ask the user to contact admin as the rpc is not attached',
@@ -377,7 +380,7 @@ const Conversation = () => {
     const params: SwapParams = {
       input_mint: tokenList[tokenA].MINT,
       output_mint: tokenList[tokenB].MINT,
-      public_key: `${appWallet.address}`,
+      public_key: `${currentWallet.address}`,
       amount: quantity,
       swap_mode: swapType,
     };
@@ -393,7 +396,7 @@ const Conversation = () => {
     }
     const latestBlockHash = await connection.getLatestBlockhash();
 
-    const signedTransaction = await appWallet.signTransaction(transaction);
+    const signedTransaction = await currentWallet.signTransaction(transaction);
 
     const rawTransaction = signedTransaction.serialize();
 
@@ -416,7 +419,7 @@ const Conversation = () => {
     action: 'BUY' | 'SELL',
     limitPrice: number,
   ) => {
-    if (!appWallet) return null;
+    if (!currentWallet) return null;
     if (!rpc)
       return responseToOpenai(
         'ask the user to contact admin as the rpc is not attached',
@@ -431,7 +434,7 @@ const Conversation = () => {
     const params: LimitOrderParams = {
       token_mint_a: tokenList[token].MINT,
       token_mint_b: tokenList['USDC'].MINT,
-      public_key: `${appWallet.address}`,
+      public_key: `${currentWallet.address}`,
       amount: amount,
       limit_price: limitPrice,
       action: action,
@@ -452,7 +455,7 @@ const Conversation = () => {
 
       const transactionBuffer = Buffer.from(transaction, 'base64');
       const final_tx = VersionedTransaction.deserialize(transactionBuffer);
-      const signedTransaction = await appWallet.signTransaction(final_tx);
+      const signedTransaction = await currentWallet.signTransaction(final_tx);
 
       const rawTransaction = signedTransaction.serialize();
 
@@ -474,12 +477,12 @@ const Conversation = () => {
   };
 
   const handleGetLimitOrders = async () => {
-    if (!appWallet) return null;
+    if (!currentWallet) return null;
 
     await handleAddMessage(agentMessage(`Agent is fetching limit orders`));
 
     try {
-      const resp = await getLimitOrders(appWallet.address);
+      const resp = await getLimitOrders(currentWallet.address);
       const limitOrders = resp?.orders;
       if (!limitOrders) {
         await handleAddMessage(messageCard(`Error fetching limit orders`));
@@ -798,7 +801,7 @@ const Conversation = () => {
   //TODO: Handle UI message Responses
   const handleLstSwaps = async (lst_amount: number, lst_symbol: string) => {
     let rpc = process.env.SOLANA_RPC_URL;
-    if (!appWallet) return null;
+    if (!currentWallet) return null;
     if (!rpc) {
       console.log('rpc not set');
       return responseToOpenai(
@@ -828,7 +831,7 @@ const Conversation = () => {
       let params: SwapParams = {
         input_mint: tokenList.SOL.MINT,
         output_mint: address,
-        public_key: appWallet.address,
+        public_key: currentWallet.address,
         amount: swapAmount,
         swap_mode: 'EXACT_IN',
       };
@@ -846,7 +849,8 @@ const Conversation = () => {
         );
       }
       let connection = new Connection(rpc);
-      const signedTransaction = await appWallet.signTransaction(transaction);
+      const signedTransaction =
+        await currentWallet.signTransaction(transaction);
       const serialzedTransaction = signedTransaction.serialize();
       const transactionSignature =
         await connection.sendRawTransaction(serialzedTransaction);
@@ -1189,9 +1193,9 @@ const Conversation = () => {
                   break;
                 }
                 case 'fund_wallet': {
-                  if (!appWallet)
+                  if (!currentWallet)
                     throw new Error("You don't have a wallet selected");
-                  await fundWallet(appWallet.address, {
+                  await fundWallet(currentWallet.address, {
                     card: {
                       preferredProvider: 'moonpay',
                     },

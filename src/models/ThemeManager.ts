@@ -22,7 +22,7 @@ const themeJSON: ThemeJSON = themeJSONRaw as ThemeJSON;
 interface ThemeStore {
   theme: Theme;
   availableThemes: Record<string, Theme>;
-  initManager: () => void;
+  initThemeManager: () => void;
   setTheme: (themeName: string) => void;
   resolveTheme: (themeName: string) => Theme;
 }
@@ -40,7 +40,7 @@ const ThemeManager: StateCreator<ThemeStore> = (set, get) => {
     theme: availableThemes['light'],
     availableThemes,
 
-    initManager: () => {
+    initThemeManager: () => {
       let savedTheme = 'system';
 
       try {

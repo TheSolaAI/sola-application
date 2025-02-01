@@ -1,16 +1,12 @@
-import { ConnectedSolanaWallet } from '@privy-io/react-auth';
 import { create, StateCreator } from 'zustand';
 
 interface AppState {
-  appWallet: ConnectedSolanaWallet | null;
-  appWallets: ConnectedSolanaWallet[];
   embeddedWalletVisibility: boolean;
   accessToken: string | null;
   aiVoice: string;
   aiEmotion: string;
   disclaimer: boolean;
-  tier:number,
-  setWallet: (wallet: ConnectedSolanaWallet) => void;
+  tier: number;
   setEmbeddedWalletVisibility: (visibility: boolean) => void;
   setAccessToken: (accessToken: string | null) => void;
   setAiVoice: (aiVoice: string) => void;
@@ -20,15 +16,12 @@ interface AppState {
 }
 
 const appStateCreator: StateCreator<AppState> = (set) => ({
-  tier:0,
-  appWallet: null,
-  appWallets: [],
+  tier: 0,
   embeddedWalletVisibility: false,
   accessToken: null,
   aiVoice: 'ash',
   aiEmotion: 'Chearfull and Energetic',
   disclaimer: true,
-  setWallet: (appWallet: ConnectedSolanaWallet) => set({ appWallet }),
   setEmbeddedWalletVisibility: (visibility: boolean) =>
     set({ embeddedWalletVisibility: visibility }),
   setAccessToken: (accessToken: string | null) => set({ accessToken }),

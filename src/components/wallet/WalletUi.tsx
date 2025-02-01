@@ -2,7 +2,6 @@ import { CreditCard, ExternalLink } from 'react-feather';
 import { fetchFilteredAssets } from '../../lib/solana/wallet';
 import { useEffect, useState } from 'react';
 import useSWR from 'swr';
-import useAppState from '../../models/AppState.ts';
 import { Asset } from '../../types/walletBalance';
 import { useWalletHandler } from '../../models/WalletHandler.ts';
 import { Button } from '@headlessui/react';
@@ -13,12 +12,12 @@ interface WalletUiProps {
 }
 
 function WalletUi({ toggleWallet, isWalletVisible }: WalletUiProps) {
-  const { appWallet } = useAppState();
+  const { currentWallet } = useWalletHandler();
   const [ownerAddress, setOwnerAddress] = useState<string>('');
 
   function viewWalletInExplorer() {
-    if (appWallet) {
-      window.open(`https://solscan.io/account/${appWallet.address}`);
+    if (currentWallet) {
+      window.open(`https://solscan.io/account/${currentWallet.address}`);
     }
   }
 
@@ -41,10 +40,10 @@ function WalletUi({ toggleWallet, isWalletVisible }: WalletUiProps) {
   }, [assets]);
 
   useEffect(() => {
-    if (appWallet) {
-      setOwnerAddress(appWallet.address);
+    if (currentWallet) {
+      setOwnerAddress(currentWallet.address);
     }
-  }, [appWallet]);
+  }, [currentWallet]);
 
   return (
     <div className="flex flex-col items-end gap-2 z-9">
@@ -55,7 +54,7 @@ function WalletUi({ toggleWallet, isWalletVisible }: WalletUiProps) {
         {' '}
         <CreditCard />{' '}
       </Button>
-      {appWallet && (
+      {currentWallet && (
         <section
           className={`
             bg-body h-72 w-64 overflow-x-hidden overflow-y-scroll no-scrollbar rounded-xl p-4 text-white sm:w-72 md:w-80 lg:w-80
@@ -69,13 +68,13 @@ function WalletUi({ toggleWallet, isWalletVisible }: WalletUiProps) {
         >
           <div className="z-9 w-full flex justify-between items-center bg-strokedark gap-2 p-2 rounded-xl hover:bg-opacity-80 cursor-pointer">
             <div>
-              {appWallet.address.slice(0, 4)}...
-              {appWallet.address.slice(-4)}
+              {currentWallet.address.slice(0, 4)}...
+              {currentWallet.address.slice(-4)}
             </div>
             <div>
               <button
                 onClick={() => {
-                  navigator.clipboard.writeText(appWallet.address);
+                  navigator.clipboard.writeText(currentWallet.address);
                 }}
               >
                 <img
