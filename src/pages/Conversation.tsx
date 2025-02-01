@@ -1310,7 +1310,7 @@ const Conversation = () => {
       </div>
     ) : (
       <>
-        <main className="h-screen flex flex-col relative ">
+        <main className="h-screen w-full flex flex-col relative overflow-hidden">
           {/* Start of wallet */}
           <section className="absolute flex justify-between w-full p-4 animate-in fade-in-0 duration-300">
             <PipLayout
@@ -1343,7 +1343,7 @@ const Conversation = () => {
           {/* End of Visualizer Section */}
 
           {/* Start of Message display Section */}
-          <section className="flex-grow flex justify-center items-start overflow-y-auto pb-20 no-scrollbar">
+          <section className="pb-20">
             {messageList && currentRoomId && (
               <MessageList messageList={messageList} />
             )}
