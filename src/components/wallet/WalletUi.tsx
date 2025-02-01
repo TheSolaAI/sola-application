@@ -1,10 +1,10 @@
 import { CreditCard, ExternalLink } from 'react-feather';
 import { fetchFilteredAssets } from '../../lib/solana/wallet';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import useSWR from 'swr';
 import useAppState from '../../models/AppState.ts';
 import { Asset } from '../../types/walletBalance';
-import { useWalletStore } from '../../models/WalletState.ts';
+import { useWalletHandler } from '../../models/WalletHandler.ts';
 import { Button } from '@headlessui/react';
 
 interface WalletUiProps {
@@ -32,7 +32,7 @@ function WalletUi({ toggleWallet, isWalletVisible }: WalletUiProps) {
     { refreshInterval: 5000 },
   );
 
-  const setAssets = useWalletStore((state) => state.setAssets);
+  const setAssets = useWalletHandler((state) => state.setAssets);
 
   useEffect(() => {
     if (assets.length > 0) {
