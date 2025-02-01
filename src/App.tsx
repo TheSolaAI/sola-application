@@ -52,7 +52,7 @@ function App() {
   }, [initializeApp]);
 
   return (
-    <WalletProvider>
+    <WalletProvider isAuthenticated={authenticated && ready}>
       <AppRoutes isAuthenticated={authenticated && ready} />
     </WalletProvider>
   );
