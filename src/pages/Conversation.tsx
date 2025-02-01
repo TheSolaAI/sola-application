@@ -57,6 +57,7 @@ import { getTopHolders } from '../lib/solana/topHolders';
 import { getLimitOrders, limitOrderTx } from '../lib/solana/limitOrderTx';
 import useThemeManager from '../models/ThemeManager.ts';
 import Loader from '../components/general/Loader.tsx';
+import ApiClient from '../api/ApiClient.ts';
 
 const Conversation = () => {
   const {
@@ -90,6 +91,12 @@ const Conversation = () => {
   const audioElement = useRef<HTMLAudioElement | null>(null);
   const [isLoaded, setIsLoaded] = useState<boolean>(true);
   const [localDataChannel, setLocalDataChannel] = useState(dataChannel);
+  const appState = useAppState();
+  useEffect(() => {
+    if (appState.accessToken) {
+      ApiClient.setAccessToken(appState.accessToken);
+    }
+  }, [appState.accessToken]);
 
   useEffect(() => {
     async function loadMessages() {
@@ -945,7 +952,14 @@ const Conversation = () => {
   const startSession = async () => {
     let url = process.env.DATA_SERVICE_URL;
     try {
-      const tokenResponse = await fetch(`${url}data/session/create`);
+      const tokenResponse = await fetch(`${url}data/session/create`, {
+        method: "GET", // or "POST" if required
+        headers: {
+            "Authorization": `Bearer ${appState.accessToken}`, // Replace with your token
+            "Content-Type": "application/json"
+        }
+    });
+    
 
       const data = await tokenResponse.json();
       const EPHEMERAL_KEY = data.client_secret.value;
