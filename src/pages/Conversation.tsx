@@ -1370,7 +1370,7 @@ const Conversation = () => {
         </main>
         <section className="relative animate-in fade-in-0 duration-300">
           <div
-            className={`absolute w-full bottom-0 left-1/2 transform -translate-x-1/2 py-2 flex items-center justify-center mb-5`}
+            className={`absolute w-full bottom-0 left-1/2 transform -translate-x-1/2 p-2 flex items-center justify-center mb-5`}
           >
             <SessionControls
               sendTextMessage={sendTextMessage}
