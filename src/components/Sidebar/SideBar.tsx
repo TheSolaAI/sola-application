@@ -182,7 +182,7 @@ export const Sidebar: FC<SidebarProps> = ({
         />
 
         {/*  ChatRooms List - Now Scrollable */}
-        <div className="mt-[10px] flex-1 pr-4 overflow-y-auto scrollbar-thin ">
+        <div className="mt-[10px] flex-1 pr-4 overflow-y-auto scrollbar-thin scrollbar-thumb-primary scrollbar-track-sec_background ">
           <div className="flex flex-col items-start space-y-2">
             {rooms.map((room) => {
               const isEditing = editingRoom === room.id;
@@ -195,7 +195,7 @@ export const Sidebar: FC<SidebarProps> = ({
                       if (isMobile) setIsOpen(false);
                     }}
                     className={`group font-small flex w-full items-center gap-3 rounded-xl p-3 transition-color duration-300 ease-in-out  
-              ${pathname === `/c/${room.id}` || pathname.startsWith(`/c/${room.id}/`) ? 'bg-background' : ''}`}
+              ${pathname === `/c/${room.id}` || pathname.startsWith(`/c/${room.id}/`) ? 'bg-primary' : ''}`}
                   >
                     <ChartCandlestick
                       className={'w-4 h-4'}

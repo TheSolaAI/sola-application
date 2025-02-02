@@ -50,6 +50,7 @@ import useChatHandler from '../hooks/handleAddMessage';
 import { agentMessage } from '../lib/chat-message/agentMessage';
 import { customMessageCards } from '../lib/chat-message/customMessageCards';
 import {
+  aiTranscriptCard,
   messageCard,
   showLimitOrderCard,
   transactionCard,
@@ -1186,7 +1187,7 @@ const Conversation = () => {
               return [...prev];
             });
             handleAddAiTranscript(
-              messageCard(`${output.content[0].transcript}`),
+              aiTranscriptCard(`${output.content[0].transcript}`),
             );
           } else if (output.type === 'function_call') {
             const functionName = output.name;
@@ -1279,7 +1280,6 @@ const Conversation = () => {
               sendClientEvent(response);
             } else if (output.name === 'getBlinks') {
               const { actionName } = JSON.parse(output.arguments);
-              console.log("jlkjhlkjhlkh",actionName)
               setMessageList((prev) => [
                 ...prev,
                 {
