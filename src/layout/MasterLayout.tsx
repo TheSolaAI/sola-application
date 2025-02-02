@@ -20,7 +20,7 @@ const MasterLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
         canAutoClose={canAutoClose}
         setCanAutoClose={setCanAutoClose}
       />
-      <main className="flex-1 sm:rounded-2xl bg-background">{children}</main>
+      <main className="w-full sm:rounded-2xl bg-background">{children}</main>
       {/*<WalletLensSideBar />*/}
     </div>
   );

@@ -139,7 +139,7 @@ export const Sidebar: FC<SidebarProps> = ({
         <div className="flex flex-row items-center justify-between">
           <h1 className="text-2xl font-bold text-textColor">
             Sola AI
-            <span className="fixed ml-2 rounded-full bg-primaryDark px-2 py-1 text-xs text-textColor">
+            <span className="fixed ml-2 rounded-full bg-primaryDark px-2 py-1 text-xs text-red-50">
               Beta
             </span>
           </h1>
@@ -181,8 +181,8 @@ export const Sidebar: FC<SidebarProps> = ({
           }}
         />
 
-        {/*  ChatRooms List */}
-        <div className="mt-[10px] flex-1 overflow-y-auto scrollbar scrollbar-thumb-primaryDark">
+        {/*  ChatRooms List - Now Scrollable */}
+        <div className="mt-[10px] flex-1 pr-4 overflow-y-auto scrollbar-thin scrollbar-thumb-primary scrollbar-track-sec_background ">
           <div className="flex flex-col items-start space-y-2">
             {rooms.map((room) => {
               const isEditing = editingRoom === room.id;
@@ -195,7 +195,7 @@ export const Sidebar: FC<SidebarProps> = ({
                       if (isMobile) setIsOpen(false);
                     }}
                     className={`group font-small flex w-full items-center gap-3 rounded-xl p-3 transition-color duration-300 ease-in-out  
-              ${pathname === `/c/${room.id}` || pathname.startsWith(`/c/${room.id}/`) ? 'bg-background' : ''}`}
+              ${pathname === `/c/${room.id}` || pathname.startsWith(`/c/${room.id}/`) ? 'bg-primary' : ''}`}
                   >
                     <ChartCandlestick
                       className={'w-4 h-4'}

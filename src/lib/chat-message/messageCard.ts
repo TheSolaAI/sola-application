@@ -8,6 +8,13 @@ export const messageCard = (message: string): MessageCard => {
   };
 };
 
+export const aiTranscriptCard = (message: string): MessageCard => {
+  return {
+    type: 'aiTranscription',
+    message: message,
+  };
+};
+
 export const transactionCard = (signature: string): MessageCard => {
   return {
     type: 'transaction',

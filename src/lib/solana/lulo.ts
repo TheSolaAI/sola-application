@@ -1,4 +1,3 @@
-
 import ApiClient from '../../api/ApiClient';
 import {
   DepositParams,
@@ -17,7 +16,7 @@ export async function getAssetsLulo(
   params: AssetsParams,
 ): Promise<AssetsResponse | null> {
   let resp = await ApiClient.get<AssetsResponse>(
-    wallet_service_url + 'api/wallet/lulo/assets?owner='+params.owner,
+    wallet_service_url + 'api/wallet/lulo/assets?owner=' + params.owner,
   );
   return resp;
 }
@@ -25,7 +24,6 @@ export async function getAssetsLulo(
 export async function depositLulo(
   params: DepositParams,
 ): Promise<VersionedTransaction[] | null> {
-  
   const response = await ApiClient.post<DepositResponse>(
     wallet_service_url + 'api/wallet/lulo/deposit',
     params,
@@ -51,19 +49,18 @@ export async function depositLulo(
 export async function withdrawLulo(
   params: WithdrawParams,
 ): Promise<VersionedTransaction[] | null> {
-  
-    const response = await ApiClient.post<WithdrawResponse>(
-      wallet_service_url + 'api/wallet/lulo/withdraw',
-      params,
-    );
-    if (!response) {
-      return null;
-    }
-    
-    const withdraw_transactions: WithdrawTransaction[] | null =
-      response.transactions[0];
-    if (!withdraw_transactions) {
-      return null;
+  const response = await ApiClient.post<WithdrawResponse>(
+    wallet_service_url + 'api/wallet/lulo/withdraw',
+    params,
+  );
+  if (!response) {
+    return null;
+  }
+
+  const withdraw_transactions: WithdrawTransaction[] | null =
+    response.transactions[0];
+  if (!withdraw_transactions) {
+    return null;
   }
   try {
     let transactions = [];
