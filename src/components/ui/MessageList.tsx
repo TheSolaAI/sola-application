@@ -37,6 +37,7 @@ import GridBox from './GridBox.tsx';
 import { useWalletHandler } from '../../models/WalletHandler.ts';
 import MonoGridBox from './MonoGridBox.tsx';
 import MessageWrapper from './MessageWrapper.tsx';
+import PopupModal from './PopuipModel.tsx';
 
 const wallet_service_url = process.env.WALLET_SERVICE_URL;
 
@@ -63,9 +64,11 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
   let { currentWallet } = useWalletHandler();
 
   const rpc = process.env.SOLANA_RPC;
-  function closeModal() {
+  const closeModal = () => {
+    console.log('sadffds');
     setIsOpen(false);
-  }
+    console.log(isOpen);
+  };
   function openModal(symbol: any, address: any, apy: any) {
     setSanctumAddress(address);
     setSanctumSymbol(symbol);
@@ -430,11 +433,11 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
               </GridBox>
             );
           }
+
           case 'sanctumCard': {
             const sanctumCards = item.card as SanctumCard[];
-            console.log(sanctumCards);
             return (
-              <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-3 gap-3 my-4">
+              <GridBox index={index} col={3}>
                 {sanctumCards.map((sanctumCard, index) => (
                   <div
                     key={sanctumCard.symbol || index}
@@ -445,13 +448,13 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                         sanctumCard.apy,
                       );
                     }}
-                    className="group relative overflow-hidden block rounded-xl bg-[#F5F5F5] p-3 w-fit dark:bg-darkalign2 dark:text-bodydark2 transition-all duration-300 ease-in-out hover:bg-[#e0e0e0] hover:shadow-lg"
+                    className="group relative overflow-hidden block rounded-xl bg-sec_background p-3 w-fit transition-all duration-300 ease-in-out hover:bg-surface cursor-pointer hover:shadow-lg"
                   >
                     <div className="flex items-center gap-4">
                       <img
                         src={sanctumCard.logo_uri}
                         alt="sanctumimage"
-                        className="h-16 rounded-sm"
+                        className="h-16 rounded-lg"
                       />
                       <div>
                         <p className="text-base font-medium">
@@ -463,7 +466,52 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                       </div>
                     </div>
 
-                    <Transition appear show={isOpen} as={Fragment}>
+                    <PopupModal
+                      isOpen={isOpen}
+                      onClose={() => setIsOpen(false)}
+                    >
+                      <div>
+                        <div className="text-base font-semibold">
+                          {sanctumSymbol} : Swap Details
+                        </div>
+                        <p className="text-m text-textColor my-2">
+                          APY: {sanctumApy.toFixed(2)}% <br />
+                          {link && (
+                            <a
+                              href={link}
+                              target="_blank"
+                              rel="no opener noreferrer"
+                              className="text-primaryDark hover:underline"
+                            >
+                              SolScan Transaction url
+                            </a>
+                          )}
+                        </p>
+                        <Input
+                          type="string"
+                          name="amount"
+                          placeholder='Amount'
+                          className="p-2 bg-grey-900 text-textColor border bg-baseBackground rounded-md"
+                          onChange={(e) => setSanctumAmount(e.target.value)}
+                        />
+                        <div className="mt-4">
+                          <button
+                            className='py-2 px-4 rounded-lg bg-backgroundContrast text-textColorContrast'
+                            onClick={() => {
+                              invokeSwap(
+                                sanctumAmount,
+                                sanctumAddress,
+                                currentWallet,
+                              );
+                            }}
+                          >
+                            Swap
+                          </button>
+                        </div>
+                      </div>
+                    </PopupModal>
+
+                    {/* <Transition appear show={isOpen} as={Fragment}>
                       <Dialog
                         as="div"
                         className="relative w-full h-full z-9999"
@@ -497,7 +545,7 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                                   as="h3"
                                   className="text-lg w-full font-medium flex items-center justify-between text-gray-900"
                                 >
-                                  <div>{sanctumSymbol} Swap Details</div>
+                                  
                                   <button
                                     type="button"
                                     className="inline-flex justify-center rounder-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
@@ -506,52 +554,17 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                                     <X />
                                   </button>
                                 </DialogTitle>
-                                <div className="mt-2">
-                                  <p className="text-m text-gray-500">
-                                    APY: {sanctumApy.toFixed(2)}% <br />
-                                    {link && (
-                                      <a
-                                        href={link}
-                                        target="_blank"
-                                        rel="no opener noreferrer"
-                                        className="text-blue-500 hover:text-blue-700"
-                                      >
-                                        SolScan Transaction url
-                                      </a>
-                                    )}
-                                  </p>
-                                  <Input
-                                    type="string"
-                                    name="amount"
-                                    className="mt-2 bg-grey-900 text-black border border-indigo-500 rounded-md"
-                                    onChange={(e) =>
-                                      setSanctumAmount(e.target.value)
-                                    }
-                                  />
-                                </div>
-                                <div className="mt-4">
-                                  <button
-                                    className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-                                    onClick={() => {
-                                      invokeSwap(
-                                        sanctumAmount,
-                                        sanctumAddress,
-                                        currentWallet,
-                                      );
-                                    }}
-                                  >
-                                    Swap
-                                  </button>
-                                </div>
+                                
+                                
                               </DialogPanel>
                             </TransitionChild>
                           </div>
                         </div>
                       </Dialog>
-                    </Transition>
+                    </Transition> */}
                   </div>
                 ))}
-              </div>
+              </GridBox>
             );
           }
           case 'rugCheckCard': {
