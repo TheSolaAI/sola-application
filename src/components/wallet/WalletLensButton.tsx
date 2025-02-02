@@ -1,6 +1,7 @@
 import { useWalletHandler } from '../../models/WalletHandler.ts';
 import { useEffect, useState } from 'react';
 import SUPPORTED_WALLETS from '../../config/wallets/supportedWallets.ts';
+import { titleCase } from '../utils/titleCase.ts';
 
 interface WalletLensButtonProps {
   onClick?: () => void;
@@ -41,15 +42,6 @@ function WalletLensButton({ onClick }: WalletLensButtonProps) {
       </button>
     </>
   );
-}
-
-function titleCase(s?: string) {
-  if (!s) return '';
-  return s
-    .toLowerCase()
-    .split(' ')
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
 }
 
 export default WalletLensButton;

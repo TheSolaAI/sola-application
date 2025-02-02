@@ -70,6 +70,9 @@ export const Sidebar: FC<SidebarProps> = ({
     if (!isMobile && canAutoClose && autoOpened) {
       setIsOpen(false);
       setAutoOpened(false);
+      setAgentSelectOpen(false);
+      setProfileOpen(false);
+      setEditingRoom(null);
     }
   };
 
@@ -114,7 +117,7 @@ export const Sidebar: FC<SidebarProps> = ({
       {/*Used to detect mouse over in collapsed mode - only shown if canAutoClose is true*/}
       {!isMobile && !isOpen && canAutoClose && (
         <div
-          className="fixed left-0 top-0 h-full w-6 z-50"
+          className="fixed left-0 top-0 h-full w-10 z-50"
           onMouseEnter={handleMouseEnter}
         />
       )}
@@ -154,7 +157,7 @@ export const Sidebar: FC<SidebarProps> = ({
         {/*New ChatRoom Button*/}
         <button
           ref={agentSelectRef}
-          className="group mt-10 flex items-center justify-center rounded-xl bg-background bg-gradient-to-r from-primary to-primaryDark p-[1px] transition-all duration-300 hover:scale-[102%] hover:shadow-[0px_0px_10px_1px] hover:shadow-primaryDark"
+          className="group mt-10 flex items-center justify-center rounded-xl bg-background bg-gradient-to-r from-primary to-primaryDark p-[2px] transition-all duration-300 hover:scale-[102%] hover:shadow-[0px_0px_10px_1px] hover:shadow-primaryDark"
           onClick={() => setAgentSelectOpen(true)}
         >
           <div className="flex h-full w-full flex-row items-center justify-between rounded-xl bg-background p-3">

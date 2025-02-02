@@ -76,7 +76,7 @@ const RootApp = () => {
           }}
         >
           {' '}
-          <Toaster position="top-right" richColors />
+          <Toaster position="bottom-right" richColors />
           <App />
         </PrivyProvider>
       )}

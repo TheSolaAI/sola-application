@@ -35,13 +35,13 @@ export const Dropdown: React.FC<DropdownProps> = ({
     if (isOpen && anchorEl && popupRef.current) {
       const anchorRect = anchorEl.getBoundingClientRect();
       setPosition({
-        top: direction === 'down' ? anchorRect.bottom + window.scrollY - 5 : 0,
+        top: direction === 'down' ? anchorRect.bottom + window.scrollY + 10 : 0, // 10px spacing
         bottom:
           direction === 'up'
-            ? window.innerHeight - anchorRect.top + window.scrollY - 5
+            ? window.innerHeight - anchorRect.top + window.scrollY
             : 0,
-        left: anchorRect.left + window.scrollX - 5,
-        width: width === 'component' ? anchorRect.width : 0,
+        left: anchorRect.x + window.scrollX, // Ensures alignment with the button
+        width: width === 'component' ? anchorRect.width : 'auto',
       });
     }
   }, [isOpen, anchorEl, isMobile]);
@@ -115,9 +115,9 @@ export const Dropdown: React.FC<DropdownProps> = ({
         transition={{ duration: 0.3, ease: 'easeOut' }}
         className="fixed z-50 rounded-xl border-border border-[0.5px] bg-background p-2"
         style={{
-          top: position.top ? `${position.top + 5}px` : 'auto',
-          left: position.left ? `${position.left - 5}px` : 'auto',
-          width: position.width ? `${position.width}px` : 'auto',
+          top: position.top ? `${position.top}px` : 'auto',
+          left: position.left ? `${position.left}px` : 'auto',
+          width: position.width === 'auto' ? 'auto' : `${position.width}px`, // Fix width assignment
           bottom: position.bottom ? `${position.bottom}px` : 'auto',
         }}
       >
