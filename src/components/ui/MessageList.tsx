@@ -36,6 +36,7 @@ import MessageBox from './MessageBox.tsx';
 import GridBox from './GridBox.tsx';
 import { useWalletHandler } from '../../models/WalletHandler.ts';
 import MonoGridBox from './MonoGridBox.tsx';
+import MessageWrapper from './MessageWrapper.tsx';
 
 const wallet_service_url = process.env.WALLET_SERVICE_URL;
 
@@ -314,7 +315,7 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
               </>
             );
           }
-          
+
           case 'nftcards': {
             const nftCards = item.card as NFTCard;
             return (
@@ -349,101 +350,84 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
               </div>
             );
           }
+
           case 'marketDataCard': {
             const marketdataCard = item.card as MarketDataCard;
             console.log(marketdataCard);
             return (
-              <div
-                key={index}
-                className="mb-4 bg-graydark rounded-xl shadow-md overflow-hidden dark:bg-darkalign2 dark:text-bodydark2 p-4"
-              >
-                {/* Market Analysis Section */}
-                <div className="mb-4">
-                  <h3 className="text-lg font-semibold mb-2">
-                    Market Analysis
-                  </h3>
-                  <div className="flex flex-wrap gap-2">
-                    {marketdataCard.marketAnalysis.map((analysis, idx) => (
-                      <a
-                        key={idx}
-                        className="bg-gray-200 dark:bg-darkalign1 text-gray-800 dark:text-bodydark p-2 rounded-md text-sm font-medium"
-                        href={analysis.link}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        {analysis.text}
-                      </a>
-                    ))}
-                  </div>
+              <MessageWrapper index={index}>
+                <h3 className="text-lg font-semibold mb-2">Market Analysis</h3>
+                <div className="flex flex-wrap gap-2">
+                  {marketdataCard.marketAnalysis.map((analysis, idx) => (
+                    <a
+                      key={idx}
+                      className="bg-surface p-2 rounded-md text-sm font-medium"
+                      href={analysis.link}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      {analysis.text}
+                    </a>
+                  ))}
                 </div>
-              </div>
+              </MessageWrapper>
             );
           }
+
           case 'limitOrder': {
-            const showLimitOrderCard = item.card as ShowLimitOrderCard;
+            const LimitOrderCards = item.card as ShowLimitOrderCard;
             return (
-              <div className="grid grid-cols-1 w-full sm:grid-cols-2 md:grid-cols-2 gap-4 my-4 rounded-xl dark:bg-darkalign2 dark:text-bodydark2">
-                {showLimitOrderCard.orders.map((order, index) => (
-                  <div
-                    key={order.order_id}
-                    className="group relative w-full overflow-hidden block  p-4"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div>
-                        <h3 className="truncate text-sm font-medium">
-                          Order ID: {order.order_id}
-                        </h3>
-                        <p className="mt-1 text-xs font-medium">
-                          Created At:{' '}
-                          {new Date(order.created_at).toLocaleString()}
+              <GridBox index={index} col={2}>
+                {LimitOrderCards.orders.map((order, lIndex) => {
+                  const inputToken = Object.values(tokenList).find(
+                    (v) => v.MINT === order.input_mint,
+                  );
+                  const outputToken = Object.values(tokenList).find(
+                    (v) => v.MINT === order.output_mint,
+                  );
+
+                  return (
+                    <div
+                      key={lIndex}
+                      className="bg-sec_background rounded-lg p-4"
+                    >
+                      <h3 className="font-medium">
+                        Order ID: {order.order_id.slice(0, 4)}...
+                        {order.order_id.slice(-5)}
+                      </h3>
+                      <p className="mt-1 text-xs font-medium">
+                        Created: {new Date(order.created_at).toLocaleString()}
+                      </p>
+
+                      <div className="mt-2 text-xs text-secText">
+                        <p>
+                          Input:{' '}
+                          {(
+                            parseFloat(order.input_amount) /
+                            Math.pow(10, inputToken?.DECIMALS || 0)
+                          ).toFixed(inputToken?.DECIMALS || 0)}
+                        </p>
+                        <p>
+                          Mint: {order.input_mint.slice(0, 3)}...
+                          {order.input_mint.slice(-3)}
+                        </p>
+
+                        <p>
+                          Output:{' '}
+                          {(
+                            parseFloat(order.output_amount) /
+                            Math.pow(10, outputToken?.DECIMALS || 0)
+                          ).toFixed(outputToken?.DECIMALS || 0)}
+                        </p>
+                        <p>
+                          Mint: {order.output_mint.slice(0, 3)}...
+                          {order.output_mint.slice(-3)}
                         </p>
                       </div>
                     </div>
-                    <div className="mt-2">
-                      <p className="text-xs text-gray-500">
-                        Input Amount:{' '}
-                        {(
-                          parseFloat(order.input_amount) /
-                          Math.pow(
-                            10,
-                            Object.entries(tokenList).find(
-                              ([_, v]) => v.MINT === order.input_mint,
-                            )![1].DECIMALS,
-                          )
-                        ).toFixed(
-                          Object.entries(tokenList).find(
-                            ([_, v]) => v.MINT === order.input_mint,
-                          )![1].DECIMALS,
-                        )}
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        Input Mint: {order.input_mint.substring(0, 3)}...
-                        {order.input_mint.slice(-3)}
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        Output Amount:{' '}
-                        {(
-                          parseFloat(order.output_amount) /
-                          Math.pow(
-                            10,
-                            Object.entries(tokenList).find(
-                              ([_, v]) => v.MINT === order.output_mint,
-                            )![1].DECIMALS,
-                          )
-                        ).toFixed(
-                          Object.entries(tokenList).find(
-                            ([_, v]) => v.MINT === order.output_mint,
-                          )![1].DECIMALS,
-                        )}
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        Output Mint: {order.output_mint.substring(0, 3)}...
-                        {order.output_mint.slice(-3)}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  );
+                })}
+              </GridBox>
             );
           }
           case 'sanctumCard': {
