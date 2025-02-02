@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { Collection } from '../../types/magicEden';
 import { NFTCollectionCard, TrendingNFTCard } from '../../types/messageCard';
+import ApiClient from '../../api/ApiClient';
 
 export const fetchMagicEdenLaunchpadCollections = async (
   limit: number = 100,
@@ -80,17 +81,6 @@ export const fetchMagicEdenNFTPrice = async (
 
 export const fetchTrendingNFTs = async () => {
   const url = process.env.DATA_SERVICE_URL + 'data/nft/top_nft';
-  try {
-    const response = await axios.get<[]>(url, {
-      headers: {
-        accept: 'application/json',
-      },
-    });
-
-    let data: TrendingNFTCard[] = response.data;
-    return data;
-  } catch (error) {
-    console.error('Error fetching  Trending collections:', error);
-    throw error;
-  }
+  const resp = ApiClient.get<TrendingNFTCard[]>(url);
+  return resp;
 };
