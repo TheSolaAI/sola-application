@@ -27,11 +27,9 @@ function RenderBlinks({ actionName }: RenderBlinksProps) {
   return (
     <>
       {!isLoading && action ? (
-        <div className="w-3/5">
-          <Blink action={action} adapter={adapter} />
-        </div>
+        <Blink action={action} adapter={adapter} />
       ) : (
-        <div className="text-gray-700 text-sm dark:text-graydark">
+        <div className="text-primaryDark text-sm">
           Loading blinks
         </div>
       )}

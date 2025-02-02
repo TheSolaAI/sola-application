@@ -590,70 +590,69 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
               </MessageWrapper>
             );
           }
-          
+
           case 'blinkCard': {
             const blink = item.link || '';
             return (
-              <div className="p-4 flex w-full justify-center ">
-                <RenderBlinks actionName={blink} />
-              </div>
+              <MessageWrapper index={index}>
+                <div className="p-4 text-center w-72">
+                  <RenderBlinks actionName={blink} />
+                </div>
+              </MessageWrapper>
             );
           }
+
           case 'topHoldersCard': {
             const topHolders = item.card as TopHolder[];
+
             return (
-              <div className=" rounded-lg p-4 my-4 shadow-md bg-[#F5F5F5] h-full dark:bg-darkalign2 dark:text-bodydark2">
-                {' '}
-                <h2 className="text-lg font-semibold mb-4 text-bodydark2">
-                  Top Holders Information
-                </h2>
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-700">
-                    {' '}
-                    <thead>
-                      <tr>
-                        <th className="px-4 py-2 font-medium text-left uppercase tracking-wider">
-                          Owner
-                        </th>
-                        <th className="px-4 py-2 font-medium text-righ uppercase tracking-wider">
-                          Balance
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
+              <MessageWrapper index={index}>
+                <div className="p-4">
+                  <h2 className="text-lg font-semibold mb-4">
+                    Top Holders Information
+                  </h2>
+                  <div>
+                    <div className="grid grid-cols-2 gap-x-6 py-2 font-medium text-left uppercase tracking-wider border-b border-gray-700">
+                      <span>Owner</span>
+                      <span className="text-right">Balance</span>
+                    </div>
+
+                    <div>
                       {topHolders.map((value, index) => (
-                        <tr key={index}>
-                          {' '}
-                          <td className="p-4 whitespace-nowrap">
-                            <div className="flex items-center">
-                              <span className="truncate">
-                                {value.owner.slice(0, 5)}...
-                                {value.owner.slice(-5)}
-                              </span>{' '}
-                              <button
-                                onClick={() => {
-                                  window.open(
-                                    `https://solscan.io/account/${value.owner}`,
-                                    '_blank',
-                                  );
-                                }}
-                                className="mx-4 text-xs font-medium rounded-lg hover:scale-105 hover:shadow-lg transition-all"
-                              >
-                                <ExternalLink className="h-4 w-4" />
-                              </button>
-                            </div>
-                          </td>
-                          <td className="px-4 py-2 text-center whitespace-nowrap">
+                        <div
+                          key={index}
+                          className="grid grid-cols-2 gap-x-6 py-2 items-center"
+                        >
+                          <div className="flex items-center gap-2">
+                            <span className="truncate">
+                              {value.owner.slice(0, 5)}...
+                              {value.owner.slice(-5)}
+                            </span>
+                            <button
+                              onClick={() =>
+                                window.open(
+                                  `https://solscan.io/account/${value.owner}`,
+                                  '_blank',
+                                )
+                              }
+                              className="text-xs font-medium rounded-lg hover:scale-105 hover:shadow-lg transition-all"
+                            >
+                              <ExternalLink className="h-4 w-4" />
+                            </button>
+                          </div>
+
+                          <div className="text-right">
                             {formatNumber(value.amount)}
-                          </td>
-                        </tr>
+                          </div>
+                        </div>
                       ))}
-                    </tbody>
-                  </table>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              </MessageWrapper>
             );
           }
+
           default:
             return null;
         }

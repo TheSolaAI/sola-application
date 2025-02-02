@@ -1279,6 +1279,7 @@ const Conversation = () => {
               sendClientEvent(response);
             } else if (output.name === 'getBlinks') {
               const { actionName } = JSON.parse(output.arguments);
+              console.log("jlkjhlkjhlkh",actionName)
               setMessageList((prev) => [
                 ...prev,
                 {
