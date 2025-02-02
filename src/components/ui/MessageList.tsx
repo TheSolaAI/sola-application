@@ -180,67 +180,57 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
               </div>
             );
 
-          case 'tokenCards': {
-            const tokens = item.card as TokenCard[];
+          case 'tokenCard': {
+            const token = item.card as TokenCard;
             return (
               <GridBox index={index} col={3}>
-                {tokens.map((token, tIndex) => (
-                  <div
-                    key={tIndex}
-                    className="p-2 rounded-lg bg-sec_background text-secText"
-                  >
-                    <div className="flex justify-between items-start">
-                      <div className="flex gap-4 items-center">
-                        <img
-                          src={token.image || '/placeholder.png'}
-                          alt={token.metadata?.name || 'Token'}
-                          className="h-fit rounded-lg bg-graydark"
-                        />
-                        <div>
-                          <h3 className="truncate text-sm font-medium">
-                            {token.metadata?.name || 'Unknown'}
-                          </h3>
-                          <p className="mt-1 text-xs font-medium">
-                            ${token.price}
-                          </p>
-                          <p
-                            className={`text-xs font-medium ${
-                              Number(token.priceChange) > 0
-                                ? 'text-green-500'
-                                : Number(token.priceChange) < 0
-                                  ? 'text-red-500'
-                                  : 'text-bodydark2'
-                            }`}
-                          >
-                            {token.priceChange || 'Unknown'}%
-                          </p>
-                        </div>
-                      </div>
-                      <button
-                        onClick={() =>
-                          window.open(
-                            `https://dexscreener.com/solana/${token.address}`,
-                            '_blank',
-                          )
-                        }
-                        className="p-1 rounded-lg bg-sec_background hover:opacity-80 transition"
-                      >
-                        <ExternalLink className="w-4 h-4 text-primaryDark" />
-                      </button>
-                    </div>
-
-                    <div className="flex flex-row gap-2 text-sm mt-2">
-                      {[
-                        { label: 'MC', value: token.marketCap },
-                        { label: '24H Vol', value: token.volume },
-                      ].map(({ label, value }, i) => (
-                        <p key={i}>
-                          {label}: ${formatNumber(Number(value)) || 'Unknown'}
+                <div className="p-2 rounded-lg bg-sec_background text-secText">
+                  <div className="flex justify-between items-start">
+                    <div className="flex gap-4 items-center">
+                      <div>
+                        <h3 className="truncate text-sm font-medium">
+                          {token.metadata?.name || 'Unknown'}
+                        </h3>
+                        <p className="mt-1 text-xs font-medium">
+                          ${token.price}
                         </p>
-                      ))}
+                        <p
+                          className={`text-xs font-medium ${
+                            Number(token.priceChange) > 0
+                              ? 'text-green-500'
+                              : Number(token.priceChange) < 0
+                                ? 'text-red-500'
+                                : 'text-bodydark2'
+                          }`}
+                        >
+                          {token.priceChange || 'Unknown'}%
+                        </p>
+                      </div>
                     </div>
+                    <button
+                      onClick={() =>
+                        window.open(
+                          `https://dexscreener.com/solana/${token.address}`,
+                          '_blank',
+                        )
+                      }
+                      className="p-1 rounded-lg bg-sec_background hover:opacity-80 transition"
+                    >
+                      <ExternalLink className="w-4 h-4 text-primaryDark" />
+                    </button>
                   </div>
-                ))}
+
+                  <div className="flex flex-row gap-2 text-sm mt-2">
+                    {[
+                      { label: 'MC', value: token.marketCap },
+                      { label: '24H Vol', value: token.volume },
+                    ].map(({ label, value }, i) => (
+                      <p key={i}>
+                        {label}: ${formatNumber(Number(value)) || 'Unknown'}
+                      </p>
+                    ))}
+                  </div>
+                </div>
               </GridBox>
             );
           }
@@ -248,39 +238,25 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
           case 'nftCollectionCard': {
             const nftCollectionCard = item.card as NFTCollectionCard;
             return (
-              <div className="grid grid-cols-1 gap-6 my-4">
-                <div className="flex w-fit items-center gap-3 dark:text-bodydark2">
-                  <a
-                    href={
-                      'https://magiceden.io/marketplace/' +
-                      nftCollectionCard.symbol
-                    }
-                    target="_blank"
-                    className="flex gap-4"
-                    rel="noreferrer"
-                  >
-                    <img
-                      src={nftCollectionCard.image || '/placeholder.png'}
-                      alt={nftCollectionCard.title || 'NFT NAME'}
-                      className="h-22 w-22 rounded-lg  bg-graydark"
-                    />
-
-                    <div>
-                      <h3 className="truncate text-large font-medium">
-                        {nftCollectionCard.title || 'Unknown'}
-                      </h3>
-                      <p className={`mt-1 text-small font-medium`}>
-                        ◎ {nftCollectionCard.price}
-                      </p>
-                      <p className="text-small text-bodydark2 mt-2">
-                        Listed: {nftCollectionCard.listed || 'Unknown'}
-                      </p>
-                    </div>
-                  </a>
-                </div>
-              </div>
+              <MonoGridBox index={index}>
+                <img
+                  src={nftCollectionCard.image || '/placeholder.png'}
+                  alt={nftCollectionCard.title || 'NFT NAME'}
+                  className="h-22 w-22 rounded-lg  bg-graydark"
+                />
+                <h3 className="truncate text-large font-semibold">
+                  {nftCollectionCard.title || 'Unknown'}
+                </h3>
+                <p className={`mt-1 text-small`}>
+                  ◎ {nftCollectionCard.price}
+                </p>
+                <p className="text-small">
+                  Listed: {nftCollectionCard.listed || 'Unknown'}
+                </p>
+              </MonoGridBox>
             );
           }
+          
           case 'luloCard': {
             const lulo = item.card as LuloCard;
 

@@ -14,7 +14,11 @@ import {
   TopHolder,
   TrendingNFTCard,
 } from '../types/messageCard';
-import { LimitOrderParams, ShowLimitOrderParams, SwapParams } from '../types/jupiter';
+import {
+  LimitOrderParams,
+  ShowLimitOrderParams,
+  SwapParams,
+} from '../types/jupiter';
 import { swapTx } from '../lib/solana/swapTx';
 import { createToolsConfig } from '../tools/tools';
 import { SessionControls } from '../components/SessionControls';
@@ -484,8 +488,8 @@ const Conversation = () => {
     console.log('calling fn 2');
     try {
       let params: ShowLimitOrderParams = {
-        public_key:currentWallet.address
-      }
+        public_key: currentWallet.address,
+      };
       const resp = await getLimitOrders(params);
       const limitOrders = resp?.orders;
       if (!limitOrders) {
@@ -577,23 +581,21 @@ const Conversation = () => {
           );
         }
 
-        let token_card: TokenCard[] = [
-          {
-            address: data.metadata.description,
-            image: data.image,
-            metadata: data.metadata,
-            price: data.price.toString(),
-            marketCap: data.marketcap.toString(),
-            volume: data.volume.toString(),
-            priceChange: data.price_change_24.toString(),
-          },
-        ];
+        let token_card: TokenCard = {
+          address: data.metadata.description,
+          image: data.image,
+          metadata: data.metadata,
+          price: data.price.toString(),
+          marketCap: data.marketcap.toString(),
+          volume: data.volume.toString(),
+          priceChange: data.price_change_24.toString(),
+        };
 
         updateMessage(
-          `symbol: ${tokenMint}, address: ${token_card[0].address}, price: ${token_card[0].price}, marketCap: ${token_card[0].marketCap}`,
+          `symbol: ${tokenMint}, address: ${token_card.address}, price: ${token_card.price}, marketCap: ${token_card.marketCap}`,
         );
 
-        await handleAddMessage(customMessageCards('tokenCards', token_card));
+        await handleAddMessage(customMessageCards('tokenCard', token_card));
 
         return responseToOpenai(
           'tell the user that the token data is fetched successfully',
@@ -616,20 +618,18 @@ const Conversation = () => {
           data.price_change_24 = 0;
         }
 
-        let token_card: TokenCard[] = [
-          {
-            address: tokenMint,
-            image: data.image,
-            metadata: data.metadata,
-            price: data.price.toString(),
-            marketCap: data.marketcap.toString(),
-            volume: data.volume.toString(),
-            priceChange: data.price_change_24.toString() || 'NaN',
-          },
-        ];
+        let token_card: TokenCard = {
+          address: tokenMint,
+          image: data.image,
+          metadata: data.metadata,
+          price: data.price.toString(),
+          marketCap: data.marketcap.toString(),
+          volume: data.volume.toString(),
+          priceChange: data.price_change_24.toString() || 'NaN',
+        };
 
         updateMessage(
-          `address: ${token_card[0].address}, price: ${token_card[0].price}, marketCap: ${token_card[0].marketCap}`,
+          `address: ${token_card.address}, price: ${token_card.price}, marketCap: ${token_card.marketCap}`,
         );
 
         await handleAddMessage(customMessageCards('tokenCards', token_card));
