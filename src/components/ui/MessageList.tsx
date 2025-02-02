@@ -35,6 +35,7 @@ import AgentTranscription from './AgentTransacriptions.tsx';
 import MessageBox from './MessageBox.tsx';
 import GridBox from './GridBox.tsx';
 import { useWalletHandler } from '../../models/WalletHandler.ts';
+import MonoGridBox from './MonoGridBox.tsx';
 
 const wallet_service_url = process.env.WALLET_SERVICE_URL;
 
@@ -153,27 +154,21 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
           case 'transaction': {
             const transactionCard = item.card as TransactionCard;
             return (
-              <GridBox index={index} col={3}>
-                <div className="flex p-4 bg-sec_background text-secText overflow-scroll">
-                  <div>
-                    <img src="/solscan.png" alt="solscan" className="w-8 h-8" />
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="font-semibold text-lg">
-                      {transactionCard.title}
-                    </span>
-                    <span>{transactionCard.status}</span>
-                    <a
-                      href={transactionCard.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-500 hover:underline text-sm"
-                    >
-                      View details on Solscan ↗
-                    </a>
-                  </div>
-                </div>
-              </GridBox>
+              <MonoGridBox index={index}>
+                <img src="/solscan.png" alt="solscan" className="h-10 w-10" />
+                <span className="font-semibold text-lg">
+                  {transactionCard.title}
+                </span>
+                <span>{transactionCard.status}</span>
+                <a
+                  href={transactionCard.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primaryDark hover:underline text-sm"
+                >
+                  View details on Solscan ↗
+                </a>
+              </MonoGridBox>
             );
           }
 
@@ -249,6 +244,7 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
               </GridBox>
             );
           }
+
           case 'nftCollectionCard': {
             const nftCollectionCard = item.card as NFTCollectionCard;
             return (
