@@ -1,14 +1,12 @@
 import { useState } from 'react';
-import { useSolanaWallets } from '@privy-io/react-auth';
 import useAppState from '../models/AppState.ts';
 import { Switch } from '@headlessui/react';
 import { useWalletHandler } from '../models/WalletHandler.ts';
 
 function WalletManagement() {
-  const { setWallet, embeddedWalletVisibility, setEmbeddedWalletVisibility } =
+  const { embeddedWalletVisibility, setEmbeddedWalletVisibility } =
     useAppState();
-  const { currentWallet } = useWalletHandler();
-  const { wallets } = useSolanaWallets();
+  const { currentWallet, setCurrentWallet, wallets } = useWalletHandler();
 
   const [isOpen, setIsOpen] = useState(false);
   const [selectedWallet, setSelectedWallet] = useState(
@@ -72,7 +70,7 @@ function WalletManagement() {
                         role="menuitem"
                         onClick={() => {
                           setSelectedWallet(wallet.walletClientType);
-                          setWallet(wallet);
+                          setCurrentWallet(wallet);
                           setIsOpen(false);
                         }}
                       >

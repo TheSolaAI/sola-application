@@ -14,7 +14,7 @@ import {
   TopHolder,
   TrendingNFTCard,
 } from '../types/messageCard';
-import { LimitOrderParams, SwapParams } from '../types/jupiter';
+import { LimitOrderParams, ShowLimitOrderParams, SwapParams } from '../types/jupiter';
 import { swapTx } from '../lib/solana/swapTx';
 import { createToolsConfig } from '../tools/tools';
 import { SessionControls } from '../components/SessionControls';
@@ -483,8 +483,10 @@ const Conversation = () => {
     await handleAddMessage(agentMessage(`Agent is fetching limit orders`));
     console.log('calling fn 2');
     try {
-      //TODO: FIX Error
-      const resp = await getLimitOrders(currentWallet.address);
+      let params: ShowLimitOrderParams = {
+        public_key:currentWallet.address
+      }
+      const resp = await getLimitOrders(params);
       const limitOrders = resp?.orders;
       if (!limitOrders) {
         await handleAddMessage(messageCard(`Error fetching limit orders`));
