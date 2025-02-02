@@ -15,14 +15,6 @@ import {
   TransactionCard,
   TrendingNFTCard,
 } from '../../types/messageCard';
-import {
-  Dialog,
-  DialogPanel,
-  DialogTitle,
-  Input,
-  Transition,
-  TransitionChild,
-} from '@headlessui/react';
 import { Copy, ExternalLink, X } from 'lucide-react';
 import axios from 'axios';
 import { Connection, VersionedTransaction } from '@solana/web3.js';
@@ -52,29 +44,17 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
   const [sanctumSymbol, setSanctumSymbol] = useState<string>('');
   const [sanctumApy, setSanctumApy] = useState<number>(0);
   const [link, setSolscanLink] = useState<string>('');
-  const [expandedToken, setExpandedToken] = useState<string | null>(null); // Tracks which token is expanded
-  const [bubbleMap, setBubbleMap] = useState<string | null>(null); // Tracks which token is expanded
-
-  const handleExpand = (tokenAddress: string) => {
-    setExpandedToken((prev) => (prev === tokenAddress ? null : tokenAddress));
-  };
-  const handleBubbleMap = (tokenAddress: string) => {
-    setBubbleMap((prev) => (prev === tokenAddress ? null : tokenAddress));
-  };
   let { currentWallet } = useWalletHandler();
 
   const rpc = process.env.SOLANA_RPC;
-  const closeModal = () => {
-    console.log('sadffds');
-    setIsOpen(false);
-    console.log(isOpen);
-  };
-  function openModal(symbol: any, address: any, apy: any) {
+
+  const openModal = (symbol: any, address: any, apy: any) => {
     setSanctumAddress(address);
     setSanctumSymbol(symbol);
     setSanctumApy(apy);
     setIsOpen(true);
-  }
+  };
+
   async function invokeSwap(
     amount: string,
     address: string,
@@ -146,7 +126,7 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
   }
 
   return (
-    <div className="mx-2 md:py-4 md:px-24 w-full flex flex-col overflow-y-scroll no-scrollbar">
+    <div className="mx-2 md:py-4 md:px-24 w-full flex flex-col">
       {messageList.map((item, index) => {
         switch (item.type) {
           case 'aiTranscription':
@@ -487,16 +467,16 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                             </a>
                           )}
                         </p>
-                        <Input
+                        <input
                           type="string"
                           name="amount"
-                          placeholder='Amount'
+                          placeholder="Amount"
                           className="p-2 bg-grey-900 text-textColor border bg-baseBackground rounded-md"
                           onChange={(e) => setSanctumAmount(e.target.value)}
                         />
                         <div className="mt-4">
                           <button
-                            className='py-2 px-4 rounded-lg bg-backgroundContrast text-textColorContrast'
+                            className="py-2 px-4 rounded-lg bg-backgroundContrast text-textColorContrast"
                             onClick={() => {
                               invokeSwap(
                                 sanctumAmount,
@@ -510,63 +490,12 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                         </div>
                       </div>
                     </PopupModal>
-
-                    {/* <Transition appear show={isOpen} as={Fragment}>
-                      <Dialog
-                        as="div"
-                        className="relative w-full h-full z-9999"
-                        onClose={closeModal}
-                      >
-                        <TransitionChild
-                          as={Fragment}
-                          enter="ease-out duration-300"
-                          enterFrom="opacity-0"
-                          enterTo="opacity-100"
-                          leave="ease-in duration-200"
-                          leaveFrom="opacity-100"
-                          leaveTo="opacity-0"
-                        >
-                          <div className="fixed inset-0 bg-black bg-opacity-15" />
-                        </TransitionChild>
-
-                        <div className="fixed inset-0 overflow-y-auto">
-                          <div className="flex min-h-full items-center justify-center p-4 text-center">
-                            <TransitionChild
-                              as={Fragment}
-                              enter="ease-out duration-100"
-                              enterFrom="opacity-0 scale-95"
-                              enterTo="opacity-100 scale-100"
-                              leave="ease-in duration-100"
-                              leaveFrom="opacity-100 scale-100"
-                              leaveTo="opacity-0 scale-95"
-                            >
-                              <DialogPanel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
-                                <DialogTitle
-                                  as="h3"
-                                  className="text-lg w-full font-medium flex items-center justify-between text-gray-900"
-                                >
-                                  
-                                  <button
-                                    type="button"
-                                    className="inline-flex justify-center rounder-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-                                    onClick={closeModal}
-                                  >
-                                    <X />
-                                  </button>
-                                </DialogTitle>
-                                
-                                
-                              </DialogPanel>
-                            </TransitionChild>
-                          </div>
-                        </div>
-                      </Dialog>
-                    </Transition> */}
                   </div>
                 ))}
               </GridBox>
             );
           }
+
           case 'rugCheckCard': {
             const rugCheckCard = item.card as RugCheckCard;
 
@@ -580,7 +509,6 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                     ? 'text-orange-500'
                     : 'text-red-500';
 
-            // Determine risk level color
             const getRiskColor = (level: 'warn' | 'danger' | 'none') => {
               switch (level) {
                 case 'warn':
@@ -593,28 +521,24 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
             };
 
             return (
-              <div className="grid grid-cols-1 gap-2 my-4 bg-[#F5F5F5] rounded-lg p-4 dark:bg-darkalign2">
-                {/* Display overall risk score */}
-                <div className="flex items-center gap-3">
-                  <h3 className={scoreColor}>
-                    Risk Level: {rugCheckCard.score}
-                  </h3>
-                </div>
+              <MessageWrapper index={index}>
+                <span className={`${scoreColor} font-semibold p-2`}>
+                  Risk Level: {rugCheckCard.score}
+                </span>
 
-                {/* Display risk details */}
-                <div className="flex flex-col gap-4 ">
+                <div className="flex flex-col gap-4 p-2">
                   {rugCheckCard.issues.length === 0 ? (
                     <p className="text-green-500 font-thin">No Risks Found</p>
                   ) : (
                     rugCheckCard.issues.map((risk, index) => (
                       <div
                         key={index}
-                        className="bg-[#F5F5F5] p-4 rounded-lg shadow dark:bg-darkalign2"
+                        className="bg-surface p-4 rounded-lg shadow dark:bg-darkalign2"
                       >
-                        <h4 className={`font-bold ${getRiskColor(risk.level)}`}>
+                        <h4 className={`font-medium ${getRiskColor(risk.level)}`}>
                           {risk.name} ({risk.level})
                         </h4>
-                        <p>{risk.description}</p>
+                        <p className='text-base'>{risk.description}</p>
                         {risk.value && (
                           <p className="font-thin">Value: {risk.value}</p>
                         )}
@@ -623,7 +547,7 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                     ))
                   )}
                 </div>
-              </div>
+              </MessageWrapper>
             );
           }
           case 'trendingNFTCard': {

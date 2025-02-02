@@ -17,7 +17,7 @@ export default function MonoGridBox({
   return (
     <div
       key={index}
-      className="flex gap-2 my-1 md:gap-4 justify-start max-w-[70%] md:max-w-[80%] transition-opacity duration-500 overflow-y-auto"
+      className="flex gap-2 my-1 md:gap-4 justify-start max-w-[90%] md:max-w-[80%] transition-opacity duration-500 overflow-y-auto"
     >
       {' '}
       <div className="opacity-0">
