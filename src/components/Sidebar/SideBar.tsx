@@ -149,11 +149,6 @@ export const Sidebar: FC<SidebarProps> = ({
               <ChevronLeft size={24} color={theme.textColor} />
             </button>
           )}
-          <img
-            src="/logo.png"
-            alt="Logo"
-            className="hidden w-[40px] h-[40px] rounded-lg lg:block"
-          />
         </div>
 
         {/*New ChatRoom Button*/}

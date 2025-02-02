@@ -44,10 +44,13 @@ export const useWalletHandler = create<WalletHandler>((set, get) => ({
       );
       if (wallet) {
         set({ currentWallet: wallet });
+        console.log('Setting Default Wallet', wallet);
       } else {
         toast.error(
           "Your Default Wallet doesn't exist anymore, please select a new one.",
         );
+
+        localStorage.setItem('defaultWallet', '');
         set({ defaultWallet: null });
         set({ currentWallet: get().wallets[0] });
       }
@@ -58,7 +61,6 @@ export const useWalletHandler = create<WalletHandler>((set, get) => ({
       set({ currentWallet: get().wallets[0] });
       localStorage.setItem('defaultWallet', get().wallets[0].address);
     }
-    console.log('Default Wallet Address', get().currentWallet?.address);
   },
 
   assets: [],

@@ -1,19 +1,21 @@
-import React, { ReactNode, useState } from 'react';
+// MasterLayout.tsx
+import React, { ReactNode } from 'react';
 import { Sidebar } from '../components/Sidebar/SideBar.tsx';
+import { WalletLensSideBar } from '../components/wallet/WalletLensSideBar.tsx';
+import { useLayoutContext } from './LayoutProvider.tsx';
 
 const MasterLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
-  // const { disclaimer, setDisclaimer } = useAppState();
-
-  /**
-   * Local State
-   */
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [canAutoClose, setCanAutoClose] = useState(false);
-  const [walletLensOpen, setWalletLensOpen] = useState(false);
+  const {
+    sidebarOpen,
+    setSidebarOpen,
+    canAutoClose,
+    setCanAutoClose,
+    walletLensOpen,
+    handleWalletLensOpen,
+  } = useLayoutContext();
 
   return (
     <div className="flex h-screen bg-baseBackground overflow-hidden sm:p-2 gap-x-2">
-      {/*<Disclaimer isOpen={disclaimer} setIsOpen={setDisclaimer} />*/}
       <Sidebar
         isOpen={sidebarOpen}
         setIsOpen={setSidebarOpen}
@@ -21,7 +23,10 @@ const MasterLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
         setCanAutoClose={setCanAutoClose}
       />
       <main className="flex-1 sm:rounded-2xl bg-background">{children}</main>
-      {/*<WalletLensSideBar />*/}
+      <WalletLensSideBar
+        setVisible={handleWalletLensOpen}
+        visible={walletLensOpen}
+      />
     </div>
   );
 };

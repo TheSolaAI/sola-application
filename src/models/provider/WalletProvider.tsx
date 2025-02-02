@@ -17,7 +17,7 @@ export const WalletProvider: React.FC<{
       setWallets(wallets);
       initWalletManager();
     }
-  }, [ready, wallets, setWallets, initWalletManager, isAuthenticated]);
+  }, [ready, wallets, isAuthenticated]);
 
   return <>{children}</>;
 };

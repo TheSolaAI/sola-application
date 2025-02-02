@@ -34,7 +34,7 @@ const projectId = 'pprp6bdxj0';
 Clarity.init(projectId);
 
 const solanaConnectors = toSolanaWalletConnectors({
-  shouldAutoConnect: false,
+  shouldAutoConnect: true,
 });
 
 const RootApp = () => {

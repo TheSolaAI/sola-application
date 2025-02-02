@@ -6,6 +6,7 @@ import useAppState from './models/AppState.ts';
 import useThemeManager from './models/ThemeManager.ts';
 import { WalletProvider } from './models/provider/WalletProvider.tsx';
 import ApiClient from './api/ApiClient.ts';
+import { LayoutProvider } from './layout/LayoutProvider.tsx';
 
 // import { tokenGate } from './lib/solana/tokenGate';
 
@@ -53,7 +54,9 @@ function App() {
 
   return (
     <WalletProvider isAuthenticated={authenticated && ready}>
-      <AppRoutes isAuthenticated={authenticated && ready} />
+      <LayoutProvider>
+        <AppRoutes isAuthenticated={authenticated && ready} />
+      </LayoutProvider>
     </WalletProvider>
   );
 }
