@@ -240,56 +240,50 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
             return (
               <MonoGridBox index={index}>
                 <img
-                  src={nftCollectionCard.image || '/placeholder.png'}
-                  alt={nftCollectionCard.title || 'NFT NAME'}
-                  className="h-22 w-22 rounded-lg  bg-graydark"
+                  src={nftCollectionCard.image}
+                  alt={nftCollectionCard.title}
+                  className="h-20 w-20 rounded-lg"
                 />
-                <h3 className="truncate text-large font-semibold">
+                <h3 className=" hidden md:block md:text-large font-semibold">
                   {nftCollectionCard.title || 'Unknown'}
                 </h3>
-                <p className={`mt-1 text-small`}>
-                  ◎ {nftCollectionCard.price}
-                </p>
+                <p className={`mt-1 text-small`}>◎ {nftCollectionCard.price}</p>
                 <p className="text-small">
                   Listed: {nftCollectionCard.listed || 'Unknown'}
                 </p>
               </MonoGridBox>
             );
           }
-          
+
           case 'luloCard': {
             const lulo = item.card as LuloCard;
-
             const tokenBalance = lulo.tokenBalance;
-
             return (
               <>
-                <div className="mb-4 bg-[#F5F5F5] flex flex-row gap-4 p-3 rounded-lg leading-relaxed overflow-auto dark:bg-darkalign2 dark:text-bodydark2 no-scrollbar transition-opacity duration-500 opacity-100 transform">
+                <MonoGridBox index={index}>
                   <img
                     src="/lulo.png"
                     alt="luloimage"
-                    className="h-16 rounded-sm"
+                    className="h-16 rounded-lg"
                   />
-                  <div>
-                    <p className="text-base font-medium">
-                      Deposit Value : {lulo.depositValue.toFixed(2)}
-                    </p>
-                    <p className="text-sm font-medium">
-                      Interest Earned : {lulo.interestEarned.toFixed(2)}
-                    </p>
-                    <p className="text-sm font-medium">
-                      Total Value : {lulo.totalValue.toFixed(2)}
-                    </p>
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-4 my-4 dark:bg-darkalign2 dark:text-bodydark2">
+                  <p className="text-base font-medium">
+                    Deposit Value : {lulo.depositValue.toFixed(2)}
+                  </p>
+                  <p className="text-sm">
+                    Interest Earned : {lulo.interestEarned.toFixed(2)}
+                  </p>
+                  <p className="text-sm">
+                    Total Value : {lulo.totalValue.toFixed(2)}
+                  </p>
+                </MonoGridBox>
+                <GridBox index={index} col={3}>
                   {tokenBalance.map((token, tokenIndex) => (
                     <a
                       key={tokenIndex}
                       href={`https://dexscreener.com/solana/${token.mint}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="group relative w-full overflow-hidden block rounded-xl bg-[#F5F5F5] border p-3"
+                      className="group relative w-full overflow-hidden block rounded-xl bg-sec_background p-3"
                     >
                       <div className="flex items-center gap-3">
                         <img
@@ -316,10 +310,11 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                       </p>
                     </a>
                   ))}
-                </div>
+                </GridBox>
               </>
             );
           }
+          
           case 'nftcards': {
             const nftCards = item.card as NFTCard;
             return (
