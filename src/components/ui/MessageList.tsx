@@ -535,10 +535,12 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                         key={index}
                         className="bg-surface p-4 rounded-lg shadow dark:bg-darkalign2"
                       >
-                        <h4 className={`font-medium ${getRiskColor(risk.level)}`}>
+                        <h4
+                          className={`font-medium ${getRiskColor(risk.level)}`}
+                        >
                           {risk.name} ({risk.level})
                         </h4>
-                        <p className='text-base'>{risk.description}</p>
+                        <p className="text-base">{risk.description}</p>
                         {risk.value && (
                           <p className="font-thin">Value: {risk.value}</p>
                         )}
@@ -550,52 +552,45 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
               </MessageWrapper>
             );
           }
+
           case 'trendingNFTCard': {
             const trendingNFTCard = item.card as TrendingNFTCard[];
             return (
-              <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-2 gap-3 my-4">
+              <GridBox index={index} col={3}>
                 {trendingNFTCard.map((nftCards, tokenIndex) => (
                   <div
                     key={tokenIndex}
-                    className="mb-4 bg-graydark rounded-xl shadow-md overflow-hidden dark:bg-darkalign2 dark:text-bodydark2"
+                    className="flex items-center bg-sec_background rounded-lg"
                   >
                     <img
                       src={nftCards.image}
                       alt={nftCards.name}
-                      className="h-56 object-cover rounded-lg"
+                      className="h-22 rounded-lg"
                     />
-                    <div className="p-4">
-                      <h4 className="mb-4 text-lg font-semibold text-bodydark1 dark:text-bodydark2">
-                        {nftCards.name}
-                      </h4>
-                      <div className="flex items-center justify-between mt-2 ">
-                        <p className="text-gray-700 text-sm dark:text-graydark">
-                          Price: {nftCards.floor_price} ◎
-                        </p>
-                        <p className="text-gray-700 text-sm dark:text-graydark">
-                          Listings: {nftCards.listed_count}
-                        </p>
-                        <p className="text-gray-700 text-sm dark:text-graydark">
-                          1d: {nftCards.volume_24hr.toFixed(2)} ◎
-                        </p>
-                      </div>
+                    <div className="text-textColor">
+                      <h4 className="text-lg font-semibold">{nftCards.name}</h4>
+                      <p>Floor: {nftCards.floor_price} ◎</p>
+                      <p>Listings: {nftCards.listed_count}</p>
+                      <p>1d: {nftCards.volume_24hr.toFixed(2)} ◎</p>
                     </div>
                   </div>
                 ))}
-              </div>
+              </GridBox>
             );
           }
+
           case 'bubblemapCard': {
             const bubblemapCard = item.card as BubblemapCard;
             return (
-              <div className="mb-4 h-100 bg-graydark rounded-xl shadow-md overflow-hidden dark:bg-darkalign2 dark:text-bodydark2">
+              <MessageWrapper index={index}>
                 <iframe
                   src={`https://app.bubblemaps.io/sol/token/${bubblemapCard.token}`}
-                  className="w-full h-full"
+                  className="w-full h-64 md:h-94 rounded-lg"
                 />
-              </div>
+              </MessageWrapper>
             );
           }
+          
           case 'blinkCard': {
             const blink = item.link || '';
             return (
