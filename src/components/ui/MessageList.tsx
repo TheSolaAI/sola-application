@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from 'react';
+import React, { useState } from 'react';
 
 import {
   BubblemapCard,
@@ -15,7 +15,7 @@ import {
   TransactionCard,
   TrendingNFTCard,
 } from '../../types/messageCard';
-import { Copy, ExternalLink, X } from 'lucide-react';
+import { ExternalLink } from 'lucide-react';
 import axios from 'axios';
 import { Connection, VersionedTransaction } from '@solana/web3.js';
 import { tokenList } from '../../config/tokens/tokenMapping';
@@ -126,7 +126,7 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
   }
 
   return (
-    <div className="mx-2 md:py-4 md:px-24 w-full flex flex-col">
+    <div className="px-1 md:py-4 md:px-24 w-full flex flex-col">
       {messageList.map((item, index) => {
         switch (item.type) {
           case 'aiTranscription':
