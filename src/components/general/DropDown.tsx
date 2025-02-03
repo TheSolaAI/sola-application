@@ -10,6 +10,7 @@ interface DropdownProps {
   children: React.ReactNode;
   width?: 'component' | 'auto';
   direction: 'up' | 'down';
+  horizontalAlignment?: 'left' | 'right' | 'auto';
 }
 
 export const Dropdown: React.FC<DropdownProps> = ({
@@ -19,8 +20,9 @@ export const Dropdown: React.FC<DropdownProps> = ({
   title,
   mobileTitle,
   children,
-  width,
+  width = 'auto',
   direction,
+  horizontalAlignment = 'auto',
 }) => {
   const popupRef = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState({
@@ -30,21 +32,59 @@ export const Dropdown: React.FC<DropdownProps> = ({
     bottom: 0,
   });
   const [isMobile, setIsMobile] = useState(false);
+  const [finalHorizontalAlignment, setFinalHorizontalAlignment] = useState<
+    'left' | 'right'
+  >('right');
 
   useEffect(() => {
     if (isOpen && anchorEl && popupRef.current) {
       const anchorRect = anchorEl.getBoundingClientRect();
+      const popupWidth = popupRef.current.offsetWidth;
+      const windowWidth = window.innerWidth;
+
+      // Determine horizontal alignment
+      let calculatedLeft: number;
+      let alignment: 'left' | 'right' = 'right';
+
+      if (horizontalAlignment === 'auto') {
+        // Check space on both sides
+        const spaceOnRight = windowWidth - anchorRect.right;
+        const spaceOnLeft = anchorRect.left;
+
+        // Prefer the side with more space
+        if (spaceOnRight >= popupWidth) {
+          calculatedLeft = anchorRect.left + window.scrollX;
+          alignment = 'left';
+        } else if (spaceOnLeft >= popupWidth) {
+          calculatedLeft = anchorRect.right - popupWidth + window.scrollX;
+          alignment = 'right';
+        } else {
+          // If no side has enough space, default to right
+          calculatedLeft = anchorRect.left + window.scrollX;
+          alignment = 'left';
+        }
+      } else if (horizontalAlignment === 'left') {
+        // Left edge, expanding right
+        calculatedLeft = anchorRect.left + window.scrollX;
+        alignment = 'left';
+      } else {
+        // Right edge, expanding left
+        calculatedLeft = anchorRect.right - popupWidth + window.scrollX;
+        alignment = 'right';
+      }
+
+      setFinalHorizontalAlignment(alignment);
       setPosition({
         top: direction === 'down' ? anchorRect.bottom + window.scrollY + 10 : 0, // 10px spacing
         bottom:
           direction === 'up'
             ? window.innerHeight - anchorRect.top + window.scrollY
             : 0,
-        left: anchorRect.x + window.scrollX, // Ensures alignment with the button
+        left: calculatedLeft,
         width: width === 'component' ? anchorRect.width : 'auto',
       });
     }
-  }, [isOpen, anchorEl, isMobile]);
+  }, [isOpen, anchorEl, isMobile, horizontalAlignment, width, direction]);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -113,11 +153,15 @@ export const Dropdown: React.FC<DropdownProps> = ({
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -10 }}
         transition={{ duration: 0.3, ease: 'easeOut' }}
-        className="fixed z-50 rounded-xl border-border border-[0.5px] bg-background p-2"
+        className={`fixed z-50 rounded-xl border-border border-[0.5px] bg-baseBackground p-2 ${
+          finalHorizontalAlignment === 'right'
+            ? 'origin-top-right'
+            : 'origin-top-left'
+        }`}
         style={{
           top: position.top ? `${position.top}px` : 'auto',
           left: position.left ? `${position.left}px` : 'auto',
-          width: position.width === 'auto' ? 'auto' : `${position.width}px`, // Fix width assignment
+          width: position.width === 'auto' ? 'auto' : `${position.width}px`,
           bottom: position.bottom ? `${position.bottom}px` : 'auto',
         }}
       >

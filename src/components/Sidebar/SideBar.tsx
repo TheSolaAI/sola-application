@@ -132,7 +132,7 @@ export const Sidebar: FC<SidebarProps> = ({
       {/* Sidebar */}
       <div
         ref={sidebarRef}
-        className={`flex flex-col transition-all duration-300 ease-in-out bg-sec_background p-4 pt-6 shadow-black/25 shadow-[0px_0px_15px_1px] z-40 h-full rounded-lg
+        className={`flex flex-col transition-all duration-300 ease-in-out bg-sec_background p-4 pt-6 shadow-black/25 shadow-[0px_0px_15px_1px] z-40 h-full rounded-xl
         ${isMobile ? 'fixed left-0 top-0 w-64' : 'lg:static lg:w-64'} 
         ${isOpen ? 'translate-x-0' : isMobile ? '-translate-x-full' : 'lg:-ml-64'}
         `}

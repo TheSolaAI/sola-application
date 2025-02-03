@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import { FC } from 'react';
 import { Dropdown } from '../general/DropDown.tsx';
 import { useWalletHandler } from '../../models/WalletHandler.ts';
 import { titleCase } from '../utils/titleCase.ts';
@@ -60,7 +60,7 @@ export const WalletPicker: FC<WalletPickerProps> = ({
                 onClick={(e) => {
                   e.stopPropagation(); // Stop event from selecting the wallet
                   window.open(
-                    `https://soloscan.io/account/${wallet.address}`,
+                    `https://solscan.io/account/${wallet.address}`,
                     '_blank',
                   );
                 }}
