@@ -34,9 +34,25 @@ export default defineConfig(({ mode }) => {
           theme_color: '#000000',
           icons: [
             {
-              src: '/sola.png',
+              src: 'pwa-64x64.png',
+              sizes: '64x64',
+              type: 'image/png',
+            },
+            {
+              src: 'pwa-192x192.png',
+              sizes: '192x192',
+              type: 'image/png',
+            },
+            {
+              src: 'pwa-512x512.png',
               sizes: '512x512',
               type: 'image/png',
+            },
+            {
+              src: 'maskable-icon-512x512.png',
+              sizes: '512x512',
+              type: 'image/png',
+              purpose: 'maskable',
             },
           ],
         },
@@ -46,9 +62,9 @@ export default defineConfig(({ mode }) => {
           skipWaiting: true,
           maximumFileSizeToCacheInBytes: 5000000,
         },
-        // devOptions: {
-        //   enabled: true,
-        // },
+        devOptions: {
+          enabled: true,
+        },
       }),
       nodePolyfills(),
       viteCompression({
