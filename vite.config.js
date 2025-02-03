@@ -34,7 +34,7 @@ export default defineConfig(({ mode }) => {
           theme_color: '#000000',
           icons: [
             {
-              src: '/sola.jpg',
+              src: '/sola.png',
               sizes: '512x512',
               type: 'image/png',
             },
