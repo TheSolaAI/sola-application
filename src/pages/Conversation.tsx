@@ -76,7 +76,7 @@ const Conversation = () => {
     getPeerConnection,
     resetMute,
   } = useChatState();
-  const { assets } = useWalletHandler();
+  const { walletAssets } = useWalletHandler();
   const { id } = useParams<{ id: string }>();
   const { getRoomMessages, loading, error, messageLoadingError } = useChat();
   const {
@@ -88,11 +88,11 @@ const Conversation = () => {
     currentRoomId,
     currentAgentId,
   } = useRoomStore();
+  const { setWalletLensOpen } = useLayoutContext();
   const { handleAddMessage, handleAddAiTranscript } = useChatHandler();
   const { fundWallet } = useFundWallet();
   const { handleDepositLulo, handleUserAssetsLulo, handleWithdrawLulo } =
     useLuloActions();
-  const [isWalletVisible, setIsWalletVisible] = useState(false);
   const [events, setEvents] = useState<any[]>([]);
   const audioElement = useRef<HTMLAudioElement | null>(null);
   const [isLoaded, setIsLoaded] = useState<boolean>(true);
@@ -259,12 +259,12 @@ const Conversation = () => {
         agentMessage(`The agent is fetching your wallet assets`),
       ];
     });
-    const assetDetails = assets.map((item) => {
+    const assetDetails = walletAssets.tokens.map((item) => {
       const amount = (item.balance / 10 ** item.decimals).toFixed(2);
       return { symbol: item.symbol, amount: parseFloat(amount) };
     });
 
-    const totalAmount = assets
+    const totalAmount = walletAssets.tokens
       .reduce((acc, asset) => acc + (asset.totalPrice || 0), 0)
       .toFixed(2);
 
@@ -273,8 +273,7 @@ const Conversation = () => {
       .join(', ');
 
     const responseString = `Your wallet assets are: ${assetDetailsString}. Total value: ${totalAmount}.`;
-
-    setIsWalletVisible(true);
+    setWalletLensOpen(true);
     return responseToOpenai(responseString);
   };
 
