@@ -17,7 +17,6 @@ const WalletCoinAssets = () => {
     stopMonitoring,
     startMonitoring,
     currentWallet,
-    setStatus,
   } = useWalletHandler();
 
   /**
@@ -98,39 +97,6 @@ const WalletCoinAssets = () => {
       ]);
     });
   }, [walletAssets]);
-
-  const handleTokenSorting = (
-    sortType: SortType,
-    direction: SortDirection,
-    prioritizeSolana: boolean,
-  ) => {
-    let sortedTokens = [...walletAssets.tokens];
-
-    // primary sorting
-    sortedTokens.sort((a, b) => {
-      let compareValue = 0;
-
-      switch (sortType) {
-        case SortType.TOTAL_PRICE:
-          compareValue = a.totalPrice - b.totalPrice;
-          break;
-        case SortType.TOKEN_PRICE:
-          compareValue =
-            a.pricePerToken * a.decimals - b.pricePerToken * b.decimals;
-          break;
-      }
-
-      return direction === SortDirection.ASCENDING
-        ? compareValue
-        : -compareValue;
-    });
-    if (prioritizeSolana) {
-      sortedTokens.sort((a, b) =>
-        a.symbol === 'SOL' ? -1 : b.symbol === 'SOL' ? 1 : 0,
-      );
-    }
-    setTokens(sortedTokens);
-  };
 
   return (
     <div className="text-textColor flex flex-col">

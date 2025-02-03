@@ -127,7 +127,7 @@ export const useWalletHandler = create<WalletHandler>((set, get) => {
     defaultWallet: null,
     wallets: [],
     walletAssets: {
-      balance: null,
+      totalBalance: null,
       tokens: [],
       nfts: [],
     },
