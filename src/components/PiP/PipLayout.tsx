@@ -34,7 +34,7 @@ export default function PipLayout({
     <div>
       {isSupported ? (
         <>
-          <button onClick={pipWindow ? closePipWindow : startPiP}>
+          <button onClick={pipWindow ? closePipWindow : startPiP} className='hidden md:block'>
             {pipWindow ? <Maximize /> : <Minimize />}
           </button>
           {pipWindow && (

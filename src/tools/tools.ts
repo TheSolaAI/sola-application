@@ -1,9 +1,9 @@
-import { freeTools, fullTools } from './config/config';
+import { agentConfig } from './config/config';
 
 export const createToolsConfig = (
   aiVoice: string,
   aiEmotion: string,
-  tier: number,
+  agentId: number,
 ) => {
   const instructions = `
     Your name is Sola, a voice assistant specializing in the Solana blockchain and its ecosystem, powered by the SOLA token. Your role is to provide accurate, real-time information and actionable advice in a professional tone.
@@ -23,7 +23,7 @@ export const createToolsConfig = (
       modalities: ['text', 'audio'],
       instructions,
       voice: aiVoice.toLowerCase(),
-      tools: tier === 0 ? freeTools : fullTools,
+      tools: agentConfig.get(agentId),
       tool_choice: 'auto',
       temperature: 0.6,
     },

@@ -16,6 +16,7 @@ export type UserSettings = {
 export type CreateRoom = {
   name: string;
   session_id: string;
+  agent_id: number | null;
 };
 
 export type RoomMessages = {

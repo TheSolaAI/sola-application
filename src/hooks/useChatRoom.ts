@@ -69,7 +69,7 @@ export const useChat = () => {
       setError('Failed to get access token');
       return null;
     }
-  }, [accessToken, getAccessToken, setAccessToken,ApiClient]);
+  }, [accessToken, getAccessToken, setAccessToken, ApiClient]);
 
   const getRooms = useCallback(async () => {
     setLoading(true);

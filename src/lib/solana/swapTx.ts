@@ -8,8 +8,8 @@ export async function swapTx(
   params: SwapParams,
 ): Promise<VersionedTransaction | null> {
   const response = await ApiClient.post<SwapResponse>(
-  wallet_service_url + 'api/wallet/jup/swap',
-  params,
+    wallet_service_url + 'api/wallet/jup/swap',
+    params,
   );
   if (!response) {
     return null;

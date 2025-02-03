@@ -14,7 +14,11 @@ import {
   TopHolder,
   TrendingNFTCard,
 } from '../types/messageCard';
-import { LimitOrderParams, SwapParams } from '../types/jupiter';
+import {
+  LimitOrderParams,
+  ShowLimitOrderParams,
+  SwapParams,
+} from '../types/jupiter';
 import { swapTx } from '../lib/solana/swapTx';
 import { createToolsConfig } from '../tools/tools';
 import { SessionControls } from '../components/SessionControls';
@@ -45,6 +49,7 @@ import useChatHandler from '../hooks/handleAddMessage';
 import { agentMessage } from '../lib/chat-message/agentMessage';
 import { customMessageCards } from '../lib/chat-message/customMessageCards';
 import {
+  aiTranscriptCard,
   messageCard,
   showLimitOrderCard,
   transactionCard,
@@ -81,6 +86,7 @@ const Conversation = () => {
     isCreatingRoom,
     setIsCreatingRoom,
     currentRoomId,
+    currentAgentId,
   } = useRoomStore();
   const { handleAddMessage, handleAddAiTranscript } = useChatHandler();
   const { fundWallet } = useFundWallet();
@@ -121,7 +127,7 @@ const Conversation = () => {
     if (messageLoadingError) toast.error('Failed to load the chat data');
   }, [messageLoadingError]);
 
-  const { aiEmotion, aiVoice, tier } = useAppState();
+  const { aiEmotion, aiVoice } = useAppState();
   const { currentWallet } = useWalletHandler();
   const { theme } = useThemeManager();
 
@@ -485,7 +491,10 @@ const Conversation = () => {
     await handleAddMessage(agentMessage(`Agent is fetching limit orders`));
     console.log('calling fn 2');
     try {
-      const resp = await getLimitOrders(currentWallet.address);
+      let params: ShowLimitOrderParams = {
+        public_key: currentWallet.address,
+      };
+      const resp = await getLimitOrders(params);
       const limitOrders = resp?.orders;
       if (!limitOrders) {
         await handleAddMessage(messageCard(`Error fetching limit orders`));
@@ -576,23 +585,21 @@ const Conversation = () => {
           );
         }
 
-        let token_card: TokenCard[] = [
-          {
-            address: data.metadata.description,
-            image: data.image,
-            metadata: data.metadata,
-            price: data.price.toString(),
-            marketCap: data.marketcap.toString(),
-            volume: data.volume.toString(),
-            priceChange: data.price_change_24.toString(),
-          },
-        ];
+        let token_card: TokenCard = {
+          address: data.metadata.description,
+          image: data.image,
+          metadata: data.metadata,
+          price: data.price.toString(),
+          marketCap: data.marketcap.toString(),
+          volume: data.volume.toString(),
+          priceChange: data.price_change_24.toString(),
+        };
 
         updateMessage(
-          `symbol: ${tokenMint}, address: ${token_card[0].address}, price: ${token_card[0].price}, marketCap: ${token_card[0].marketCap}`,
+          `symbol: ${tokenMint}, address: ${token_card.address}, price: ${token_card.price}, marketCap: ${token_card.marketCap}`,
         );
 
-        await handleAddMessage(customMessageCards('tokenCards', token_card));
+        await handleAddMessage(customMessageCards('tokenCard', token_card));
 
         return responseToOpenai(
           'tell the user that the token data is fetched successfully',
@@ -615,20 +622,18 @@ const Conversation = () => {
           data.price_change_24 = 0;
         }
 
-        let token_card: TokenCard[] = [
-          {
-            address: tokenMint,
-            image: data.image,
-            metadata: data.metadata,
-            price: data.price.toString(),
-            marketCap: data.marketcap.toString(),
-            volume: data.volume.toString(),
-            priceChange: data.price_change_24.toString() || 'NaN',
-          },
-        ];
+        let token_card: TokenCard = {
+          address: tokenMint,
+          image: data.image,
+          metadata: data.metadata,
+          price: data.price.toString(),
+          marketCap: data.marketcap.toString(),
+          volume: data.volume.toString(),
+          priceChange: data.price_change_24.toString() || 'NaN',
+        };
 
         updateMessage(
-          `address: ${token_card[0].address}, price: ${token_card[0].price}, marketCap: ${token_card[0].marketCap}`,
+          `address: ${token_card.address}, price: ${token_card.price}, marketCap: ${token_card.marketCap}`,
         );
 
         await handleAddMessage(customMessageCards('tokenCards', token_card));
@@ -1133,7 +1138,9 @@ const Conversation = () => {
         firstEvent.type === 'session.created' &&
         !events.some((e) => e.type === 'session.update')
       ) {
-        sendClientEvent(createToolsConfig(aiVoice, aiEmotion, tier));
+        sendClientEvent(
+          createToolsConfig(aiVoice, aiEmotion, currentAgentId || 1),
+        );
       }
 
       const mostRecentEvent = events[0];
@@ -1181,7 +1188,7 @@ const Conversation = () => {
               return [...prev];
             });
             handleAddAiTranscript(
-              messageCard(`${output.content[0].transcript}`),
+              aiTranscriptCard(`${output.content[0].transcript}`),
             );
           } else if (output.type === 'function_call') {
             const functionName = output.name;
@@ -1322,7 +1329,7 @@ const Conversation = () => {
       </div>
     ) : (
       <>
-        <main className="h-screen flex flex-col relative ">
+        <main className="h-screen w-full flex flex-col relative overflow-hidden">
           {/* Start of wallet */}
           <section className="absolute flex justify-between w-full p-4 animate-in fade-in-0 duration-300">
             <PipLayout
@@ -1354,7 +1361,7 @@ const Conversation = () => {
           {/* End of Visualizer Section */}
 
           {/* Start of Message display Section */}
-          <section className="flex-grow flex justify-center items-start overflow-y-auto pb-20 no-scrollbar">
+          <section className="pb-20 overflow-y-scroll no-scrollbar">
             {messageList && currentRoomId && (
               <MessageList messageList={messageList} />
             )}

@@ -1,4 +1,4 @@
-import ApiClient from "../../api/ApiClient";
+import ApiClient from '../../api/ApiClient';
 
 const url = process.env.DATA_SERVICE_URL;
 

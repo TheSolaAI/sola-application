@@ -9,7 +9,7 @@ export type MessageCard = {
     | 'cards'
     | 'nftcards'
     | 'agent'
-    | 'tokenCards'
+    | 'tokenCard'
     | 'nftCollectionCard'
     | 'transaction'
     | 'transactions'
@@ -29,7 +29,7 @@ export type MessageCard = {
     | SingleCard
     | MultipleCards
     | NFTCard[]
-    | TokenCard[]
+    | TokenCard
     | NFTCollectionCard
     | LuloCard
     | TransactionCard
