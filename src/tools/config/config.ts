@@ -19,47 +19,45 @@ import { withdrawLulo } from '../functions/withdrawLulo';
 import { limitOrder } from '../functions/limitOrder';
 import { getLimitOrders } from '../functions/getLimitOrder';
 
-export const freeTools = [
+export const nftAnalyst = [
   walletActions,
-  swapTokens,
-  transferSolTx,
-  transferSpl,
+  getNFTPrice,
+  getTrendingNFTs,
+  getNFTLaunchpad,
+  getMarketData,
+  getBlinks,
+];
+
+export const tokenAnalyst = [
+  walletActions,
   getTokenData,
   getTopHolders,
   getRugCheck,
   getBubblemap,
-  getNFTPrice,
-  getTrendingNFTs,
-  getNFTLaunchpad,
   getLstData,
   swapLST,
   getMarketData,
-  getLuloAssets,
-  depositLulo,
-  withdrawLulo,
   getBlinks,
   limitOrder,
   getLimitOrders,
 ];
-export const fullTools = [
+
+export const DAM = [
   walletActions,
   swapTokens,
   transferSolTx,
   transferSpl,
-  getTokenData,
-  getTopHolders,
-  getRugCheck,
-  getBubblemap,
-  getNFTPrice,
-  getTrendingNFTs,
-  getNFTLaunchpad,
-  getLstData,
-  swapLST,
   getMarketData,
   getLuloAssets,
   depositLulo,
   withdrawLulo,
+  getLstData,
+  swapLST,
   getBlinks,
-  limitOrder,
-  getLimitOrders,
 ];
+
+export let agentConfig = new Map<number, any[]>();
+
+agentConfig.set(1, tokenAnalyst);
+agentConfig.set(2, nftAnalyst);
+agentConfig.set(3, DAM);
