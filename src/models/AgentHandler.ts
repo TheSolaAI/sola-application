@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { ChartNetwork, Flame, SquareKanban } from 'lucide-react';
+import { ChartNetwork, Atom, SquareKanban } from 'lucide-react';
 
 export interface Agent {
   agentID: number;
@@ -25,8 +25,8 @@ export const useAgentHandler = create<AgentHandler>(() => ({
     {
       agentID: 2,
       name: 'NFT Analyst',
-      description: 'Designed for NFT realted tasks.',
-      logo: Flame,
+      description: 'Designed for NFT realted tasks and Price related queries.',
+      logo: Atom,
     },
     {
       agentID: 3,
