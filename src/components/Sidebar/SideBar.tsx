@@ -191,7 +191,7 @@ export const Sidebar: FC<SidebarProps> = ({
               const isEditing = editingRoom === room.id;
 
               //TODO: add agent id from database query
-              
+
               return (
                 <div key={room.id} className="w-full">
                   <NavLink
@@ -202,9 +202,8 @@ export const Sidebar: FC<SidebarProps> = ({
                     className={`group font-small flex w-full items-center gap-3 rounded-xl p-3 transition-color duration-300 ease-in-out  
               ${pathname === `/c/${room.id}` || pathname.startsWith(`/c/${room.id}/`) ? 'bg-primary' : ''}`}
                   >
-                    
                     {React.createElement(
-                      agents[currentAgentId ? currentAgentId - 1 : 0].logo,
+                      agents[room.agent_id ? room.agent_id - 1 : 0].logo,
                       {
                         className: 'w-4 h-4',
                         color: theme.textColor,
