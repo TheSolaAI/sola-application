@@ -1,5 +1,5 @@
-import { SwapParams, SwapResponse } from '../../types/swap';
-import axios from 'axios';
+import { SwapParams, SwapResponse } from '../../types/jupiter';
+import ApiClient from '../../api/ApiClient';
 import { VersionedTransaction } from '@solana/web3.js';
 
 const wallet_service_url = process.env.WALLET_SERVICE_URL;
@@ -7,18 +7,15 @@ const wallet_service_url = process.env.WALLET_SERVICE_URL;
 export async function swapLST(
   params: SwapParams,
 ): Promise<VersionedTransaction | null> {
+  const response = await ApiClient.post<SwapResponse>(
+    wallet_service_url + 'api/wallet/jup/swap',
+    params,
+  );
+  if (!response) {
+    return null;
+  }
   try {
-    const response = await axios.post<any>(
-      wallet_service_url + 'api/wallet/jup/swap',
-      params,
-      {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      },
-    );
-
-    const swapTransaction = response.data['transaction'];
+    const swapTransaction = response.transaction;
     const transactionBuffer = Buffer.from(swapTransaction, 'base64');
     const transaction = VersionedTransaction.deserialize(transactionBuffer);
     return transaction;

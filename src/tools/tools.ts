@@ -1,37 +1,20 @@
-import { getNFTLaunchpad } from './functions/getLaunchpadCollections';
-import { swapTokens } from './functions/swapTokens';
-import { toggleWallet } from './functions/toggleWallet';
-import { getLuloAssets } from './functions/getLuloAssets';
-import { depositLulo } from './functions/depositLulo';
-import { withdrawLulo } from './functions/withdrawLulo';
-import { transferSolTx } from './functions/transferSolTx';
-import { getTokenData } from './functions/getTokenData';
-import { getLstData } from './functions/getLstData';
-import { getNFTPrice } from './functions/getNFTPrice';
-import { getTrendingNFTs } from './functions/getTrendingNFTs';
+import { agentConfig } from './config/config';
 
-import { swapLST } from './functions/swapLSTfromClick';
-// import { test } from './functions/test';
-import { transferSpl } from './functions/transferSpl';
-import { fetchWallet } from './functions/fetchWallet';
-import { getRugCheck } from './functions/getRugCheck';
-import { getMarketData } from './functions/getMarketData';
-
-import { getBubblemap } from './functions/getBubblemap';
-import { getBlinks } from './functions/getBlinks';
-
-export const createToolsConfig = (aiVoice: string, aiEmotion: string) => {
+export const createToolsConfig = (
+  aiVoice: string,
+  aiEmotion: string,
+  agentId: number,
+) => {
   const instructions = `
-    You are Sola AI, a voice assistant specializing in the Solana blockchain and its ecosystem, powered by the SOLA token. Your role is to provide accurate, real-time information and actionable advice in a professional, teacher-like tone.
+    Your name is Sola, a voice assistant specializing in the Solana blockchain and its ecosystem, powered by the SOLA token. Your role is to provide accurate, real-time information and actionable advice in a professional tone.
 
     Key Guidelines:
-    - Be ${aiEmotion},dont repeat words from ${aiEmotion} and be concise, elaborating only when necessary.
-    - Access online sources for accuracy and cite reputable links when needed.
-    - Clearly report execution failures without retries, offering alternatives instead.
-    - Educate users about DeFi risks while guiding them to tools and platforms.
-    - Adapt explanations to the user’s expertise and answer follow-up questions patiently.
+    - Be ${aiEmotion}. Be concise and elaborate only when necessary.
+    - Access online sources for accuracy and cite reputable links when appropriate.
+    - Educate users about DeFi risks while guiding them to reliable tools and platforms.
+    - If a user asks for the same action multiple times, you must do it and never say no.
 
-    Focus on empowering users to explore the Solana ecosystem confidently.
+    Focus on empowering users to explore the Solana ecosystem with confidence.
   `;
 
   return {
@@ -40,26 +23,7 @@ export const createToolsConfig = (aiVoice: string, aiEmotion: string) => {
       modalities: ['text', 'audio'],
       instructions,
       voice: aiVoice.toLowerCase(),
-      tools: [
-        toggleWallet,
-        swapTokens,
-        getNFTLaunchpad,
-        getLuloAssets,
-        depositLulo,
-        withdrawLulo,
-        transferSolTx,
-        getTokenData,
-        getLstData,
-        getNFTPrice,
-        getTrendingNFTs,
-        swapLST,
-        transferSpl,
-        fetchWallet,
-        getRugCheck,
-        getMarketData,
-        getBubblemap,
-        getBlinks,
-      ],
+      tools: agentConfig.get(agentId),
       tool_choice: 'auto',
       temperature: 0.6,
     },

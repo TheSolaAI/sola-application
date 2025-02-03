@@ -9,7 +9,6 @@ import { Connection, VersionedTransaction } from '@solana/web3.js';
 import bs58 from 'bs58';
 import { useMemo } from 'react';
 import { decodeBase64 } from '../lib/utils/base64';
-import useAppState from '../store/zustand/AppState';
 import { useSolanaWallets } from '@privy-io/react-auth';
 
 export function useActionSolanaWalletAdapter(

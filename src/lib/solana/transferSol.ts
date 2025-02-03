@@ -1,16 +1,10 @@
-import {
-
-  Transaction,
-  SystemProgram,
-  PublicKey,
-} from '@solana/web3.js';
+import { Transaction, SystemProgram, PublicKey } from '@solana/web3.js';
 
 export async function transferSolTx(
   senderAddress: string,
   recipientAddress: string,
   amount: number,
 ) {
-  
   const transaction = new Transaction().add(
     SystemProgram.transfer({
       fromPubkey: new PublicKey(senderAddress),

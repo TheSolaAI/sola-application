@@ -1,5 +1,5 @@
-import { ThemeType } from "../app";
-import { AiEmotion, AiVoice } from "./aiConfig";
+import { ThemeType } from '../app';
+import { AiEmotion, AiVoice } from './aiConfig';
 
 export type RegisterUser = {
   privy_wallet_address: string;
@@ -11,4 +11,19 @@ export type UserSettings = {
   theme?: ThemeType;
   voice_preference?: AiVoice;
   emotion_choice?: AiEmotion;
+};
+
+export type CreateRoom = {
+  name: string;
+  session_id: string;
+  agent_id: number | null;
+};
+
+export type RoomMessages = {
+  limit?: number;
+  offset?: number;
+};
+
+export type SendChatMessage = {
+  message: string | JSON;
 };

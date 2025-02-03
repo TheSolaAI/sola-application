@@ -1,0 +1,30 @@
+{
+  "light": {
+    "baseTheme": "light",
+    "baseBackground": "#FFFFFF",
+    "background": "#EDEDED",
+    "backgroundContrast": "#1b1b1b",
+    "sec_background": "#f2f2f3",
+    "surface": "#f2f2f3",
+    "textColor": "#0c0d0d",
+    "textColorContrast": "#FFFFFF",
+    "secText": "#252627",
+    "border": "#bdbfc1",
+    "primary": "#c5b3fe",
+    "primaryDark": "#9f81fe"
+  },
+  "dark": {
+    "baseTheme": "dark",
+    "baseBackground": "#000000",
+    "background": "#151515",
+    "backgroundContrast": "#fafafa",
+    "sec_background": "#1B1B1B",
+    "surface": "#1E1E1E",
+    "textColor": "#FFFFFF",
+    "textColorContrast": "#000000",
+    "secText": "#A0AEC0",
+    "border": "#484848",
+    "primary": "#9278b2",
+    "primaryDark": "#7C3AED"
+  }
+}

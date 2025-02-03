@@ -1,5 +1,5 @@
 const functionDescription =
-  'Call this function when the user wants to know whether a token is a rug or a scam. You will be given either the name or address of the token, and you respond with the statistics given to you.';
+  'Use this function to check if the token is rug or a scam or to analyse its risk factors.';
 
 export const getRugCheck = {
   type: 'function',
@@ -8,18 +8,12 @@ export const getRugCheck = {
   parameters: {
     type: 'object',
     strict: true,
-      properties: {
+    properties: {
       token: {
         type: 'string',
         description: 'The name or address of the token',
       },
     },
     required: ['token'],
-},
-  
+  },
 };
-
-//TODO: Shift the trigger logic here from conversation.tsx
-export function getRugCheckFunction() {
-  
-}

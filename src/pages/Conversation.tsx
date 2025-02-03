@@ -1,46 +1,67 @@
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { LiveAudioVisualizer } from 'react-audio-visualize';
-import { Connection, PublicKey } from '@solana/web3.js';
+import { Connection, PublicKey, VersionedTransaction } from '@solana/web3.js';
 import { transferSolTx } from '../lib/solana/transferSol';
 import {
-  MessageCard,
-  LuloCard,
-  TransactionCard,
-  TokenCard,
-  SanctumCard,
-  NFTCollectionCard,
-  TrendingNFTCard,
-  RugCheckCard,
+  AiTranscription,
   MarketDataCard,
   MarketInfo,
+  MessageCard,
+  NFTCollectionCard,
+  RugCheckCard,
+  SanctumCard,
+  TokenCard,
+  TopHolder,
+  TrendingNFTCard,
 } from '../types/messageCard';
-import { SwapParams } from '../types/swap';
+import {
+  LimitOrderParams,
+  ShowLimitOrderParams,
+  SwapParams,
+} from '../types/jupiter';
 import { swapTx } from '../lib/solana/swapTx';
 import { createToolsConfig } from '../tools/tools';
-import SessionControls from '../components/SessionControls';
+import { SessionControls } from '../components/SessionControls';
 import WalletUi from '../components/wallet/WalletUi';
 import MessageList from '../components/ui/MessageList';
-import { tokenList } from '../store/tokens/tokenMapping';
+import { tokenList } from '../config/tokens/tokenMapping';
 import {
   fetchMagicEdenLaunchpadCollections,
   fetchMagicEdenNFTPrice,
   fetchTrendingNFTs,
 } from '../lib/solana/magiceden';
-import { AssetsParams, DepositParams, WithdrawParams } from '../types/lulo';
-import { depositLulo, getAssetsLulo, withdrawLulo } from '../lib/solana/lulo';
-import useAppState from '../store/zustand/AppState';
-import useChatState from '../store/zustand/ChatState';
+import useAppState from '../models/AppState.ts';
+import useChatState from '../models/ChatState.ts';
 import { getTokenData, getTokenDataSymbol } from '../lib/solana/token_data';
 import { getLstData } from '../lib/solana/lst_data';
 import { responseToOpenai } from '../lib/utils/response';
-import { useWalletStore } from '../store/zustand/WalletState';
-import { Loader } from 'react-feather';
+import { useWalletHandler } from '../models/WalletHandler.ts';
 import { getPublicKeyFromSolDomain } from '../lib/solana/sns';
 import { swapLST } from '../lib/solana/swapLst';
 import { fetchLSTAddress } from '../lib/utils/lst_reader';
 import { transferSplTx } from '../lib/solana/transferSpl';
 import { getRugCheck } from '../lib/solana/rugCheck';
 import { getMarketData } from '../lib/utils/marketMacro';
+import { useParams } from 'react-router-dom';
+import { useChat } from '../hooks/useChatRoom';
+import { useRoomStore } from '../models/RoomState.ts';
+import { toast } from 'sonner';
+import useChatHandler from '../hooks/handleAddMessage';
+import { agentMessage } from '../lib/chat-message/agentMessage';
+import { customMessageCards } from '../lib/chat-message/customMessageCards';
+import {
+  aiTranscriptCard,
+  messageCard,
+  showLimitOrderCard,
+  transactionCard,
+} from '../lib/chat-message/messageCard';
+import { useFundWallet } from '@privy-io/react-auth/solana';
+import { useLuloActions } from '../hooks/useLuloActions';
+import PipLayout from '../components/PiP/PipLayout';
+import { getTopHolders } from '../lib/solana/topHolders';
+import { getLimitOrders, limitOrderTx } from '../lib/solana/limitOrderTx';
+import useThemeManager from '../models/ThemeManager.ts';
+import Loader from '../components/general/Loader.tsx';
 
 const Conversation = () => {
   const {
@@ -54,37 +75,68 @@ const Conversation = () => {
     getPeerConnection,
     resetMute,
   } = useChatState();
-  const { assets } = useWalletStore();
-
+  const { assets } = useWalletHandler();
+  const { id } = useParams<{ id: string }>();
+  const { getRoomMessages, loading, error, messageLoadingError } = useChat();
+  const {
+    setCurrentRoomId,
+    messageList,
+    setMessageList,
+    isCreatingRoom,
+    setIsCreatingRoom,
+    currentRoomId,
+    currentAgentId,
+  } = useRoomStore();
+  const { handleAddMessage, handleAddAiTranscript } = useChatHandler();
+  const { fundWallet } = useFundWallet();
+  const { handleDepositLulo, handleUserAssetsLulo, handleWithdrawLulo } =
+    useLuloActions();
   const [isWalletVisible, setIsWalletVisible] = useState(false);
   const [events, setEvents] = useState<any[]>([]);
   const audioElement = useRef<HTMLAudioElement | null>(null);
-  const [messageList, setMessageList] = useState<MessageCard[]>();
-  const [fetchedToken, setFetchedToken] = useState<string>('');
   const [isLoaded, setIsLoaded] = useState<boolean>(true);
   const [localDataChannel, setLocalDataChannel] = useState(dataChannel);
+  const appState = useAppState();
 
   useEffect(() => {
-    setLocalDataChannel(dataChannel);
-  }, [dataChannel]);
+    async function loadMessages() {
+      if (id) {
+        setMessageList(() => []);
+        await getRoomMessages(id);
+      }
+    }
 
-  const { appWallet, theme, aiEmotion, aiVoice } = useAppState();
+    const manageSession = async () => {
+      stopSession();
+      await startSession();
+    };
+
+    loadMessages();
+
+    if (!isCreatingRoom) {
+      manageSession();
+    }
+
+    setIsCreatingRoom(false);
+    setCurrentRoomId(id || null);
+  }, [id]);
+
+  useEffect(() => {
+    if (messageLoadingError) toast.error('Failed to load the chat data');
+  }, [messageLoadingError]);
+
+  const { aiEmotion, aiVoice } = useAppState();
+  const { currentWallet } = useWalletHandler();
+  const { theme } = useThemeManager();
 
   const rpc = process.env.SOLANA_RPC;
 
   const marketMacro = async () => {
-    setMessageList((prev) => [
-      ...(prev || []),
-      {
-        type: 'agent',
-        message: `Agent is scanning the market`,
-      },
-    ]);
+    // await handleAddMessage(agentMessage('Agent analysing the market'));
 
     let marketData = await getMarketData();
 
     let market: string = marketData['market'];
-
     let voice = marketData['voice'];
     let stats = marketData['stats'];
     let btcDominance = stats['btcDominance'];
@@ -95,19 +147,24 @@ const Conversation = () => {
       .map((line) => line.replace(/^-\s*/, ''));
 
     let marketAnalysis: MarketInfo[] = [];
-
-    marketInfo.map((item) => {
+    console.log(marketInfo);
+    marketInfo.forEach((item) => {
       try {
-        let text = item.split('[Source]')[0];
-        let link = item.split('[Source]')[1];
+        const regex = /(.*)\[source\]\((.*)\)/i;
+        const match = item.match(regex);
 
-        link = link.slice(1, -1);
-        marketAnalysis.push({
-          text: text,
-          link: link,
-        });
+        if (match) {
+          const text = match[1].trim();
+          const link = match[2].trim();
+          marketAnalysis.push({
+            text: text,
+            link: link,
+          });
+        } else {
+          console.warn('No valid [source] found for item:', item);
+        }
       } catch (e) {
-        console.log(e);
+        console.error('Error processing item:', item, e);
       }
     });
 
@@ -117,37 +174,20 @@ const Conversation = () => {
     };
 
     //todo create a ui for displaying the data
-
-    setMessageList((prev) => [
-      ...(prev || []),
-      {
-        type: 'marketDataCard',
-        card: marketDataCard,
-      },
-    ]);
-
-    setMessageList((prev) => [
-      ...(prev || []),
-      {
-        type: 'agent',
-        message: `Todays BTCDOM: ${btcDominance}`,
-      },
-    ]);
-
-    setMessageList((prev) => [
-      ...(prev || []),
-      {
-        type: 'agent',
-        message: `Todays ETHDOM: ${ethDominance} `,
-      },
-    ]);
+    await handleAddMessage(
+      customMessageCards('marketDataCard', marketDataCard),
+    );
+    await handleAddMessage(
+      messageCard(`Todays BTCDOM: ${btcDominance} and ETHDOM: ${ethDominance}`),
+    );
 
     return responseToOpenai(
       `tell the user the contents of ${voice}, use current affairs on your own, to give report,  and ask them what they want to do`,
     );
   };
+
   const transferSol = async (amount: number, to: string) => {
-    if (!appWallet) return null;
+    if (!currentWallet) return null;
     if (!rpc)
       return responseToOpenai(
         'Ask the user to contact admin as the rpc is not attached',
@@ -157,113 +197,91 @@ const Conversation = () => {
     if (to.endsWith('.sol')) {
       recipient = await getPublicKeyFromSolDomain(to);
     }
-    setMessageList((prev) => [
-      ...(prev || []),
-      {
-        type: 'agent',
-        message: `Agent is transferring ${amount} SOL to ${to}`,
-      },
-    ]);
+
+    await handleAddMessage(
+      agentMessage(`Agent is transferring ${amount} SOL to ${to}`),
+    );
 
     try {
       const connection = new Connection(rpc);
       let balance = await connection.getBalance(
-        new PublicKey(appWallet.address),
+        new PublicKey(currentWallet.address),
       );
       if (balance / LAMPORTS_PER_SOL - 0.01 < amount) {
-        setMessageList((prev) => [
-          ...(prev || []),
-          {
-            type: 'message',
-            message:
-              'Insufficient balance. Please maintain 0.01 balance minimum',
-          },
-        ]);
+        await handleAddMessage(
+          messageCard(
+            'Insufficient balance. Please maintain 0.01 balance minimum',
+          ),
+        );
         return responseToOpenai(
           'tell the user that they dont have enough balance and ask them to fund their account',
         );
       }
 
       const transaction = await transferSolTx(
-        appWallet.address,
+        currentWallet.address,
         recipient,
         amount * LAMPORTS_PER_SOL,
       );
       const { blockhash, lastValidBlockHeight } =
         await connection.getLatestBlockhash();
       transaction.recentBlockhash = blockhash;
-      const signedTransaction = await appWallet.signTransaction(transaction);
+      const signedTransaction =
+        await currentWallet.signTransaction(transaction);
       const signature = await connection.sendRawTransaction(
         signedTransaction.serialize(),
       );
 
       //TODO: add dynamic status and handle failed transactions
-      setMessageList((prev) => [
-        ...(prev || []),
-        {
-          type: 'transaction',
-          card: {
-            title: 'Transaction',
-            status: 'Pending',
-            link: `https://solscan.io/tx/${signature}`,
-          },
-        },
-      ]);
+      await handleAddMessage(transactionCard(signature));
 
       return responseToOpenai(
         'Transaction is successful. ask what the user wants to do next',
       );
     } catch (error) {
-      setMessageList((prev) => [
-        ...(prev || []),
-        {
-          type: 'message',
-          message: 'There occured a problem with performing transaction',
-        },
-      ]);
+      await handleAddMessage(
+        messageCard('There occurred a problem with performing the transaction'),
+      );
+
       console.error('error during sending transaction', error);
       return responseToOpenai(
         'just tell the user that there has been a problem with making transaction',
       );
     }
-
-    // console.log(
-    //   await connection.confirmTransaction({
-    //     blockhash,
-    //     lastValidBlockHeight,
-    //     signature,
-    //   }),
-    // );
   };
-  const fetchWallet = async () => {
-    let asset_details = '';
-    const user_assets = assets;
-    user_assets.forEach((item) => {
-      const balance = item.balance;
-      const decimal = item.decimals;
-      const name = item.symbol;
-      const amount = balance / 10 ** decimal;
-      asset_details += `${name}\:${amount.toFixed(2)} `;
+
+  const getWalletAssets = async () => {
+    setMessageList((prev) => {
+      return [
+        ...prev,
+        agentMessage(`The agent is fetching your wallet assets`),
+      ];
+    });
+    const assetDetails = assets.map((item) => {
+      const amount = (item.balance / 10 ** item.decimals).toFixed(2);
+      return { symbol: item.symbol, amount: parseFloat(amount) };
     });
 
-    setMessageList((prev) => [
-      ...(prev || []),
-      {
-        type: 'agent',
-        message: `The agent is fetching you wallet assets`,
-      },
-    ]);
-    console.log(asset_details);
-    return responseToOpenai(
-      `here is your asset list ${asset_details}. Do not stop till u say top 5 assets. Dont stop in halfway.`,
-    );
+    const totalAmount = assets
+      .reduce((acc, asset) => acc + (asset.totalPrice || 0), 0)
+      .toFixed(2);
+
+    const assetDetailsString = assetDetails
+      .map((asset) => `${asset.symbol}: ${asset.amount}`)
+      .join(', ');
+
+    const responseString = `Your wallet assets are: ${assetDetailsString}. Total value: ${totalAmount}.`;
+
+    setIsWalletVisible(true);
+    return responseToOpenai(responseString);
   };
+
   const transferSpl = async (
     amount: number,
     token: 'SOLA' | 'USDC' | 'BONK' | 'USDT' | 'JUP',
     to: string,
   ) => {
-    if (!appWallet) return null;
+    if (!currentWallet) return null;
     if (!rpc)
       return responseToOpenai(
         'Ask the user to contact admin as the rpc is not attached',
@@ -273,33 +291,16 @@ const Conversation = () => {
     if (to.endsWith('.sol')) {
       recipient = await getPublicKeyFromSolDomain(to);
     }
-    setMessageList((prev) => [
-      ...(prev || []),
-      {
-        type: 'agent',
-        message: `Agent is transferring ${amount} ${token} to ${to}`,
-      },
-    ]);
+    await handleAddMessage(
+      agentMessage(`Agent is transferring ${amount} ${token} to ${to}`),
+    );
+
     let token_mint = tokenList[token].MINT;
     try {
       const connection = new Connection(rpc);
 
-      // if (balance < amount) {
-      //   setMessageList((prev) => [
-      //     ...(prev || []),
-      //     {
-      //       type: 'message',
-      //       message:
-      //         'Insufficient balance',
-      //     },
-      //   ]);
-      //   return responseToOpenai(
-      //     'tell the user that they dont have enough balance and ask them to fund their account',
-      //   );
-      // }
-
       const transaction = await transferSplTx(
-        appWallet.address,
+        currentWallet.address,
         recipient,
         amount,
         token_mint,
@@ -307,61 +308,42 @@ const Conversation = () => {
       const { blockhash, lastValidBlockHeight } =
         await connection.getLatestBlockhash();
       if (!transaction) {
-        setMessageList((prev) => [
-          ...(prev || []),
-          {
-            type: 'message',
-            message: 'There occured a problem with performing transaction',
-          },
-        ]);
+        await handleAddMessage(
+          messageCard(
+            'There occurred a problem with performing the transaction',
+          ),
+        );
+
         return responseToOpenai(
           'tell the user that there has been a problem with making transaction and try again later',
         );
       }
 
       transaction.recentBlockhash = blockhash;
-      const signedTransaction = await appWallet.signTransaction(transaction);
+      const signedTransaction =
+        await currentWallet.signTransaction(transaction);
       const signature = await connection.sendRawTransaction(
         signedTransaction.serialize(),
       );
 
       //TODO: add dynamic status and handle failed transactions
-      setMessageList((prev) => [
-        ...(prev || []),
-        {
-          type: 'transaction',
-          card: {
-            title: 'Transaction',
-            status: 'Pending',
-            link: `https://solscan.io/tx/${signature}`,
-          },
-        },
-      ]);
+      await handleAddMessage(transactionCard(signature));
 
       return responseToOpenai(
         'Transaction is successful. ask what the user wants to do next',
       );
     } catch (error) {
-      setMessageList((prev) => [
-        ...(prev || []),
-        {
-          type: 'message',
-          message: `There occured a problem with performing transaction ${error}`,
-        },
-      ]);
+      await handleAddMessage(
+        messageCard(
+          `There occurred a problem with performing the transaction ${error}`,
+        ),
+      );
+
       console.error('error during sending transaction', error);
       return responseToOpenai(
         'tell the user that there has been a problem with making transaction and try again later',
       );
     }
-
-    // console.log(
-    //   await connection.confirmTransaction({
-    //     blockhash,
-    //     lastValidBlockHeight,
-    //     signature,
-    //   }),
-    // );
   };
 
   const handleSwap = async (
@@ -370,49 +352,42 @@ const Conversation = () => {
     tokenB: 'SOL' | 'SOLA' | 'USDC' | 'BONK' | 'USDT' | 'JUP' | 'WIF',
     swapType: 'EXACT_IN' | 'EXACT_OUT' | 'EXACT_DOLLAR',
   ) => {
-    if (!appWallet) return null;
+    if (!currentWallet) return null;
     if (!rpc)
       return responseToOpenai(
         'ask the user to contact admin as the rpc is not attached',
       );
 
     if (!tokenList[tokenA] || !tokenList[tokenB]) {
-      setMessageList((prev) => [
-        ...(prev || []),
-        {
-          type: 'message',
-          message:
-            'We dont support on of the tokens . Request admin to support it',
-        },
-      ]);
+      await handleAddMessage(
+        messageCard(
+          "We don't support one of the tokens. Request admin to support it.",
+        ),
+      );
+
       return responseToOpenai(
         'tell the user that , We dont support one of the token',
       );
     } else if (tokenA === tokenB) {
-      setMessageList((prev) => [
-        ...(prev || []),
-        {
-          type: 'message',
-          message: 'You cant swap between same tokens! LOL',
-        },
-      ]);
+      await handleAddMessage(
+        messageCard("You can't swap between the same tokens! LOL"),
+      );
+
       return responseToOpenai(
         'tell the user that they are trying to swap same token and ask them to select different token',
       );
     }
 
-    setMessageList((prev) => [
-      ...(prev || []),
-      {
-        type: 'agent',
-        message: `Agent is performing the swap between ${tokenA} and ${tokenB}`,
-      },
-    ]);
+    await handleAddMessage(
+      agentMessage(
+        `Agent is performing the swap between ${tokenA} and ${tokenB}`,
+      ),
+    );
 
     const params: SwapParams = {
       input_mint: tokenList[tokenA].MINT,
       output_mint: tokenList[tokenB].MINT,
-      public_key: `${appWallet.address}`,
+      public_key: `${currentWallet.address}`,
       amount: quantity,
       swap_mode: swapType,
     };
@@ -420,20 +395,15 @@ const Conversation = () => {
     const connection = new Connection(rpc);
     const transaction = await swapTx(params);
     if (!transaction) {
-      setMessageList((prev) => [
-        ...(prev || []),
-        {
-          type: 'message',
-          message: `Error during Swap.`,
-        },
-      ]);
+      await handleAddMessage(messageCard(`Error during Swap.`));
+
       return responseToOpenai(
         'just tell the user that Swap failed and ask them to try later after some time',
       );
     }
     const latestBlockHash = await connection.getLatestBlockhash();
 
-    const signedTransaction = await appWallet.signTransaction(transaction);
+    const signedTransaction = await currentWallet.signTransaction(transaction);
 
     const rawTransaction = signedTransaction.serialize();
 
@@ -442,273 +412,119 @@ const Conversation = () => {
       maxRetries: 10,
     });
 
-    // await connection.confirmTransaction({
-    // blockhash: latestBlockHash.blockhash,
-    // lastValidBlockHeight: latestBlockHash.lastValidBlockHeight,
-    // signature: txid
-    // });
-
     // TODO: implement dynamic status
-    setMessageList((prev) => [
-      ...(prev || []),
-      {
-        type: 'message',
-        message: 'Swap transaction sent ',
-        link: `https://solscan.io/tx/${txid}`,
-      },
-    ]);
+    await handleAddMessage(transactionCard(txid));
 
     return responseToOpenai(
       'tell the user that swap transaction is sent to blockchain',
     );
   };
 
-  //fix cors error
-  const handleUserAssetsLulo = async () => {
-    if (!appWallet) return null;
-    if (!rpc)
-      return responseToOpenai(
-        'ask the user to contact admin as the rpc is not attached',
-      );
-
-    setMessageList((prev) => [
-      ...(prev || []),
-      {
-        type: 'agent',
-        message: `Fetching your Lulo Assets`,
-      },
-    ]);
-
-    const params: AssetsParams = {
-      owner: `${appWallet.address}`,
-    };
-    const assets = await getAssetsLulo(params);
-
-    if (!assets) {
-      setMessageList((prev) => [
-        ...(prev || []),
-        {
-          type: 'message',
-          message: 'Oops! Unable to fetch your lulo assets',
-        },
-      ]);
-      return responseToOpenai(
-        'tell the user that they dont have any assets in lulo right now',
-      );
-    }
-
-    let luloCardItem: LuloCard = assets;
-
-    setMessageList((prev) => [
-      ...(prev || []),
-      {
-        type: 'luloCard',
-        card: luloCardItem,
-      },
-    ]);
-    return responseToOpenai(
-      'tell the user that their lulo assets are successfully fetched',
-    );
-  };
-
-  const handleDepositLulo = async (
+  const handleLimitOrder = async (
     amount: number,
-    token: 'USDT' | 'USDS' | 'USDC',
+    token: 'SOL' | 'SOLA' | 'USDC' | 'BONK' | 'USDT' | 'JUP' | 'WIF',
+    action: 'BUY' | 'SELL',
+    limitPrice: number,
   ) => {
-    if (!appWallet) return null;
+    if (!currentWallet) return null;
     if (!rpc)
       return responseToOpenai(
         'ask the user to contact admin as the rpc is not attached',
       );
-    setMessageList((prev) => [
-      ...(prev || []),
-      {
-        type: 'agent',
-        message: `Agent is depositing the asset`,
-      },
-    ]);
-    const params: DepositParams = {
-      owner: `${appWallet.address}`,
-      depositAmount: amount,
-      mintAddress: tokenList[token].MINT,
+
+    await handleAddMessage(
+      agentMessage(
+        `Agent is creating order to ${action.toLowerCase()} ${amount} ${token} at $${limitPrice}`,
+      ),
+    );
+
+    const params: LimitOrderParams = {
+      token_mint_a: tokenList[token].MINT,
+      token_mint_b: tokenList['USDC'].MINT,
+      public_key: `${currentWallet.address}`,
+      amount: amount,
+      limit_price: limitPrice,
+      action: action,
     };
 
     const connection = new Connection(rpc);
-
-    const transaction_array = await depositLulo(params);
-    if (!transaction_array) {
-      setMessageList((prev) => [
-        ...(prev || []),
-        {
-          type: 'message',
-          message: `Deposit failed. Check your balance.`,
-        },
-      ]);
-      return responseToOpenai(
-        `tell the user that they dont have ${amount} worth of this ${token}`,
-      );
-    }
-
-    for (const transaction in transaction_array) {
-      let tx = transaction_array[transaction];
-      let { blockhash, lastValidBlockHeight } =
-        await connection.getLatestBlockhash();
-      tx.message.recentBlockhash = blockhash;
-      let txCard: TransactionCard = {
-        title: `1}`,
-        status: '1',
-        link: `1`,
-      };
-      try {
-        const signedTransaction = await appWallet.signTransaction(
-          transaction_array[transaction],
-        );
-        const signature = await connection.sendRawTransaction(
-          signedTransaction.serialize(),
-        );
-        txCard = {
-          title: `Deposit ${amount} ${token}`,
-          status: 'Transaction Sent',
-          link: `https://solscan.io/tx/${signature}`,
-        };
-      } catch (error: any) {
-        error.getLogs();
-      }
-
-      // TODO: Handle dynamic status
-
-      setMessageList((prev) => [
-        ...(prev || []),
-        {
-          type: 'transaction',
-          card: txCard,
-        },
-      ]);
-    }
-    return responseToOpenai(
-      'tell the user that transaction is sent to blockchain',
-    );
-  };
-
-  const handleWithdrawLulo = async (
-    amount: number,
-    token: 'USDT' | 'USDS' | 'USDC',
-  ) => {
-    if (!appWallet) return null;
-    if (!rpc)
-      return responseToOpenai(
-        'ask the user to contact admin as the rpc is not attached',
-      );
-    setMessageList((prev) => [
-      ...(prev || []),
-      {
-        type: 'agent',
-        message: `Agent is withdrawing the asset`,
-      },
-    ]);
-    let all = false;
-
-    const assetParams: AssetsParams = {
-      owner: `${appWallet.address}`,
-    };
-    let withdrawAmount = amount;
-    const connection = new Connection(rpc);
-
-    let assets = await getAssetsLulo(assetParams);
-    if (assets) {
-      let asset_list = assets.tokenBalance;
-      asset_list.map((asset) => {
-        if (asset.mint === tokenList[token].MINT) {
-          if (asset.balance > 0) {
-            if (asset.balance - amount < 100) {
-              all = true;
-              withdrawAmount = asset.balance;
-              setMessageList((prev) => [
-                ...(prev || []),
-                {
-                  type: 'agent',
-                  message: `Lulo total must be greater than 100. Withdrawing ${Math.ceil(withdrawAmount)} ${token}`,
-                },
-              ]);
-            }
-          }
-        }
-      });
-    }
-
-    withdrawAmount = Math.ceil(withdrawAmount);
-
-    const params: WithdrawParams = {
-      owner: `${appWallet.address}`,
-      withdrawAmount: withdrawAmount,
-      mintAddress: tokenList[token].MINT,
-      withdrawAll: all,
-    };
-
     try {
-      const transaction_array = await withdrawLulo(params);
+      const resp = await limitOrderTx(params);
+      const transaction = resp?.tx;
 
-      if (!transaction_array) {
-        setMessageList((prev) => [
-          ...(prev || []),
-          {
-            type: 'message',
-            message: `Withdrawal failed. Check your balance.`,
-          },
-        ]);
+      if (!transaction) {
+        await handleAddMessage(messageCard(`Error creating limit order.`));
+
         return responseToOpenai(
-          `tell the user that withdraw of ${withdrawAmount} of the token ${token} failed due to less balance.`,
+          'tell the user that the order has been failed and ask them to try later after some time',
         );
       }
 
-      for (const transaction in transaction_array) {
-        let tx = transaction_array[transaction];
-        let { blockhash, lastValidBlockHeight } =
-          await connection.getLatestBlockhash();
-        tx.message.recentBlockhash = blockhash;
+      const transactionBuffer = Buffer.from(transaction, 'base64');
+      const final_tx = VersionedTransaction.deserialize(transactionBuffer);
+      const signedTransaction = await currentWallet.signTransaction(final_tx);
 
-        const signedTransaction = await appWallet.signTransaction(
-          transaction_array[transaction],
-        );
+      const rawTransaction = signedTransaction.serialize();
 
-        const signature = await connection.sendRawTransaction(
-          signedTransaction.serialize(),
-        );
+      const txid = await connection.sendRawTransaction(rawTransaction, {
+        skipPreflight: true,
+        maxRetries: 10,
+      });
 
-        // TODO: Handle dynamic status
-        let txCard: TransactionCard = {
-          title: `Withdraw ${withdrawAmount} ${token}`,
-          status: 'Sent transaction',
-          link: `https://solscan.io/tx/${signature}`,
-        };
-
-        setMessageList((prev) => [
-          ...(prev || []),
-          {
-            type: 'transaction',
-            card: txCard,
-          },
-        ]);
-      }
+      await handleAddMessage(transactionCard(txid));
       return responseToOpenai(
-        'The transaction is sent . ask what the user wants to do next',
+        'tell the user that limit order has been created',
       );
     } catch (error) {
-      console.error('error while performing the swap, ', error);
+      console.error('Error creating limit order:', error);
       return responseToOpenai(
-        'Just tell the user that Swap failed and ask them to try later after some time',
+        'tell the user that the order has been failed and ask them to try later after some time',
       );
     }
   };
 
+  const handleGetLimitOrders = async () => {
+    if (!currentWallet) return null;
+
+    await handleAddMessage(agentMessage(`Agent is fetching limit orders`));
+    console.log('calling fn 2');
+    try {
+      let params: ShowLimitOrderParams = {
+        public_key: currentWallet.address,
+      };
+      const resp = await getLimitOrders(params);
+      const limitOrders = resp?.orders;
+      if (!limitOrders) {
+        await handleAddMessage(messageCard(`Error fetching limit orders`));
+        return responseToOpenai(
+          'tell the user that the limit orders has been failed and ask them to try later after some time',
+        );
+      }
+      if (limitOrders.length === 0) {
+        await handleAddMessage(messageCard(`No limit orders found`));
+        return responseToOpenai(
+          'tell the user that they dont have any limit order',
+        );
+      }
+      await handleAddMessage(showLimitOrderCard(limitOrders));
+      return responseToOpenai(
+        'tell the user that limit orders have been fetched',
+      );
+    } catch (error) {
+      console.error('Error fetching limit orders:', error);
+      return responseToOpenai(
+        'tell the user that the limit orders has been failed and ask them to try later after some time',
+      );
+    }
+  };
+  //TODO: Handle the Message response
   const handleLaunchpadCollections = async () => {
-    setMessageList((prev) => [
-      ...(prev || []),
-      {
-        type: 'agent',
-        message: `Fetching upcoming NFT launches`,
-      },
-    ]);
+    const message: MessageCard = {
+      type: 'agent',
+      message: `Fetching upcoming NFT launches`,
+    };
+
+    await handleAddMessage(message);
     try {
       const data = await fetchMagicEdenLaunchpadCollections();
 
@@ -733,14 +549,12 @@ const Conversation = () => {
         'tell the user that successfully fetched upcoming NFT launches.',
       );
     } catch (error) {
-      setMessageList((prev) => [
-        ...(prev || []),
-        {
-          type: 'message',
-          message:
-            'Oops! There has been a problem while fetching the nft launches',
-        },
-      ]);
+      await handleAddMessage(
+        messageCard(
+          'Oops! There has been a problem while fetching the NFT launches',
+        ),
+      );
+
       return responseToOpenai(
         'tell the user that there has been a problem while getting nft launches and ask them to try later.',
       );
@@ -748,70 +562,55 @@ const Conversation = () => {
   };
 
   const handleTokenData = async (tokenMint: string) => {
-    if (fetchedToken == tokenMint) {
-      return responseToOpenai(
-        'I have already fetch the data. tell them to input the address of the token.Ask if the user needed anything else.',
-      );
-    } else {
-      setFetchedToken(tokenMint);
-    }
-
     setMessageList((prev) => [
-      ...(prev || []),
-      {
-        type: 'agent',
-        message: `Fetching ${tokenMint} data`,
-      },
+      ...prev,
+      agentMessage(`Fetching ${tokenMint} data`),
     ]);
 
     try {
-      if (tokenMint.startsWith('$')) {
-        const data = await getTokenDataSymbol(tokenMint);
+      if (tokenMint.length < 35) {
+        const data = await getTokenDataSymbol('$' + tokenMint);
+        console.log(data);
         if (!data) {
-          setMessageList((prev) => [
-            ...(prev || []),
-            {
-              type: 'message',
-              message: 'Oops! there has been a problem in fetching token data',
-            },
-          ]);
+          await handleAddMessage(
+            messageCard(
+              'Oops! There has been a problem in fetching token data',
+            ),
+          );
+
           return responseToOpenai(
-            'tell the user that there has been a problem with fetching token data and ask them to try later.',
+            'tell the user that there has been a problem with fetching token data.',
           );
         }
 
-        let token_card: TokenCard[] = [
-          {
-            address: data.metadata.description,
-            image: data.image,
-            metadata: data.metadata,
-            price: data.price.toString(),
-            marketCap: data.marketcap.toString(),
-            volume: data.volume.toString(),
-            priceChange: data.price_change_24.toString(),
-          },
-        ];
+        let token_card: TokenCard = {
+          address: data.metadata.description,
+          image: data.image,
+          metadata: data.metadata,
+          price: data.price.toString(),
+          marketCap: data.marketcap.toString(),
+          volume: data.volume.toString(),
+          priceChange: data.price_change_24.toString(),
+        };
 
-        setMessageList((prev) => [
-          ...(prev || []),
-          {
-            type: 'tokenCards',
-            card: token_card,
-          },
-        ]);
+        updateMessage(
+          `symbol: ${tokenMint}, address: ${token_card.address}, price: ${token_card.price}, marketCap: ${token_card.marketCap}`,
+        );
+
+        await handleAddMessage(customMessageCards('tokenCard', token_card));
+
         return responseToOpenai(
           'tell the user that the token data is fetched successfully',
         );
       } else {
         const data = await getTokenData(tokenMint);
         if (!data) {
-          setMessageList((prev) => [
-            ...(prev || []),
-            {
-              type: 'message',
-              message: 'Oops! there has been a problem in fetching token data',
-            },
-          ]);
+          await handleAddMessage(
+            messageCard(
+              'Oops! There has been a problem in fetching token data',
+            ),
+          );
+
           return responseToOpenai(
             'tell the user that there has been a problem with fetching token data and ask them to try later.',
           );
@@ -821,37 +620,31 @@ const Conversation = () => {
           data.price_change_24 = 0;
         }
 
-        let token_card: TokenCard[] = [
-          {
-            address: tokenMint,
-            image: data.image,
-            metadata: data.metadata,
-            price: data.price.toString(),
-            marketCap: data.marketcap.toString(),
-            volume: data.volume.toString(),
-            priceChange: data.price_change_24.toString() || 'NaN',
-          },
-        ];
+        let token_card: TokenCard = {
+          address: tokenMint,
+          image: data.image,
+          metadata: data.metadata,
+          price: data.price.toString(),
+          marketCap: data.marketcap.toString(),
+          volume: data.volume.toString(),
+          priceChange: data.price_change_24.toString() || 'NaN',
+        };
 
-        setMessageList((prev) => [
-          ...(prev || []),
-          {
-            type: 'tokenCards',
-            card: token_card,
-          },
-        ]);
+        updateMessage(
+          `address: ${token_card.address}, price: ${token_card.price}, marketCap: ${token_card.marketCap}`,
+        );
+
+        await handleAddMessage(customMessageCards('tokenCards', token_card));
+
         return responseToOpenai(
-          'The token data has been fetched successfully.Do not repeat the address. Ask if the user needed anything else.',
+          'The token data has been fetched successfully.',
         );
       }
     } catch (error) {
-      setMessageList((prev) => [
-        ...(prev || []),
-        {
-          type: 'message',
-          message: 'Oops! Encountered a problem while fetching token data.',
-        },
-      ]);
+      await handleAddMessage(
+        messageCard('Oops! Encountered a problem while fetching token data.'),
+      );
+
       return responseToOpenai(
         'tell the user that there has been a problem with fetching token data and ask them to try later.',
       );
@@ -859,23 +652,15 @@ const Conversation = () => {
   };
 
   const handleLSTData = async () => {
-    setMessageList((prev) => [
-      ...(prev || []),
-      {
-        type: 'agent',
-        message: `Fetching lST Data`,
-      },
-    ]);
+    // await handleAddMessage(agentMessage(`Fetching lST Data`));
+
     try {
       const data = await getLstData();
       if (!data) {
-        setMessageList((prev) => [
-          ...(prev || []),
-          {
-            type: 'message',
-            message: 'Oops! There has been a problem while fetching lst data',
-          },
-        ]);
+        await handleAddMessage(
+          messageCard('Oops! There has been a problem while fetching lst data'),
+        );
+
         return responseToOpenai(
           'tell the user that there has been a problem while fetching lst data and ask them to try later',
         );
@@ -883,24 +668,16 @@ const Conversation = () => {
 
       let lst_card: SanctumCard[] = data;
 
-      setMessageList((prev) => [
-        ...(prev || []),
-        {
-          type: 'sanctumCard',
-          card: lst_card,
-        },
-      ]);
+      await handleAddMessage(customMessageCards('sanctumCard', lst_card));
+
       return responseToOpenai(
         'tell the user that lst data is successfully fetched',
       );
     } catch (error) {
-      setMessageList((prev) => [
-        ...(prev || []),
-        {
-          type: 'message',
-          message: 'Oops! There has been a problem while fetching lst data',
-        },
-      ]);
+      await handleAddMessage(
+        messageCard('Oops! There has been a problem while fetching lst data'),
+      );
+
       return responseToOpenai(
         'tell the user that there has been a problem while fetching lst data and ask them to try later',
       );
@@ -909,15 +686,16 @@ const Conversation = () => {
 
   const handleRugCheck = async (token: string) => {
     setMessageList((prev) => [
-      ...(prev || []),
-      {
-        type: 'agent',
-        message: `Checking if ${token} is a rug.`,
-      },
+      ...prev,
+      agentMessage(`Checking if ${token} is a rug.`),
     ]);
+
+    console.log(token.length);
+
     try {
       let final_token = '';
-      if (token.startsWith('$')) {
+      console.log(token.length);
+      if (token.length === 44 || token.startsWith('$')) {
         final_token = token;
       } else {
         final_token = `$${token}`;
@@ -926,14 +704,12 @@ const Conversation = () => {
       const data = await getRugCheck(final_token);
 
       if (!data) {
-        setMessageList((prev) => [
-          ...(prev || []),
-          {
-            type: 'message',
-            message:
-              'Oops! There has been a problem while identifying the data',
-          },
-        ]);
+        await handleAddMessage(
+          messageCard(
+            'Oops! There has been a problem while identifying the data',
+          ),
+        );
+
         return responseToOpenai(
           'tell the user that there has been a problem identifying the data, do not repeat the address, only repeat if its a ticker',
         );
@@ -941,24 +717,20 @@ const Conversation = () => {
 
       let rug_check_card: RugCheckCard = data;
 
-      setMessageList((prev) => [
-        ...(prev || []),
-        {
-          type: 'rugCheckCard',
-          card: rug_check_card,
-        },
-      ]);
+      await handleAddMessage(
+        customMessageCards('rugCheckCard', rug_check_card),
+      );
+
       return responseToOpenai(
-        `tell the user that the token has a risk score of ${rug_check_card.score}. if its above 0 and less than 200, its risky, and if its above 200 then high chances that it could be a rug`,
+        `tell the user that the token has a risk score of ${rug_check_card.score} and has ${rug_check_card.issues.length} issues`,
       );
     } catch (error) {
-      setMessageList((prev) => [
-        ...(prev || []),
-        {
-          type: 'message',
-          message: 'Oops! There has been a problem while identifying the data',
-        },
-      ]);
+      await handleAddMessage(
+        messageCard(
+          'Oops! There has been a problem while identifying the data',
+        ),
+      );
+
       return responseToOpenai(
         'tell the user that there has been a problem while the token data. Do not repeat the token address, only repeat if its a ticker',
       );
@@ -966,25 +738,16 @@ const Conversation = () => {
   };
 
   const handleNFTPrice = async (nft: string) => {
-    setMessageList((prev) => [
-      ...(prev || []),
-      {
-        type: 'agent',
-        message: `Fetching NFT Data`,
-      },
-    ]);
+    setMessageList((prev) => [...prev, agentMessage(`Fetching NFT Data`)]);
 
     try {
       let nft_symbol = nft.replace(/\s+/g, '_');
       const data = await fetchMagicEdenNFTPrice(nft, nft_symbol);
       if (!data) {
-        setMessageList((prev) => [
-          ...(prev || []),
-          {
-            type: 'message',
-            message: 'Oops! There has been a problem while fetching NFT data',
-          },
-        ]);
+        await handleAddMessage(
+          messageCard('Oops! There has been a problem while fetching NFT data'),
+        );
+
         return responseToOpenai(
           'Tell the user that there has been a problem while fetching nft data and ask them to try later',
         );
@@ -992,25 +755,16 @@ const Conversation = () => {
 
       let nft_card: NFTCollectionCard = data;
 
-      setMessageList((prev) => [
-        ...(prev || []),
-        {
-          type: 'nftCollectionCard',
-          card: nft_card,
-        },
-      ]);
+      await handleAddMessage(customMessageCards('nftCollectionCard', nft_card));
 
       return responseToOpenai(
         'tell the user that NFT data is successfully fetched',
       );
     } catch (error) {
-      setMessageList((prev) => [
-        ...(prev || []),
-        {
-          type: 'message',
-          message: 'Oops! There has been a problem while fetching NFT data',
-        },
-      ]);
+      await handleAddMessage(
+        messageCard('Oops! There has been a problem while fetching NFT data'),
+      );
+
       return responseToOpenai(
         'Tell the user that there has been a problem while fetching nft data and ask them to try later',
       );
@@ -1018,25 +772,17 @@ const Conversation = () => {
   };
 
   const handleTrendingNFTs = async () => {
-    setMessageList((prev) => [
-      ...(prev || []),
-      {
-        type: 'agent',
-        message: `Fetching Trending NFTs`,
-      },
-    ]);
+    // await handleAddMessage(agentMessage(`Fetching Trending NFTs`));
 
     try {
       const data = await fetchTrendingNFTs();
       if (!data) {
-        setMessageList((prev) => [
-          ...(prev || []),
-          {
-            type: 'message',
-            message:
-              'Oops! There has been a problem while fetching Trending NFT data',
-          },
-        ]);
+        await handleAddMessage(
+          messageCard(
+            'Oops! There has been a problem while fetching Trending NFT data',
+          ),
+        );
+
         return responseToOpenai(
           'Tell the user that there has been a problem while fetching nft data and ask them to try later',
         );
@@ -1044,58 +790,43 @@ const Conversation = () => {
 
       let nft_card: TrendingNFTCard[] = data;
 
-      setMessageList((prev) => [
-        ...(prev || []),
-        {
-          type: 'trendingNFTCard',
-          card: nft_card,
-        },
-      ]);
+      await handleAddMessage(customMessageCards('trendingNFTCard', nft_card));
 
       return responseToOpenai('tell the user NFT data is fetched');
     } catch (error) {
-      setMessageList((prev) => [
-        ...(prev || []),
-        {
-          type: 'message',
-          message: 'Oops! There has been a problem while fetching NFT data',
-        },
-      ]);
+      await handleAddMessage(
+        messageCard('Oops! There has been a problem while fetching NFT data'),
+      );
+
       return responseToOpenai(
         'Tell the user that there has been a problem while fetching trending nfts and ask them to try later',
       );
     }
   };
 
+  //TODO: Handle UI message Responses
   const handleLstSwaps = async (lst_amount: number, lst_symbol: string) => {
     let rpc = process.env.SOLANA_RPC_URL;
-    if (!appWallet) return null;
+    if (!currentWallet) return null;
     if (!rpc) {
       console.log('rpc not set');
       return responseToOpenai(
         'there has been a server error, prompt the user to try again later',
       );
     }
-    setMessageList((prev) => [
-      ...(prev || []),
-      {
-        type: 'agent',
-        message: `Swapping ${lst_amount} ${lst_symbol} from Solana`,
-      },
-    ]);
+    await handleAddMessage(
+      agentMessage(`Swapping ${lst_amount} ${lst_symbol} from Solana`),
+    );
 
     try {
       //todo
       //create a fn to read sanctum list and fetch address
       let address = await fetchLSTAddress(lst_symbol);
       if (address == '') {
-        setMessageList((prev) => [
-          ...(prev || []),
-          {
-            type: 'message',
-            message: `Problem while fetching LST address: ${lst_symbol}`,
-          },
-        ]);
+        await handleAddMessage(
+          messageCard(`Problem while fetching LST address: ${lst_symbol}`),
+        );
+
         return responseToOpenai(
           'error fetching in fetching lst address, prompt the user to try again',
         );
@@ -1106,32 +837,32 @@ const Conversation = () => {
       let params: SwapParams = {
         input_mint: tokenList.SOL.MINT,
         output_mint: address,
-        public_key: appWallet.address,
+        public_key: currentWallet.address,
         amount: swapAmount,
         swap_mode: 'EXACT_IN',
       };
 
       const transaction = await swapLST(params);
       if (!transaction) {
-        setMessageList((prev) => [
-          ...(prev || []),
-          {
-            type: 'message',
-            message: `Error while creating the swap transaction: ${lst_symbol}`,
-          },
-        ]);
+        await handleAddMessage(
+          messageCard(
+            `Error while creating the swap transaction: ${lst_symbol}`,
+          ),
+        );
+
         return responseToOpenai(
           'error while creating the transaction, prompt the user to try again',
         );
       }
       let connection = new Connection(rpc);
-      const signedTransaction = await appWallet.signTransaction(transaction);
+      const signedTransaction =
+        await currentWallet.signTransaction(transaction);
       const serialzedTransaction = signedTransaction.serialize();
       const transactionSignature =
         await connection.sendRawTransaction(serialzedTransaction);
 
       setMessageList((prev) => [
-        ...(prev || []),
+        ...prev,
         {
           type: 'message',
           message: `Transaction sent`,
@@ -1140,29 +871,27 @@ const Conversation = () => {
       ]);
     } catch (error) {
       console.error(error);
-      setMessageList((prev) => [
-        ...(prev || []),
-        {
-          type: 'message',
-          message: `Problem while swapping to LST:${error}`,
-        },
-      ]);
+      await handleAddMessage(
+        messageCard(`Problem while swapping to LST: ${error}`),
+      );
     }
   };
 
   const handleBubblemap = async (token: string) => {
     setMessageList((prev) => [
-      ...(prev || []),
-      {
-        type: 'agent',
-        message: `getting Bubblemap for ${token}`,
-      },
+      ...prev,
+      agentMessage(`Getting Bubblemap for ${token}`),
     ]);
 
     try {
-      if (token.startsWith('$')) {
-        const tokenDetails = await getTokenDataSymbol(token);
-        token = tokenDetails?.metadata.description || 'NaN';
+      if (token.length !== 44) {
+        if (token.startsWith('$')) {
+          const tokenDetails = await getTokenDataSymbol(token);
+          token = tokenDetails?.metadata.description || 'NaN';
+        } else {
+          const tokenDetails = await getTokenDataSymbol('$' + token);
+          token = tokenDetails?.metadata.description || 'NaN';
+        }
       }
     } catch (error) {
       return responseToOpenai(
@@ -1170,30 +899,72 @@ const Conversation = () => {
       );
     }
 
-    setMessageList((prev) => [
-      ...(prev || []),
-      {
-        type: 'bubblemapCard',
-        card: { token: token },
-      },
-    ]);
+    await handleAddMessage(
+      customMessageCards('bubblemapCard', { token: token }),
+    );
 
     return responseToOpenai(
       'tell the user that bubblemap is successfully fetched',
     );
   };
 
-  const test = async () => {
-    let address = await fetchLSTAddress('JupSOL');
+  const handleTopHolders = async (token: string) => {
+    let tokenInput = '';
+    if (token.length === 44 || token.startsWith('$')) {
+      tokenInput = token;
+    } else {
+      tokenInput = '$' + token;
+    }
+    setMessageList((prev) => [
+      ...prev,
+      agentMessage(`Fetching top holders of ${tokenInput}.`),
+    ]);
+
+    try {
+      const data = await getTopHolders(tokenInput);
+      if (!data) {
+        handleAddMessage(
+          messageCard(
+            'Oops! There has been a problem while identifying the data',
+          ),
+        );
+
+        return responseToOpenai(
+          'tell the user that there has been a problem identifying the data, do not repeat the address, only repeat if its a ticker',
+        );
+      }
+
+      let topHoldersCard: TopHolder[] = data;
+      handleAddMessage(customMessageCards('topHoldersCard', topHoldersCard));
+      return responseToOpenai(
+        'Tell user that top holders data is successfully fetched.',
+      );
+    } catch (error) {
+      handleAddMessage(
+        messageCard(
+          'Oops! There has been a problem while identifying the data',
+        ),
+      );
+
+      return responseToOpenai(
+        'tell the user that there has been a problem while the token data. Do not repeat the token address, only repeat if its a ticker',
+      );
+    }
   };
 
   const startSession = async () => {
     let url = process.env.DATA_SERVICE_URL;
     try {
-      const tokenResponse = await fetch(`${url}data/session/create`);
+      const tokenResponse = await fetch(`${url}data/session/create`, {
+        method: 'GET', // or "POST" if required
+        headers: {
+          Authorization: `Bearer ${appState.accessToken}`, // Replace with your token
+          'Content-Type': 'application/json',
+        },
+      });
 
       const data = await tokenResponse.json();
-      const EPHEMERAL_KEY = data.client_secret.value;
+      const EPHEMERAL_KEY = data.client_secret?.value;
 
       // Create a peer connection
       const pc = new RTCPeerConnection();
@@ -1279,6 +1050,8 @@ const Conversation = () => {
 
   const sendClientEvent = useCallback(
     (message: any) => {
+      console.log('message:', message);
+      console.log(appState.tier);
       if (localDataChannel && localDataChannel.readyState === 'open') {
         message.event_id = message.event_id || crypto.randomUUID();
         localDataChannel.send(JSON.stringify(message));
@@ -1293,7 +1066,24 @@ const Conversation = () => {
     [localDataChannel, setEvents], // Only depend on localDataChannel and setEvents
   );
 
-  function sendTextMessage(message: any) {
+  const updateMessage = (message: string) => {
+    const event = {
+      type: 'conversation.item.create',
+      item: {
+        type: 'message',
+        role: 'system',
+        content: [
+          {
+            type: 'input_text',
+            text: message,
+          },
+        ],
+      },
+    };
+    sendClientEvent(event);
+  };
+
+  const sendTextMessage = (message: any) => {
     const event = {
       type: 'conversation.item.create',
       item: {
@@ -1310,20 +1100,16 @@ const Conversation = () => {
 
     sendClientEvent(event);
     sendClientEvent({ type: 'response.create' });
-  }
+  };
 
   function toggleWallet() {
     setIsWalletVisible(!isWalletVisible);
   }
 
-  useEffect(() => {
-    if (appWallet && audioElement.current && messageList) {
-      setIsLoaded(true);
-    }
-  }, [appWallet, audioElement, messageList]);
-
   // WebRTC datachannel handling for message, open, close, error events.
   useEffect(() => {
+    setLocalDataChannel(dataChannel);
+
     if (dataChannel) {
       dataChannel.addEventListener('message', (e) => {
         setEvents((prev) => [JSON.parse(e.data), ...prev]);
@@ -1354,28 +1140,85 @@ const Conversation = () => {
         firstEvent.type === 'session.created' &&
         !events.some((e) => e.type === 'session.update')
       ) {
-        sendClientEvent(createToolsConfig(aiVoice, aiEmotion));
+        sendClientEvent(
+          createToolsConfig(aiVoice, aiEmotion, currentAgentId || 1),
+        );
       }
 
       const mostRecentEvent = events[0];
+      console.log(mostRecentEvent);
+      if (mostRecentEvent.type === 'response.audio_transcript.delta') {
+        setMessageList((prev) => {
+          let lastMessage = prev[prev.length - 1];
 
-      if (
+          if (lastMessage?.type === 'aiTranscription') {
+            let item = lastMessage.card as AiTranscription;
+
+            if (item.id === mostRecentEvent.response_id) {
+              let updatedLastMessage = {
+                ...lastMessage,
+                message: lastMessage.message + mostRecentEvent.delta,
+              };
+              return [...prev.slice(0, -1), updatedLastMessage];
+            }
+          }
+          return [
+            ...prev,
+            {
+              type: 'aiTranscription',
+              message: mostRecentEvent.delta,
+              card: { id: mostRecentEvent.response_id },
+            },
+          ];
+        });
+      } else if (
         mostRecentEvent.type === 'response.done' &&
         mostRecentEvent.response.output
       ) {
         for (const output of mostRecentEvent.response.output) {
-          if (output.type === 'function_call') {
-            if (output.name === 'toggleWallet') {
-              const { action } = JSON.parse(output.arguments);
+          if (output.type === 'message') {
+            setMessageList((prev) => {
+              let lastMessage = prev[prev.length - 1];
 
-              if (action === 'open' && !isWalletVisible) {
-                toggleWallet();
-              } else if (action === 'close' && isWalletVisible) {
-                toggleWallet();
+              if (lastMessage?.type === 'aiTranscription') {
+                let updatedLastMessage = {
+                  ...lastMessage,
+                  message: output.content[0].transcript,
+                };
+                return [...prev.slice(0, -1), updatedLastMessage];
               }
-              sendClientEvent(
-                responseToOpenai('Ask what the user wants to do next.'),
-              );
+              return [...prev];
+            });
+            handleAddAiTranscript(
+              aiTranscriptCard(`${output.content[0].transcript}`),
+            );
+          } else if (output.type === 'function_call') {
+            const functionName = output.name;
+            if (functionName === 'walletActions') {
+              const { action } = JSON.parse(output.arguments);
+              let response = null;
+              switch (action) {
+                case 'check_balance': {
+                  try {
+                    response = await getWalletAssets();
+                    sendClientEvent(response);
+                  } catch (error) {
+                    throw new Error('Failed to retrieve wallet assets');
+                  }
+                  break;
+                }
+                case 'fund_wallet': {
+                  if (!currentWallet)
+                    throw new Error("You don't have a wallet selected");
+                  await fundWallet(currentWallet.address, {
+                    card: {
+                      preferredProvider: 'moonpay',
+                    },
+                    amount: '',
+                  });
+                  break;
+                }
+              }
             } else if (output.name === 'transferSolTx') {
               const { quantity, address } = JSON.parse(output.arguments);
               let response = await transferSol(quantity, address);
@@ -1423,18 +1266,9 @@ const Conversation = () => {
               const { quantity, lst } = JSON.parse(output.arguments);
               let response = await handleLstSwaps(quantity, lst);
               sendClientEvent(response);
-            } else if (output.name === 'test') {
-              let response = await test();
             } else if (output.name === 'transferSpl') {
               const { amount, token, address } = JSON.parse(output.arguments);
               let response = await transferSpl(amount, token, address);
-              sendClientEvent(response);
-            } else if (output.name === 'transferSpl') {
-              const { amount, token, address } = JSON.parse(output.arguments);
-              let response = await transferSpl(amount, token, address);
-              sendClientEvent(response);
-            } else if (output.name === 'fetchWallet') {
-              let response = await fetchWallet();
               sendClientEvent(response);
             } else if (output.name === 'getRugCheck') {
               const { token } = JSON.parse(output.arguments);
@@ -1450,10 +1284,10 @@ const Conversation = () => {
             } else if (output.name === 'getBlinks') {
               const { actionName } = JSON.parse(output.arguments);
               setMessageList((prev) => [
-                ...(prev || []),
+                ...prev,
                 {
                   type: 'blinkCard',
-                  link: actionName
+                  link: actionName,
                 },
               ]);
               sendClientEvent(
@@ -1461,6 +1295,26 @@ const Conversation = () => {
                   'tell the user that you have opened the asked blink.',
                 ),
               );
+            } else if (output.name === 'getTopHolders') {
+              const { tokenInput } = JSON.parse(output.arguments);
+              let response = await handleTopHolders(tokenInput);
+              sendClientEvent(response);
+            } else if (output.name === 'limitOrder') {
+              const { token, amount, limitPrice, action } = JSON.parse(
+                output.arguments,
+              );
+
+              let response = await handleLimitOrder(
+                amount,
+                token,
+                action,
+                limitPrice,
+              );
+              sendClientEvent(response);
+            } else if (output.name === 'getLimitOrders') {
+              console.log('calling fn');
+              let response = await handleGetLimitOrders();
+              sendClientEvent(response);
             }
           }
         }
@@ -1471,55 +1325,68 @@ const Conversation = () => {
   }, [events, sendClientEvent]);
 
   return isLoaded ? (
-    <>
-      <main className="h-screen flex flex-col relative dark:bg-darkalign">
-        {/* Start of wallet */}
-        <section className="absolute right-0 p-4 animate-in fade-in-0 duration-300">
-          <WalletUi
-            toggleWallet={toggleWallet}
-            isWalletVisible={isWalletVisible}
-          />
-        </section>
-        {/* End of wallet */}
-
-        {/* Start of Visualizer Section */}
-        <section
-          className={`flex items-center justify-center animate-in fade-in-0 duration-300 ${
-            messageList ? 'h-1/4' : 'h-1/2'
-          }`}
-        >
-          {mediaRecorder && (
-            <LiveAudioVisualizer
-              barColor={theme == 'light' ? '#1D1D1F' : '#D8B4FE'}
-              mediaRecorder={mediaRecorder}
-              width={400}
-              height={200}
+    messageLoadingError ? (
+      <div className="text-center h-screen ">
+        Oops! The requested chat doesn&apos;t exists.
+      </div>
+    ) : (
+      <>
+        <main className="h-screen w-full flex flex-col relative overflow-hidden">
+          {/* Start of wallet */}
+          <section className="absolute flex justify-between w-full p-4 animate-in fade-in-0 duration-300">
+            <PipLayout
+              startSession={startSession}
+              stopSession={stopSession}
+              isSessionActive={isSessionActive}
             />
-          )}
+            <WalletUi
+              toggleWallet={toggleWallet}
+              isWalletVisible={isWalletVisible}
+            />
+          </section>
+          {/* End of wallet */}
+
+          {/* Start of Visualizer Section */}
+          <section
+            className={`flex items-center justify-center animate-in fade-in-0 duration-300 ${
+              messageList ? 'h-1/4' : 'h-1/2'
+            }`}
+          >
+            {mediaRecorder && (
+              <LiveAudioVisualizer
+                barColor={theme.name == 'light' ? '#1D1D1F' : '#D8B4FE'}
+                mediaRecorder={mediaRecorder}
+                width={400}
+                height={200}
+              />
+            )}
+          </section>
+          {/* End of Visualizer Section */}
+
+          {/* Start of Message display Section */}
+          <section className="pb-20 overflow-y-scroll no-scrollbar">
+            {messageList && currentRoomId && (
+              <MessageList messageList={messageList} />
+            )}
+          </section>
+          {/* End of Message display Section */}
+
+          {/* Start of Session Controls Section */}
+
+          {/* End of Session Controls Section */}
+        </main>
+        <section className="relative animate-in fade-in-0 duration-300">
+          <div
+            className={`absolute w-full bottom-0 left-1/2 transform -translate-x-1/2 p-2 flex items-center justify-center mb-5`}
+          >
+            <SessionControls
+              sendTextMessage={sendTextMessage}
+              isSessionActive={isSessionActive}
+            />
+          </div>
         </section>
-        {/* End of Visualizer Section */}
-
-        {/* Start of Message display Section */}
-        <section className="flex-grow flex justify-center items-start overflow-y-auto pb-20 no-scrollbar">
-          {messageList && <MessageList messageList={messageList} />}
-        </section>  
-        {/* End of Message display Section */}
-
-        {/* Start of Session Controls Section */}
-
-        {/* End of Session Controls Section */}
-      </main>
-      <section className="relative flex justify-center items-end w-full  bg-black dark:bg-darkalign animate-in fade-in-0 duration-300">
-        <div className="absolute  w-full bottom-0 left-1/2 transform -translate-x-1/2 p-4 flex justify-center bg-white dark:bg-darkalign">
-          <SessionControls
-            startSession={startSession}
-            stopSession={stopSession}
-            sendTextMessage={sendTextMessage}
-            isSessionActive={isSessionActive}
-          />
-        </div>
-      </section>
-    </>
+      </>
+    )
   ) : (
     <Loader />
   );

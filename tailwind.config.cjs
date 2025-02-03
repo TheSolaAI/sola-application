@@ -1,5 +1,6 @@
-const defaultTheme = require('tailwindcss/defaultTheme');
 const colors = require('tailwindcss/colors');
+const { createThemes } = require('tw-colors');
+import * as dynamicThemes from './src/config/themes.json';
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
@@ -9,22 +10,9 @@ module.exports = {
     fontFamily: {
       satoshi: ['Satoshi', 'sans-serif'],
     },
-    screens: {
-      '2xsm': '375px',
-      xsm: '425px',
-      '3xl': '2000px',
-      ...defaultTheme.screens,
-    },
     extend: {
       colors: {
-        current: 'currentColor',
-        transparent: 'transparent',
         white: '#FFFFFF',
-        black: {
-          ...colors.black,
-          DEFAULT: '#1C2434',
-          2: '#010101',
-        },
         red: {
           ...colors.red,
           DEFAULT: '#FB5454',
@@ -35,7 +23,6 @@ module.exports = {
         bodydark: '#AEB7C0',
         bodydark1: '#1D1D1F',
         bodydark2: '#87878A',
-        primary: '#3C50E0',
         secondary: '#80CAEE',
         stroke: '#E2E8F0',
         gray: {
@@ -266,5 +253,9 @@ module.exports = {
       },
     },
   },
-  plugins: [require("tailwindcss-animate"),],
+  plugins: [
+    require('tailwindcss-animate'),
+    require('tailwind-scrollbar'),
+    createThemes(dynamicThemes),
+  ],
 };

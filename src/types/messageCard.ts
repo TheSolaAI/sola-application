@@ -1,41 +1,52 @@
 import { TokenBalance } from './lulo';
+import { ShowLimitOrder } from './jupiter';
 
 export type MessageCard = {
-    type:
+  type:
     | 'message'
+    | 'aiTranscription'
     | 'card'
     | 'cards'
     | 'nftcards'
     | 'agent'
-    | 'tokenCards'
+    | 'tokenCard'
     | 'nftCollectionCard'
     | 'transaction'
     | 'transactions'
     | 'luloCard'
     | 'sanctumCard'
     | 'rugCheckCard'
+    | 'topHoldersCard'
     | 'marketDataCard'
     | 'marketDataCard'
     | 'trendingNFTCard'
     | 'bubblemapCard'
     | 'blinkCard'
+    | 'limitOrder';
   message?: string;
   card?:
+    | AiTranscription
     | SingleCard
     | MultipleCards
     | NFTCard[]
-    | TokenCard[]
+    | TokenCard
     | NFTCollectionCard
     | LuloCard
     | TransactionCard
     | SanctumCard[]
     | RugCheckCard
+    | TopHolder[]
     | MarketDataCard
     | MarketDataCard
     | TrendingNFTCard[]
     | BubblemapCard
+    | ShowLimitOrderCard;
   link?: string;
 };
+
+export interface AiTranscription {
+  id: string;
+}
 
 export interface TransactionCard {
   title: string;
@@ -76,7 +87,7 @@ export type TrendingNFTCard = {
   listed_count: number;
   volume_all: number;
   image: string;
-  volume_24hr:number
+  volume_24hr: number;
 };
 
 export type NFTCollectionCard = {
@@ -84,7 +95,7 @@ export type NFTCollectionCard = {
   title: string;
   image: string;
   price: string;
-  listed:string;
+  listed: string;
 };
 
 export interface TokenCard {
@@ -107,12 +118,18 @@ export interface SanctumCard {
   symbol: string;
   url: string;
   apy: number;
-  address:string
+  address: string;
 }
 
 export interface RugCheckCard {
   score: number;
   issues: Risk[];
+}
+
+export interface TopHolder {
+  amount: number;
+  insider: boolean;
+  owner: string;
 }
 
 export interface BubblemapCard {
@@ -122,23 +139,27 @@ export interface BubblemapCard {
 export interface Risk {
   name: string;
   value: string;
-  description: string; 
-  score: number; 
-  level: 'none' | 'warn' | 'danger'; 
+  description: string;
+  score: number;
+  level: 'none' | 'warn' | 'danger';
 }
 export interface MarketDataCard {
   marketAnalysis: MarketInfo[];
-  coinInfo: CoinInfo[]
+  coinInfo: CoinInfo[];
 }
 
-export interface CoinInfo { 
-  symbol: string,
-  price: number,
-  change: number,
-  sparkLine: string
+export interface CoinInfo {
+  symbol: string;
+  price: number;
+  change: number;
+  sparkLine: string;
 }
 
-export interface MarketInfo { 
-  text: string,
-  link:string
+export interface MarketInfo {
+  text: string;
+  link: string;
+}
+
+export interface ShowLimitOrderCard {
+  orders: ShowLimitOrder[];
 }

@@ -1,130 +1,60 @@
-import { useEffect, useCallback } from 'react';
-import { Route, Routes, useLocation } from 'react-router-dom';
+import { useCallback, useEffect } from 'react';
 import { usePrivy } from '@privy-io/react-auth';
-import { useSolanaWallets } from '@privy-io/react-auth/solana';
-import PageTitle from './components/PageTitle';
-import Conversaction from './pages/Conversation';
-import DefaultLayout from './layout/DefaultLayout';
-import Onbording from './pages/Onbording';
-import WalletManagement from './pages/WalletManagement';
-import useAppState from './store/zustand/AppState';
-import Settings from './pages/Settings';
-import OnRamp from './pages/OnRamp';
 import useUser from './hooks/useUser';
+import AppRoutes from './routes/AppRoutes.tsx';
+import useAppState from './models/AppState.ts';
+import useThemeManager from './models/ThemeManager.ts';
+import { WalletProvider } from './models/provider/WalletProvider.tsx';
+import ApiClient from './api/ApiClient.ts';
+
+// import { tokenGate } from './lib/solana/tokenGate';
 
 function App() {
-  const { authenticated, getAccessToken } = usePrivy();
-  const { createWallet, wallets } = useSolanaWallets();
-  const { setWallet } = useAppState();
-  const { authorized, setAuthorized } = useAppState();
-  const { pathname } = useLocation();
-  const memoizedCreateWallet = useCallback(createWallet, []);
-  const { setAccessToken, fetchSettings } = useUser();
+  /**
+   * Global State Management
+   */
+  const { authenticated, getAccessToken, ready, user } = usePrivy();
+  const { setAccessToken } = useAppState();
+  // const { tier, setTier } = useAppState();
+  const { fetchSettings } = useUser();
+  const { initThemeManager } = useThemeManager();
 
-  const initializeWallet = async () => {
-    try {
-      await memoizedCreateWallet();
-      console.log('Wallet initialized or already exists.');
-    } catch (error) {
-      console.error('Error initializing wallet:', error);
-    }
-  };
-
-  const updateUserSettings = async () => {
-    const accessToken = await getAccessToken();
-    setAccessToken(accessToken ?? '');
+  const updateUserSettings = useCallback(async () => {
     console.log(await fetchSettings());
-  };
+  }, [authenticated, ready, user]);
 
-  useEffect(() => {
-    if (authenticated !== authorized) {
-      setAuthorized(authenticated);
-    }
-  }, [authenticated, authorized, setAuthorized]);
-
-  // Adding Wallet to the global state.
-  useEffect(() => {
-    if (wallets.length > 0) {
-      console.log(wallets);
-      setWallet(wallets[0]);
-    }
-  }, [wallets]);
-
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [pathname]);
-
-  useEffect(() => {
-    const initializeApp = async () => {
-      if (authenticated) {
-        await initializeWallet();
-        await updateUserSettings();
+  /**
+   * Callback function that handles creating embedded wallet and update user settings on user login
+   */
+  const initializeApp = useCallback(async () => {
+    if (authenticated && ready) {
+      const jwt = await getAccessToken();
+      console.log(jwt);
+      if (!jwt) {
+        throw new Error('Failed to fetch access token.');
       }
-    };
+      setAccessToken(jwt);
+      ApiClient.setAccessToken(jwt);
+      //TODO: get user tire status here
+      await updateUserSettings();
+    }
+  }, [authenticated, ready]);
 
+  /**
+   * Master UseEffect Run at app starts. Sets up app theme
+   */
+  useEffect(() => {
+    initThemeManager();
+  }, []);
+
+  useEffect(() => {
     initializeApp();
-  }, [authenticated, memoizedCreateWallet, wallets.length]);
+  }, [initializeApp]);
 
-  const MemoizedAuthenticatedRoutes = useCallback(
-    () => (
-      <DefaultLayout>
-        <Routes>
-          <Route
-            path="/"
-            element={
-              <>
-                <PageTitle title="Home" />
-                <Conversaction />
-              </>
-            }
-          />
-          <Route
-            path="/home"
-            element={
-              <>
-                <PageTitle title="Home" />
-                <Conversaction />
-              </>
-            }
-          />
-          <Route
-            path="/settings/configuration"
-            element={
-              <>
-                <PageTitle title="Settings" />
-                <Settings />
-              </>
-            }
-          />
-          <Route
-            path="/wallet"
-            element={
-              <>
-                <PageTitle title="Wallet Management" />
-                <WalletManagement />
-              </>
-            }
-          />
-          <Route
-            path="/onramp"
-            element={
-              <>
-                <PageTitle title="On Ramp" />
-                <OnRamp />
-              </>
-            }
-          />
-        </Routes>
-      </DefaultLayout>
-    ),
-    [],
-  );
-  const MemoizedUnauthenticatedRoutes = useCallback(() => <Onbording />, []);
-
-  return authorized ? (
-    <MemoizedAuthenticatedRoutes />
-  ) : (
-    <MemoizedUnauthenticatedRoutes />
+  return (
+    <WalletProvider isAuthenticated={authenticated && ready}>
+      <AppRoutes isAuthenticated={authenticated && ready} />
+    </WalletProvider>
   );
 }
 

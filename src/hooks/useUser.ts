@@ -1,17 +1,17 @@
-import { useCallback, useState } from 'react';
-import { registerUser } from '../database/register';
-import { getUserSettings, updateUserSetting } from '../database/userSettings';
+import { useCallback } from 'react';
+import { registerUser } from '../api/register';
+import { getUserSettings, updateUserSetting } from '../api/userSettings';
 import { RegisterUser, UserSettings } from '../types/database/requstTypes';
-import useAppState from '../store/zustand/AppState';
+import useAppState from '../models/AppState.ts';
 import {
   RegisterUserResponse,
   UserSettingsResponse,
 } from '../types/database/responseTypes';
+import useThemeManager from '../models/ThemeManager.ts';
 
 const useUser = () => {
-  const { setTheme, setAiVoice, setAiEmotion } = useAppState();
-  const [accessToken, setAccessToken] = useState<string | null>(null);
-
+  const { setAiVoice, setAiEmotion, accessToken } = useAppState();
+  const { setTheme } = useThemeManager();
   // Register a user
   const register = useCallback(
     async (user: RegisterUser): Promise<RegisterUserResponse | null> => {
@@ -40,7 +40,6 @@ const useUser = () => {
       try {
         const settings = await getUserSettings(accessToken);
         if (settings) {
-          setTheme(settings.theme ?? 'light');
           setAiVoice(settings.voice_preference || 'sage');
           setAiEmotion(
             settings.emotion_choice || 'playfully cheeky and very sarcastic',
@@ -63,15 +62,17 @@ const useUser = () => {
         return null;
       }
       {
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         updatedSettings.theme && setTheme(updatedSettings.theme);
       }
       {
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         updatedSettings.voice_preference &&
           setAiVoice(updatedSettings.voice_preference);
       }
-      updatedSettings.emotion_choice && setAiEmotion(
-        updatedSettings.emotion_choice,
-      );
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+      updatedSettings.emotion_choice &&
+        setAiEmotion(updatedSettings.emotion_choice);
       try {
         const updatedResponse = updateUserSetting(accessToken, updatedSettings);
 
@@ -84,7 +85,7 @@ const useUser = () => {
     [accessToken],
   );
 
-  return { register, fetchSettings, updateSettings, setAccessToken };
+  return { register, fetchSettings, updateSettings };
 };
 
 export default useUser;

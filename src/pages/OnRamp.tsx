@@ -1,34 +1,30 @@
 import { useFundWallet } from '@privy-io/react-auth/solana';
-import useAppState from '../store/zustand/AppState';
-import { Button} from '@headlessui/react';
+import { Button } from '@headlessui/react';
 import { useState } from 'react';
+import { useWalletHandler } from '../models/WalletHandler.ts';
 
 const OnRamp = () => {
   const { fundWallet } = useFundWallet();
-  const { appWallet } = useAppState();
+  const { currentWallet } = useWalletHandler();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleFundWallet = async () => {
-    if (!appWallet?.address) {
+    if (currentWallet?.address) {
       console.error('No wallet address available.');
       setError('No wallet connected. Please connect your wallet.');
       return;
     }
 
-    
-
     setIsLoading(true);
     setError(null);
 
     try {
-      await fundWallet(appWallet.address, {
-        
+      await fundWallet(currentWallet!.address, {
         card: {
           preferredProvider: 'moonpay',
         },
-        amount: ""
-        
+        amount: '',
       });
       console.log('Funding wallet...');
     } catch (err: any) {
@@ -39,7 +35,7 @@ const OnRamp = () => {
     }
   };
 
-  if (!appWallet?.address) {
+  if (currentWallet?.address) {
     return (
       <div className="text-red-500 text-center">
         No wallet connected. Please connect your wallet.
@@ -54,7 +50,9 @@ const OnRamp = () => {
 
   return (
     <div className="flex flex-col items-center justify-center h-screen gap-16 dark:bg-darkalign animate-in fade-in-0 duration-300">
-      <div className=' text-title-xl font-semibold dark:text-purple-300'>Easy On-Ramps</div>
+      <div className=" text-title-xl font-semibold dark:text-purple-300">
+        Easy On-Ramps
+      </div>
       <div
         className={`${bgColor} rounded-xl p-8 shadow-sm w-2/6 h-2/4 flex flex-col justify-between dark:bg-darkalign2`}
       >

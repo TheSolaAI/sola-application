@@ -1,18 +1,21 @@
 import { useEffect, useState } from 'react';
 import { ChevronDown } from 'react-feather';
-import useAppState from '../store/zustand/AppState';
-import { AIVOICE, AIEMOTION } from '../store/ai/aiConfig';
+import useAppState from '../models/AppState.ts';
+import { AIEMOTION, AIVOICE } from '../config/ai/aiConfig';
 import useUser from '../hooks/useUser';
 import { AiEmotion, AiVoice } from '../types/database/aiConfig';
 import { usePrivy } from '@privy-io/react-auth';
+import useThemeManager from '../models/ThemeManager.ts';
 
 const Settings: React.FC = () => {
-  const { aiVoice, aiEmotion } = useAppState();
-  const { updateSettings, setAccessToken } = useUser();
+  const { aiVoice, aiEmotion, setAccessToken } = useAppState();
+  const { updateSettings } = useUser();
   const { getAccessToken } = usePrivy();
 
   const [isVoiceOpen, setIsVoiceOpen] = useState<boolean>(false);
   const [isEmotionOpen, setIsEmotionOpen] = useState<boolean>(false);
+
+  const { theme } = useThemeManager();
 
   const toggleVoiceDropdown = () => setIsVoiceOpen((prev) => !prev);
   const toggleEmotionDropdown = () => setIsEmotionOpen((prev) => !prev);
@@ -37,8 +40,8 @@ const Settings: React.FC = () => {
   }, []);
 
   return (
-    <div className="bg-white h-screen p-4 dark:bg-darkalign animate-in fade-in-0 duration-300">
-      <div className="bg-graydark rounded-lg p-4 dark:bg-darkalign2">
+    <div className=" h-screen p-4 bg-background animate-in fade-in-0 duration-300">
+      <div className="bg-sec_background rounded-lg p-4 ">
         <h1 className="font-bold text-xl dark:text-purple-300">
           APP CONFIGURATION:
         </h1>
@@ -118,6 +121,25 @@ const Settings: React.FC = () => {
                   </div>
                 </div>
               )}
+            </div>
+          </div>
+
+          {/* Theme Settings  */}
+          <div className="flex flex-col gap-2">
+            <span className="text-textColor">Theme (Light/Dark) :</span>
+            <div className="flex gap-4">
+              <button
+                className={`bg-border text-textColor rounded-lg px-4 py-2 border-2 ${theme.name === 'light' ? 'border-red' : 'border-transparent'}`}
+                onClick={() => updateSettings({ theme: 'light' })}
+              >
+                Light
+              </button>
+              <button
+                className={`bg-border text-textColor rounded-lg px-4 py-2 border-2 ${theme.name === 'dark' ? 'border-red' : 'border-transparent'}`}
+                onClick={() => updateSettings({ theme: 'dark' })}
+              >
+                Dark
+              </button>
             </div>
           </div>
         </div>

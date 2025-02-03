@@ -17,6 +17,8 @@ export default defineConfig(({ mode }) => {
       'process.env.DATA_SERVICE_URL': JSON.stringify(env.DATA_SERVICE_URL),
       'process.env.ATA_PRIV_KEY': JSON.stringify(env.ATA_PRIV_KEY),
       'process.env.PROXY_SERVER2_URL': JSON.stringify(env.PROXY_SERVER2_URL),
+      'process.env.ENVIORNMENT': JSON.stringify(env.ENVIORNMENT),
+      'process.env.AUTH_SERVICE_URL': JSON.stringify(env.AUTH_SERVICE_URL),
     },
     build: {
       sourcemap: true,
