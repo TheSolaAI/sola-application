@@ -9,6 +9,7 @@ import './css/style.css';
 import './css/satoshi.css';
 import { Toaster } from 'sonner';
 import useThemeManager from './models/ThemeManager.ts';
+import useIsMobile from './components/utils/isMobile.tsx';
 
 // Sentry Initialization
 Sentry.init({
@@ -34,12 +35,14 @@ const projectId = 'pprp6bdxj0';
 Clarity.init(projectId);
 
 const solanaConnectors = toSolanaWalletConnectors({
-  shouldAutoConnect: false,
+  shouldAutoConnect: true,
 });
 
 const RootApp = () => {
   // Access the current theme from Zustand
   const { theme } = useThemeManager();
+
+  const isMobile = useIsMobile();
 
   return (
     <Router>
@@ -76,7 +79,10 @@ const RootApp = () => {
           }}
         >
           {' '}
-          <Toaster position="top-right" richColors />
+          <Toaster
+            position={isMobile ? 'top-center' : 'bottom-right'}
+            richColors
+          />
           <App />
         </PrivyProvider>
       )}

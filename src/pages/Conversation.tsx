@@ -22,7 +22,6 @@ import {
 import { swapTx } from '../lib/solana/swapTx';
 import { createToolsConfig } from '../tools/tools';
 import { SessionControls } from '../components/SessionControls';
-import WalletUi from '../components/wallet/WalletUi';
 import MessageList from '../components/ui/MessageList';
 import { tokenList } from '../config/tokens/tokenMapping';
 import {
@@ -62,6 +61,8 @@ import { getTopHolders } from '../lib/solana/topHolders';
 import { getLimitOrders, limitOrderTx } from '../lib/solana/limitOrderTx';
 import useThemeManager from '../models/ThemeManager.ts';
 import Loader from '../components/general/Loader.tsx';
+import WalletLensButton from '../components/wallet/WalletLensButton.tsx';
+import { useLayoutContext } from '../layout/LayoutProvider.tsx';
 
 const Conversation = () => {
   const {
@@ -75,7 +76,7 @@ const Conversation = () => {
     getPeerConnection,
     resetMute,
   } = useChatState();
-  const { assets } = useWalletHandler();
+  const { walletAssets } = useWalletHandler();
   const { id } = useParams<{ id: string }>();
   const { getRoomMessages, loading, error, messageLoadingError } = useChat();
   const {
@@ -87,16 +88,17 @@ const Conversation = () => {
     currentRoomId,
     currentAgentId,
   } = useRoomStore();
+  const { setWalletLensOpen } = useLayoutContext();
   const { handleAddMessage, handleAddAiTranscript } = useChatHandler();
   const { fundWallet } = useFundWallet();
   const { handleDepositLulo, handleUserAssetsLulo, handleWithdrawLulo } =
     useLuloActions();
-  const [isWalletVisible, setIsWalletVisible] = useState(false);
   const [events, setEvents] = useState<any[]>([]);
   const audioElement = useRef<HTMLAudioElement | null>(null);
   const [isLoaded, setIsLoaded] = useState<boolean>(true);
   const [localDataChannel, setLocalDataChannel] = useState(dataChannel);
   const appState = useAppState();
+  const { handleWalletLensOpen, walletLensOpen } = useLayoutContext();
 
   useEffect(() => {
     async function loadMessages() {
@@ -257,12 +259,12 @@ const Conversation = () => {
         agentMessage(`The agent is fetching your wallet assets`),
       ];
     });
-    const assetDetails = assets.map((item) => {
+    const assetDetails = walletAssets.tokens.map((item) => {
       const amount = (item.balance / 10 ** item.decimals).toFixed(2);
       return { symbol: item.symbol, amount: parseFloat(amount) };
     });
 
-    const totalAmount = assets
+    const totalAmount = walletAssets.tokens
       .reduce((acc, asset) => acc + (asset.totalPrice || 0), 0)
       .toFixed(2);
 
@@ -271,8 +273,7 @@ const Conversation = () => {
       .join(', ');
 
     const responseString = `Your wallet assets are: ${assetDetailsString}. Total value: ${totalAmount}.`;
-
-    setIsWalletVisible(true);
+    setWalletLensOpen(true);
     return responseToOpenai(responseString);
   };
 
@@ -1102,10 +1103,6 @@ const Conversation = () => {
     sendClientEvent({ type: 'response.create' });
   };
 
-  function toggleWallet() {
-    setIsWalletVisible(!isWalletVisible);
-  }
-
   // WebRTC datachannel handling for message, open, close, error events.
   useEffect(() => {
     setLocalDataChannel(dataChannel);
@@ -1339,9 +1336,8 @@ const Conversation = () => {
               stopSession={stopSession}
               isSessionActive={isSessionActive}
             />
-            <WalletUi
-              toggleWallet={toggleWallet}
-              isWalletVisible={isWalletVisible}
+            <WalletLensButton
+              onClick={() => handleWalletLensOpen(!walletLensOpen)}
             />
           </section>
           {/* End of wallet */}
