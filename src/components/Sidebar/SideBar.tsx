@@ -1,5 +1,5 @@
 import { ChevronLeft, Edit, Edit2, Menu, User } from 'react-feather';
-import { FC, useEffect, useRef, useState } from 'react';
+import React, { FC, useEffect, useRef, useState } from 'react';
 import useThemeManager from '../../models/ThemeManager.ts';
 import { useChat } from '../../hooks/useChatRoom.ts';
 import { useRoomStore } from '../../models/RoomState.ts';
@@ -10,6 +10,7 @@ import { ProfileDropDown } from './ProfileDropDown.tsx';
 import useIsMobile from '../utils/isMobile.tsx';
 import { VscPinned } from 'react-icons/vsc';
 import { ChartCandlestick } from 'lucide-react';
+import { useAgentHandler } from '../../models/AgentHandler.ts';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -39,8 +40,9 @@ export const Sidebar: FC<SidebarProps> = ({
    */
   const { theme } = useThemeManager();
   const { getRooms } = useChat();
-  const { rooms } = useRoomStore();
+  const { rooms, setCurrentAgentId } = useRoomStore();
   const { pathname } = useLocation();
+  const { agents } = useAgentHandler();
 
   /**
    * Local State
@@ -149,11 +151,11 @@ export const Sidebar: FC<SidebarProps> = ({
               <ChevronLeft size={24} color={theme.textColor} />
             </button>
           )}
-          <img
+          {/* <img
             src="/logo.png"
             alt="Logo"
             className="hidden w-[40px] h-[40px] rounded-lg lg:block"
-          />
+          /> */}
         </div>
 
         {/*New ChatRoom Button*/}
@@ -175,7 +177,8 @@ export const Sidebar: FC<SidebarProps> = ({
             if (isMobile) setIsOpen(false);
           }}
           anchorEl={agentSelectRef.current}
-          onSelect={() => {
+          onSelect={(agentId: number) => {
+            setCurrentAgentId(agentId);
             navigate(`/`);
             setAgentSelectOpen(false);
           }}
@@ -187,6 +190,8 @@ export const Sidebar: FC<SidebarProps> = ({
             {rooms.map((room) => {
               const isEditing = editingRoom === room.id;
 
+              //TODO: add agent id from database query
+
               return (
                 <div key={room.id} className="w-full">
                   <NavLink
@@ -197,10 +202,13 @@ export const Sidebar: FC<SidebarProps> = ({
                     className={`group font-small flex w-full items-center gap-3 rounded-xl p-3 transition-color duration-300 ease-in-out  
               ${pathname === `/c/${room.id}` || pathname.startsWith(`/c/${room.id}/`) ? 'bg-primary' : ''}`}
                   >
-                    <ChartCandlestick
-                      className={'w-4 h-4'}
-                      color={theme.textColor}
-                    />
+                    {React.createElement(
+                      agents[room.agent_id ? room.agent_id - 1 : 0].logo,
+                      {
+                        className: 'w-4 h-4',
+                        color: theme.textColor,
+                      },
+                    )}
 
                     <h1 className="text-textColor font-normal flex-1">
                       {room.name}

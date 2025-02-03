@@ -14,6 +14,7 @@ const useChatHandler = () => {
     appendRoom,
     isCreatingRoom,
     setIsCreatingRoom,
+    currentAgentId,
   } = useRoomStore();
   const { accessToken } = useAppState();
   const navigate = useNavigate();
@@ -56,6 +57,7 @@ const useChatHandler = () => {
       const roomDetails: CreateRoom = {
         name: Math.floor(Math.random() * 1000000).toString(),
         session_id: Math.random().toString(),
+        agent_id: currentAgentId,
       };
 
       try {
@@ -100,6 +102,7 @@ const useChatHandler = () => {
       const roomDetails: CreateRoom = {
         name: Math.floor(Math.random() * 1000000).toString(),
         session_id: Math.random().toString(),
+        agent_id: currentAgentId,
       };
 
       try {

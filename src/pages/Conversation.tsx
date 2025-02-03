@@ -85,6 +85,7 @@ const Conversation = () => {
     isCreatingRoom,
     setIsCreatingRoom,
     currentRoomId,
+    currentAgentId,
   } = useRoomStore();
   const { handleAddMessage, handleAddAiTranscript } = useChatHandler();
   const { fundWallet } = useFundWallet();
@@ -124,7 +125,7 @@ const Conversation = () => {
     if (messageLoadingError) toast.error('Failed to load the chat data');
   }, [messageLoadingError]);
 
-  const { aiEmotion, aiVoice, tier } = useAppState();
+  const { aiEmotion, aiVoice } = useAppState();
   const { currentWallet } = useWalletHandler();
   const { theme } = useThemeManager();
 
@@ -1139,7 +1140,9 @@ const Conversation = () => {
         firstEvent.type === 'session.created' &&
         !events.some((e) => e.type === 'session.update')
       ) {
-        sendClientEvent(createToolsConfig(aiVoice, aiEmotion, tier));
+        sendClientEvent(
+          createToolsConfig(aiVoice, aiEmotion, currentAgentId || 1),
+        );
       }
 
       const mostRecentEvent = events[0];

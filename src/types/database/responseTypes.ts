@@ -21,6 +21,7 @@ export type ChatRoom = {
   id: string;
   name: string;
   session_id: string;
+  agent_id: number | null;
   user: number;
 };
 
