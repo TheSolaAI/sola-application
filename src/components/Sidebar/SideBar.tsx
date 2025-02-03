@@ -9,8 +9,8 @@ import { EditRoom } from './EditRoom.tsx';
 import { ProfileDropDown } from './ProfileDropDown.tsx';
 import useIsMobile from '../utils/isMobile.tsx';
 import { VscPinned } from 'react-icons/vsc';
-import { ChartCandlestick } from 'lucide-react';
 import { useAgentHandler } from '../../models/AgentHandler.ts';
+import { useLayoutContext } from '../../layout/LayoutProvider.tsx';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -43,6 +43,7 @@ export const Sidebar: FC<SidebarProps> = ({
   const { rooms, setCurrentAgentId } = useRoomStore();
   const { pathname } = useLocation();
   const { agents } = useAgentHandler();
+  const { walletLensOpen } = useLayoutContext();
 
   /**
    * Local State
@@ -126,7 +127,7 @@ export const Sidebar: FC<SidebarProps> = ({
       {/* Mobile Menu Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`transition-duration-500 fixed left-8 top-8 z-50 ease-in-out lg:hidden ${isOpen ? 'opacity-0' : 'opacity-100'}`}
+        className={`transition-duration-500 fixed left-8 top-8 z-50 ease-in-out lg:hidden ${isOpen || walletLensOpen ? 'opacity-0 hidden' : 'opacity-100 visible'}`}
       >
         <Menu size={24} color={theme.textColor} />
       </button>
@@ -135,8 +136,8 @@ export const Sidebar: FC<SidebarProps> = ({
       <div
         ref={sidebarRef}
         className={`flex flex-col transition-all duration-300 ease-in-out bg-sec_background p-4 pt-6 shadow-black/25 shadow-[0px_0px_15px_1px] z-40 h-full rounded-xl
-        ${isMobile ? 'fixed left-0 top-0 w-64' : 'lg:static lg:w-64'} 
-        ${isOpen ? 'translate-x-0' : isMobile ? '-translate-x-full' : 'lg:-ml-64'}
+        ${isMobile ? 'fixed left-0 top-0 w-64' : 'lg:static lg:w-80 mr-2'} 
+        ${isOpen ? 'translate-x-0' : isMobile ? '-translate-x-full' : 'lg:-ml-80'}
         `}
         onMouseLeave={handleMouseLeave}
       >
@@ -249,8 +250,8 @@ export const Sidebar: FC<SidebarProps> = ({
               <User size={24} color={theme.textColor} />
             </button>
 
-            <button>
-              {!isMobile && !canAutoClose ? (
+            <button className={'hidden sm:block'}>
+              {!canAutoClose ? (
                 <ChevronLeft
                   size={24}
                   color={theme.textColor}
@@ -262,11 +263,11 @@ export const Sidebar: FC<SidebarProps> = ({
               ) : (
                 <VscPinned
                   size={24}
-                  color={theme.textColor}
                   onClick={() => {
                     setIsOpen(true);
                     setCanAutoClose(false);
                   }}
+                  className={'text-textColor'}
                 />
               )}
             </button>

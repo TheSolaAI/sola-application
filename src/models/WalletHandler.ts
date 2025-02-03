@@ -116,10 +116,7 @@ export const useWalletHandler = create<WalletHandler>((set, get) => {
           totalBalance,
         },
       }));
-    } catch (error) {
-      toast.error('Failed to fetch wallet assets.');
-      console.error(error);
-    }
+    } catch (error) {}
   };
 
   return {
@@ -143,6 +140,11 @@ export const useWalletHandler = create<WalletHandler>((set, get) => {
       if (wallet) {
         get().startMonitoring(wallet.address);
       }
+      // load the initial tokens and NFTs
+      set({ status: 'initialLoad' });
+      fetchTokensAndNFTs(wallet?.address || '').then(() => {
+        set({ status: 'listening' });
+      });
       set({ currentWallet: wallet });
     },
     setDefaultWallet: (wallet) => {
@@ -179,17 +181,14 @@ export const useWalletHandler = create<WalletHandler>((set, get) => {
         localStorage.setItem('defaultWallet', get().wallets[0].address);
       }
       // fetch the tokens and NFTs for the default wallet
-      fetchTokensAndNFTs('HvkuF3RXZ4kkWr8icix6Tvk1XzGFKbgPg2WpHz2DQMTy').then(
-        () => {
-          set({ status: 'listening' });
-        },
-      );
+      fetchTokensAndNFTs(get().currentWallet?.address || '').then(() => {
+        set({ status: 'listening' });
+      });
       // start the monitoring of the wallet
-      get().startMonitoring('HvkuF3RXZ4kkWr8icix6Tvk1XzGFKbgPg2WpHz2DQMTy');
+      get().startMonitoring(get().currentWallet?.address || '');
     },
 
     startMonitoring: (walletId: string) => {
-      toast.info('Wallet monitoring started.');
       // Set the current wallet if not already set
       if (!get().currentWallet || get().currentWallet?.address !== walletId) {
         const wallet =

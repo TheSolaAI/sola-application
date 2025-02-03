@@ -53,11 +53,12 @@ const WalletCoinAssets = () => {
       let compareValue = 0;
 
       switch (sortType) {
-        case SortType.TotalPrice:
+        case SortType.TOTAL_PRICE:
           compareValue = a.totalPrice - b.totalPrice;
           break;
         case SortType.TOKEN_PRICE:
-          compareValue = a.totalPrice - b.totalPrice;
+          compareValue =
+            a.pricePerToken * a.decimals - b.pricePerToken * b.decimals;
           break;
       }
 

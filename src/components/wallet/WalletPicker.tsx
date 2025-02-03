@@ -2,7 +2,8 @@ import { FC } from 'react';
 import { Dropdown } from '../general/DropDown.tsx';
 import { useWalletHandler } from '../../models/WalletHandler.ts';
 import { titleCase } from '../utils/titleCase.ts';
-import { FiCopy } from 'react-icons/fi'; // Import copy icon from react-icons
+import { FiCopy } from 'react-icons/fi';
+import { toast } from 'sonner'; // Import copy icon from react-icons
 
 interface WalletPickerProps {
   isOpen: boolean;
@@ -77,6 +78,7 @@ export const WalletPicker: FC<WalletPickerProps> = ({
                   onClick={(e) => {
                     e.stopPropagation();
                     copyToClipboard(wallet.address);
+                    toast.success('Copied to clipboard');
                   }}
                   className="text-secText hover:text-textColor transition-all"
                 >

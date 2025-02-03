@@ -10,6 +10,8 @@ import { AnimatePresence, motion } from 'framer-motion';
 import WalletCoinAssets from './WalletCoinAssets.tsx';
 import { MaskedRevealLoader } from '../general/MaskedRevealLoader.tsx';
 import useThemeManager from '../../models/ThemeManager.ts';
+import { X } from 'lucide-react';
+import { useLayoutContext } from '../../layout/LayoutProvider.tsx';
 
 interface WalletLensSidebarProps {
   visible: boolean;
@@ -24,6 +26,7 @@ export const WalletLensSideBar: React.FC<WalletLensSidebarProps> = ({
    */
   const { currentWallet, stopMonitoring, status } = useWalletHandler();
   const { theme } = useThemeManager();
+  const { setWalletLensOpen } = useLayoutContext();
 
   /**
    * Refs
@@ -46,62 +49,82 @@ export const WalletLensSideBar: React.FC<WalletLensSidebarProps> = ({
 
   return (
     <div
-      className={`h-full bg-sec_background rounded-2xl transition-all duration-300 overflow-hidden p-2 overflow-y-auto flex
-    ${visible ? 'w-[25%] opacity-100' : 'w-0 opacity-0 p-0'}
+      className={`h-full bg-sec_background sm:rounded-2xl transition-all duration-300 overflow-hidden overflow-y-auto flex
+    ${visible ? 'sm:w-[30%] opacity-100 p-2 sm:ml-2 min-w-[25rem]' : 'w-0 opacity-100 p-0'}
   `}
     >
       <div className={`w-full ${!visible && 'hidden'}`}>
-        {/* Header - Natural Height */}
-        <div
-          className={
-            'bg-baseBackground flex flex-row items-center rounded-xl mt-2 p-3 gap-x-5 w-full'
-          }
-          ref={walletPickerRef}
-        >
-          <button onClick={(e) => e.stopPropagation()}>
-            <img
-              src={walletLogo}
-              alt="wallet logo"
-              className="w-14 h-14 rounded-xl"
-              onClick={(e) => {
-                e.stopPropagation();
-                window.open(
-                  `https://solscan.io/account/${currentWallet?.address}`,
-                  '_blank',
-                );
+        {/* Header - Container */}
+        <div className={'flex flex-row mt-2 gap-x-2 w-full'}>
+          {/* Close Button that is only shown on Mobile*/}
+          <div className="flex justify-center items-center sm:hidden bg-baseBackground p-2 rounded-2xl border-border border-2">
+            <button
+              onClick={() => {
+                setWalletLensOpen(false);
               }}
-            />
-          </button>
-          <div className="flex flex-col items-start flex-1">
-            <div className="flex items-center gap-x-2">
-              <h1 className="text-textColor font-semibold text-xl">
-                {titleCase(currentWallet?.walletClientType)} Wallet
-              </h1>
-              <button
+              className="p-2"
+            >
+              <X className="w-8 h-8 text-secText" />
+            </button>
+          </div>
+          {/* End Close Button*/}
+          {/* Wallet Info and wallet changer */}
+          <div
+            className="bg-baseBackground flex flex-row items-center rounded-2xl gap-x-5  p-3 w-full"
+            ref={walletPickerRef}
+          >
+            <button onClick={(e) => e.stopPropagation()}>
+              <img
+                src={walletLogo}
+                alt="wallet logo"
+                className="w-14 h-14 rounded-xl"
                 onClick={(e) => {
                   e.stopPropagation();
-                  navigator.clipboard.writeText(currentWallet?.address || '');
-                  toast.success('Copied to clipboard');
+                  window.open(
+                    `https://solscan.io/account/${currentWallet?.address}`,
+                    '_blank',
+                  );
                 }}
-                className="text-secText hover:text-textColor transition-all"
-              >
-                <FiCopy size={16} />
-              </button>
+              />
+            </button>
+            <div className="flex flex-col items-start flex-1 min-w-0">
+              <div className="flex items-center gap-x-2">
+                <h1 className="text-textColor font-semibold text-xl">
+                  {titleCase(currentWallet?.walletClientType)} Wallet
+                </h1>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigator.clipboard.writeText(currentWallet?.address || '');
+                    toast.success('Copied to clipboard');
+                  }}
+                  className="text-secText hover:text-textColor transition-all flex-shrink-0"
+                >
+                  <FiCopy size={16} />
+                </button>
+              </div>
+
+              <h1 className="text-secText font-regular text-xs overflow-hidden whitespace-nowrap truncate min-w-0 w-full hidden sm:block">
+                {currentWallet?.address}
+              </h1>
             </div>
 
-            <h1 className="text-secText font-regular text-xs overflow-hidden whitespace-nowrap truncate w-full text-start">
-              {currentWallet?.address}
-            </h1>
+            {/* Ensure Dropdown Button Doesn't Get Pushed Out */}
+            <button
+              onClick={() => setWalletPickerOpen(!walletPickerOpen)}
+              className="flex-shrink-0"
+            >
+              <ChevronDown className="w-8 h-8 text-secText" />
+            </button>
           </div>
-          <button onClick={() => setWalletPickerOpen(!walletPickerOpen)}>
-            <ChevronDown className="w-8 h-8 text-secText flex-shrink-0" />
-          </button>
         </div>
+        {/* End Wallet Picker */}
         <WalletPicker
           isOpen={walletPickerOpen}
           onClose={() => setWalletPickerOpen(false)}
           anchorEl={walletPickerRef.current!}
         />
+        {/* End Header */}
         {/*   Tabbed Section*/}
         <MaskedRevealLoader
           isLoading={status === 'initialLoad'}

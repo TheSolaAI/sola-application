@@ -3,7 +3,7 @@ import { Dropdown } from '../general/DropDown.tsx';
 import { ArrowDown, ArrowUp, SortAsc, SortDesc } from 'lucide-react';
 
 export enum SortType {
-  TotalPrice = 'Total Price',
+  TOTAL_PRICE = 'Total Price',
   TOKEN_PRICE = 'Token Price',
 }
 
@@ -31,7 +31,7 @@ export const CoinsSortDropDown: FC<CoinseSortDropDownProps> = ({
 }) => {
   // State to track current sorting preferences
   const [selectedSortType, setSelectedSortType] = useState<SortType>(
-    SortType.TotalPrice,
+    SortType.TOTAL_PRICE,
   );
   const [selectedDirection, setSelectedDirection] = useState<SortDirection>(
     SortDirection.DESCENDING,
