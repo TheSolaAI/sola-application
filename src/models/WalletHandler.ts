@@ -19,7 +19,10 @@ interface WalletHandler {
 
   walletAssets: WalletAssets; // Stores balance, tokens and NFTs
   status: 'listening' | 'paused' | 'updating' | 'error' | 'initialLoad'; // Status of the wallet handler
-  startMonitoring: (walletId: string) => void; // start monitoring the wallet
+  setStatus: (
+    status: 'listening' | 'paused' | 'updating' | 'error' | 'initialLoad',
+  ) => void; // Updates the status
+  startMonitoring: (walletId: string, fresh: boolean) => void; // start monitoring the wallet
   stopMonitoring: () => void; // stop monitoring the wallet
 }
 
@@ -138,7 +141,7 @@ export const useWalletHandler = create<WalletHandler>((set, get) => {
       }
       // start monitoring the new wallet
       if (wallet) {
-        get().startMonitoring(wallet.address);
+        get().startMonitoring(wallet.address, true);
       }
       // load the initial tokens and NFTs
       set({ status: 'initialLoad' });
@@ -183,12 +186,12 @@ export const useWalletHandler = create<WalletHandler>((set, get) => {
       // fetch the tokens and NFTs for the default wallet
       fetchTokensAndNFTs(get().currentWallet?.address || '').then(() => {
         set({ status: 'listening' });
+        // start the monitoring of the wallet
+        get().startMonitoring(get().currentWallet?.address || '', true);
       });
-      // start the monitoring of the wallet
-      get().startMonitoring(get().currentWallet?.address || '');
     },
 
-    startMonitoring: (walletId: string) => {
+    startMonitoring: (walletId: string, fresh: boolean) => {
       // Set the current wallet if not already set
       if (!get().currentWallet || get().currentWallet?.address !== walletId) {
         const wallet =
@@ -210,10 +213,16 @@ export const useWalletHandler = create<WalletHandler>((set, get) => {
               balance,
             },
           }));
+          if (get().status === 'paused') return; // if paused, do not update the wallet assets
           await fetchTokensAndNFTs(walletId);
+          if (get().status === 'paused') return; // Check after long running operation
           set({ status: 'listening' });
         },
       );
+      if (!fresh) {
+        set({ status: 'listening' });
+        toast.success('Wallet monitoring started');
+      }
     },
 
     stopMonitoring: () => {
@@ -221,7 +230,10 @@ export const useWalletHandler = create<WalletHandler>((set, get) => {
         connection.removeAccountChangeListener(balanceSubscriptionId);
         balanceSubscriptionId = null;
         set(() => ({ status: 'paused' }));
+        toast.error('Wallet monitoring paused');
       }
     },
+
+    setStatus: (status) => set({ status }),
   };
 });

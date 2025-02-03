@@ -24,7 +24,7 @@ export const WalletLensSideBar: React.FC<WalletLensSidebarProps> = ({
   /**
    * Global State
    */
-  const { currentWallet, stopMonitoring, status } = useWalletHandler();
+  const { currentWallet, status } = useWalletHandler();
   const { theme } = useThemeManager();
   const { setWalletLensOpen } = useLayoutContext();
 

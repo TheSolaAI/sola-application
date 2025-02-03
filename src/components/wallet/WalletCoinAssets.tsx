@@ -2,7 +2,7 @@ import { useWalletHandler } from '../../models/WalletHandler.ts';
 import { useEffect, useRef, useState } from 'react';
 import { AgCharts } from 'ag-charts-react';
 import { titleCase } from '../utils/titleCase.ts';
-import { ArrowUpDown } from 'lucide-react';
+import { ArrowUpDown, PauseIcon, PlayIcon } from 'lucide-react';
 import {
   CoinsSortDropDown,
   SortDirection,
@@ -11,7 +11,14 @@ import {
 import { TokenAsset } from '../../types/wallet.ts';
 
 const WalletCoinAssets = () => {
-  const { walletAssets, status } = useWalletHandler();
+  const {
+    walletAssets,
+    status,
+    stopMonitoring,
+    startMonitoring,
+    currentWallet,
+    setStatus,
+  } = useWalletHandler();
 
   /**
    * Local state
@@ -19,6 +26,57 @@ const WalletCoinAssets = () => {
   const [chartData, setChartData] = useState<any[]>([]);
   const [coinSortOpen, setCoinSortOpen] = useState(false);
   const [tokens, setTokens] = useState<TokenAsset[]>(walletAssets.tokens);
+  const [sortType, setSortType] = useState<SortType>(SortType.TOTAL_PRICE);
+  const [direction, setDirection] = useState<SortDirection>(
+    SortDirection.ASCENDING,
+  );
+  const [prioritizeSolana, setPrioritizeSolana] = useState<boolean>(false);
+
+  const sortTokens = (tokensToSort: TokenAsset[]) => {
+    return [...tokensToSort]
+      .sort((a, b) => {
+        let compareValue = 0;
+
+        switch (sortType) {
+          case SortType.TOTAL_PRICE:
+            compareValue = a.totalPrice - b.totalPrice;
+            break;
+          case SortType.TOKEN_PRICE:
+            compareValue =
+              a.pricePerToken * a.decimals - b.pricePerToken * b.decimals;
+            break;
+        }
+
+        // Apply ascending/descending sorting
+        return direction === SortDirection.ASCENDING
+          ? compareValue
+          : -compareValue;
+      })
+      .sort((a, b) =>
+        prioritizeSolana
+          ? a.symbol === 'SOL'
+            ? -1
+            : b.symbol === 'SOL'
+              ? 1
+              : 0
+          : 0,
+      );
+  };
+
+  // Automatically sort tokens when `walletAssets.tokens` or sorting parameters change
+  useEffect(() => {
+    setTokens(sortTokens(walletAssets.tokens));
+  }, [walletAssets.tokens, sortType, direction, prioritizeSolana]);
+
+  const updateSorting = (
+    newSortType: SortType,
+    newDirection: SortDirection,
+    newPrioritizeSolana: boolean,
+  ) => {
+    setSortType(newSortType);
+    setDirection(newDirection);
+    setPrioritizeSolana(newPrioritizeSolana);
+  };
 
   /**
    * Refs
@@ -117,12 +175,12 @@ const WalletCoinAssets = () => {
           </div>
           <div
             className={
-              'bg-background rounded-xl flex flex-row p-2 justify-between'
+              'bg-background rounded-xl flex flex-row p-2 justify-between items-center'
             }
           >
             <div
               className={
-                'bg-baseBackground rounded-xl flex flex-row items-center p-2'
+                'bg-baseBackground rounded-xl flex flex-row items-center p-2 justify-center'
               }
             >
               <h1 className="text-textColor font-semibold text-lg">Status:</h1>
@@ -154,7 +212,22 @@ const WalletCoinAssets = () => {
               >
                 {titleCase(status)}
               </p>
+              {status === 'listening' || status === 'updating' ? (
+                <button className={'ml-3'} onClick={() => stopMonitoring()}>
+                  <PauseIcon className={'w-6 h-6 text-secText '} />
+                </button>
+              ) : status === 'paused' ? (
+                <button
+                  className={'ml-3'}
+                  onClick={() => {
+                    startMonitoring(currentWallet?.address!, false);
+                  }}
+                >
+                  <PlayIcon className={'w-6 h-6 text-secText '} />
+                </button>
+              ) : null}
             </div>
+
             <button
               className={
                 'bg-baseBackground rounded-xl flex flex-row justify-between items-center p-2 gap-x-2 px-4'
@@ -170,7 +243,7 @@ const WalletCoinAssets = () => {
             isOpen={coinSortOpen}
             onClose={() => setCoinSortOpen(false)}
             anchorEl={coinSortRef.current!}
-            onSortChange={handleTokenSorting}
+            onSortChange={updateSorting}
           />
           <div className="flex flex-col gap-2">
             {tokens.map((token, index) => (
