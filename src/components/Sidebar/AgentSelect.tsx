@@ -5,7 +5,7 @@ import { Dropdown } from '../general/DropDown.tsx';
 interface AgentSelectProps {
   isOpen: boolean;
   onClose: () => void;
-  onSelect: (agentId: string) => void;
+  onSelect: (agentId: number) => void;
   anchorEl: null | HTMLElement;
 }
 
@@ -36,11 +36,7 @@ export const AgentSelect: React.FC<AgentSelectProps> = ({
               onClose();
             }}
           >
-            <img
-              src={agent.logo}
-              alt={agent.name}
-              className="w-8 h-8 rounded-full transition-all outline-none group-hover:outline group-hover:outline-primaryDark group-hover:outline-[3px]"
-            />
+            <agent.logo className="w-8 h-8 rounded-lg transition-all outline-none group-hover:outline group-hover:outline-primaryDark group-hover:outline-[3px]" />
 
             <div className="flex flex-col items-start">
               <h1 className="text-xl font-medium text-left">{agent.name}</h1>

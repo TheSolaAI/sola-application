@@ -39,7 +39,7 @@ export const Sidebar: FC<SidebarProps> = ({
    */
   const { theme } = useThemeManager();
   const { getRooms } = useChat();
-  const { rooms } = useRoomStore();
+  const { rooms, setCurrentAgentId } = useRoomStore();
   const { pathname } = useLocation();
 
   /**
@@ -175,7 +175,8 @@ export const Sidebar: FC<SidebarProps> = ({
             if (isMobile) setIsOpen(false);
           }}
           anchorEl={agentSelectRef.current}
-          onSelect={() => {
+          onSelect={(agentId: number) => {
+            setCurrentAgentId(agentId);
             navigate(`/`);
             setAgentSelectOpen(false);
           }}
