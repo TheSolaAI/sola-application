@@ -39,7 +39,7 @@ export const WalletLensSideBar: React.FC<WalletLensSidebarProps> = ({
   const [walletPickerOpen, setWalletPickerOpen] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
   const [walletLogo, setWalletLogo] = useState<string>('');
-  const tabs = ['Tokens', 'NFTs'];
+  const tabs = ['Tokens', 'NFTs', 'Transactions'];
 
   useEffect(() => {
     if (SUPPORTED_WALLETS.includes(currentWallet?.walletClientType)) {
@@ -166,15 +166,10 @@ export const WalletLensSideBar: React.FC<WalletLensSidebarProps> = ({
                   >
                     {activeTab === 0 ? (
                       <WalletCoinAssets />
+                    ) : activeTab === 1 ? (
+                      <p className={'text-textColor'}> Coming Soon</p>
                     ) : (
-                      <div className="text-textColor">
-                        <button
-                          onClick={() => stopMonitoring()}
-                          className="px-4 py-2 rounded-lg bg-primary text-white shrink-0"
-                        >
-                          Stop Updates
-                        </button>
-                      </div>
+                      <p className={'text-textColor'}> Coming Soon</p>
                     )}
                   </motion.div>
                 </AnimatePresence>
