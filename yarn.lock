@@ -2796,14 +2796,6 @@
   resolved "https://registry.yarnpkg.com/@tanstack/virtual-core/-/virtual-core-3.11.2.tgz#00409e743ac4eea9afe5b7708594d5fcebb00212"
   integrity sha512-vTtpNt7mKCiZ1pwU9hfKPhpdVO2sVzFQsxoVBGtOSHxlrRRzYr8iQ2TlwbAcRYCcEiZ9ECAM8kBzH0v2+VzfKw==
 
-"@testboxlab/react-bubble-chart-d3@^2.2.1":
-  version "2.2.1"
-  resolved "https://registry.yarnpkg.com/@testboxlab/react-bubble-chart-d3/-/react-bubble-chart-d3-2.2.1.tgz#dbe33ba6befa9f42ff19225560c3eee5656eed6a"
-  integrity sha512-KyKmCA6+yIhmLb/3sAPbd52sXTxZJYJVP4AQCHwxaj7MvjpVccO8N9vjfnNdtZ/1+BhWV/4cy9W5C0cyamxpug==
-  dependencies:
-    d3 "^4.13.0"
-    prop-types "^15.6.0"
-
 "@tsconfig/node10@^1.0.7":
   version "1.0.11"
   resolved "https://registry.yarnpkg.com/@tsconfig/node10/-/node10-1.0.11.tgz#6ee46400685f130e278128c7b38b7e031ff5b2f2"

@@ -9,6 +9,7 @@ import {
   SortType,
 } from './CoinsSortDropDown.tsx';
 import { TokenAsset } from '../../types/wallet.ts';
+import useThemeManager from '../../models/ThemeManager.ts';
 
 const WalletCoinAssets = () => {
   const {
@@ -18,6 +19,7 @@ const WalletCoinAssets = () => {
     startMonitoring,
     currentWallet,
   } = useWalletHandler();
+  const { theme } = useThemeManager();
 
   /**
    * Local state
@@ -109,7 +111,10 @@ const WalletCoinAssets = () => {
               style={{ height: '500px' }}
               options={{
                 data: chartData,
-                theme: 'ag-polychroma-dark',
+                theme:
+                  theme.baseTheme === 'dark'
+                    ? 'ag-polychroma-dark'
+                    : 'ag-polychroma',
                 series: [
                   {
                     title: {
