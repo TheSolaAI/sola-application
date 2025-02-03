@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import { sentryVitePlugin } from '@sentry/vite-plugin';
 import viteCompression from 'vite-plugin-compression';
-// import { visualizer } from 'rollup-plugin-visualizer';
+import { VitePWA } from 'vite-plugin-pwa';
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
@@ -26,6 +26,30 @@ export default defineConfig(({ mode }) => {
     },
     plugins: [
       react(),
+      VitePWA({
+        manifest: {
+          name: 'SolaAI',
+          short_name: 'SolaAI',
+          description: 'Sola Voice Assistant',
+          theme_color: '#000000',
+          icons: [
+            {
+              src: '/sola.jpg',
+              sizes: '512x512',
+              type: 'image/png',
+            },
+          ],
+        },
+        registerType: 'autoUpdate',
+        workbox: {
+          clientsClaim: true,
+          skipWaiting: true,
+          maximumFileSizeToCacheInBytes: 5000000,
+        },
+        // devOptions: {
+        //   enabled: true,
+        // },
+      }),
       nodePolyfills(),
       viteCompression({
         algorithm: 'brotliCompress',
