@@ -40,7 +40,7 @@ export const Sidebar: FC<SidebarProps> = ({
    */
   const { theme } = useThemeManager();
   const { getRooms } = useChat();
-  const { rooms, setCurrentAgentId, currentAgentId } = useRoomStore();
+  const { rooms, setCurrentAgentId } = useRoomStore();
   const { pathname } = useLocation();
   const { agents } = useAgentHandler();
 
@@ -151,11 +151,11 @@ export const Sidebar: FC<SidebarProps> = ({
               <ChevronLeft size={24} color={theme.textColor} />
             </button>
           )}
-          <img
+          {/* <img
             src="/logo.png"
             alt="Logo"
             className="hidden w-[40px] h-[40px] rounded-lg lg:block"
-          />
+          /> */}
         </div>
 
         {/*New ChatRoom Button*/}

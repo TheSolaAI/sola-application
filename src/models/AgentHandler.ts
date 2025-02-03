@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { ChartNetwork, Atom, SquareKanban } from 'lucide-react';
+import { ChartNetwork, Atom, Wallet } from 'lucide-react';
 
 export interface Agent {
   agentID: number;
@@ -33,7 +33,7 @@ export const useAgentHandler = create<AgentHandler>(() => ({
       name: 'DAM',
       description:
         'DeFi Asset Manager - for Lulo operations and LST management.',
-      logo: SquareKanban,
+      logo: Wallet,
     },
   ],
 }));
