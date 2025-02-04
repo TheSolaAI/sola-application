@@ -3,7 +3,8 @@ import { Dropdown } from '../general/DropDown.tsx';
 import { useWalletHandler } from '../../models/WalletHandler.ts';
 import { titleCase } from '../utils/titleCase.ts';
 import { FiCopy } from 'react-icons/fi';
-import { toast } from 'sonner'; // Import copy icon from react-icons
+import { toast } from 'sonner';
+import SUPPORTED_WALLETS from '../../config/wallets/supportedWallets.ts'; // Import copy icon from react-icons
 
 interface WalletPickerProps {
   isOpen: boolean;
@@ -20,6 +21,17 @@ export const WalletPicker: FC<WalletPickerProps> = ({
    * Global State
    */
   const { wallets, currentWallet, setCurrentWallet } = useWalletHandler();
+
+  /**
+   * Fetches the wallet logo if we support it or else the default logo
+   */
+  const getWalletLogo = (walletClientType: string) => {
+    if (SUPPORTED_WALLETS.includes(walletClientType)) {
+      return `/wallets/${walletClientType}.svg`;
+    } else {
+      return '/wallets/default.svg';
+    }
+  };
 
   /** Function to copy the wallet address */
   const copyToClipboard = (address: string) => {
@@ -55,7 +67,7 @@ export const WalletPicker: FC<WalletPickerProps> = ({
               onClick={(e) => e.stopPropagation()}
             >
               <img
-                src={`/wallets/${wallet.walletClientType}.svg`}
+                src={getWalletLogo(wallet.walletClientType)}
                 alt="wallet logo"
                 className="w-14 h-14 rounded-xl"
                 onClick={(e) => {
