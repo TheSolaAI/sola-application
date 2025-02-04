@@ -106,6 +106,8 @@ const WalletCoinAssets = () => {
         <p>No tokens found.</p>
       ) : (
         <div className={'flex flex-col gap-y-2'}>
+          {/* Main Content Start*/}
+          {/* Chart Section Start*/}
           <div className="bg-background rounded-xl">
             <AgCharts
               style={{ height: '500px' }}
@@ -120,7 +122,7 @@ const WalletCoinAssets = () => {
                     title: {
                       text: 'Wallet Assets',
                     },
-                    type: 'donut',
+                    type: 'donut', // @ts-ignore
                     calloutLabelKey: 'token',
                     angleKey: 'amount',
                     innerRadiusRatio: 0.7,
@@ -144,6 +146,8 @@ const WalletCoinAssets = () => {
               }}
             />
           </div>
+          {/* Chart Section End*/}
+          {/* Status Bar Section Start*/}
           <div
             className={
               'bg-background rounded-xl flex flex-row p-2 justify-between items-center'
@@ -210,6 +214,7 @@ const WalletCoinAssets = () => {
               <ArrowUpDown className={'w-6 h-6 text-secText'} />
             </button>
           </div>
+          {/*Status Bar Section End*/}
           <CoinsSortDropDown
             isOpen={coinSortOpen}
             onClose={() => setCoinSortOpen(false)}
