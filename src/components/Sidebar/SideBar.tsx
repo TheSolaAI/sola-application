@@ -240,7 +240,7 @@ export const Sidebar: FC<SidebarProps> = ({
         <div className="mt-4">
           <div
             className="flex flex-row justify-center items-center gap-5 bg-gradient-to-r from-primaryDark to-primary p-[10px] rounded-xl mb-10 shadow-primaryDark cursor-pointer"
-            onClick={() => navigate('/pricing')}
+            // onClick={() => navigate('/pricing')}
           >
             <h1 className="font-semibold text-textColor">$SOLA :</h1>
             <h1 className={'font-bold text-textColor text-2xl'}> ∞</h1>

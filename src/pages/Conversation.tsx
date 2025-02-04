@@ -1172,6 +1172,8 @@ const Conversation = () => {
         mostRecentEvent.type === 'response.done' &&
         mostRecentEvent.response.output
       ) {
+
+        //TODO: use the total tokens used in the response to calculate the credits.
         for (const output of mostRecentEvent.response.output) {
           if (output.type === 'message') {
             setMessageList((prev) => {
