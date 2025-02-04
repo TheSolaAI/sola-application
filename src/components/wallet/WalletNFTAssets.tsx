@@ -1,8 +1,17 @@
-import { useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { useWalletHandler } from '../../models/WalletHandler.ts';
 import { titleCase } from '../utils/titleCase.ts';
-import { ChevronDownIcon, ImageIcon, PauseIcon, PlayIcon } from 'lucide-react';
+import {
+  ArrowUpDown,
+  ChevronDownIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  ImageIcon,
+  PauseIcon,
+  PlayIcon,
+} from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
+import { PaginationCountDropDown } from './PaginationCountDropDown.tsx';
 
 export const WalletNFTAssets = () => {
   const {
@@ -18,6 +27,36 @@ export const WalletNFTAssets = () => {
    */
   const [expandedNFT, setExpandedNFT] = useState<string | null>(null);
   const [imageError, setImageError] = useState<{ [key: string]: boolean }>({});
+  const [currentPage, setCurrentPage] = useState(1);
+  const [paginationOpen, setPaginationOpen] = useState(false);
+  const [paginationCount, setPaginationCount] = useState(20);
+
+  /**
+   * refs
+   */
+  const paginationCountRef = useRef<HTMLButtonElement>(null);
+
+  const paginatedNFTs = useMemo(() => {
+    const startIndex = (currentPage - 1) * paginationCount;
+    return walletAssets.nfts.slice(startIndex, startIndex + paginationCount);
+  }, [walletAssets.nfts, currentPage]);
+
+  const totalPages = useMemo(
+    () => Math.ceil(walletAssets.nfts.length / paginationCount),
+    [walletAssets.nfts.length, paginationCount],
+  );
+
+  const handleNextPage = useCallback(() => {
+    setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+    // Reset expanded NFT when changing pages
+    setExpandedNFT(null);
+  }, [totalPages]);
+
+  const handlePrevPage = useCallback(() => {
+    setCurrentPage((prev) => Math.max(prev - 1, 1));
+    // Reset expanded NFT when changing pages
+    setExpandedNFT(null);
+  }, []);
 
   const toggleNFTExpand = (nftId: string) => {
     setExpandedNFT(expandedNFT === nftId ? null : nftId);
@@ -39,10 +78,10 @@ export const WalletNFTAssets = () => {
       {walletAssets.nfts.length === 0 ? (
         <p className={'text-textColor'}>No NFT's found </p>
       ) : (
-        <div>
+        <div className={'flex flex-col gap-y-2'}>
           <div
             className={
-              'bg-background rounded-xl flex flex-row p-2 justify-between items-center mb-2'
+              'bg-background rounded-xl flex flex-row p-2 justify-between items-center'
             }
           >
             <div
@@ -95,9 +134,60 @@ export const WalletNFTAssets = () => {
               ) : null}
             </div>
           </div>
-
+          {/*Start Pagination Header*/}
+          {/* Pagination Controls */}
+          <div className={'flex flex-row justify-between'}>
+            <button
+              className={
+                'bg-background rounded-xl flex flex-row justify-between items-center p-2 gap-x-2 px-4'
+              }
+              ref={paginationCountRef}
+              onClick={() => setPaginationOpen(true)}
+            >
+              <h1 className={'text-secText font-medium text-lg'}>
+                {paginationCount} per page
+              </h1>
+              <ArrowUpDown className={'w-6 h-6 text-secText'} />
+            </button>
+            <div className={'flex justify-center items-center space-x-4'}>
+              <button
+                onClick={handlePrevPage}
+                disabled={currentPage === 1}
+                className={`p-2 rounded ${
+                  currentPage === 1
+                    ? 'text-surface cursor-not-allowed'
+                    : 'text-textColor hover:bg-background'
+                }`}
+              >
+                <ChevronLeftIcon />
+              </button>
+              <span className={'text-textColor'}>
+                Page {currentPage} of {totalPages}
+              </span>
+              <button
+                onClick={handleNextPage}
+                disabled={currentPage === totalPages}
+                className={`p-2 rounded ${
+                  currentPage === totalPages
+                    ? 'text-surface cursor-not-allowed'
+                    : 'text-textColor hover:bg-background'
+                }`}
+              >
+                <ChevronRightIcon />
+              </button>
+              <PaginationCountDropDown
+                isOpen={paginationOpen}
+                onClose={() => setPaginationOpen(false)}
+                anchorEl={paginationCountRef.current!}
+                currentCount={paginationCount}
+                onCountChange={setPaginationCount}
+              />
+            </div>
+          </div>
+          {/* End Pagination Header*/}
+          {/*Start NFT List*/}
           <div className={'gap-2 rounded-2xl flex items-start flex-col w-full'}>
-            {walletAssets.nfts.map((nft) => {
+            {paginatedNFTs.map((nft) => {
               const rarityAttribute = getRarityAttribute(nft.attributes);
               const isExpanded = expandedNFT === nft.id;
 
@@ -230,6 +320,7 @@ export const WalletNFTAssets = () => {
               );
             })}
           </div>
+          {/*  End NFT List*/}
         </div>
       )}
     </div>

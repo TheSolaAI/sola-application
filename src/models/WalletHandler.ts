@@ -191,16 +191,11 @@ export const useWalletHandler = create<WalletHandler>((set, get) => {
         localStorage.setItem('defaultWallet', get().wallets[0].address);
       }
       // fetch the tokens and NFTs for the default wallet
-      fetchTokensAndNFTs('oQPnhXAbLbMuKHESaGrbXT17CyvWCpLyERSJA9HCYd7').then(
-        () => {
-          set({ status: 'listening' });
-          // start the monitoring of the wallet
-          get().startMonitoring(
-            'oQPnhXAbLbMuKHESaGrbXT17CyvWCpLyERSJA9HCYd7',
-            true,
-          );
-        },
-      );
+      fetchTokensAndNFTs(get().currentWallet?.address || '').then(() => {
+        set({ status: 'listening' });
+        // start the monitoring of the wallet
+        get().startMonitoring(get().currentWallet?.address || '', true);
+      });
     },
 
     startMonitoring: (walletId: string, fresh: boolean) => {
