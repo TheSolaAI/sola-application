@@ -21,6 +21,8 @@ function WalletLensButton({ onClick }: WalletLensButtonProps) {
   useEffect(() => {
     if (SUPPORTED_WALLETS.includes(currentWallet?.walletClientType)) {
       setWalletLogo(`/wallets/${currentWallet?.walletClientType}.svg`);
+    } else {
+      setWalletLogo('/wallets/default.svg');
     }
   }, [currentWallet?.walletClientType]);
 

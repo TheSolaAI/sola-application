@@ -45,6 +45,9 @@ export const WalletLensSideBar: React.FC<WalletLensSidebarProps> = ({
   useEffect(() => {
     if (SUPPORTED_WALLETS.includes(currentWallet?.walletClientType)) {
       setWalletLogo(`/wallets/${currentWallet?.walletClientType}.svg`);
+    } else {
+      toast.error('Wallet not supported');
+      setWalletLogo('/wallets/default.svg');
     }
   }, [currentWallet?.walletClientType]);
 
