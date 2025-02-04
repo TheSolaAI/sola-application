@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { ConnectedSolanaWallet } from '@privy-io/react-auth';
 import { toast } from 'sonner';
 import { Connection, LAMPORTS_PER_SOL, PublicKey } from '@solana/web3.js';
-import { TokenAsset, WalletAssets } from '../types/wallet.ts';
+import { NFTAsset, TokenAsset, WalletAssets } from '../types/wallet.ts';
 
 let connection = new Connection(process.env.SOLANA_RPC!, 'confirmed');
 
@@ -85,23 +85,28 @@ export const useWalletHandler = create<WalletHandler>((set, get) => {
         }));
 
       // Handle NFTs
-      const nfts = result.items
-        .filter((item: any) => item.interface === 'NonFungibleToken')
+      const nfts: NFTAsset[] = result.items
+        .filter((item: any) => item.interface === 'V1_NFT')
         .map((item: any) => {
-          const nftMetadataLink = item.content.metadata.uri;
           return {
             id: item.id,
-            symbol: item.content.metadata.symbol || 'Unknown',
+            files: item.content.files.map((file: any) => ({
+              uri: file.uri,
+              type: getBasicType(file.mimeType),
+            })),
+
             name: item.content.metadata.name,
-            imageLink: item.content.links.image || '/default-nft-image.png',
-            metadataLink: nftMetadataLink,
-            traits: item.content.metadata.attributes || [],
+            symbol: item.content.metadata.symbol,
+            description: item.content.metadata.description,
+            attributes: item.content.metadata.attributes,
           };
         });
+
       // remove any tokens that have a total price of 0 or undefined
       tokens = tokens.filter(
         (token: TokenAsset) => token.totalPrice && token.totalPrice > 0,
       );
+      // Add the Sol balance
       tokens.unshift(nativeSolToken);
 
       // calculate the total balance
@@ -119,7 +124,9 @@ export const useWalletHandler = create<WalletHandler>((set, get) => {
           totalBalance,
         },
       }));
-    } catch (error) {}
+    } catch (error) {
+      console.log('Error fetching tokens and NFTs', error);
+    }
   };
 
   return {
@@ -184,11 +191,16 @@ export const useWalletHandler = create<WalletHandler>((set, get) => {
         localStorage.setItem('defaultWallet', get().wallets[0].address);
       }
       // fetch the tokens and NFTs for the default wallet
-      fetchTokensAndNFTs(get().currentWallet?.address || '').then(() => {
-        set({ status: 'listening' });
-        // start the monitoring of the wallet
-        get().startMonitoring(get().currentWallet?.address || '', true);
-      });
+      fetchTokensAndNFTs('oQPnhXAbLbMuKHESaGrbXT17CyvWCpLyERSJA9HCYd7').then(
+        () => {
+          set({ status: 'listening' });
+          // start the monitoring of the wallet
+          get().startMonitoring(
+            'oQPnhXAbLbMuKHESaGrbXT17CyvWCpLyERSJA9HCYd7',
+            true,
+          );
+        },
+      );
     },
 
     startMonitoring: (walletId: string, fresh: boolean) => {
@@ -237,3 +249,58 @@ export const useWalletHandler = create<WalletHandler>((set, get) => {
     setStatus: (status) => set({ status }),
   };
 });
+
+function getBasicType(
+  mimeType: string,
+): 'image' | 'video' | 'document' | 'model' | 'audio' | 'unknown' {
+  const imageTypes = [
+    'image/jpeg',
+    'image/png',
+    'image/gif',
+    'image/webp',
+    'image/svg+xml',
+    'image/bmp',
+    'image/tiff',
+  ];
+  const videoTypes = [
+    'video/mp4',
+    'video/webm',
+    'video/ogg',
+    'video/x-msvideo',
+    'video/mpeg',
+  ];
+  const documentTypes = [
+    'application/pdf',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/vnd.ms-excel',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'application/vnd.ms-powerpoint',
+    'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+    'text/plain',
+    'text/html',
+    'application/json',
+  ];
+  const modelTypes = [
+    'model/gltf+json',
+    'model/gltf-binary',
+    'model/obj',
+    'model/stl',
+    'model/vnd.collada+xml',
+  ];
+  const audioTypes = [
+    'audio/mpeg',
+    'audio/wav',
+    'audio/ogg',
+    'audio/aac',
+    'audio/flac',
+  ];
+
+  if (imageTypes.includes(mimeType)) return 'image';
+  if (videoTypes.includes(mimeType)) return 'video';
+  if (documentTypes.includes(mimeType)) return 'document';
+  if (modelTypes.includes(mimeType)) return 'model';
+  if (audioTypes.includes(mimeType)) return 'audio';
+
+  return 'unknown';
+}

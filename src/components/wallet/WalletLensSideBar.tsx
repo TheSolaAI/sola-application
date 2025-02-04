@@ -12,6 +12,7 @@ import { MaskedRevealLoader } from '../general/MaskedRevealLoader.tsx';
 import useThemeManager from '../../models/ThemeManager.ts';
 import { X } from 'lucide-react';
 import { useLayoutContext } from '../../layout/LayoutProvider.tsx';
+import { WalletNFTAssets } from './WalletNFTAssets.tsx';
 
 interface WalletLensSidebarProps {
   visible: boolean;
@@ -167,7 +168,7 @@ export const WalletLensSideBar: React.FC<WalletLensSidebarProps> = ({
                     {activeTab === 0 ? (
                       <WalletCoinAssets />
                     ) : activeTab === 1 ? (
-                      <p className={'text-textColor'}> Coming Soon</p>
+                      <WalletNFTAssets />
                     ) : (
                       <p className={'text-textColor'}> Coming Soon</p>
                     )}

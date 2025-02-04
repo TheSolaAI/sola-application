@@ -10,8 +10,17 @@ export interface TokenAsset {
 }
 
 export interface NFTAsset {
-  mint: string;
-  metadata: string;
+  id: string;
+  files: NFTFile[];
+  name: string;
+  symbol: string;
+  description: string;
+  attributes: [{ value: string; trait_type: string }];
+}
+
+export interface NFTFile {
+  uri: string;
+  type: 'image' | 'video' | 'audio' | 'model' | 'document';
 }
 
 export interface WalletAssets {
