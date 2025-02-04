@@ -13,6 +13,7 @@ import Onboarding from '../pages/Onbording';
 import WalletManagement from '../pages/WalletManagement';
 import Settings from '../pages/Settings';
 import OnRamp from '../pages/OnRamp';
+import Pricing from '../pages/Pricing';
 
 interface Props {
   isAuthenticated: boolean;
@@ -68,6 +69,15 @@ const AppRoutes: React.FC<Props> = ({ isAuthenticated }) => {
             <>
               <PageTitle title="On Ramp" />
               <OnRamp />
+            </>
+          }
+        />
+        <Route
+          path="/pricing"
+          element={
+            <>
+              <PageTitle title="Pricing" />
+              <Pricing />
             </>
           }
         />

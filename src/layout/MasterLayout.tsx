@@ -26,7 +26,7 @@ const MasterLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
         setCanAutoClose={setCanAutoClose}
       />
       {!isMobile || !walletLensOpen ? (
-        <main className="w-full sm:rounded-2xl bg-background">{children}</main>
+        <main className="w-full sm:rounded-2xl bg-background overflow-y-scroll scrollbar-thin scrollbar-thumb-primary scrollbar-track-background ">{children}</main>
       ) : (
         <></>
       )}
