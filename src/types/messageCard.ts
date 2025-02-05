@@ -3,6 +3,7 @@ import { ShowLimitOrder } from './jupiter';
 
 export type MessageCard = {
   type:
+    | 'user'
     | 'message'
     | 'aiTranscription'
     | 'card'
@@ -18,13 +19,13 @@ export type MessageCard = {
     | 'rugCheckCard'
     | 'topHoldersCard'
     | 'marketDataCard'
-    | 'marketDataCard'
     | 'trendingNFTCard'
     | 'bubblemapCard'
     | 'blinkCard'
     | 'limitOrder';
   message?: string;
   card?:
+    | UserAudio
     | AiTranscription
     | SingleCard
     | MultipleCards
@@ -37,12 +38,15 @@ export type MessageCard = {
     | RugCheckCard
     | TopHolder[]
     | MarketDataCard
-    | MarketDataCard
     | TrendingNFTCard[]
     | BubblemapCard
     | ShowLimitOrderCard;
   link?: string;
 };
+
+export interface UserAudio {
+  base64URL: string;
+}
 
 export interface AiTranscription {
   id: string;
@@ -143,6 +147,7 @@ export interface Risk {
   score: number;
   level: 'none' | 'warn' | 'danger';
 }
+
 export interface MarketDataCard {
   marketAnalysis: MarketInfo[];
   coinInfo: CoinInfo[];

@@ -8,15 +8,12 @@ import { WalletProvider } from './models/provider/WalletProvider.tsx';
 import ApiClient from './api/ApiClient.ts';
 import { LayoutProvider } from './layout/LayoutProvider.tsx';
 
-// import { tokenGate } from './lib/solana/tokenGate';
-
 function App() {
   /**
    * Global State Management
    */
   const { authenticated, getAccessToken, ready, user } = usePrivy();
   const { setAccessToken } = useAppState();
-  // const { tier, setTier } = useAppState();
   const { fetchSettings } = useUser();
   const { initThemeManager } = useThemeManager();
 
@@ -55,7 +52,7 @@ function App() {
   return (
     <WalletProvider isAuthenticated={authenticated && ready}>
       <LayoutProvider>
-        <AppRoutes isAuthenticated={authenticated && ready} />
+        <AppRoutes isAuthenticated={authenticated} />
       </LayoutProvider>
     </WalletProvider>
   );

@@ -8,10 +8,12 @@ import {
   UserSettingsResponse,
 } from '../types/database/responseTypes';
 import useThemeManager from '../models/ThemeManager.ts';
+import { useTierStore } from '../models/TierHandler.ts';
 
 const useUser = () => {
   const { setAiVoice, setAiEmotion, accessToken } = useAppState();
   const { setTheme } = useThemeManager();
+  const { setTierAndCredits } = useTierStore();
   // Register a user
   const register = useCallback(
     async (user: RegisterUser): Promise<RegisterUserResponse | null> => {
@@ -44,6 +46,7 @@ const useUser = () => {
           setAiEmotion(
             settings.emotion_choice || 'playfully cheeky and very sarcastic',
           );
+          setTierAndCredits(settings.tiers, settings.credits_remaining);
         }
         return settings;
       } catch (error) {

@@ -1,7 +1,17 @@
 import React, { ChangeEvent, KeyboardEvent, useState } from 'react';
 import { Mic, MicOff, Send } from 'lucide-react';
-import useChatState from '../models/ChatState.ts';
+import { useChatState } from '../models/ChatState.ts';
 import { Button } from '@headlessui/react';
+
+type VadState = {
+  listening: boolean;
+  errored: string | false;
+  loading: boolean;
+  userSpeaking: boolean;
+  pause: () => void;
+  start: () => void;
+  toggle: () => void;
+};
 
 const quotes = [
   'Connecting SOLA...',
@@ -22,10 +32,12 @@ export const SessionStopped = () => {
 
 interface SessionActiveProps {
   sendTextMessage?: (message: string) => void;
+  vadInstance: VadState;
 }
 
 export const SessionActive: React.FC<SessionActiveProps> = ({
   sendTextMessage,
+  vadInstance,
 }) => {
   const [message, setMessage] = useState('');
   const isMuted = useChatState((state) => state.isMuted);
@@ -69,7 +81,14 @@ export const SessionActive: React.FC<SessionActiveProps> = ({
         </div>
       )}
       <Button
-        onClick={toggleMute}
+        onClick={() => {
+          if (isMuted) {
+            vadInstance.start();
+          } else {
+            vadInstance.pause();
+          }
+          toggleMute();
+        }}
         className="rounded-full flex justify-center items-center p-4 w-14 h-14 bg-primaryDark text-textColorContrast"
       >
         {isMuted ? <MicOff height={16} /> : <Mic height={16} />}
@@ -79,17 +98,22 @@ export const SessionActive: React.FC<SessionActiveProps> = ({
 };
 
 interface SessionControlsProps {
+  vadInstance: VadState;
   sendTextMessage: (message: string) => void;
   isSessionActive: boolean;
 }
 
 export const SessionControls: React.FC<SessionControlsProps> = ({
+  vadInstance,
   sendTextMessage,
   isSessionActive,
 }) => (
   <div className="flex gap-10 h-full w-full justify-center">
     {isSessionActive ? (
-      <SessionActive sendTextMessage={sendTextMessage} />
+      <SessionActive
+        vadInstance={vadInstance}
+        sendTextMessage={sendTextMessage}
+      />
     ) : (
       <SessionStopped />
     )}

@@ -8,7 +8,7 @@
 import { Route, Routes } from 'react-router-dom';
 import MasterLayout from '../layout/MasterLayout';
 import PageTitle from '../components/PageTitle';
-import Conversaction from '../pages/Conversation';
+import Conversation from '../pages/Conversation';
 import Onboarding from '../pages/Onbording';
 import WalletManagement from '../pages/WalletManagement';
 import Settings from '../pages/Settings';
@@ -32,7 +32,7 @@ const AppRoutes: React.FC<Props> = ({ isAuthenticated }) => {
           element={
             <>
               <PageTitle title="Home" />
-              <Conversaction />
+              <Conversation />
             </>
           }
         />
@@ -41,7 +41,7 @@ const AppRoutes: React.FC<Props> = ({ isAuthenticated }) => {
           element={
             <>
               <PageTitle title="Home" />
-              <Conversaction />
+              <Conversation />
             </>
           }
         />

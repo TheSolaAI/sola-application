@@ -1,7 +1,7 @@
 import { FC } from 'react';
 import { Dropdown } from '../general/DropDown.tsx';
 import { LogOut, Settings, CreditCard } from 'lucide-react';
-import useChatState from '../../models/ChatState.ts';
+import { useChatState } from '../../models/ChatState.ts';
 import { usePrivy } from '@privy-io/react-auth';
 import { useNavigate } from 'react-router-dom';
 

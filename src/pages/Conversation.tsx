@@ -30,7 +30,7 @@ import {
   fetchTrendingNFTs,
 } from '../lib/solana/magiceden';
 import useAppState from '../models/AppState.ts';
-import useChatState from '../models/ChatState.ts';
+import { useChatState } from '../models/ChatState.ts';
 import { getTokenData, getTokenDataSymbol } from '../lib/solana/token_data';
 import { getLstData } from '../lib/solana/lst_data';
 import { responseToOpenai } from '../lib/utils/response';
@@ -63,6 +63,8 @@ import useThemeManager from '../models/ThemeManager.ts';
 import Loader from '../components/general/Loader.tsx';
 import WalletLensButton from '../components/wallet/WalletLensButton.tsx';
 import { useLayoutContext } from '../layout/LayoutProvider.tsx';
+import { useMicVAD } from '@ricky0123/vad-react';
+import { float32ArrayToBase64 } from '../lib/bufferToAudioURL.ts';
 
 const Conversation = () => {
   const {
@@ -99,6 +101,15 @@ const Conversation = () => {
   const [localDataChannel, setLocalDataChannel] = useState(dataChannel);
   const appState = useAppState();
   const { handleWalletLensOpen, walletLensOpen } = useLayoutContext();
+
+  const vadInstance = useMicVAD({
+    startOnLoad: false,
+    minSpeechFrames: 6,
+    onSpeechEnd: async (audioBuffer) => {
+      const base64URL = await float32ArrayToBase64(audioBuffer);
+      handleAddMessage(customMessageCards('user', { base64URL: base64URL }));
+    },
+  });
 
   useEffect(() => {
     async function loadMessages() {
@@ -1017,7 +1028,7 @@ const Conversation = () => {
       });
 
       if (!sdpResponse.ok) {
-        throw new Error('Failed to fetch SDP response');
+        console.error('Failed to fetch SDP response');
       }
 
       const answer: RTCSessionDescriptionInit = {
@@ -1028,6 +1039,7 @@ const Conversation = () => {
       await pc.setRemoteDescription(answer);
       setPeerConnection(pc);
       setIsSessionActive(true);
+      vadInstance.start();
     } catch (error) {
       console.error('Error starting session:', error);
     }
@@ -1046,13 +1058,13 @@ const Conversation = () => {
 
     setIsSessionActive(false);
     setDataChannel(null);
+    vadInstance.pause();
     resetMute();
   }
 
   const sendClientEvent = useCallback(
     (message: any) => {
-      console.log('message:', message);
-      console.log(appState.tier);
+      console.log('Sending client event:', message);
       if (localDataChannel && localDataChannel.readyState === 'open') {
         message.event_id = message.event_id || crypto.randomUUID();
         localDataChannel.send(JSON.stringify(message));
@@ -1109,6 +1121,7 @@ const Conversation = () => {
 
     if (dataChannel) {
       dataChannel.addEventListener('message', (e) => {
+        // console.log('Received message:', e.data);
         setEvents((prev) => [JSON.parse(e.data), ...prev]);
       });
 
@@ -1143,7 +1156,7 @@ const Conversation = () => {
       }
 
       const mostRecentEvent = events[0];
-      console.log(mostRecentEvent);
+      // console.log(mostRecentEvent);
       if (mostRecentEvent.type === 'response.audio_transcript.delta') {
         setMessageList((prev) => {
           let lastMessage = prev[prev.length - 1];
@@ -1172,7 +1185,6 @@ const Conversation = () => {
         mostRecentEvent.type === 'response.done' &&
         mostRecentEvent.response.output
       ) {
-
         //TODO: use the total tokens used in the response to calculate the credits.
         for (const output of mostRecentEvent.response.output) {
           if (output.type === 'message') {
@@ -1378,6 +1390,7 @@ const Conversation = () => {
             className={`absolute w-full bottom-0 left-1/2 transform -translate-x-1/2 p-2 flex items-center justify-center mb-5`}
           >
             <SessionControls
+              vadInstance={vadInstance}
               sendTextMessage={sendTextMessage}
               isSessionActive={isSessionActive}
             />

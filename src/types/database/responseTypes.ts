@@ -15,6 +15,8 @@ export type UserSettingsResponse = {
   theme: ThemeType;
   voice_preference: string;
   emotion_choice: string;
+  credits_remaining: number;
+  tiers: string;
 };
 
 export type ChatRoom = {
