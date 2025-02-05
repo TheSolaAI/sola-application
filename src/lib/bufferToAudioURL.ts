@@ -1,3 +1,10 @@
+/**
+ * Function to convert audio buffer of type Float32Array to Base64 string
+ *
+ * props:
+ * - audioData : Float32Array
+ */
+
 export const float32ArrayToBase64 = (
   audioData: Float32Array,
 ): Promise<string> => {
@@ -21,6 +28,14 @@ export const float32ArrayToBase64 = (
     };
   });
 };
+
+/**
+ * Function to convert audio buffer of type Float32Array to Blob Wav
+ *
+ * props:
+ * - float32Array : Float32Array
+ * - sampleRate: number
+ */
 
 const float32ArrayToWav = (
   float32Array: Float32Array,
