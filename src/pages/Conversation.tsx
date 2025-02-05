@@ -1358,19 +1358,18 @@ const Conversation = () => {
 
           {/* Start of Visualizer Section */}
           <section
-            className={`flex items-center justify-center animate-in fade-in-0 duration-300 ${
-              messageList ? 'h-1/4' : 'h-1/2'
-            }`}
+            className={`flex w-full h-3/5 md:h-1/3 mx-auto justify-center items-end md:items-center animate-in fade-in-0 duration-300`}
           >
             {mediaRecorder && (
               <LiveAudioVisualizer
-                barColor={theme.name == 'light' ? '#1D1D1F' : '#D8B4FE'}
+                barColor={theme.primaryDark}
                 mediaRecorder={mediaRecorder}
-                width={400}
+                width={200}
                 height={200}
               />
             )}
           </section>
+
           {/* End of Visualizer Section */}
 
           {/* Start of Message display Section */}
