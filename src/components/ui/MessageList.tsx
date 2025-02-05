@@ -14,6 +14,7 @@ import {
   TopHolder,
   TransactionCard,
   TrendingNFTCard,
+  UserAudio,
 } from '../../types/messageCard';
 import { ExternalLink } from 'lucide-react';
 import axios from 'axios';
@@ -30,6 +31,7 @@ import { useWalletHandler } from '../../models/WalletHandler.ts';
 import MonoGridBox from './MonoGridBox.tsx';
 import MessageWrapper from './MessageWrapper.tsx';
 import PopupModal from './PopuipModel.tsx';
+import { AudioPlayer } from './AudioPlayer.tsx';
 
 const wallet_service_url = process.env.WALLET_SERVICE_URL;
 
@@ -113,6 +115,7 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
       return null;
     }
   }
+
   function formatNumber(num: number) {
     if (num >= 1_000_000_000) {
       return (num / 1_000_000_000).toFixed(2).replace(/\.0$/, '') + 'B';
@@ -126,9 +129,14 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
   }
 
   return (
-    <div className="px-1 md:py-4 md:px-24 w-full flex flex-col">
+    <div className="px-1 md:py-4 md:px-24 w-[85%] mx-auto flex flex-col">
       {messageList.map((item, index) => {
         switch (item.type) {
+          case 'user': {
+            const userCard = item.card as UserAudio;
+            return <AudioPlayer index={index} base64URL={userCard.base64URL} />;
+          }
+
           case 'aiTranscription':
             return <AgentTranscription item={item} index={index} />;
 

@@ -64,6 +64,7 @@ import Loader from '../components/general/Loader.tsx';
 import WalletLensButton from '../components/wallet/WalletLensButton.tsx';
 import { useLayoutContext } from '../layout/LayoutProvider.tsx';
 import { useMicVAD } from '@ricky0123/vad-react';
+import { float32ArrayToBase64 } from '../lib/bufferToAudioURL.ts';
 
 const Conversation = () => {
   const {
@@ -103,8 +104,10 @@ const Conversation = () => {
 
   const vadInstance = useMicVAD({
     startOnLoad: false,
-    onSpeechEnd: (audioBuffer) => {
-      console.log('audio buffer from vad', audioBuffer);
+    minSpeechFrames: 6,
+    onSpeechEnd: async (audioBuffer) => {
+      const base64URL = await float32ArrayToBase64(audioBuffer);
+      handleAddMessage(customMessageCards('user', { base64URL: base64URL }));
     },
   });
 
