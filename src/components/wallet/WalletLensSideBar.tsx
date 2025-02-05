@@ -66,22 +66,22 @@ export const WalletLensSideBar: React.FC<WalletLensSidebarProps> = ({
               onClick={() => {
                 setWalletLensOpen(false);
               }}
-              className="p-2"
+              className="p-1 sm:p-2"
             >
-              <X className="w-8 h-8 text-secText" />
+              <X className=" w-4 h-4 sm:w-8 sm:h-8 text-secText" />
             </button>
           </div>
           {/* End Close Button*/}
           {/* Wallet Info and wallet changer */}
           <div
-            className="bg-baseBackground flex flex-row items-center rounded-2xl gap-x-5  p-3 w-full"
+            className="bg-baseBackground flex flex-row items-center justify-center rounded-2xl gap-x-2  p-3 w-full"
             ref={walletPickerRef}
           >
             <button onClick={(e) => e.stopPropagation()}>
               <img
                 src={walletLogo}
                 alt="wallet logo"
-                className="w-14 h-14 rounded-xl"
+                className="w-8 h-8 sm:w-14 sm:h-14 rounded-xl"
                 onClick={(e) => {
                   e.stopPropagation();
                   window.open(
@@ -93,7 +93,7 @@ export const WalletLensSideBar: React.FC<WalletLensSidebarProps> = ({
             </button>
             <div className="flex flex-col items-start flex-1 min-w-0">
               <div className="flex items-center gap-x-2">
-                <h1 className="text-textColor font-semibold text-xl">
+                <h1 className="text-sm text-textColor font-semibold sm:text-xl">
                   {titleCase(currentWallet?.walletClientType)} Wallet
                 </h1>
                 <button
