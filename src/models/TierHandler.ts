@@ -1,22 +1,22 @@
 /**
  * Zustand store to manage user tier and credits.
- * 
+ *
  * State:
  * - `tier`: User's subscription tier (number or null).
  * - `credits`: Available credits (number or null).
- * 
+ *
  * Functions:
  * - `setTierAndCredits(tier, credits)`: Updates both tier and credits.
  * - `updateCredits(credits)`: Updates only the credits.
  * - `deductAndSendCredits(usedCredits)`: Deducts credits and sends the update to the server.
  */
 
-import { create } from "zustand";
+import { create } from 'zustand';
 
 interface TierHandler {
-  tier: number | null;
+  tier: string | null;
   credits: number | null;
-  setTierAndCredits: (tier: number, credits: number) => void;
+  setTierAndCredits: (tier: string, credits: number) => void;
   updateCredits: (credits: number) => void;
   deductAndSendCredits: (usedCredits: number) => void;
 }
@@ -31,16 +31,14 @@ export const useTierStore = create<TierHandler>((set) => {
     tier: null,
     credits: null,
 
-    setTierAndCredits: (tier, credits) =>
-      set({ tier, credits }),
+    setTierAndCredits: (tier, credits) => set({ tier, credits }),
 
-    updateCredits: (credits) =>
-      set({ credits }),
+    updateCredits: (credits) => set({ credits }),
 
     deductAndSendCredits: (usedCredits) => {
       set((state) => {
         const newCredits = (state.credits ?? 0) - usedCredits;
-        if (newCredits < 0) return state; 
+        if (newCredits < 0) return state;
         sendUsedCredits(usedCredits);
         return { credits: newCredits };
       });

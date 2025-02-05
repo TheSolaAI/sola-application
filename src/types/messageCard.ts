@@ -18,7 +18,6 @@ export type MessageCard = {
     | 'rugCheckCard'
     | 'topHoldersCard'
     | 'marketDataCard'
-    | 'marketDataCard'
     | 'trendingNFTCard'
     | 'bubblemapCard'
     | 'blinkCard'
@@ -36,7 +35,6 @@ export type MessageCard = {
     | SanctumCard[]
     | RugCheckCard
     | TopHolder[]
-    | MarketDataCard
     | MarketDataCard
     | TrendingNFTCard[]
     | BubblemapCard
