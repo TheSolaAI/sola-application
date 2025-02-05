@@ -19,6 +19,7 @@ export default defineConfig(({ mode }) => {
       'process.env.PROXY_SERVER2_URL': JSON.stringify(env.PROXY_SERVER2_URL),
       'process.env.ENVIORNMENT': JSON.stringify(env.ENVIORNMENT),
       'process.env.AUTH_SERVICE_URL': JSON.stringify(env.AUTH_SERVICE_URL),
+      __APP_VERSION__: JSON.stringify(require('./package.json').version),
     },
     build: {
       sourcemap: true,

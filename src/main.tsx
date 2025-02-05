@@ -18,11 +18,6 @@ Sentry.init({
   integrations: [
     Sentry.browserTracingIntegration(),
     Sentry.replayIntegration(),
-    Sentry.feedbackIntegration({
-      colorScheme: 'system',
-      isEmailRequired: true,
-      showBranding: false,
-    }),
   ],
   tracesSampleRate: 1.0,
   tracePropagationTargets: ['localhost'],
