@@ -21,10 +21,15 @@ export class ApiClient {
       throw new Error('DATA_SERVICE_URL environment variable is not defined');
     }
 
+    // Create Axios instances for both services
     this.authClient = this.createClient(authServiceUrl);
     this.dataClient = this.createClient(dataServiceUrl);
   }
 
+  /**
+   * Creates an Axios client with common configuration, the auth header interceptor,
+   * and axios-retry settings.
+   */
   private createClient(baseURL: string): AxiosInstance {
     const client = axios.create({
       baseURL,
@@ -34,21 +39,20 @@ export class ApiClient {
       },
     });
 
-    // Add a request interceptor that attaches the Authorization header dynamically.
+    // Attach the latest auth token from the Zustand store to every request.
     client.interceptors.request.use(
       (config) => {
-        // Get the latest token from the Zustand store
-        const authToken = useUserHandler.getState().authToken;
-        if (authToken) {
+        const token = useUserHandler.getState().authToken;
+        if (token) {
           config.headers = config.headers || {};
-          config.headers.Authorization = `Bearer ${authToken}`;
+          config.headers.Authorization = `Bearer ${token}`;
         }
         return config;
       },
       (error) => Promise.reject(error),
     );
 
-    // Configure axios-retry for network errors and server errors (status >= 500)
+    // Retry on network errors or server errors (>=500)
     axiosRetry(client, {
       retries: 3,
       retryDelay: (retryCount) => {
@@ -70,10 +74,60 @@ export class ApiClient {
   }
 
   /**
-   * Returns the appropriate Axios client based on service type.
+   * Returns the appropriate Axios client based on the service type.
    */
   private getClient(service: ServiceType): AxiosInstance {
     return service === 'auth' ? this.authClient : this.dataClient;
+  }
+
+  /**
+   * A helper to check if the error indicates that the token has expired.
+   */
+  private isTokenExpiredError(error: AxiosError): boolean {
+    if (error.response && error.response.data) {
+      const data = error.response.data as any;
+      // For data service errors
+      if (data.error && data.error === 'Invalid or expired token') return true;
+      if (data.detail && data.detail === 'Token has expired') return true;
+      // For auth service errors. We only care about the first error as per Django DRF error struct
+      if (data.errors && Array.isArray(data.errors)) {
+        const firstError = data.errors[0];
+        if (
+          firstError.detail === 'Token has expired' ||
+          firstError.code === 'Invalid or expired token'
+        ) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Generic request handler that:
+   *  - Executes the provided request function.
+   *  - Checks for token expiration errors.
+   *  - If detected, calls refetchAPI from the Zustand store and reattempts the request once.
+   */
+  private async request<T>(
+    requestFn: () => Promise<AxiosResponse<T>>,
+    service: ServiceType,
+  ): Promise<ApiResponse<T> | ApiError> {
+    let retryAttempted = false;
+    while (true) {
+      try {
+        const response = await requestFn();
+        return this.handleResponse(response);
+      } catch (err) {
+        const error = err as AxiosError;
+        if (!retryAttempted && this.isTokenExpiredError(error)) {
+          retryAttempted = true;
+          await useUserHandler.getState().updateAuthToken();
+          continue;
+        }
+        return this.handleError(error, service);
+      }
+    }
   }
 
   private handleResponse<T>(response: AxiosResponse<T>): ApiResponse<T> {
@@ -81,18 +135,13 @@ export class ApiClient {
   }
 
   /**
-   * Handle errors for both auth and data services.
+   * Handles errors for both auth and data services.
    */
   private handleError(error: AxiosError, service: ServiceType): ApiError {
     if (error.response) {
       const { status, data } = error.response;
 
       if (service === 'auth') {
-        // Auth service error structure:
-        // {
-        //   type: string,
-        //   errors: [ { code: string, detail: string, attr: string | null } ]
-        // }
         if (
           data &&
           typeof data === 'object' &&
@@ -109,10 +158,8 @@ export class ApiClient {
           if (status >= 500) {
             toast.error(apiError.errors.map((e) => e.detail).join('\n'));
           }
-
           return apiError;
         }
-        // Generic fallback for auth service errors
         return {
           success: false,
           type: 'unknown_error',
@@ -126,7 +173,6 @@ export class ApiClient {
           statusCode: status,
         };
       } else if (service === 'data') {
-        // Data service error structure: { error: string }
         if (data && typeof data === 'object' && 'error' in data) {
           const detail = (data as any).error as string;
           const apiError: ApiError = {
@@ -147,7 +193,6 @@ export class ApiClient {
           }
           return apiError;
         }
-        // Generic fallback for data service errors
         return {
           success: false,
           type: 'unknown_error',
@@ -182,13 +227,8 @@ export class ApiClient {
     params?: Record<string, any>,
     service: ServiceType = 'auth',
   ): Promise<ApiResponse<T> | ApiError> {
-    try {
-      const client = this.getClient(service);
-      const response = await client.get<T>(url, { params });
-      return this.handleResponse(response);
-    } catch (error) {
-      return this.handleError(error as AxiosError, service);
-    }
+    const client = this.getClient(service);
+    return this.request<T>(() => client.get<T>(url, { params }), service);
   }
 
   async post<T>(
@@ -196,13 +236,8 @@ export class ApiClient {
     data: any,
     service: ServiceType = 'auth',
   ): Promise<ApiResponse<T> | ApiError> {
-    try {
-      const client = this.getClient(service);
-      const response = await client.post<T>(url, data);
-      return this.handleResponse(response);
-    } catch (error) {
-      return this.handleError(error as AxiosError, service);
-    }
+    const client = this.getClient(service);
+    return this.request<T>(() => client.post<T>(url, data), service);
   }
 
   async put<T>(
@@ -210,26 +245,16 @@ export class ApiClient {
     data: any,
     service: ServiceType = 'auth',
   ): Promise<ApiResponse<T> | ApiError> {
-    try {
-      const client = this.getClient(service);
-      const response = await client.put<T>(url, data);
-      return this.handleResponse(response);
-    } catch (error) {
-      return this.handleError(error as AxiosError, service);
-    }
+    const client = this.getClient(service);
+    return this.request<T>(() => client.put<T>(url, data), service);
   }
 
   async delete<T>(
     url: string,
     service: ServiceType = 'auth',
   ): Promise<ApiResponse<T> | ApiError> {
-    try {
-      const client = this.getClient(service);
-      const response = await client.delete<T>(url);
-      return this.handleResponse(response);
-    } catch (error) {
-      return this.handleError(error as AxiosError, service);
-    }
+    const client = this.getClient(service);
+    return this.request<T>(() => client.delete<T>(url), service);
   }
 
   // Type checker functions
@@ -244,4 +269,5 @@ export class ApiClient {
   }
 }
 
+// Export a singleton instance (or export the class and create instances as needed)
 export const apiClient = new ApiClient();

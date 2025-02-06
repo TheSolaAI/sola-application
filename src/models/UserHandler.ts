@@ -3,20 +3,23 @@
  */
 import { create } from 'zustand';
 import { getAccessToken } from '@privy-io/react-auth';
+import { toast } from 'sonner';
 
 interface UserHandler {
   authToken: string | null; // null represents the auth token has not been set yet
 
   /**
    * Called when any server retursn that the token has expired. This is called and
-   * the request is retried with the new token.
+   * the request is retried with the new token. Returns false if privy does not return
+   * an auth token meaning the user has most likely signed out.
    */
-  updateAuthToken: () => void;
+  updateAuthToken: () => Promise<boolean>;
 
   /**
    * Fetches the latest JWT from Privy. Should be called when the user is authenticated.
+   * Returns false if privy does not return an auth token meaning the user has most likely signed out.
    */
-  login: () => Promise<void>;
+  login: () => Promise<boolean>;
 }
 
 export const useUserHandler = create<UserHandler>((set, get) => {
@@ -24,23 +27,25 @@ export const useUserHandler = create<UserHandler>((set, get) => {
     currentUser: null,
     authToken: null,
 
-    updateAuthToken: () => {
+    updateAuthToken: async (): Promise<boolean> => {
       // get the latest auth token from privy
       const authToken = await getAccessToken();
       if (!authToken) {
-        throw new Error('Failed to fetch access token.');
-        // TODO: Navigate back to login page
+        toast.error('Something Went Wrong. Please Login Again');
+        return false;
+      }
+      return true;
+    },
 
-    }
-
-    login: async () => {
+    login: async (): Promise<boolean> => {
       // get the latest auth token from privy
       const authToken = await getAccessToken();
       if (!authToken) {
-        throw new Error('Failed to fetch access token.');
-        // TODO: Navigate back to login page
+        toast.error('Something Went Wrong. Please Login Again');
+        return false;
       }
       set({ authToken });
+      return true;
     },
   };
 });
