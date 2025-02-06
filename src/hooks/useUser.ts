@@ -1,12 +1,8 @@
 import { useCallback } from 'react';
-import { registerUser } from '../api/register';
 import { getUserSettings, updateUserSetting } from '../api/userSettings';
-import { RegisterUser, UserSettings } from '../types/database/requstTypes';
+import { UserSettings } from '../types/database/requstTypes';
 import useAppState from '../models/AppState.ts';
-import {
-  RegisterUserResponse,
-  UserSettingsResponse,
-} from '../types/database/responseTypes';
+import { UserSettingsResponse } from '../types/database/responseTypes';
 import useThemeManager from '../models/ThemeManager.ts';
 import { useTierStore } from '../models/TierHandler.ts';
 
@@ -14,23 +10,6 @@ const useUser = () => {
   const { setAiVoice, setAiEmotion, accessToken } = useAppState();
   const { setTheme } = useThemeManager();
   const { setTierAndCredits } = useTierStore();
-  // Register a user
-  const register = useCallback(
-    async (user: RegisterUser): Promise<RegisterUserResponse | null> => {
-      if (!accessToken) {
-        console.error('Access token is required for registration.');
-        return null;
-      }
-      try {
-        const registerUserResponse = await registerUser(user, accessToken);
-        return registerUserResponse;
-      } catch (error) {
-        console.error('Error registering user:', error);
-        return null;
-      }
-    },
-    [accessToken],
-  );
 
   // Fetch user settings
   const fetchSettings =
@@ -88,7 +67,7 @@ const useUser = () => {
     [accessToken],
   );
 
-  return { register, fetchSettings, updateSettings };
+  return { fetchSettings, updateSettings };
 };
 
 export default useUser;

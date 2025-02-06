@@ -249,6 +249,15 @@ export class ApiClient {
     return this.request<T>(() => client.put<T>(url, data), service);
   }
 
+  async patch<T>(
+    url: string,
+    data: any,
+    service: ServiceType = 'auth',
+  ): Promise<ApiResponse<T> | ApiError> {
+    const client = this.getClient(service);
+    return this.request<T>(() => client.patch<T>(url, data), service);
+  }
+
   async delete<T>(
     url: string,
     service: ServiceType = 'auth',

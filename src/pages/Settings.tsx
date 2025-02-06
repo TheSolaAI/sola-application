@@ -3,7 +3,7 @@ import { ChevronDown } from 'react-feather';
 import useAppState from '../models/AppState.ts';
 import { AIEMOTION, AIVOICE } from '../config/ai/aiConfig';
 import useUser from '../hooks/useUser';
-import { AiEmotion, AiVoice } from '../types/database/aiConfig';
+import { AiEmotion, AiVoice } from '../types/aiConfig.ts';
 import { usePrivy } from '@privy-io/react-auth';
 import useThemeManager from '../models/ThemeManager.ts';
 
