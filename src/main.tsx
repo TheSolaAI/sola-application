@@ -68,7 +68,7 @@ const RootApp = () => {
             appearance: {
               theme: theme.name === 'dark' ? 'dark' : 'light',
               accentColor: theme.primary || '#1D1D1F',
-              logo: '/path-to-your-logo.svg',
+              logo: '/logo.svg',
               showWalletLoginFirst: true,
             },
           }}
