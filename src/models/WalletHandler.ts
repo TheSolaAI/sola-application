@@ -2,9 +2,18 @@ import { create } from 'zustand';
 import { ConnectedSolanaWallet } from '@privy-io/react-auth';
 import { toast } from 'sonner';
 import { Connection, LAMPORTS_PER_SOL, PublicKey } from '@solana/web3.js';
-import { NFTAsset, TokenAsset, WalletAssets } from '../types/wallet.ts';
+import {
+  NFTAsset,
+  TokenAsset,
+  Transaction,
+  WalletAssets,
+} from '../types/wallet.ts';
+import { decodeInstruction } from '@solana/spl-token';
 
-let connection = new Connection(process.env.SOLANA_RPC!, 'confirmed');
+let websocketConnection = new Connection(process.env.SOLANA_RPC!, 'confirmed');
+
+const COOLDOWN_DURATION = 2000; // 👀 Don't tell them its not live updates
+const MAX_RETRIES = 7; // max retires to rety fetching a transaction before it is discarded
 
 interface WalletHandler {
   currentWallet: ConnectedSolanaWallet | null; // The current wallet that the user is using
@@ -18,19 +27,39 @@ interface WalletHandler {
   initWalletManager: () => void; // Initializes the wallet manager
 
   walletAssets: WalletAssets; // Stores balance, tokens and NFTs
+  transactions: Transaction[]; // stores the transactions of the wallet
+
   status: 'listening' | 'paused' | 'updating' | 'error' | 'initialLoad'; // Status of the wallet handler
   setStatus: (
     status: 'listening' | 'paused' | 'updating' | 'error' | 'initialLoad',
   ) => void; // Updates the status
+
   startMonitoring: (walletId: string, fresh: boolean) => void; // start monitoring the wallet
   stopMonitoring: () => void; // stop monitoring the wallet
 }
 
 export const useWalletHandler = create<WalletHandler>((set, get) => {
   let balanceSubscriptionId: number | null = null;
+  let transactionSubscriptionId: number | null = null;
 
+  // Timestamps to track last fetch calls for cooldown
+  let lastAssetsFetch = 0;
+  let lastTransactionFetch = 0;
+
+  /**
+   * Fetches tokens and NFT's when a change in a wallet's balance is detected.
+   * This function will ignore requests if called within 2 seconds of the last call.
+   * @param walletId
+   */
   const fetchTokensAndNFTs = async (walletId: string) => {
     if (get().status === 'paused') return;
+
+    const now = Date.now();
+    if (now - lastAssetsFetch < COOLDOWN_DURATION) {
+      console.log('Ignoring tokens/NFTs fetch due to cooldown.');
+      return;
+    }
+    lastAssetsFetch = now;
 
     try {
       const response = await fetch(process.env.SOLANA_RPC!, {
@@ -69,6 +98,7 @@ export const useWalletHandler = create<WalletHandler>((set, get) => {
         pricePerToken: result.nativeBalance.price_per_sol,
         totalPrice: result.nativeBalance.total_price,
       };
+
       // Handle fungible tokens
       let tokens = result.items
         .filter((item: any) => item.interface === 'FungibleToken')
@@ -94,7 +124,6 @@ export const useWalletHandler = create<WalletHandler>((set, get) => {
               uri: file.uri,
               type: getBasicType(file.mimeType),
             })),
-
             name: item.content.metadata.name,
             symbol: item.content.metadata.symbol,
             description: item.content.metadata.description,
@@ -102,16 +131,16 @@ export const useWalletHandler = create<WalletHandler>((set, get) => {
           };
         });
 
-      // remove any tokens that have a total price of 0 or undefined
+      // Remove any tokens that have a total price of 0 or undefined
       tokens = tokens.filter(
         (token: TokenAsset) => token.totalPrice && token.totalPrice > 0,
       );
-      // Add the Sol balance
+      // Add the SOL balance
       tokens.unshift(nativeSolToken);
 
-      // calculate the total balance
+      // Calculate the total balance
       const totalBalance = tokens.reduce(
-        (acc: any, token: TokenAsset) => acc + token.totalPrice,
+        (acc: number, token: TokenAsset) => acc + token.totalPrice,
         0,
       );
 
@@ -129,6 +158,81 @@ export const useWalletHandler = create<WalletHandler>((set, get) => {
     }
   };
 
+  const sleep = (ms: number) =>
+    new Promise((resolve) => setTimeout(resolve, ms));
+
+  const fetchTransactionDetails = async (transactionID: string) => {
+    if (get().status === 'paused') return;
+
+    const now = Date.now();
+    if (now - lastTransactionFetch < COOLDOWN_DURATION) {
+      console.log('Ignoring transaction fetch due to cooldown.');
+      return;
+    }
+    lastTransactionFetch = now;
+
+    let responseBody: any;
+    let result = null;
+    let attempts = 0;
+
+    do {
+      try {
+        console.log(
+          `Fetching transaction details (Attempt ${attempts + 1})...`,
+        );
+
+        const response = await fetch(
+          `https://mainnet.helius-rpc.com/?api-key=${process.env.HELIUS_API_KEY}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              jsonrpc: '2.0',
+              id: 1,
+              method: 'getTransaction',
+              params: [transactionID, 'json'],
+            }),
+          },
+        );
+
+        responseBody = await response.json();
+        result = responseBody.result;
+
+        if (result === null) {
+          console.log('Transaction not found yet, retrying...');
+          await sleep(2000); // Wait 2 seconds before retrying
+        }
+      } catch (error) {
+        console.error('Error fetching transaction details:', error);
+        return null; // If a request fails, skip this transaction
+      }
+
+      attempts++;
+    } while (result === null && attempts < MAX_RETRIES);
+
+    if (!result) {
+      console.warn('Max retries reached, transaction data unavailable.');
+      return null;
+    }
+
+    const parsedTransactions: Transaction = {
+      id: result.transaction.signatures[0],
+      timestamp: new Date().toISOString(),
+      preBalance: result.meta.preBalances[0] / LAMPORTS_PER_SOL,
+      postBalance: result.meta.postBalances[0] / LAMPORTS_PER_SOL,
+      accounts: result.transaction.message.accountKeys,
+      instructions: result.transaction.message.instructions.map(
+        (instruction: any) => {
+          return decodeInstruction(
+            instruction.data,
+            result.transaction.message.accountKeys[instruction.programIdIndex],
+          );
+        },
+      ),
+    };
+    return parsedTransactions;
+  };
+
   return {
     currentWallet: null,
     defaultWallet: null,
@@ -138,19 +242,20 @@ export const useWalletHandler = create<WalletHandler>((set, get) => {
       tokens: [],
       nfts: [],
     },
+    transactions: [],
     status: 'initialLoad',
 
     setWallets: (wallets) => set({ wallets }),
     setCurrentWallet: (wallet) => {
-      // stop monitoring the previous wallet
+      // Stop monitoring the previous wallet
       if (get().currentWallet) {
         get().stopMonitoring();
       }
-      // start monitoring the new wallet
+      // Start monitoring the new wallet
       if (wallet) {
         get().startMonitoring(wallet.address, true);
       }
-      // load the initial tokens and NFTs
+      // Load the initial tokens and NFTs
       set({ status: 'initialLoad' });
       fetchTokensAndNFTs(wallet?.address || '').then(() => {
         set({ status: 'listening' });
@@ -190,12 +295,17 @@ export const useWalletHandler = create<WalletHandler>((set, get) => {
         set({ currentWallet: get().wallets[0] });
         localStorage.setItem('defaultWallet', get().wallets[0].address);
       }
-      // fetch the tokens and NFTs for the default wallet
-      fetchTokensAndNFTs(get().currentWallet?.address || '').then(() => {
-        set({ status: 'listening' });
-        // start the monitoring of the wallet
-        get().startMonitoring(get().currentWallet?.address || '', true);
-      });
+      // Fetch the tokens and NFTs for the default wallet
+      fetchTokensAndNFTs('97R4UGhdj7WqXA5AhfQqxM2CGDscJ5meFC8ZJvSoNUBs').then(
+        () => {
+          set({ status: 'listening' });
+          // Start the monitoring of the wallet
+          get().startMonitoring(
+            '97R4UGhdj7WqXA5AhfQqxM2CGDscJ5meFC8ZJvSoNUBs',
+            true,
+          );
+        },
+      );
     },
 
     startMonitoring: (walletId: string, fresh: boolean) => {
@@ -205,13 +315,13 @@ export const useWalletHandler = create<WalletHandler>((set, get) => {
           get().wallets.find((w) => w.address === walletId) || null;
         set({ currentWallet: wallet });
       }
-
+      // Token and NFT fetching
       const publicKey = new PublicKey(walletId);
-      balanceSubscriptionId = connection.onAccountChange(
+      balanceSubscriptionId = websocketConnection.onAccountChange(
         publicKey,
         async (accountInfo) => {
-          if (get().status === 'paused') return; // if paused, do not update the wallet assets
-          // set the status to updating
+          if (get().status === 'paused') return; // If paused, do not update the wallet assets
+          // Set the status to updating
           set({ status: 'updating' });
           const balance = accountInfo.lamports / LAMPORTS_PER_SOL;
           set((state) => ({
@@ -220,10 +330,26 @@ export const useWalletHandler = create<WalletHandler>((set, get) => {
               balance,
             },
           }));
-          if (get().status === 'paused') return; // if paused, do not update the wallet assets
+          if (get().status === 'paused') return; // Check again after balance update
           await fetchTokensAndNFTs(walletId);
-          if (get().status === 'paused') return; // Check after long running operation
+          if (get().status === 'paused') return; // Check after long-running operation
           set({ status: 'listening' });
+        },
+      );
+      transactionSubscriptionId = websocketConnection.onLogs(
+        publicKey,
+        async (logInfo) => {
+          if (!logInfo.signature) return; // Ignore empty transactions
+          if (get().status === 'paused') return;
+          // The fetchTransactionDetails function itself implements a cooldown.
+          const sig = logInfo.signature.toString();
+          const parsedTransaction = await fetchTransactionDetails(sig);
+          if (get().status === 'paused') return; // In case we pause mid-operation
+          if (parsedTransaction) {
+            set((state) => ({
+              transactions: [...state.transactions, parsedTransaction],
+            }));
+          }
         },
       );
       if (!fresh) {
@@ -234,11 +360,15 @@ export const useWalletHandler = create<WalletHandler>((set, get) => {
 
     stopMonitoring: () => {
       if (balanceSubscriptionId !== null) {
-        connection.removeAccountChangeListener(balanceSubscriptionId);
+        websocketConnection.removeAccountChangeListener(balanceSubscriptionId);
         balanceSubscriptionId = null;
-        set(() => ({ status: 'paused' }));
-        toast.error('Wallet monitoring paused');
       }
+      if (transactionSubscriptionId !== null) {
+        websocketConnection.removeOnLogsListener(transactionSubscriptionId);
+        transactionSubscriptionId = null;
+      }
+      set(() => ({ status: 'paused' }));
+      toast.error('Wallet monitoring paused');
     },
 
     setStatus: (status) => set({ status }),

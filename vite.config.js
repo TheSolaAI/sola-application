@@ -80,6 +80,9 @@ export default defineConfig(({ mode }) => {
         authToken: process.env.SENTRY_AUTH_TOKEN,
         org: 'solaai',
         project: 'sola-application-frontend',
+        release: {
+          inject: false,
+        },
       }),
     ],
     server: {

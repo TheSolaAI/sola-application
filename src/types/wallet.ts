@@ -1,3 +1,11 @@
+export interface Token {
+  id: string;
+  name: string;
+  symbol: string;
+  decimals: number;
+  pricePerToken: number;
+}
+
 export interface TokenAsset {
   id: string;
   symbol: string;
@@ -27,4 +35,13 @@ export interface WalletAssets {
   totalBalance: number | null;
   tokens: TokenAsset[];
   nfts: NFTAsset[];
+}
+
+export interface Transaction {
+  id: string;
+  timestamp: string;
+  accounts: string[];
+  preBalance: number;
+  postBalance: number;
+  instructions: string[];
 }

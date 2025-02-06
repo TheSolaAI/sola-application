@@ -13,6 +13,7 @@ import useThemeManager from '../../models/ThemeManager.ts';
 import { X } from 'lucide-react';
 import { useLayoutContext } from '../../layout/LayoutProvider.tsx';
 import { WalletNFTAssets } from './WalletNFTAssets.tsx';
+import { Transactions } from './Transactions.tsx';
 
 interface WalletLensSidebarProps {
   visible: boolean;
@@ -170,7 +171,7 @@ export const WalletLensSideBar: React.FC<WalletLensSidebarProps> = ({
                     ) : activeTab === 1 ? (
                       <WalletNFTAssets />
                     ) : (
-                      <p className={'text-textColor'}> Coming Soon</p>
+                      <Transactions />
                     )}
                   </motion.div>
                 </AnimatePresence>
