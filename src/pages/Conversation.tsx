@@ -67,6 +67,9 @@ import { useMicVAD } from '@ricky0123/vad-react';
 import { float32ArrayToBase64 } from '../lib/bufferToAudioURL.ts';
 
 const Conversation = () => {
+  /**
+   * Global State Management
+   */
   const {
     isSessionActive,
     setIsSessionActive,
@@ -80,7 +83,7 @@ const Conversation = () => {
   } = useChatState();
   const { walletAssets } = useWalletHandler();
   const { id } = useParams<{ id: string }>();
-  const { getRoomMessages, loading, error, messageLoadingError } = useChat();
+  const { getRoomMessages, messageLoadingError } = useChat();
   const {
     setCurrentRoomId,
     messageList,
@@ -90,7 +93,14 @@ const Conversation = () => {
     currentRoomId,
     currentAgentId,
   } = useRoomStore();
-  const { setWalletLensOpen } = useLayoutContext();
+  const appState = useAppState();
+  const { handleWalletLensOpen, walletLensOpen, setWalletLensOpen } =
+    useLayoutContext();
+
+  /**
+   * Local State
+   */
+
   const { handleAddMessage, handleAddAiTranscript } = useChatHandler();
   const { fundWallet } = useFundWallet();
   const { handleDepositLulo, handleUserAssetsLulo, handleWithdrawLulo } =
@@ -99,8 +109,6 @@ const Conversation = () => {
   const audioElement = useRef<HTMLAudioElement | null>(null);
   const [isLoaded, setIsLoaded] = useState<boolean>(true);
   const [localDataChannel, setLocalDataChannel] = useState(dataChannel);
-  const appState = useAppState();
-  const { handleWalletLensOpen, walletLensOpen } = useLayoutContext();
 
   const vadInstance = useMicVAD({
     startOnLoad: false,
