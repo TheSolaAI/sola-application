@@ -4,6 +4,7 @@
 import { create } from 'zustand';
 import { getAccessToken } from '@privy-io/react-auth';
 import { toast } from 'sonner';
+import { useSettingsHandler } from './SettingsHandler.ts';
 
 interface UserHandler {
   authToken: string | null; // null represents the auth token has not been set yet
@@ -22,7 +23,7 @@ interface UserHandler {
   login: () => Promise<boolean>;
 }
 
-export const useUserHandler = create<UserHandler>((set, get) => {
+export const useUserHandler = create<UserHandler>((set) => {
   return {
     currentUser: null,
     authToken: null,
@@ -45,6 +46,8 @@ export const useUserHandler = create<UserHandler>((set, get) => {
         return false;
       }
       set({ authToken });
+      // fetch the user settings from the settings handler
+      await useSettingsHandler.getState().getSettings();
       return true;
     },
   };

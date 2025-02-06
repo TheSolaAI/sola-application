@@ -1,53 +1,34 @@
-import { useCallback, useEffect } from 'react';
+import { useEffect } from 'react';
 import { usePrivy } from '@privy-io/react-auth';
-import useUser from './hooks/useUser';
 import AppRoutes from './routes/AppRoutes.tsx';
-import useAppState from './models/AppState.ts';
 import useThemeManager from './models/ThemeManager.ts';
 import { WalletProvider } from './models/provider/WalletProvider.tsx';
-import ApiClient from './api/ApiClient.ts';
 import { LayoutProvider } from './layout/LayoutProvider.tsx';
+import { useUserHandler } from './models/UserHandler.ts';
 
 function App() {
   /**
    * Global State Management
    */
-  const { authenticated, getAccessToken, ready, user } = usePrivy();
-  const { setAccessToken } = useAppState();
-  const { fetchSettings } = useUser();
+  const { authenticated, ready } = usePrivy();
   const { initThemeManager } = useThemeManager();
-
-  const updateUserSettings = useCallback(async () => {
-    console.log(await fetchSettings());
-  }, [authenticated, ready, user]);
+  const { login } = useUserHandler();
 
   /**
-   * Callback function that handles creating embedded wallet and update user settings on user login
+   * Add any code here that needs to run when the user has completed authentication
    */
-  const initializeApp = useCallback(async () => {
+  useEffect(() => {
     if (authenticated && ready) {
-      const jwt = await getAccessToken();
-      console.log(jwt);
-      if (!jwt) {
-        throw new Error('Failed to fetch access token.');
-      }
-      setAccessToken(jwt);
-      ApiClient.setAccessToken(jwt);
-      //TODO: get user tire status here
-      await updateUserSettings();
+      login(); // Sets auth token internally and loads user settings from the server
     }
   }, [authenticated, ready]);
 
   /**
-   * Master UseEffect Run at app starts. Sets up app theme
+   * Add any code here that needs to run at the start of the application regardless of authentication status
    */
   useEffect(() => {
     initThemeManager();
   }, []);
-
-  useEffect(() => {
-    initializeApp();
-  }, [initializeApp]);
 
   return (
     <WalletProvider isAuthenticated={authenticated && ready}>
