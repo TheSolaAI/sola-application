@@ -47,7 +47,7 @@
     "react-spinners": "^0.15.0",
     "rollup-plugin-visualizer": "^5.14.0",
     "sonner": "^1.7.2",
-    "swr": "^2.3.0",
+    "swr": "^2.3.2",
     "tailwind-merge": "^2.6.0",
     "tailwind-scrollbar": "^4.0.0",
     "tailwindcss-animate": "^1.0.7",
