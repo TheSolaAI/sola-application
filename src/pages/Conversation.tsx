@@ -574,13 +574,13 @@ const Conversation = () => {
   };
 
   const handleTokenData = async (tokenMint: string) => {
-    setMessageList((prev) => [
-      ...prev,
-      agentMessage(`Fetching ${tokenMint} data`),
-    ]);
-
+    
     try {
       if (tokenMint.length < 35) {
+        setMessageList((prev) => [
+          ...prev,
+          agentMessage(`Fetching $${tokenMint} data`),
+        ]);
         const data = await getTokenDataSymbol('$' + tokenMint);
         console.log(data);
         if (!data) {
@@ -590,23 +590,22 @@ const Conversation = () => {
             ),
           );
 
+
           return responseToOpenai(
             'tell the user that there has been a problem with fetching token data.',
           );
         }
-
         let token_card: TokenCard = {
-          address: data.metadata.description,
+          address: tokenMint,
           image: data.image,
           metadata: data.metadata,
           price: data.price.toString(),
           marketCap: data.marketcap.toString(),
           volume: data.volume.toString(),
-          priceChange: data.price_change_24.toString(),
+          priceChange: data.price_change_24.toString() || 'NaN',
         };
-
         updateMessage(
-          `symbol: ${tokenMint}, address: ${token_card.address}, price: ${token_card.price}, marketCap: ${token_card.marketCap}`,
+          `symbol: ${tokenMint}, address: ${data.metadata.description}, price: ${data.price}, marketCap: ${data.marketcap}`,
         );
 
         await handleAddMessage(customMessageCards('tokenCard', token_card));
@@ -615,6 +614,10 @@ const Conversation = () => {
           'tell the user that the token data is fetched successfully',
         );
       } else {
+        setMessageList((prev) => [
+          ...prev,
+          agentMessage(`Fetching ${tokenMint} data`),
+        ]);
         const data = await getTokenData(tokenMint);
         if (!data) {
           await handleAddMessage(
@@ -643,10 +646,10 @@ const Conversation = () => {
         };
 
         updateMessage(
-          `address: ${token_card.address}, price: ${token_card.price}, marketCap: ${token_card.marketCap}`,
+          `token: ${data.metadata.symbol}, address:${token_card.address} price: ${token_card.price}, marketCap: ${token_card.marketCap}`,
         );
 
-        await handleAddMessage(customMessageCards('tokenCards', token_card));
+        await handleAddMessage(customMessageCards('tokenCard', token_card));
 
         return responseToOpenai(
           'The token data has been fetched successfully.',
