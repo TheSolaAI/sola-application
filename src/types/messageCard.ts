@@ -106,10 +106,10 @@ export interface TokenCard {
   address: string;
   image?: string;
   metadata?: {
-    description: string;
     name: string;
     symbol: string;
-    token_standard: string;
+    address:string;
+    
   };
   price?: string;
   marketCap?: string;

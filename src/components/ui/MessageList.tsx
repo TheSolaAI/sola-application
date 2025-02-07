@@ -184,7 +184,7 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                           {token.metadata?.name || 'Unknown'}
                         </h3>
                         <p className="mt-1 text-xs font-medium">
-                          ${token.price}
+                          ${Number(Number(token.price).toFixed(7))}
                         </p>
                         <p
                           className={`text-xs font-medium ${
@@ -195,7 +195,7 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                                 : 'text-bodydark2'
                           }`}
                         >
-                          {token.priceChange || 'Unknown'}%
+                          {Number(Number(token.priceChange).toFixed(2)) || 'Unknown'}%
                         </p>
                       </div>
                     </div>
