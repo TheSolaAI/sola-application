@@ -574,95 +574,35 @@ const Conversation = () => {
   };
 
   const handleTokenData = async (tokenMint: string) => {
-    
     try {
-      if (tokenMint.length < 35) {
-        setMessageList((prev) => [
-          ...prev,
-          agentMessage(`Fetching $${tokenMint} data`),
-        ]);
-        const data = await getTokenDataSymbol('$' + tokenMint);
-        console.log(data);
-        if (!data) {
-          await handleAddMessage(
-            messageCard(
-              'Oops! There has been a problem in fetching token data',
-            ),
-          );
-
-
-          return responseToOpenai(
-            'tell the user that there has been a problem with fetching token data.',
-          );
-        }
-        let token_card: TokenCard = {
-          address: data.metadata.address,
-          image: data.image,
-          metadata: data.metadata,
-          price: data.price.toString(),
-          marketCap: data.marketcap.toString(),
-          volume: data.volume.toString(),
-          priceChange: data.price_change_24.toString() || 'NaN',
-        };
-        updateMessage(
-          `symbol: ${tokenMint}, address: ${data.metadata.address}, price: ${data.price}, marketCap: ${data.marketcap}`,
-        );
-
-        await handleAddMessage(customMessageCards('tokenCard', token_card));
-
-        return responseToOpenai(
-          'tell the user that the token data is fetched successfully',
-        );
-      } else {
-        setMessageList((prev) => [
-          ...prev,
-          agentMessage(`Fetching ${tokenMint} data`),
-        ]);
-        const data = await getTokenData(tokenMint);
-        if (!data) {
-          await handleAddMessage(
-            messageCard(
-              'Oops! There has been a problem in fetching token data',
-            ),
-          );
-
-          return responseToOpenai(
-            'tell the user that there has been a problem with fetching token data and ask them to try later.',
-          );
-        }
-
-        if (data.price_change_24 == null) {
-          data.price_change_24 = 0;
-        }
-
-        let token_card: TokenCard = {
-          address: tokenMint,
-          image: data.image,
-          metadata: data.metadata,
-          price: data.price.toString(),
-          marketCap: data.marketcap.toString(),
-          volume: data.volume.toString(),
-          priceChange: data.price_change_24.toString() || 'NaN',
-        };
-
-        updateMessage(
-          `token: ${data.metadata.symbol}, address:${token_card.address} price: ${token_card.price}, marketCap: ${token_card.marketCap}`,
-        );
-
-        await handleAddMessage(customMessageCards('tokenCard', token_card));
-
-        return responseToOpenai(
-          'The token data has been fetched successfully.',
-        );
+      setMessageList((prev) => [...prev, agentMessage(`Fetching ${tokenMint} data`)]);
+      
+      const data = tokenMint.length < 35 
+        ? await getTokenDataSymbol('$' + tokenMint) 
+        : await getTokenData(tokenMint);
+      
+      if (!data) {
+        await handleAddMessage(messageCard('Oops! There has been a problem in fetching token data'));
+        return responseToOpenai('tell the user that there has been a problem with fetching token data and ask them to try later.');
       }
+      
+      const token_card: TokenCard = {
+        address: data.metadata.address,
+        image: data.image,
+        metadata: data.metadata,
+        price: data.price.toString(),
+        marketCap: data.marketcap.toString(),
+        volume: data.volume.toString(),
+        priceChange: (data.price_change_24?.toString() || 'NaN'),
+      };
+  
+      updateMessage(`symbol: ${data.metadata?.symbol || tokenMint}, address: ${token_card.address}, price: ${token_card.price}, marketCap: ${token_card.marketCap}`);
+      await handleAddMessage(customMessageCards('tokenCard', token_card));
+      
+      return responseToOpenai('The token data has been fetched successfully.');
     } catch (error) {
-      await handleAddMessage(
-        messageCard('Oops! Encountered a problem while fetching token data.'),
-      );
-
-      return responseToOpenai(
-        'tell the user that there has been a problem with fetching token data and ask them to try later.',
-      );
+      await handleAddMessage(messageCard('Oops! Encountered a problem while fetching token data.'));
+      return responseToOpenai('tell the user that there has been a problem with fetching token data and ask them to try later.');
     }
   };
 
@@ -902,10 +842,10 @@ const Conversation = () => {
       if (token.length !== 44) {
         if (token.startsWith('$')) {
           const tokenDetails = await getTokenDataSymbol(token);
-          token = tokenDetails?.metadata.description || 'NaN';
+          token = tokenDetails?.metadata.address || 'NaN';
         } else {
           const tokenDetails = await getTokenDataSymbol('$' + token);
-          token = tokenDetails?.metadata.description || 'NaN';
+          token = tokenDetails?.metadata.address || 'NaN';
         }
       }
     } catch (error) {
