@@ -11,7 +11,22 @@ export interface userSettingsResponse {
 export interface ChatRoomResponse {
   id: number;
   name: string;
-  session_id: string;
   agent_id: number;
   user: number;
+}
+
+export interface ChatMessagesResponse {
+  count: number;
+  next: string;
+  previous: string;
+  results: ChatMessageResponseWrapper[];
+}
+
+export interface ChatMessageResponseWrapper {
+  id: number;
+  message: {
+    content: string;
+    sender: 'user' | 'agent' | 'system';
+  };
+  created_at: string;
 }
