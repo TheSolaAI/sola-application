@@ -5,4 +5,5 @@ export const API_URLS = {
       UPDATE: 'auth/settings/update/',
     },
   },
+  CHAT_ROOMS: 'chatrooms/',
 };

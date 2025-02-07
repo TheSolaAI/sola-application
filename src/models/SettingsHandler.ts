@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { ApiClient, apiClient } from '../api/ApiClient.ts';
 import { API_URLS } from '../config/api_urls.ts';
-import { UserSettingsResponse } from '../types/response.ts';
+import { userSettingsResponse } from '../types/response.ts';
 import useThemeManager from './ThemeManager.ts';
 import { toast } from 'sonner';
 import { UpdateUserSettingsRequest } from '../types/request.ts';
@@ -23,7 +23,7 @@ interface SettingsHandler {
 export const useSettingsHandler = create<SettingsHandler>(() => {
   return {
     getSettings: async (): Promise<void> => {
-      const response = await apiClient.get<UserSettingsResponse>(
+      const response = await apiClient.get<userSettingsResponse>(
         API_URLS.AUTH.SETTINGS.GET,
         undefined,
         'auth',

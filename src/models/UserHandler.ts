@@ -17,8 +17,10 @@ interface UserHandler {
   updateAuthToken: () => Promise<boolean>;
 
   /**
-   * Fetches the latest JWT from Privy. Should be called when the user is authenticated.
-   * Returns false if privy does not return an auth token meaning the user has most likely signed out.
+   * Main function that runs when an authenticated user logs in. Performs the following options:
+   * 1. Fetches the latest auth token from privy and sets it internally for user in state
+   * 2. Fetches the user settings from the settings handler and applies it to required handlers
+   * 3. Initializes chatRooms by fetching the user's chat rooms
    */
   login: () => Promise<boolean>;
 }

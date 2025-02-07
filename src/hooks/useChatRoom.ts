@@ -1,8 +1,7 @@
-import { useState, useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import {
-  getRooms as fetchRooms,
-  getRoomMessages as fetchRoomMessages,
   delRoom as deleteRoom,
+  getRoomMessages as fetchRoomMessages,
 } from '../api/chatService';
 import { RoomMessages } from '../types/database/requstTypes';
 import { useRoomStore } from '../models/RoomState.ts';
@@ -10,7 +9,6 @@ import useAppState from '../models/AppState.ts';
 import { usePrivy } from '@privy-io/react-auth';
 import { useNavigate } from 'react-router-dom';
 import { useChatState } from '../models/ChatState.ts';
-import ApiClient from '../api/ApiClient.ts';
 
 export const useChat = () => {
   const {
@@ -54,40 +52,6 @@ export const useChat = () => {
     resetMute();
     console.log('delete stop session executed');
   }
-
-  const ensureAccessToken = useCallback(async (): Promise<string | null> => {
-    if (accessToken) {
-      return accessToken;
-    }
-    try {
-      const newAccessToken = await getAccessToken();
-      setAccessToken(newAccessToken);
-      ApiClient.setAccessToken(newAccessToken);
-      return newAccessToken;
-    } catch (err: any) {
-      console.error('Failed to get access token:', err.message);
-      setError('Failed to get access token');
-      return null;
-    }
-  }, [accessToken, getAccessToken, setAccessToken, ApiClient]);
-
-  const getRooms = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    const token = await ensureAccessToken();
-    if (!token) {
-      return null;
-    }
-    try {
-      const response = await fetchRooms(token);
-      setRooms(response.data);
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch rooms');
-    } finally {
-      setLoading(false);
-    }
-  }, [ensureAccessToken, setRooms]);
-
   const delRooms = useCallback(
     async (id: string) => {
       setLoading(true);

@@ -19,7 +19,7 @@ function App() {
    */
   useEffect(() => {
     if (authenticated && ready) {
-      login(); // Sets auth token internally and loads user settings from the server
+      login(); // check function documentation for more details
     }
   }, [authenticated, ready]);
 
