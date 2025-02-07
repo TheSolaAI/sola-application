@@ -596,7 +596,7 @@ const Conversation = () => {
           );
         }
         let token_card: TokenCard = {
-          address: tokenMint,
+          address: data.metadata.address,
           image: data.image,
           metadata: data.metadata,
           price: data.price.toString(),
@@ -605,7 +605,7 @@ const Conversation = () => {
           priceChange: data.price_change_24.toString() || 'NaN',
         };
         updateMessage(
-          `symbol: ${tokenMint}, address: ${data.metadata.description}, price: ${data.price}, marketCap: ${data.marketcap}`,
+          `symbol: ${tokenMint}, address: ${data.metadata.address}, price: ${data.price}, marketCap: ${data.marketcap}`,
         );
 
         await handleAddMessage(customMessageCards('tokenCard', token_card));
