@@ -134,7 +134,7 @@ const WalletCoinAssets = () => {
                         spacing: 10,
                       },
                       {
-                        text: walletAssets.totalBalance?.toPrecision(10),
+                        text: formatNumber(walletAssets.totalBalance ?? 0.0),
                         fontWeight: 'bold',
                         fontSize: 20,
                       },
