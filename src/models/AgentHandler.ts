@@ -1,12 +1,11 @@
 import { create } from 'zustand';
-import { ChartNetwork, Atom, Wallet } from 'lucide-react';
-
-export interface Agent {
-  agentID: number;
-  name: string;
-  description: string;
-  logo: React.ElementType;
-}
+import { Atom, ChartNetwork, Wallet } from 'lucide-react';
+import { Agent } from '../types/agent';
+import {
+  DAMAnalytsTools,
+  nftAgentTools,
+  tokenAnalystTools,
+} from '../tools/config.ts';
 
 interface AgentHandler {
   agents: Agent[];
@@ -21,12 +20,14 @@ export const useAgentHandler = create<AgentHandler>(() => ({
       name: 'Token Analyst',
       description: 'Designed for deep token analysis and trading experience.',
       logo: ChartNetwork,
+      tools: tokenAnalystTools,
     },
     {
       agentID: 2,
       name: 'NFT Analyst',
       description: 'Designed for NFT realted tasks and Price related queries.',
       logo: Atom,
+      tools: nftAgentTools,
     },
     {
       agentID: 3,
@@ -34,6 +35,7 @@ export const useAgentHandler = create<AgentHandler>(() => ({
       description:
         'DeFi Asset Manager - for Lulo operations and LST management.',
       logo: Wallet,
+      tools: DAMAnalytsTools,
     },
   ],
 }));

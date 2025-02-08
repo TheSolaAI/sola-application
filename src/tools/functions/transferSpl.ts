@@ -5,9 +5,9 @@ export const transferSpl = {
   type: 'function',
   name: 'transferSpl',
   description: functionDescription,
+  strict: true,
   parameters: {
     type: 'object',
-    strict: true,
     properties: {
       amount: {
         type: 'number',

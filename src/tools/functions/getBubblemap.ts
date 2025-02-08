@@ -4,9 +4,9 @@ export const getBubblemap = {
   type: 'function',
   name: 'getBubblemap',
   description: functionDescription,
+  strict: true,
   parameters: {
     type: 'object',
-    strict: true,
     properties: {
       token: {
         type: 'string',

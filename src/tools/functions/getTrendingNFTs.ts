@@ -5,9 +5,9 @@ export const getTrendingNFTs = {
   type: 'function',
   name: 'getTrendingNFTs',
   description: functionDescription,
+  strict: true,
   parameters: {
     type: 'object',
-    strict: true,
     properties: {},
   },
 };

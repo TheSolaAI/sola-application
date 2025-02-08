@@ -6,4 +6,5 @@ export const API_URLS = {
     },
   },
   CHAT_ROOMS: 'chatrooms/',
+  SESSION: 'data/session/create',
 };

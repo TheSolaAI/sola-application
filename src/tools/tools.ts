@@ -1,4 +1,4 @@
-import { agentConfig } from './config/config';
+import { agentConfig } from './config.ts';
 
 export const createToolsConfig = (
   aiVoice: string,

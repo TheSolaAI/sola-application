@@ -5,9 +5,9 @@ export const depositLulo = {
   type: 'function',
   name: 'depositLulo',
   description: functionDescription,
+  strict: true,
   parameters: {
     type: 'object',
-    strict: true,
     properties: {
       amount: {
         type: 'number',

@@ -5,9 +5,9 @@ export const getMarketData = {
   type: 'function',
   name: 'getMarketData',
   description: functionDescription,
+  strict: true,
   parameters: {
     type: 'object',
-    strict: true,
     properties: {},
   },
 };

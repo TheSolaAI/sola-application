@@ -5,9 +5,9 @@ export const limitOrder = {
   type: 'function',
   name: 'limitOrder',
   description: functionDescription,
+  strict: true,
   parameters: {
     type: 'object',
-    strict: true,
     properties: {
       action: {
         type: 'string',

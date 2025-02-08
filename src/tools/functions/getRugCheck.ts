@@ -5,9 +5,9 @@ export const getRugCheck = {
   type: 'function',
   name: 'getRugCheck',
   description: functionDescription,
+  strict: true,
   parameters: {
     type: 'object',
-    strict: true,
     properties: {
       token: {
         type: 'string',

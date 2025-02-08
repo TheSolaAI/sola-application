@@ -5,9 +5,9 @@ export const swapLST = {
   type: 'function',
   name: 'swapLST',
   description: functionDescription,
+  strict: true,
   parameters: {
     type: 'object',
-    strict: true,
     properties: {
       quantity: {
         type: 'number',

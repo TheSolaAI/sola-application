@@ -30,3 +30,10 @@ export interface ChatMessageResponseWrapper {
   };
   created_at: string;
 }
+
+export interface OpenAIKeyGenResponse {
+  client_secret: {
+    value: string;
+    expires_at: number;
+  };
+}

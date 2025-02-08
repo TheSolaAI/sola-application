@@ -33,6 +33,7 @@ export const useChatMessageHandler = create<ChatMessageHandler>((set, get) => {
   return {
     state: 'idle',
     next: null,
+    messages: [],
 
     initChatMessageHandler: async () => {
       const currentRoomID = useChatRoomHandler.getState().currentChatRoom?.id;

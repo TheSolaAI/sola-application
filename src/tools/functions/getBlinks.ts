@@ -5,9 +5,9 @@ export const getBlinks = {
   type: 'function',
   name: 'getBlinks',
   description: functionDescription,
+  strict: true,
   parameters: {
     type: 'object',
-    strict: true,
     properties: {
       actionName: {
         type: 'string',

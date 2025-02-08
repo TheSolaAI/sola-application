@@ -5,9 +5,9 @@ export const getLstData = {
   type: 'function',
   name: 'getLstData',
   description: functionDescription,
+  strict: true,
   parameters: {
     type: 'object',
-    strict: true,
     properties: {},
   },
 };

@@ -5,9 +5,9 @@ export const walletActions = {
   type: 'function',
   name: 'walletActions',
   description: functionDescription,
+  strict: true,
   parameters: {
     type: 'object',
-    strict: true,
     required: ['action'],
     properties: {
       action: {

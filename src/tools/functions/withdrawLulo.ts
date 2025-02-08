@@ -5,9 +5,9 @@ export const withdrawLulo = {
   type: 'function',
   name: 'withdrawLulo',
   description: functionDescription,
+  strict: true,
   parameters: {
     type: 'object',
-    strict: true,
     properties: {
       amount: {
         type: 'number',

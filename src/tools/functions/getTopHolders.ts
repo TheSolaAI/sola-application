@@ -5,6 +5,7 @@ export const getTopHolders = {
   type: 'function',
   name: 'getTopHolders',
   description: functionDescription.trim(),
+  strict: true,
   parameters: {
     type: 'object',
     properties: {

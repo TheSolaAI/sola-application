@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { LiveAudioVisualizer } from 'react-audio-visualize';
 import { Connection, PublicKey, VersionedTransaction } from '@solana/web3.js';
 import { transferSolTx } from '../lib/solana/transferSol';
@@ -30,7 +30,6 @@ import {
   fetchTrendingNFTs,
 } from '../lib/solana/magiceden';
 import useAppState from '../models/AppState.ts';
-import { useChatState } from '../models/ChatState.ts';
 import { getTokenData, getTokenDataSymbol } from '../lib/solana/token_data';
 import { getLstData } from '../lib/solana/lst_data';
 import { responseToOpenai } from '../lib/utils/response';
@@ -41,11 +40,6 @@ import { fetchLSTAddress } from '../lib/utils/lst_reader';
 import { transferSplTx } from '../lib/solana/transferSpl';
 import { getRugCheck } from '../lib/solana/rugCheck';
 import { getMarketData } from '../lib/utils/marketMacro';
-import { useParams } from 'react-router-dom';
-import { useChat } from '../hooks/useChatRoom';
-import { useRoomStore } from '../models/RoomState.ts';
-import { toast } from 'sonner';
-import useChatHandler from '../hooks/handleAddMessage';
 import { agentMessage } from '../lib/chat-message/agentMessage';
 import { customMessageCards } from '../lib/chat-message/customMessageCards';
 import {
@@ -70,30 +64,8 @@ const Conversation = () => {
   /**
    * Global State Management
    */
-  const {
-    isSessionActive,
-    setIsSessionActive,
-    dataChannel,
-    setDataChannel,
-    mediaRecorder,
-    setMediaRecorder,
-    setPeerConnection,
-    getPeerConnection,
-    resetMute,
-  } = useChatState();
+
   const { walletAssets } = useWalletHandler();
-  const { id } = useParams<{ id: string }>();
-  const { getRoomMessages, messageLoadingError } = useChat();
-  const {
-    setCurrentRoomId,
-    messageList,
-    setMessageList,
-    isCreatingRoom,
-    setIsCreatingRoom,
-    currentRoomId,
-    currentAgentId,
-  } = useRoomStore();
-  const appState = useAppState();
   const { handleWalletLensOpen, walletLensOpen, setWalletLensOpen } =
     useLayoutContext();
 
@@ -118,33 +90,6 @@ const Conversation = () => {
       handleAddMessage(customMessageCards('user', { base64URL: base64URL }));
     },
   });
-
-  useEffect(() => {
-    async function loadMessages() {
-      if (id) {
-        setMessageList(() => []);
-        await getRoomMessages(id);
-      }
-    }
-
-    const manageSession = async () => {
-      stopSession();
-      await startSession();
-    };
-
-    loadMessages();
-
-    if (!isCreatingRoom) {
-      manageSession();
-    }
-
-    setIsCreatingRoom(false);
-    setCurrentRoomId(id || null);
-  }, [id]);
-
-  useEffect(() => {
-    if (messageLoadingError) toast.error('Failed to load the chat data');
-  }, [messageLoadingError]);
 
   const { aiEmotion, aiVoice } = useAppState();
   const { currentWallet } = useWalletHandler();
@@ -971,121 +916,6 @@ const Conversation = () => {
       );
     }
   };
-
-  const startSession = async () => {
-    let url = process.env.DATA_SERVICE_URL;
-    try {
-      const tokenResponse = await fetch(`${url}data/session/create`, {
-        method: 'GET', // or "POST" if required
-        headers: {
-          Authorization: `Bearer ${appState.accessToken}`, // Replace with your token
-          'Content-Type': 'application/json',
-        },
-      });
-
-      const data = await tokenResponse.json();
-      const EPHEMERAL_KEY = data.client_secret?.value;
-
-      // Create a peer connection
-      const pc = new RTCPeerConnection();
-
-      // Set up to play remote audio from the model
-      audioElement.current = document.createElement('audio');
-      audioElement.current.autoplay = true;
-      pc.ontrack = (e) => {
-        const stream = e.streams[0];
-        if (audioElement.current) {
-          audioElement.current.srcObject = stream;
-        }
-
-        if (MediaRecorder.isTypeSupported('audio/webm')) {
-          const recorder = new MediaRecorder(stream, {
-            mimeType: 'audio/webm',
-          });
-          setMediaRecorder(recorder);
-          recorder.start();
-        } else {
-          console.error('MediaRecorder does not support audio/webm format.');
-        }
-      };
-
-      // Add local audio track for microphone input in the browser
-      const ms = await navigator.mediaDevices.getUserMedia({
-        audio: true,
-      });
-      pc.addTrack(ms.getTracks()[0]);
-
-      // Set up data channel for sending and receiving events
-      const dc = pc.createDataChannel('oai-events');
-      setDataChannel(dc);
-
-      // Start the session using the Session Description Protocol (SDP)
-      const offer = await pc.createOffer();
-      await pc.setLocalDescription(offer);
-
-      const baseUrl = 'https://api.openai.com/v1/realtime';
-      const model = 'gpt-4o-mini-realtime-preview-2024-12-17';
-
-      const sdpResponse = await fetch(`${baseUrl}?model=${model}`, {
-        method: 'POST',
-        body: offer.sdp,
-        headers: {
-          Authorization: `Bearer ${EPHEMERAL_KEY}`,
-          'Content-Type': 'application/sdp',
-        },
-      });
-
-      if (!sdpResponse.ok) {
-        console.error('Failed to fetch SDP response');
-      }
-
-      const answer: RTCSessionDescriptionInit = {
-        type: 'answer',
-        sdp: await sdpResponse.text(),
-      };
-
-      await pc.setRemoteDescription(answer);
-      setPeerConnection(pc);
-      setIsSessionActive(true);
-      vadInstance.start();
-    } catch (error) {
-      console.error('Error starting session:', error);
-    }
-  };
-
-  function stopSession() {
-    const pc = getPeerConnection();
-
-    if (dataChannel) {
-      dataChannel.close();
-    }
-    if (pc) {
-      pc.close();
-      setPeerConnection(null);
-    }
-
-    setIsSessionActive(false);
-    setDataChannel(null);
-    vadInstance.pause();
-    resetMute();
-  }
-
-  const sendClientEvent = useCallback(
-    (message: any) => {
-      console.log('Sending client event:', message);
-      if (localDataChannel && localDataChannel.readyState === 'open') {
-        message.event_id = message.event_id || crypto.randomUUID();
-        localDataChannel.send(JSON.stringify(message));
-        setEvents((prev) => [message, ...prev]);
-      } else {
-        console.error(
-          'Failed to send message - no data channel available',
-          message,
-        );
-      }
-    },
-    [localDataChannel, setEvents], // Only depend on localDataChannel and setEvents
-  );
 
   const updateMessage = (message: string) => {
     const event = {

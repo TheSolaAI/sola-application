@@ -5,9 +5,9 @@ export const getNFTPrice = {
   type: 'function',
   name: 'getNFTPrice',
   description: functionDescription,
+  strict: true,
   parameters: {
     type: 'object',
-    strict: true,
     properties: {
       nft_name: {
         type: 'string',

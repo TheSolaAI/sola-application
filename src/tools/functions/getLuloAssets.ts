@@ -5,9 +5,9 @@ export const getLuloAssets = {
   type: 'function',
   name: 'getLuloAssets',
   description: functionDescription,
+  strict: true,
   parameters: {
     type: 'object',
-    strict: true,
     properties: {},
   },
 };

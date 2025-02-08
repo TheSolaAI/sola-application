@@ -4,9 +4,9 @@ export const getTokenData = {
   type: 'function',
   name: 'getTokenData',
   description: functionDescription,
+  strict: true,
   parameters: {
     type: 'object',
-    strict: true,
     properties: {
       token_address: {
         type: 'string',
