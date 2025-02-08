@@ -65,6 +65,7 @@ import WalletLensButton from '../components/wallet/WalletLensButton.tsx';
 import { useLayoutContext } from '../layout/LayoutProvider.tsx';
 import { useMicVAD } from '@ricky0123/vad-react';
 import { float32ArrayToBase64 } from '../lib/bufferToAudioURL.ts';
+import { formatNumber } from '../lib/utils/walletNumberConverter.ts';
 
 const Conversation = () => {
   const {
@@ -148,7 +149,6 @@ const Conversation = () => {
     // await handleAddMessage(agentMessage('Agent analysing the market'));
 
     let marketData = await getMarketData();
-
     let market: string = marketData['market'];
     let voice = marketData['voice'];
     let stats = marketData['stats'];
@@ -271,8 +271,8 @@ const Conversation = () => {
       ];
     });
     const assetDetails = walletAssets.tokens.map((item) => {
-      const amount = (item.balance / 10 ** item.decimals).toFixed(2);
-      return { symbol: item.symbol, amount: parseFloat(amount) };
+      const amount = formatNumber(item.balance)
+      return { symbol: item.symbol, amount: parseFloat(amount), price:item.totalPrice };
     });
 
     const totalAmount = walletAssets.tokens
@@ -280,10 +280,14 @@ const Conversation = () => {
       .toFixed(2);
 
     const assetDetailsString = assetDetails
+      .filter(asset => asset.symbol !== 'SOL' && asset.price > 1)
       .map((asset) => `${asset.symbol}: ${asset.amount}`)
       .join(', ');
-
-    const responseString = `Your wallet assets are: ${assetDetailsString}. Total value: ${totalAmount}.`;
+    
+    const solAsset = assetDetails.find(asset => asset.symbol === 'SOL');
+    
+    
+    const responseString = `Your wallet assets contains ${solAsset?.amount} SOL and other assets like ${assetDetailsString}. The cumalative value is ${totalAmount}.Humanise this`;
     setWalletLensOpen(true);
     return responseToOpenai(responseString);
   };
