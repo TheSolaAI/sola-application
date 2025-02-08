@@ -10,6 +10,7 @@ import {
 } from './CoinsSortDropDown.tsx';
 import { TokenAsset } from '../../types/wallet.ts';
 import useThemeManager from '../../models/ThemeManager.ts';
+import { formatNumber } from '../../lib/utils/walletNumberConverter.ts';
 
 const WalletCoinAssets = () => {
   const {
@@ -237,15 +238,15 @@ const WalletCoinAssets = () => {
                     {token.name}({token.symbol})
                   </h1>
                   <h1 className="text-secText font-regular text-s">
-                    @ {token.pricePerToken} USD
+                    ${formatNumber(token.pricePerToken)} USD
                   </h1>
                 </div>
                 <div className={'flex flex-col items-end'}>
                   <h1 className="text-lg text-textColor font-medium">
-                    {token.totalPrice.toPrecision(6)} USDC
+                    {formatNumber(token.totalPrice)} USDC
                   </h1>
                   <h1 className="text-secText font-regular text-s">
-                    {token.balance} {token.symbol}
+                    {formatNumber(token.balance)} {token.symbol}
                   </h1>
                 </div>
               </div>
