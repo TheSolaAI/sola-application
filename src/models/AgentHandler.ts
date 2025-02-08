@@ -2,10 +2,27 @@ import { create } from 'zustand';
 import { Agent, AgentTool } from '../types/agent.ts';
 import { Atom, ChartNetwork, Wallet } from 'lucide-react';
 import {
-  DAMAnalytsTools,
-  nftAgentTools,
-  tokenAnalystTools,
-} from '../tools/config.ts';
+  depositLulo,
+  getBlinks,
+  getBubblemap,
+  getLimitOrders,
+  getLstData,
+  getLuloAssets,
+  getMarketData,
+  getNFTLaunchpad,
+  getNFTPrice,
+  getRugCheck,
+  getTokenData,
+  getTopHolders,
+  getTrendingNFTs,
+  limitOrder,
+  swapLST,
+  swapTokens,
+  transferSolTx,
+  transferSpl,
+  walletActions,
+  withdrawLulo,
+} from '../tools';
 
 interface AgentHandler {
   agents: Agent[];
@@ -19,14 +36,33 @@ export const useAgentHandler = create<AgentHandler>((_setState, getState) => ({
       name: 'Token Analyst',
       description: 'Designed for deep token analysis and trading experience.',
       logo: ChartNetwork,
-      tools: tokenAnalystTools,
+      tools: [
+        walletActions,
+        getTokenData,
+        getTopHolders,
+        getRugCheck,
+        getBubblemap,
+        getLstData,
+        swapLST,
+        getMarketData,
+        getBlinks,
+        limitOrder,
+        getLimitOrders,
+      ],
     },
     {
       agentID: 2,
       name: 'NFT Analyst',
       description: 'Designed for NFT-related tasks and price queries.',
       logo: Atom,
-      tools: nftAgentTools,
+      tools: [
+        walletActions,
+        getNFTPrice,
+        getTrendingNFTs,
+        getNFTLaunchpad,
+        getMarketData,
+        getBlinks,
+      ],
     },
     {
       agentID: 3,
@@ -34,7 +70,19 @@ export const useAgentHandler = create<AgentHandler>((_setState, getState) => ({
       description:
         'DeFi Asset Manager - for Lulo operations and LST management.',
       logo: Wallet,
-      tools: DAMAnalytsTools,
+      tools: [
+        walletActions,
+        swapTokens,
+        transferSolTx,
+        transferSpl,
+        getMarketData,
+        getLuloAssets,
+        depositLulo,
+        withdrawLulo,
+        getLstData,
+        swapLST,
+        getBlinks,
+      ],
     },
   ],
 
