@@ -1,8 +1,6 @@
 import { ChevronLeft, Edit, Edit2, Menu, User } from 'react-feather';
 import React, { FC, useEffect, useRef, useState } from 'react';
 import useThemeManager from '../../models/ThemeManager.ts';
-import { useChat } from '../../hooks/useChatRoom.ts';
-import { useRoomStore } from '../../models/RoomState.ts';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { AgentSelect } from './AgentSelect.tsx';
 import { EditRoom } from './EditRoom.tsx';
@@ -11,6 +9,7 @@ import useIsMobile from '../utils/isMobile.tsx';
 import { VscPinned } from 'react-icons/vsc';
 import { useAgentHandler } from '../../models/AgentHandler.ts';
 import { useLayoutContext } from '../../layout/LayoutProvider.tsx';
+import { useChatRoomHandler } from '../../models/ChatHandler.ts';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -39,8 +38,7 @@ export const Sidebar: FC<SidebarProps> = ({
    * Global State
    */
   const { theme } = useThemeManager();
-  const { getRooms } = useChat();
-  const { rooms, setCurrentAgentId } = useRoomStore();
+  const { rooms, currentChatRoom } = useChatRoomHandler();
   const { pathname } = useLocation();
   const { agents } = useAgentHandler();
   const { walletLensOpen } = useLayoutContext();
@@ -49,7 +47,7 @@ export const Sidebar: FC<SidebarProps> = ({
    * Local State
    */
   const [agentSelectOpen, setAgentSelectOpen] = useState(false);
-  const [editingRoom, setEditingRoom] = useState<string | null>(null);
+  const [editingRoom, setEditingRoom] = useState<number | null>(null);
   const [profileOpen, setProfileOpen] = useState(false);
   const [autoOpened, setAutoOpened] = useState(false);
   const isMobile = useIsMobile();
@@ -98,18 +96,17 @@ export const Sidebar: FC<SidebarProps> = ({
   /**
    * Handle edit button click for a chat room
    */
-  const handleEditClick = (e: React.MouseEvent, roomId: string) => {
+  const handleEditClick = (e: React.MouseEvent, roomId: number) => {
     e.preventDefault();
     e.stopPropagation();
     setEditingRoom(editingRoom === roomId ? null : roomId);
   };
 
   /**
-   * Runs at the load of the screen and sets up event listeners and loads the rooms from the server.
+   * Sets up listener to close when clicking outside of the sidebar
    */
   useEffect(() => {
     document.addEventListener('mousedown', handleClickOutside);
-    getRooms();
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
@@ -177,13 +174,12 @@ export const Sidebar: FC<SidebarProps> = ({
           }}
           anchorEl={agentSelectRef.current}
           onSelect={(agentId: number) => {
-            setCurrentAgentId(agentId);
             navigate(`/`);
             setAgentSelectOpen(false);
           }}
         />
 
-        {/*  ChatRooms List - Now Scrollable */}
+        {/*  ChatRooms List */}
         <div className="mt-[10px] flex-1 pr-4 overflow-y-auto scrollbar-thin scrollbar-thumb-primary scrollbar-track-sec_background ">
           <div className="flex flex-col items-start space-y-2">
             {rooms.map((room) => {
@@ -202,7 +198,7 @@ export const Sidebar: FC<SidebarProps> = ({
               ${pathname === `/c/${room.id}` || pathname.startsWith(`/c/${room.id}/`) ? 'bg-primary' : ''}`}
                   >
                     {React.createElement(
-                      agents[room.agent_id ? room.agent_id - 1 : 0].logo,
+                      agents[room.agentId ? room.agentId - 1 : 0].logo,
                       {
                         className: 'w-4 h-4',
                         color: theme.textColor,

@@ -1,6 +1,6 @@
 import { create } from 'zustand';
+import { Agent, AgentTool } from '../types/agent.ts';
 import { Atom, ChartNetwork, Wallet } from 'lucide-react';
-import { Agent } from '../types/agent';
 import {
   DAMAnalytsTools,
   nftAgentTools,
@@ -9,11 +9,10 @@ import {
 
 interface AgentHandler {
   agents: Agent[];
+  getToolsForAgent: (agentId: number) => AgentTool[]; // Returns the tools array for a given agent ID
 }
 
-// TODO: Add Proper Agent fetching and handling
-
-export const useAgentHandler = create<AgentHandler>(() => ({
+export const useAgentHandler = create<AgentHandler>((_setState, getState) => ({
   agents: [
     {
       agentID: 1,
@@ -25,7 +24,7 @@ export const useAgentHandler = create<AgentHandler>(() => ({
     {
       agentID: 2,
       name: 'NFT Analyst',
-      description: 'Designed for NFT realted tasks and Price related queries.',
+      description: 'Designed for NFT-related tasks and price queries.',
       logo: Atom,
       tools: nftAgentTools,
     },
@@ -38,4 +37,10 @@ export const useAgentHandler = create<AgentHandler>(() => ({
       tools: DAMAnalytsTools,
     },
   ],
+
+  getToolsForAgent: (agentId: number) => {
+    return (
+      getState().agents.find((agent) => agent.agentID === agentId)?.tools || []
+    );
+  },
 }));

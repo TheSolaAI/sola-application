@@ -5,6 +5,7 @@ import { userSettingsResponse } from '../types/response.ts';
 import useThemeManager from './ThemeManager.ts';
 import { toast } from 'sonner';
 import { UpdateUserSettingsRequest } from '../types/request.ts';
+import { useSessionHandler } from './SessionHandler.ts';
 
 interface SettingsHandler {
   getSettings: () => Promise<void>;
@@ -31,6 +32,8 @@ export const useSettingsHandler = create<SettingsHandler>(() => {
       if (ApiClient.isApiResponse(response)) {
         // set all the settings in their respective handlers
         useThemeManager.getState().setTheme(response.data.theme);
+        useSessionHandler.getState().setAiEmotion(response.data.emotion_choice);
+        useSessionHandler.getState().setAiVoice(response.data.voice_preference);
       } else {
         toast.error('Failed to fetch settings.');
       }

@@ -3,6 +3,8 @@ import { useChatRoomHandler } from '../ChatHandler.ts';
 import { useChatMessageHandler } from '../ChatMessageHandler.ts';
 import { useSessionHandler } from '../SessionHandler.ts';
 import { toast } from 'sonner';
+import { useUserHandler } from '../UserHandler.ts';
+import { EventProvider } from './EventProvider.tsx';
 
 interface SessionProviderProps {
   children: ReactNode;
@@ -12,6 +14,7 @@ export const SessionProvider: FC<SessionProviderProps> = ({ children }) => {
   /**
    * Global State Management
    */
+  const { ready } = useUserHandler();
   const { currentChatRoom } = useChatRoomHandler();
   const { initChatMessageHandler } = useChatMessageHandler();
   const { initSessionHandler, setDataStream, setPeerConnection } =
@@ -24,7 +27,7 @@ export const SessionProvider: FC<SessionProviderProps> = ({ children }) => {
   useEffect(() => {
     const init = async () => {
       const token = await initSessionHandler();
-      if (!token) return; // if the token is not available, do not proceed
+      if (token === null) return; // if the token is not available, do not proceed
       const peerConnection = new RTCPeerConnection();
       const audioEl = document.createElement('audio');
       audioEl.autoplay = true;
@@ -50,17 +53,17 @@ export const SessionProvider: FC<SessionProviderProps> = ({ children }) => {
       if (!sdpResponse.ok) {
         toast.error('Failed to start session');
         throw new Error('Failed to send SDP');
+      } else {
+        const sdp = await sdpResponse.text();
+        await peerConnection.setRemoteDescription({ type: 'answer', sdp }); // confim handshake
+        setDataStream(dataChannel);
+        setPeerConnection(peerConnection);
       }
-      const sdp = await sdpResponse.text();
-      await peerConnection.setRemoteDescription({ type: 'answer', sdp }); // confim handshake
-      setDataStream(dataChannel);
-      setPeerConnection(peerConnection);
-
-      // Send events to configure real time api
-      dataChannel.send();
     };
-    init();
-  }, []);
+    if (ready) {
+      init();
+    }
+  }, [ready]);
 
   /**
    * Runs every time the current chat room changes and loads the chat messages of the room
@@ -71,5 +74,9 @@ export const SessionProvider: FC<SessionProviderProps> = ({ children }) => {
     initChatMessageHandler();
   }, [currentChatRoom]);
 
-  return <>{children}</>;
+  return (
+    <EventProvider>
+      <>{children}</>
+    </EventProvider>
+  );
 };

@@ -14,6 +14,7 @@ import WalletManagement from '../pages/WalletManagement';
 import Settings from '../pages/Settings';
 import OnRamp from '../pages/OnRamp';
 import Pricing from '../pages/Pricing';
+import { SessionProvider } from '../models/provider/SessionProvider.tsx';
 
 interface Props {
   isAuthenticated: boolean;
@@ -26,62 +27,64 @@ const AppRoutes: React.FC<Props> = ({ isAuthenticated }) => {
 
   return (
     <MasterLayout>
-      <Routes>
-        <Route
-          path="/"
-          element={
-            <>
-              <PageTitle title="Home" />
-              <Conversation />
-            </>
-          }
-        />
-        <Route
-          path="/c/:id"
-          element={
-            <>
-              <PageTitle title="Home" />
-              <Conversation />
-            </>
-          }
-        />
-        <Route
-          path="/settings/configuration"
-          element={
-            <>
-              <PageTitle title="Settings" />
-              <Settings />
-            </>
-          }
-        />
-        <Route
-          path="/wallet"
-          element={
-            <>
-              <PageTitle title="Wallet Management" />
-              <WalletManagement />
-            </>
-          }
-        />
-        <Route
-          path="/onramp"
-          element={
-            <>
-              <PageTitle title="On Ramp" />
-              <OnRamp />
-            </>
-          }
-        />
-        <Route
-          path="/pricing"
-          element={
-            <>
-              <PageTitle title="Pricing" />
-              <Pricing />
-            </>
-          }
-        />
-      </Routes>
+      <SessionProvider>
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <>
+                <PageTitle title="Home" />
+                <Conversation />
+              </>
+            }
+          />
+          <Route
+            path="/c/:id"
+            element={
+              <>
+                <PageTitle title="Home" />
+                <Conversation />
+              </>
+            }
+          />
+          <Route
+            path="/settings/configuration"
+            element={
+              <>
+                <PageTitle title="Settings" />
+                <Settings />
+              </>
+            }
+          />
+          <Route
+            path="/wallet"
+            element={
+              <>
+                <PageTitle title="Wallet Management" />
+                <WalletManagement />
+              </>
+            }
+          />
+          <Route
+            path="/onramp"
+            element={
+              <>
+                <PageTitle title="On Ramp" />
+                <OnRamp />
+              </>
+            }
+          />
+          <Route
+            path="/pricing"
+            element={
+              <>
+                <PageTitle title="Pricing" />
+                <Pricing />
+              </>
+            }
+          />
+        </Routes>
+      </SessionProvider>
     </MasterLayout>
   );
 };

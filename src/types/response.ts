@@ -1,9 +1,11 @@
+import { AIEmotion, AIVoice } from '../config/ai.ts';
+
 export interface userSettingsResponse {
   id: number;
   user_id: number;
   theme: string;
-  voice_preference: string;
-  emotion_choice: string;
+  voice_preference: AIVoice;
+  emotion_choice: AIEmotion;
   credits_remaining: number;
   tiers: string;
 }

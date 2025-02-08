@@ -1,7 +1,6 @@
 import { FC } from 'react';
 import { Dropdown } from '../general/DropDown.tsx';
-import { LogOut, Settings, CreditCard } from 'lucide-react';
-import { useChatState } from '../../models/ChatState.ts';
+import { CreditCard, LogOut, Settings } from 'lucide-react';
 import { usePrivy } from '@privy-io/react-auth';
 import { useNavigate } from 'react-router-dom';
 
@@ -20,29 +19,11 @@ export const ProfileDropDown: FC<ProfileDropDownProps> = ({
    * State Management
    */
 
-  const {
-    getPeerConnection,
-    dataChannel,
-    setPeerConnection,
-    setIsSessionActive,
-    setDataChannel,
-  } = useChatState();
   const { logout } = usePrivy();
   const navigation = useNavigate();
 
   const logoutHandler = () => {
-    const pc = getPeerConnection();
-
-    if (dataChannel) {
-      dataChannel.close();
-    }
-    if (pc) {
-      pc.close();
-      setPeerConnection(null);
-    }
-
-    setIsSessionActive(false);
-    setDataChannel(null);
+    // TODO: Close the session and datastream to OpenAI
 
     logout();
   };

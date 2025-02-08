@@ -99,7 +99,7 @@ interface EditRoomProps {
   isOpen: boolean;
   onClose: () => void;
   anchorEl: null | HTMLElement;
-  roomID: string;
+  roomID: number;
 }
 
 export const EditRoom: React.FC<EditRoomProps> = ({

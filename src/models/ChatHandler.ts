@@ -53,8 +53,6 @@ export const useChatRoomHandler = create<ChatRoomHandler>((set, get) => {
               id: room.id,
               agentId: room.agent_id,
               name: room.name,
-              icon: 'https://avatar.iran.liara.run/username?username=Scott+Wilson',
-              // TODO: Change this when the backend supports chatRoom images
             };
           }),
         });
