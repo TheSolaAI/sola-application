@@ -17,8 +17,14 @@ export const SessionProvider: FC<SessionProviderProps> = ({ children }) => {
   const { ready } = useUserHandler();
   const { currentChatRoom } = useChatRoomHandler();
   const { initChatMessageHandler } = useChatMessageHandler();
-  const { initSessionHandler, setDataStream, setPeerConnection } =
-    useSessionHandler();
+  const {
+    initSessionHandler,
+    setDataStream,
+    setPeerConnection,
+    setMediaStream,
+    muted,
+    mediaStream,
+  } = useSessionHandler();
 
   /**
    * Runs when the application launches and starts the session with OpenAI. Even when room switches
@@ -35,6 +41,8 @@ export const SessionProvider: FC<SessionProviderProps> = ({ children }) => {
       const mediaStream = await navigator.mediaDevices.getUserMedia({
         audio: true,
       });
+      // mute the media stream based on the muted state
+      mediaStream.getAudioTracks()[0].enabled = !muted;
       peerConnection.addTrack(mediaStream.getTracks()[0]);
       const dataChannel = peerConnection.createDataChannel('oai-events');
       const offer = await peerConnection.createOffer();
@@ -56,6 +64,7 @@ export const SessionProvider: FC<SessionProviderProps> = ({ children }) => {
       } else {
         const sdp = await sdpResponse.text();
         await peerConnection.setRemoteDescription({ type: 'answer', sdp }); // confim handshake
+        setMediaStream(mediaStream);
         setDataStream(dataChannel);
         setPeerConnection(peerConnection);
       }
@@ -64,6 +73,19 @@ export const SessionProvider: FC<SessionProviderProps> = ({ children }) => {
       init();
     }
   }, [ready]);
+
+  /**
+   * Mutes the media stream when the user chooses to mute the audio
+   */
+  useEffect(() => {
+    if (mediaStream) {
+      const audioTrack = mediaStream.getAudioTracks()[0];
+      if (audioTrack) {
+        audioTrack.enabled = !muted;
+      }
+      console.log('Muted:', audioTrack);
+    }
+  }, [muted]);
 
   /**
    * Runs every time the current chat room changes and loads the chat messages of the room

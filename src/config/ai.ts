@@ -21,7 +21,11 @@ export type AIVoice =
   | 'verse';
 
 export type AIEmotion =
-  | 'highly energetic and cheerfully enthusiastic'
   | 'frustrated and harsh and completely apathetic'
   | 'playfully cheeky and very sarcastic'
-  | 'angrily aggressive and rudely dismissive';
+  | 'angrily aggressive and rudely dismissive'
+  | 'highly energetic and cheerfully enthusiastic'
+  | 'confused and concerned but still helpful'
+  | 'normal and neutral';
+
+export const AI_SUCCESS_RESPONSES = [];

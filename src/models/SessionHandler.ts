@@ -12,9 +12,12 @@ interface SessionHandler {
 
   peerConnection: RTCPeerConnection | null; // the peer connection for the webrtc session
   dataStream: RTCDataChannel | null; // the data stream for the webrtc session
+  mediaStream: MediaStream | null; // the media stream for the webrtc session
 
   aiVoice: AIVoice; // the voice of the AI
   aiEmotion: AIEmotion; // Emotion of the AI
+
+  muted: boolean; // the mute state of the user
 
   /**
    * Starts the webrtc session with OpenAI real time api and initialize the loading of the available tools.
@@ -24,20 +27,45 @@ interface SessionHandler {
 
   setPeerConnection: (peerConnection: RTCPeerConnection) => void; // sets the peer connection
   setDataStream: (dataStream: RTCDataChannel) => void; // sets the data stream
+  setMediaStream: (mediaStream: MediaStream) => void; // sets the media stream
 
   setAiVoice: (aiVoice: AIVoice) => void; // sets the voice of the AI
   setAiEmotion: (aiEmotion: AIEmotion) => void; // sets the emotion of the AI
 
   updateSession: () => void; // Updates the session with the latest tools, voice and emotion
+
+  /**
+   * Sets the mute state of the user. This means the user's audio will not be collected. However the
+   * user can still hear the AI and the webRTC session is still active.
+   * @param muted
+   */
+  setMuted: (muted: boolean) => void;
+
+  /**
+   * Instructs the AI to provide a response to the user. This is used when direct responses are required
+   * rather than function call responses. Status affects the tone of the response from the AI.
+   *
+   * @param message The message to send to the AI
+   * @param status The status of the message
+   */
+  getResponse: ({
+    message,
+    status,
+  }: {
+    message: string;
+    status: 'error' | 'success' | 'neutral';
+  }) => void;
 }
 
 export const useSessionHandler = create<SessionHandler>((set, get) => {
   return {
-    state: 'idle',
+    state: 'loading',
     peerConnection: null,
     dataStream: null,
     aiVoice: 'sage',
     aiEmotion: 'highly energetic and cheerfully enthusiastic',
+    muted: true,
+    mediaStream: null,
 
     initSessionHandler: async (): Promise<string | null> => {
       set({ state: 'loading' });
@@ -49,7 +77,6 @@ export const useSessionHandler = create<SessionHandler>((set, get) => {
       );
       if (ApiClient.isApiResponse<OpenAIKeyGenResponse>(response)) {
         const ephermeralToken = response.data.client_secret.value;
-        set({ state: 'idle' });
         return ephermeralToken;
       } else {
         // if the response is not successful, show a toast
@@ -67,12 +94,20 @@ export const useSessionHandler = create<SessionHandler>((set, get) => {
       set({ peerConnection });
     },
 
+    setMediaStream: (mediaStream: MediaStream): void => {
+      set({ mediaStream });
+    },
+
     setAiVoice: (aiVoice: AIVoice): void => {
       set({ aiVoice });
     },
 
     setAiEmotion: (aiEmotion: AIEmotion): void => {
       set({ aiEmotion });
+    },
+
+    setMuted: (muted: boolean): void => {
+      set({ muted });
     },
 
     updateSession: (): void => {
@@ -97,6 +132,35 @@ export const useSessionHandler = create<SessionHandler>((set, get) => {
       };
       // send the event across the data stream
       get().dataStream?.send(JSON.stringify(updateParams));
+      set({ state: 'idle' }); // we now have a working session and we are ready to receive messages
+    },
+
+    getResponse: ({
+      message,
+      status,
+    }: {
+      message: string;
+      status: 'error' | 'success' | 'neutral';
+    }): void => {
+      if (get().dataStream && get().dataStream?.readyState === 'open') {
+        const emotion =
+          status === 'success'
+            ? 'highly energetic and cheerfully enthusiastic'
+            : status === 'error'
+              ? 'confused and concerned but still helpful'
+              : 'normal and neutral';
+        const response = {
+          type: 'response.create',
+          response: {
+            modalities: ['text', 'audio'],
+            instructions:
+              message + '. Please be ' + emotion + ' in your response',
+          },
+        };
+        get().dataStream?.send(JSON.stringify(response));
+      } else {
+        toast.error('Failed to send message. Reload the page');
+      }
     },
   };
 });
