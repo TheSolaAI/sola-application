@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { Agent, AgentTool } from '../types/agent.ts';
+import { Agent } from '../types/agent.ts';
 import { Atom, ChartNetwork, Wallet } from 'lucide-react';
 import {
   depositLulo,
@@ -23,10 +23,11 @@ import {
   walletActions,
   withdrawLulo,
 } from '../tools';
+import { Tool } from '../types/tool.ts';
 
 interface AgentHandler {
   agents: Agent[];
-  getToolsForAgent: (agentId: number) => AgentTool[]; // Returns the tools array for a given agent ID
+  getToolsForAgent: (agentId: number) => Tool[]; // Returns the tools array for a given agent ID
 }
 
 export const useAgentHandler = create<AgentHandler>((_setState, getState) => ({

@@ -80,8 +80,8 @@ export const useChatMessageHandler = create<ChatMessageHandler>((set, get) => {
       );
       if (ApiClient.isApiResponse<ChatMessagesResponse>(response)) {
         set({ state: 'idle' });
-        const messages: ChatItem<ChatContentType>[] =
-          response.data.results.reduce(
+        const messages: ChatItem<ChatContentType>[] = response.data.results
+          .reduce(
             (
               acc: ChatItem<ChatContentType>[],
               message: ChatMessageResponseWrapper,
@@ -93,7 +93,8 @@ export const useChatMessageHandler = create<ChatMessageHandler>((set, get) => {
               return acc;
             },
             [],
-          );
+          )
+          .reverse();
         set({ messages, state: 'idle', next: response.data.next });
       } else {
         set({ state: 'error' });

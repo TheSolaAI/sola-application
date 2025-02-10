@@ -1,14 +1,18 @@
+import { Tool } from '../types/tool.ts';
+
 const functionDescription =
   'Call this function when the user wants to know the highest apy in LST (Liquid Staking Token). General questions would be what is the best lst to stake? etc';
 
-export const getLstData = {
-  type: 'function',
-  name: 'getLstData',
-  description: functionDescription,
-  strict: true,
-  parameters: {
-    type: 'object',
-    properties: {},
+export const getLstData: Tool = {
+  implementation: getLstDataFunction,
+  abstraction: {
+    type: 'function',
+    name: 'getLstData',
+    description: functionDescription,
+    parameters: {
+      type: 'object',
+      properties: {},
+    },
   },
 };
 

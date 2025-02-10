@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useWalletHandler } from '../../models/WalletHandler.ts';
 import SUPPORTED_WALLETS from '../../config/wallets/supportedWallets.ts';
-import { titleCase } from '../utils/titleCase.ts';
+import { titleCase } from '../../utils/titleCase.ts';
 import { ChevronDown } from 'react-feather';
 import { WalletPicker } from './WalletPicker.tsx';
 import { FiCopy } from 'react-icons/fi';

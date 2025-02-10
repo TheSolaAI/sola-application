@@ -5,6 +5,7 @@ import { ChatRoom } from '../types/chatRoom.ts';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { useChatMessageHandler } from '../models/ChatMessageHandler.ts';
+import { SimpleMessageChatItem } from '../components/ui/message_items/SimpleMessageChatItem.tsx';
 
 const Conversation = () => {
   const navigate = useNavigate();
@@ -14,7 +15,7 @@ const Conversation = () => {
    */
   const { setCurrentChatRoom, rooms, currentChatRoom, allRoomsLoaded } =
     useChatRoomHandler();
-  const { messages } = useChatMessageHandler();
+  const { messages, currentChatItem } = useChatMessageHandler();
 
   /**
    * Current Route
@@ -55,24 +56,21 @@ const Conversation = () => {
   return (
     <div className="relative flex flex-col w-full h-full">
       <div className="flex-1 min-h-[calc(100vh-1rem)] overflow-y-auto w-full">
-        {/*{messages.map((message) => (*/}
-        {/*  <div key={message.id} className="flex justify-center w-full">*/}
-        {/*    <div className="flex flex-col w-full max-w-[600px]">*/}
-        {/*      <div className="flex justify-end">*/}
-        {/*        <div className="flex items-center gap-2 p-2 bg-primary rounded-tl-xl rounded-br-xl">*/}
-        {/*          <p className="text-sm font-medium text-textColor">You</p>*/}
-        {/*        </div>*/}
-        {/*      </div>*/}
-        {/*      <div className="flex justify-end">*/}
-        {/*        <div className="flex items-center gap-2 p-4 bg-primary/10 rounded-tl-xl rounded-br-xl">*/}
-        {/*          <p className="text-sm font-light text-textColor">*/}
-        {/*            {message?.content.text}*/}
-        {/*          </p>*/}
-        {/*        </div>*/}
-        {/*      </div>*/}
-        {/*    </div>*/}
-        {/*  </div>*/}
-        {/*))}*/}
+        {messages.map((message, index) => {
+          if (message.content.type === 'simple_message') {
+            return (
+              <SimpleMessageChatItem key={index} props={message.content} />
+            );
+          }
+        })}
+        {/* render the current chat item here*/}
+        {/*TODO: Split the choosing logic as detailed above into its own function and apply it to currentChatItem also*/}
+        {currentChatItem && (
+          <SimpleMessageChatItem
+            key={currentChatItem.id}
+            props={currentChatItem.content}
+          />
+        )}
       </div>
       {/* Session Controls wrapper */}
       <div className="absolute bottom-0 left-0 right-0 flex justify-center w-full p-4 pb-6 bg-gradient-to-t from-primaryDark/20  to-transparent">

@@ -5,7 +5,6 @@ export const getNFTPrice = {
   type: 'function',
   name: 'getNFTPrice',
   description: functionDescription,
-  strict: true,
   parameters: {
     type: 'object',
     properties: {

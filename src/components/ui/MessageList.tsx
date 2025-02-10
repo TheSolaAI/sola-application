@@ -21,17 +21,17 @@ import axios from 'axios';
 import { Connection, VersionedTransaction } from '@solana/web3.js';
 import { tokenList } from '../../config/tokens/tokenMapping';
 import { SwapParams } from '../../types/jupiter.ts';
-import { responseToOpenai } from '../../lib/utils/response';
 import { ConnectedSolanaWallet } from '@privy-io/react-auth';
 import RenderBlinks from './RenderBlinks';
 import AgentTranscription from './AgentTransacriptions.tsx';
 import MessageBox from './MessageBox.tsx';
-import GridBox from './GridBox.tsx';
+import BaseGridChatItem from './message_items/general/BaseGridChatItem.tsx';
 import { useWalletHandler } from '../../models/WalletHandler.ts';
-import MonoGridBox from './MonoGridBox.tsx';
-import MessageWrapper from './MessageWrapper.tsx';
+import BaseMonoGridChatItem from './message_items/general/BaseMonoGridChatItem.tsx';
+import BaseChatItem from './message_items/general/BaseChatItem.tsx';
 import PopupModal from './PopuipModel.tsx';
 import { AudioPlayer } from './AudioPlayer.tsx';
+import { formatNumber } from '../../utils/formatNumber.ts';
 
 const wallet_service_url = process.env.WALLET_SERVICE_URL;
 
@@ -116,18 +116,6 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
     }
   }
 
-  function formatNumber(num: number) {
-    if (num >= 1_000_000_000) {
-      return (num / 1_000_000_000).toFixed(2).replace(/\.0$/, '') + 'B';
-    } else if (num >= 1_000_000) {
-      return (num / 1_000_000).toFixed(2).replace(/\.0$/, '') + 'M';
-    } else if (num >= 1_000) {
-      return (num / 1_000).toFixed(2).replace(/\.0$/, '') + 'K';
-    } else {
-      return num.toString();
-    }
-  }
-
   return (
     <div className="px-1 md:py-4 md:px-24 w-[85%] mx-auto flex flex-col">
       {messageList.map((item, index) => {
@@ -146,7 +134,7 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
           case 'transaction': {
             const transactionCard = item.card as TransactionCard;
             return (
-              <MonoGridBox index={index}>
+              <BaseMonoGridChatItem index={index}>
                 <img src="/solscan.png" alt="solscan" className="h-10 w-10" />
                 <span className="font-semibold text-lg">
                   {transactionCard.title}
@@ -160,7 +148,7 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                 >
                   View details on Solscan ↗
                 </a>
-              </MonoGridBox>
+              </BaseMonoGridChatItem>
             );
           }
 
@@ -175,7 +163,7 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
           case 'tokenCard': {
             const token = item.card as TokenCard;
             return (
-              <GridBox index={index} col={3}>
+              <BaseGridChatItem index={index} col={3}>
                 <div className="p-2 rounded-lg bg-sec_background text-secText">
                   <div className="flex justify-between items-start">
                     <div className="flex gap-4 items-center">
@@ -223,14 +211,14 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                     ))}
                   </div>
                 </div>
-              </GridBox>
+              </BaseGridChatItem>
             );
           }
 
           case 'nftCollectionCard': {
             const nftCollectionCard = item.card as NFTCollectionCard;
             return (
-              <MonoGridBox index={index}>
+              <BaseMonoGridChatItem index={index}>
                 <img
                   src={nftCollectionCard.image}
                   alt={nftCollectionCard.title}
@@ -243,7 +231,7 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                 <p className="text-small">
                   Listed: {nftCollectionCard.listed || 'Unknown'}
                 </p>
-              </MonoGridBox>
+              </BaseMonoGridChatItem>
             );
           }
 
@@ -252,7 +240,7 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
             const tokenBalance = lulo.tokenBalance;
             return (
               <>
-                <MonoGridBox index={index}>
+                <BaseMonoGridChatItem index={index}>
                   <img
                     src="/lulo.png"
                     alt="luloimage"
@@ -267,8 +255,8 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                   <p className="text-sm">
                     Total Value : {lulo.totalValue.toFixed(2)}
                   </p>
-                </MonoGridBox>
-                <GridBox index={index} col={3}>
+                </BaseMonoGridChatItem>
+                <BaseGridChatItem index={index} col={3}>
                   {tokenBalance.map((token, tokenIndex) => (
                     <a
                       key={tokenIndex}
@@ -302,7 +290,7 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                       </p>
                     </a>
                   ))}
-                </GridBox>
+                </BaseGridChatItem>
               </>
             );
           }
@@ -346,7 +334,7 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
             const marketdataCard = item.card as MarketDataCard;
             console.log(marketdataCard);
             return (
-              <MessageWrapper index={index}>
+              <BaseChatItem index={index}>
                 <h3 className="text-lg font-semibold mb-2">Market Analysis</h3>
                 <div className="flex flex-wrap gap-2">
                   {marketdataCard.marketAnalysis.map((analysis, idx) => (
@@ -361,14 +349,14 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                     </a>
                   ))}
                 </div>
-              </MessageWrapper>
+              </BaseChatItem>
             );
           }
 
           case 'limitOrder': {
             const LimitOrderCards = item.card as ShowLimitOrderCard;
             return (
-              <GridBox index={index} col={2}>
+              <BaseGridChatItem index={index} col={2}>
                 {LimitOrderCards.orders.map((order, lIndex) => {
                   const inputToken = Object.values(tokenList).find(
                     (v) => v.MINT === order.input_mint,
@@ -418,14 +406,14 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                     </div>
                   );
                 })}
-              </GridBox>
+              </BaseGridChatItem>
             );
           }
 
           case 'sanctumCard': {
             const sanctumCards = item.card as SanctumCard[];
             return (
-              <GridBox index={index} col={3}>
+              <BaseGridChatItem index={index} col={3}>
                 {sanctumCards.map((sanctumCard, index) => (
                   <div
                     key={sanctumCard.symbol || index}
@@ -500,7 +488,7 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                     </PopupModal>
                   </div>
                 ))}
-              </GridBox>
+              </BaseGridChatItem>
             );
           }
 
@@ -529,7 +517,7 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
             };
 
             return (
-              <MessageWrapper index={index}>
+              <BaseChatItem index={index}>
                 <span className={`${scoreColor} font-semibold p-2`}>
                   Risk Level: {rugCheckCard.score}
                 </span>
@@ -557,14 +545,14 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                     ))
                   )}
                 </div>
-              </MessageWrapper>
+              </BaseChatItem>
             );
           }
 
           case 'trendingNFTCard': {
             const trendingNFTCard = item.card as TrendingNFTCard[];
             return (
-              <GridBox index={index} col={3}>
+              <BaseGridChatItem index={index} col={3}>
                 {trendingNFTCard.map((nftCards, tokenIndex) => (
                   <div
                     key={tokenIndex}
@@ -583,30 +571,30 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                     </div>
                   </div>
                 ))}
-              </GridBox>
+              </BaseGridChatItem>
             );
           }
 
           case 'bubblemapCard': {
             const bubblemapCard = item.card as BubblemapCard;
             return (
-              <MessageWrapper index={index}>
+              <BaseChatItem index={index}>
                 <iframe
                   src={`https://app.bubblemaps.io/sol/token/${bubblemapCard.token}`}
                   className="w-full h-64 md:h-94 rounded-lg"
                 />
-              </MessageWrapper>
+              </BaseChatItem>
             );
           }
 
           case 'blinkCard': {
             const blink = item.link || '';
             return (
-              <MessageWrapper index={index}>
+              <BaseChatItem index={index}>
                 <div className="p-4 text-center w-72">
                   <RenderBlinks actionName={blink} />
                 </div>
-              </MessageWrapper>
+              </BaseChatItem>
             );
           }
 
@@ -614,7 +602,7 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
             const topHolders = item.card as TopHolder[];
 
             return (
-              <MessageWrapper index={index}>
+              <BaseChatItem index={index}>
                 <div className="p-4">
                   <h2 className="text-lg font-semibold mb-4">
                     Top Holders Information
@@ -657,7 +645,7 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                     </div>
                   </div>
                 </div>
-              </MessageWrapper>
+              </BaseChatItem>
             );
           }
 

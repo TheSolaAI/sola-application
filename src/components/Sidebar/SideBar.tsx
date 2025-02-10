@@ -5,7 +5,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { AgentSelect } from './AgentSelect.tsx';
 import { EditRoom } from './EditRoom.tsx';
 import { ProfileDropDown } from './ProfileDropDown.tsx';
-import useIsMobile from '../utils/isMobile.tsx';
+import useIsMobile from '../../utils/isMobile.tsx';
 import { VscPinned } from 'react-icons/vsc';
 import { useAgentHandler } from '../../models/AgentHandler.ts';
 import { useLayoutContext } from '../../layout/LayoutProvider.tsx';

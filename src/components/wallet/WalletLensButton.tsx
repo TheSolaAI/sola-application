@@ -1,7 +1,7 @@
 import { useWalletHandler } from '../../models/WalletHandler.ts';
 import { useEffect, useState } from 'react';
 import SUPPORTED_WALLETS from '../../config/wallets/supportedWallets.ts';
-import { titleCase } from '../utils/titleCase.ts';
+import { titleCase } from '../../utils/titleCase.ts';
 
 interface WalletLensButtonProps {
   onClick?: () => void;

@@ -9,7 +9,7 @@ import './css/style.css';
 import './css/satoshi.css';
 import { Toaster } from 'sonner';
 import useThemeManager from './models/ThemeManager.ts';
-import useIsMobile from './components/utils/isMobile.tsx';
+import useIsMobile from './utils/isMobile.tsx';
 
 // Sentry Initialization
 Sentry.init({

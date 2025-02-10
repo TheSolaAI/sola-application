@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { useWalletHandler } from '../../models/WalletHandler.ts';
-import { titleCase } from '../utils/titleCase.ts';
+import { titleCase } from '../../utils/titleCase.ts';
 import {
   ArrowUpDown,
   ChevronDownIcon,

@@ -5,7 +5,6 @@ export const swapTokens = {
   type: 'function',
   name: 'swapTokens',
   description: functionDescription,
-  strict: true,
   parameters: {
     type: 'object',
     properties: {

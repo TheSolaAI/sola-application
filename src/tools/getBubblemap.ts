@@ -1,18 +1,24 @@
+import { Tool } from '../types/tool.ts';
+
 const functionDescription = `Fetches a bubblemap for the specified token.`;
 
-export const getBubblemap = {
-  type: 'function',
-  name: 'getBubblemap',
-  description: functionDescription,
-  strict: true,
-  parameters: {
-    type: 'object',
-    properties: {
-      token: {
-        type: 'string',
-        description: 'This is the token address or symbol.',
+export const getBubblemap: Tool = {
+  implementation: getBubblemapFunction,
+  abstraction: {
+    type: 'function',
+    name: 'getBubblemap',
+    description: functionDescription,
+    parameters: {
+      type: 'object',
+      properties: {
+        token: {
+          type: 'string',
+          description: 'This is the token address or symbol.',
+        },
       },
+      required: ['token'],
     },
-    required: ['token'],
   },
 };
+
+export function getBubblemapFunction() {}

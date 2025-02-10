@@ -5,7 +5,6 @@ export const getNFTLaunchpad = {
   type: 'function',
   name: 'getNFTLaunchpad',
   description: functionDescription,
-  strict: true,
   parameters: {
     type: 'object',
     properties: {},

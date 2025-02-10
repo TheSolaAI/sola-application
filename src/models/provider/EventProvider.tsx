@@ -2,6 +2,9 @@ import { FC, ReactNode, useEffect } from 'react';
 import { useSessionHandler } from '../SessionHandler.ts';
 import { useChatMessageHandler } from '../ChatMessageHandler.ts';
 import { SimpleMessageChatContent } from '../../types/chatItem.ts';
+import { useAgentHandler } from '../AgentHandler.ts';
+import { useChatRoomHandler } from '../ChatRoomHandler.ts';
+import { Tool } from '../../types/tool.ts';
 
 interface EventProviderProps {
   children: ReactNode;
@@ -11,7 +14,9 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
   /**
    * Global State
    */
-  const { dataStream, updateSession } = useSessionHandler();
+  const { dataStream, updateSession, sendMessage } = useSessionHandler();
+  const { getToolsForAgent } = useAgentHandler();
+  const { currentChatRoom } = useChatRoomHandler();
 
   /**
    * The direct api access is used in all these classes to prevent asynchronous
@@ -22,7 +27,7 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
   useEffect(() => {
     const handleEvents = async () => {
       if (dataStream === null) return;
-      dataStream.onmessage = (event) => {
+      dataStream.onmessage = async (event) => {
         const eventData = JSON.parse(event.data);
         if (eventData.type === 'session.created') {
           // update the session with our latest tools, voice and emotion
@@ -54,6 +59,31 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
           ) {
             // this is the final event for the current message so we commit it
             useChatMessageHandler.getState().commitCurrentChatItem();
+          }
+        } else if (eventData.type === 'response.done') {
+          // handle the function calls
+          if (eventData.response.output) {
+            for (const output of eventData.response.output) {
+              // check if the output is a function call. If it is a message call then ignore
+              if (output.type === 'function_call') {
+                // Check the tools this agent has access to
+                const tool = getToolsForAgent(currentChatRoom!.agentId).find(
+                  (tool: Tool) => tool.abstraction.name === output.name,
+                );
+                if (tool) {
+                  // call the tool handling function and add its output chat item to the chat
+                  const response = await tool.implementation(
+                    JSON.parse(output.arguments),
+                  );
+                  // send the response back to OpenAI
+                  sendMessage(response);
+                } else {
+                  // this agent does not support this tool. This is a fail-safe as mostly openAI will not send out
+                  // a function call as it was not provided the context even
+                  return;
+                }
+              }
+            }
           }
         }
         console.log(JSON.stringify(eventData, null, 2));

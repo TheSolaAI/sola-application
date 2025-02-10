@@ -5,7 +5,6 @@ export const transferSolTx = {
   type: 'function',
   name: 'transferSolTx',
   description: functionDescription,
-  strict: true,
   parameters: {
     type: 'object',
     properties: {

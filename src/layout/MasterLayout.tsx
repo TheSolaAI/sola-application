@@ -3,7 +3,7 @@ import React, { ReactNode } from 'react';
 import { Sidebar } from '../components/Sidebar/SideBar.tsx';
 import { WalletLensSideBar } from '../components/wallet/WalletLensSideBar.tsx';
 import { useLayoutContext } from './LayoutProvider.tsx';
-import useIsMobile from '../components/utils/isMobile.tsx';
+import useIsMobile from '../utils/isMobile.tsx';
 
 const MasterLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
   const {
@@ -26,7 +26,9 @@ const MasterLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
         setCanAutoClose={setCanAutoClose}
       />
       {!isMobile || !walletLensOpen ? (
-        <main className="w-full sm:rounded-2xl bg-background overflow-y-scroll scrollbar-thin scrollbar-thumb-primary scrollbar-track-background ">{children}</main>
+        <main className="w-full sm:rounded-2xl bg-background overflow-y-scroll scrollbar-thin scrollbar-thumb-primary scrollbar-track-background ">
+          {children}
+        </main>
       ) : (
         <></>
       )}

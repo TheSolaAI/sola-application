@@ -1,7 +1,7 @@
 import { FC } from 'react';
 import { Dropdown } from '../general/DropDown.tsx';
 import { useWalletHandler } from '../../models/WalletHandler.ts';
-import { titleCase } from '../utils/titleCase.ts';
+import { titleCase } from '../../utils/titleCase.ts';
 import { FiCopy } from 'react-icons/fi';
 import { toast } from 'sonner';
 import SUPPORTED_WALLETS from '../../config/wallets/supportedWallets.ts'; // Import copy icon from react-icons
