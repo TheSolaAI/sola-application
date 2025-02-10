@@ -2,7 +2,6 @@ export interface ChatItem<T extends BaseChatContent> {
   // Make ChatItem generic
   id: number;
   content: T; // Insert any of the ChatContent types here
-  sender: 'user' | 'assistant' | 'system';
   createdAt: string;
 }
 

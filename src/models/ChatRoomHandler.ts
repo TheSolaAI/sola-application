@@ -14,6 +14,11 @@ interface ChatRoomHandler {
    */
   currentChatRoom: ChatRoom | null;
 
+  /**
+   * A Boolean property on whether or not all the rooms have been loaded
+   */
+  allRoomsLoaded: boolean;
+
   setState: (state: 'idle' | 'loading' | 'error') => void; // sets the state of the chat room handler
   /**
    * Initialize the room handler by fetching all the chat rooms from the server
@@ -31,6 +36,7 @@ export const useChatRoomHandler = create<ChatRoomHandler>((set, get) => {
     state: 'idle',
     rooms: [],
     currentChatRoom: null,
+    allRoomsLoaded: false,
 
     setState: (state: 'idle' | 'loading' | 'error'): void => set({ state }),
 
@@ -51,6 +57,7 @@ export const useChatRoomHandler = create<ChatRoomHandler>((set, get) => {
       if (ApiClient.isApiResponse<ChatRoomResponse[]>(response)) {
         set({
           state: 'idle',
+          allRoomsLoaded: true,
           rooms: response.data.map((room: ChatRoomResponse): ChatRoom => {
             return {
               id: room.id,
@@ -117,16 +124,27 @@ export const useChatRoomHandler = create<ChatRoomHandler>((set, get) => {
       set({ state: 'loading' });
       const response = await apiClient.post<ChatRoomResponse>(
         API_URLS.CHAT_ROOMS,
-        { name: room.name, agent_id: room.agentId },
+        { name: room.name, agent_id: room.agentId, session_id: 123 },
         'auth',
       );
 
-      if (ApiClient.isApiResponse(response)) {
+      if (ApiClient.isApiResponse<ChatRoomResponse>(response)) {
         set({
-          rooms: [...get().rooms, room],
+          rooms: [
+            ...get().rooms,
+            {
+              id: response.data.id,
+              name: response.data.name,
+              agentId: response.data.agent_id,
+            },
+          ],
           state: 'idle',
         });
-        return room;
+        return {
+          id: response.data.id,
+          name: response.data.name,
+          agentId: response.data.agent_id,
+        };
       } else {
         toast.error('Failed to create room');
         set({ state: 'error' });

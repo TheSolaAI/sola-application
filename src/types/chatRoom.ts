@@ -1,5 +1,5 @@
 export interface ChatRoom {
-  id: number;
+  id?: number;
   name: string;
   agentId: number;
 }

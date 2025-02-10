@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { ChatRoom } from '../types/chatRoom.ts';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
+import { useChatMessageHandler } from '../models/ChatMessageHandler.ts';
 
 const Conversation = () => {
   const navigate = useNavigate();
@@ -11,7 +12,9 @@ const Conversation = () => {
   /**
    * Global state
    */
-  const { setCurrentChatRoom, rooms, currentChatRoom } = useChatRoomHandler();
+  const { setCurrentChatRoom, rooms, currentChatRoom, allRoomsLoaded } =
+    useChatRoomHandler();
+  const { messages } = useChatMessageHandler();
 
   /**
    * Current Route
@@ -20,7 +23,7 @@ const Conversation = () => {
   const chatRoomId = pathParts[pathParts.length - 1];
 
   useEffect(() => {
-    if (chatRoomId) {
+    if (chatRoomId && allRoomsLoaded) {
       const numericChatRoomId = Number(chatRoomId); // Convert to number
       if (!isNaN(numericChatRoomId)) {
         // isNan check before find
@@ -36,10 +39,8 @@ const Conversation = () => {
       } else {
         navigate('/');
       }
-    } else {
-      navigate('/');
     }
-  }, [chatRoomId]);
+  }, [chatRoomId, allRoomsLoaded]);
 
   /**
    * This useEffect will automatically navigate the user to the respective chat room based on the
@@ -53,8 +54,26 @@ const Conversation = () => {
 
   return (
     <div className="relative flex flex-col w-full h-full">
-      <div className="flex-1 min-h-[calc(100vh-1rem)] overflow-y-auto w-full"></div>
-
+      <div className="flex-1 min-h-[calc(100vh-1rem)] overflow-y-auto w-full">
+        {/*{messages.map((message) => (*/}
+        {/*  <div key={message.id} className="flex justify-center w-full">*/}
+        {/*    <div className="flex flex-col w-full max-w-[600px]">*/}
+        {/*      <div className="flex justify-end">*/}
+        {/*        <div className="flex items-center gap-2 p-2 bg-primary rounded-tl-xl rounded-br-xl">*/}
+        {/*          <p className="text-sm font-medium text-textColor">You</p>*/}
+        {/*        </div>*/}
+        {/*      </div>*/}
+        {/*      <div className="flex justify-end">*/}
+        {/*        <div className="flex items-center gap-2 p-4 bg-primary/10 rounded-tl-xl rounded-br-xl">*/}
+        {/*          <p className="text-sm font-light text-textColor">*/}
+        {/*            {message?.content.text}*/}
+        {/*          </p>*/}
+        {/*        </div>*/}
+        {/*      </div>*/}
+        {/*    </div>*/}
+        {/*  </div>*/}
+        {/*))}*/}
+      </div>
       {/* Session Controls wrapper */}
       <div className="absolute bottom-0 left-0 right-0 flex justify-center w-full p-4 pb-6 bg-gradient-to-t from-primaryDark/20  to-transparent">
         <SessionControls />

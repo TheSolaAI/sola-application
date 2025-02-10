@@ -18,7 +18,7 @@ interface ChatMessageHandler {
 
   messages: ChatItem<ChatContentType>[]; // stores an array of all the chat messages. Is managed entirely by this model
 
-  currentMessage: ChatItem<ChatContentType> | null; // the current message that is being generated
+  currentChatItem: ChatItem<ChatContentType> | null; // the current message that is being generated
 
   next: string | null; // the next url to fetch more messages. If set to null then no more messages are available
 
@@ -40,6 +40,25 @@ interface ChatMessageHandler {
    * message to that chat room.
    */
   addMessage: (message: ChatItem<ChatContentType>) => Promise<void>;
+
+  /**
+   * Sets a new current message when we get a response from the server
+   * @param messageUpdater
+   */
+  setCurrentChatItem: (
+    messageUpdater: ChatItem<ChatContentType> | null,
+  ) => void;
+
+  /**
+   * Updates the current message text with the new delta
+   */
+  updateCurrentChatItem: (delta: string) => void;
+
+  /**
+   * Commits the current message to the message array and sends the result to
+   * our database
+   */
+  commitCurrentChatItem: () => Promise<void>;
 }
 
 export const useChatMessageHandler = create<ChatMessageHandler>((set, get) => {
@@ -47,12 +66,12 @@ export const useChatMessageHandler = create<ChatMessageHandler>((set, get) => {
     state: 'idle',
     next: null,
     messages: [],
-    currentMessage: null,
+    currentChatItem: null,
 
     initChatMessageHandler: async () => {
       const currentRoomID = useChatRoomHandler.getState().currentChatRoom?.id;
       if (!currentRoomID) toast.error('No Chat Room Selected');
-      set({ state: 'loading' });
+      set({ state: 'loading', messages: [], currentChatItem: null });
       // fetch only the first 40 messages and we will fetch the rest as we scroll
       const response = await apiClient.get<ChatMessagesResponse>(
         API_URLS.CHAT_ROOMS + currentRoomID + '/messages/?limit=40',
@@ -125,10 +144,71 @@ export const useChatMessageHandler = create<ChatMessageHandler>((set, get) => {
         // no chat room has been selected so we create a new one with our default agent and navigate the user to that room
         const newRoom = await useChatRoomHandler
           .getState()
-          .createChatRoom({ name: 'New Chat Room', agentId: 1, id: 0 });
+          .createChatRoom({ name: 'New', agentId: 1 });
         if (newRoom) {
           useChatRoomHandler.getState().setCurrentChatRoom(newRoom);
+          // we then add this message to the new room on our server
+          const response = apiClient.post(
+            API_URLS.CHAT_ROOMS + newRoom.id + '/messages/',
+            { message: JSON.stringify(chatItem.content) },
+            'auth',
+          );
+          if (ApiClient.isApiError(response)) {
+            toast.error('I,m failing here');
+          }
         }
+      } else {
+        // this means a chat room has already been selected so we just add the message to that room
+        const response = await apiClient.post(
+          API_URLS.CHAT_ROOMS + currentRoomID + '/messages/',
+          { message: JSON.stringify(chatItem.content) },
+          'auth',
+        );
+        if (ApiClient.isApiError(response)) {
+          toast.error('Failed to Save Message, Reload the Page');
+        }
+      }
+    },
+
+    setCurrentChatItem: (message: ChatItem<ChatContentType> | null) => {
+      set({ currentChatItem: message });
+    },
+
+    updateCurrentChatItem: (delta: string) => {
+      if (get().currentChatItem) {
+        set({
+          currentChatItem: {
+            ...get().currentChatItem!,
+            content: {
+              ...get().currentChatItem!.content,
+              text: get().currentChatItem!.content.text + delta,
+            },
+          },
+        });
+      } else {
+        set({
+          currentChatItem: {
+            id: 0,
+            createdAt: new Date().toISOString(),
+            content: {
+              type: 'simple_message',
+              response_id: '',
+              sender: 'user',
+              text: delta,
+            },
+          },
+        });
+      }
+    },
+
+    commitCurrentChatItem: async () => {
+      if (get().currentChatItem) {
+        // add the message in our server
+        await get().addMessage(get().currentChatItem!);
+        set({
+          messages: [...get().messages, get().currentChatItem!],
+          currentChatItem: null,
+        });
       }
     },
   };
@@ -152,7 +232,6 @@ function createChatItem<T extends ChatContentType>(
   return {
     id: wrapper.id,
     content: parsedMessage,
-    sender: parsedMessage.sender,
     createdAt: wrapper.created_at,
   };
 }
