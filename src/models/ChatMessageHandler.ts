@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { useChatRoomHandler } from './ChatHandler.ts';
+import { useChatRoomHandler } from './ChatRoomHandler.ts';
 import { toast } from 'sonner';
 import { ApiClient, apiClient } from '../api/ApiClient.ts';
 import {
@@ -7,12 +7,18 @@ import {
   ChatMessagesResponse,
 } from '../types/response.ts';
 import { API_URLS } from '../config/api_urls.ts';
-import { ChatMessage } from '../types/chatMessage.ts';
+import {
+  ChatContentType,
+  ChatItem,
+  SimpleMessageChatContent,
+} from '../types/chatItem.ts';
 
 interface ChatMessageHandler {
   state: 'idle' | 'loading' | 'error'; // the state of the chat message handler
 
-  messages: ChatMessage[]; // stores an array of all the chat messages. Is managed entirely by this model
+  messages: ChatItem<ChatContentType>[]; // stores an array of all the chat messages. Is managed entirely by this model
+
+  currentMessage: ChatItem<ChatContentType> | null; // the current message that is being generated
 
   next: string | null; // the next url to fetch more messages. If set to null then no more messages are available
 
@@ -27,6 +33,13 @@ interface ChatMessageHandler {
    * Gets the next set of messages from the server based on the next URL
    */
   getNextMessages: () => Promise<void>;
+
+  /**
+   * Adds a new message to the message array and updates the history on the server.
+   * If there is no chatroom set by default then it creates a new chat room and adds the
+   * message to that chat room.
+   */
+  addMessage: (message: ChatItem<ChatContentType>) => Promise<void>;
 }
 
 export const useChatMessageHandler = create<ChatMessageHandler>((set, get) => {
@@ -34,6 +47,7 @@ export const useChatMessageHandler = create<ChatMessageHandler>((set, get) => {
     state: 'idle',
     next: null,
     messages: [],
+    currentMessage: null,
 
     initChatMessageHandler: async () => {
       const currentRoomID = useChatRoomHandler.getState().currentChatRoom?.id;
@@ -47,16 +61,20 @@ export const useChatMessageHandler = create<ChatMessageHandler>((set, get) => {
       );
       if (ApiClient.isApiResponse<ChatMessagesResponse>(response)) {
         set({ state: 'idle' });
-        const messages: ChatMessage[] = response.data.results.map(
-          (message: ChatMessageResponseWrapper): ChatMessage => {
-            return {
-              id: message.id,
-              content: message.message.content,
-              sender: message.message.sender,
-              createdAt: message.created_at,
-            };
-          },
-        );
+        const messages: ChatItem<ChatContentType>[] =
+          response.data.results.reduce(
+            (
+              acc: ChatItem<ChatContentType>[],
+              message: ChatMessageResponseWrapper,
+            ) => {
+              const item = parseChatItemContent(message);
+              if (item) {
+                acc.push(item);
+              }
+              return acc;
+            },
+            [],
+          );
         set({ messages, state: 'idle', next: response.data.next });
       } else {
         set({ state: 'error' });
@@ -76,16 +94,20 @@ export const useChatMessageHandler = create<ChatMessageHandler>((set, get) => {
       );
       if (ApiClient.isApiResponse<ChatMessagesResponse>(response)) {
         set({ state: 'idle' });
-        const messages: ChatMessage[] = response.data.results.map(
-          (message: ChatMessageResponseWrapper): ChatMessage => {
-            return {
-              id: message.id,
-              content: message.message.content,
-              sender: message.message.sender,
-              createdAt: message.created_at,
-            };
-          },
-        );
+        const messages: ChatItem<ChatContentType>[] =
+          response.data.results.reduce(
+            (
+              acc: ChatItem<ChatContentType>[],
+              message: ChatMessageResponseWrapper,
+            ) => {
+              const item = parseChatItemContent(message);
+              if (item) {
+                acc.push(item);
+              }
+              return acc;
+            },
+            [],
+          );
         set({
           messages: [...get().messages, ...messages],
           state: 'idle',
@@ -96,5 +118,50 @@ export const useChatMessageHandler = create<ChatMessageHandler>((set, get) => {
         toast.error('Failed to fetch messages');
       }
     },
+
+    addMessage: async (chatItem: ChatItem<ChatContentType>) => {
+      const currentRoomID = useChatRoomHandler.getState().currentChatRoom?.id;
+      if (currentRoomID === undefined) {
+        // no chat room has been selected so we create a new one with our default agent and navigate the user to that room
+        const newRoom = await useChatRoomHandler
+          .getState()
+          .createChatRoom({ name: 'New Chat Room', agentId: 1, id: 0 });
+        if (newRoom) {
+          useChatRoomHandler.getState().setCurrentChatRoom(newRoom);
+        }
+      }
+    },
   };
 });
+
+/**
+ * Parses the content of a chat item from a JSON string to the appropriate ChatContent type
+ * @param item The chat item to parse
+ */
+const parseChatItemContent = (item: ChatMessageResponseWrapper) => {
+  const parsedContent = JSON.parse(item.message);
+  if (isSimpleMessageChatContent(parsedContent)) {
+    return createChatItem<SimpleMessageChatContent>(item, parsedContent);
+  }
+};
+
+function createChatItem<T extends ChatContentType>(
+  wrapper: ChatMessageResponseWrapper,
+  parsedMessage: T,
+): ChatItem<T> {
+  return {
+    id: wrapper.id,
+    content: parsedMessage,
+    sender: parsedMessage.sender,
+    createdAt: wrapper.created_at,
+  };
+}
+
+/**
+ * Type Guards for the Chat Item content
+ */
+function isSimpleMessageChatContent(
+  content: any,
+): content is SimpleMessageChatContent {
+  return content.type === 'simple_message';
+}

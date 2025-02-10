@@ -26,10 +26,7 @@ export interface ChatMessagesResponse {
 
 export interface ChatMessageResponseWrapper {
   id: number;
-  message: {
-    content: string;
-    sender: 'user' | 'agent' | 'system';
-  };
+  message: string; // this is JSON string of our ChatContent
   created_at: string;
 }
 

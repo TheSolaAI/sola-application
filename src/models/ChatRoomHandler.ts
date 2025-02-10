@@ -4,6 +4,7 @@ import { ApiClient, apiClient } from '../api/ApiClient.ts';
 import { ChatRoomResponse } from '../types/response.ts';
 import { API_URLS } from '../config/api_urls.ts';
 import { toast } from 'sonner';
+import { useChatMessageHandler } from './ChatMessageHandler.ts';
 
 interface ChatRoomHandler {
   state: 'idle' | 'loading' | 'error'; // the state of the chat room handler
@@ -22,7 +23,7 @@ interface ChatRoomHandler {
   setCurrentChatRoom: (room: ChatRoom) => void; // sets the current chat room
   deleteChatRoom: (roomId: number) => Promise<void>; // delete a chat room only if its present locally
   updateChatRoom: (room: ChatRoom) => Promise<void>; // update a chat room only if its present locally
-  createChatRoom: (room: ChatRoom) => Promise<void>; // create a new chat room using the room object
+  createChatRoom: (room: ChatRoom) => Promise<ChatRoom | null>; // create a new chat room using the room object
 }
 
 export const useChatRoomHandler = create<ChatRoomHandler>((set, get) => {
@@ -35,6 +36,8 @@ export const useChatRoomHandler = create<ChatRoomHandler>((set, get) => {
 
     setCurrentChatRoom: (room: ChatRoom): void => {
       set({ currentChatRoom: room });
+      // now fetch that chat room's messages
+      useChatMessageHandler.getState().initChatMessageHandler();
     },
 
     initRoomHandler: async () => {
@@ -110,7 +113,7 @@ export const useChatRoomHandler = create<ChatRoomHandler>((set, get) => {
       }
     },
 
-    createChatRoom: async (room: ChatRoom): Promise<void> => {
+    createChatRoom: async (room: ChatRoom): Promise<ChatRoom | null> => {
       set({ state: 'loading' });
       const response = await apiClient.post<ChatRoomResponse>(
         API_URLS.CHAT_ROOMS,
@@ -123,9 +126,11 @@ export const useChatRoomHandler = create<ChatRoomHandler>((set, get) => {
           rooms: [...get().rooms, room],
           state: 'idle',
         });
+        return room;
       } else {
         toast.error('Failed to create room');
         set({ state: 'error' });
+        return null;
       }
     },
   };

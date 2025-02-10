@@ -5,6 +5,7 @@ import useThemeManager from './models/ThemeManager.ts';
 import { WalletProvider } from './models/provider/WalletProvider.tsx';
 import { LayoutProvider } from './layout/LayoutProvider.tsx';
 import { useUserHandler } from './models/UserHandler.ts';
+import { useChatRoomHandler } from './models/ChatRoomHandler.ts';
 
 function App() {
   /**
@@ -13,14 +14,19 @@ function App() {
   const { authenticated, ready } = usePrivy();
   const { initThemeManager } = useThemeManager();
   const { login } = useUserHandler();
+  const { initRoomHandler } = useChatRoomHandler();
 
   /**
    * Add any code here that needs to run when the user has completed authentication
    */
   useEffect(() => {
-    if (authenticated && ready) {
-      login(); // check function documentation for more details
-    }
+    const init = async () => {
+      if (authenticated && ready) {
+        await login(); // check function documentation for more details
+        initRoomHandler();
+      }
+    };
+    init();
   }, [authenticated, ready]);
 
   /**

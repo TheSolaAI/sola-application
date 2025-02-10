@@ -1,7 +1,7 @@
 import { ChevronLeft, Edit, Edit2, Menu, User } from 'react-feather';
 import React, { FC, useEffect, useRef, useState } from 'react';
 import useThemeManager from '../../models/ThemeManager.ts';
-import { NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { AgentSelect } from './AgentSelect.tsx';
 import { EditRoom } from './EditRoom.tsx';
 import { ProfileDropDown } from './ProfileDropDown.tsx';
@@ -9,7 +9,7 @@ import useIsMobile from '../utils/isMobile.tsx';
 import { VscPinned } from 'react-icons/vsc';
 import { useAgentHandler } from '../../models/AgentHandler.ts';
 import { useLayoutContext } from '../../layout/LayoutProvider.tsx';
-import { useChatRoomHandler } from '../../models/ChatHandler.ts';
+import { useChatRoomHandler } from '../../models/ChatRoomHandler.ts';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -38,7 +38,7 @@ export const Sidebar: FC<SidebarProps> = ({
    * Global State
    */
   const { theme } = useThemeManager();
-  const { rooms, currentChatRoom } = useChatRoomHandler();
+  const { rooms, setCurrentChatRoom } = useChatRoomHandler();
   const { pathname } = useLocation();
   const { agents } = useAgentHandler();
   const { walletLensOpen } = useLayoutContext();
@@ -173,7 +173,7 @@ export const Sidebar: FC<SidebarProps> = ({
             if (isMobile) setIsOpen(false);
           }}
           anchorEl={agentSelectRef.current}
-          onSelect={(agentId: number) => {
+          onSelect={() => {
             navigate(`/`);
             setAgentSelectOpen(false);
           }}
@@ -189,10 +189,10 @@ export const Sidebar: FC<SidebarProps> = ({
 
               return (
                 <div key={room.id} className="w-full">
-                  <NavLink
-                    to={`/c/${room.id}`}
+                  <button
                     onClick={() => {
                       if (isMobile) setIsOpen(false);
+                      setCurrentChatRoom(room);
                     }}
                     className={`group font-small flex w-full items-center gap-3 rounded-xl p-3 transition-color duration-300 ease-in-out  
               ${pathname === `/c/${room.id}` || pathname.startsWith(`/c/${room.id}/`) ? 'bg-primary' : ''}`}
@@ -216,7 +216,7 @@ export const Sidebar: FC<SidebarProps> = ({
                     >
                       <Edit2 size={16} color={theme.textColor} />
                     </button>
-                  </NavLink>
+                  </button>
 
                   {isEditing && (
                     <EditRoom

@@ -4,7 +4,7 @@ import { OpenAIKeyGenResponse } from '../types/response.ts';
 import { API_URLS } from '../config/api_urls.ts';
 import { toast } from 'sonner';
 import { AIEmotion, AIVoice, getPrimeDirective } from '../config/ai.ts';
-import { useChatRoomHandler } from './ChatHandler.ts';
+import { useChatRoomHandler } from './ChatRoomHandler.ts';
 import { useAgentHandler } from './AgentHandler.ts';
 
 interface SessionHandler {
@@ -55,6 +55,11 @@ interface SessionHandler {
     message: string;
     status: 'error' | 'success' | 'neutral';
   }) => void;
+
+  /**
+   * Use this function to send an user typed message to the AI
+   */
+  sendMessage: (message: string) => void;
 }
 
 export const useSessionHandler = create<SessionHandler>((set, get) => {
@@ -76,8 +81,7 @@ export const useSessionHandler = create<SessionHandler>((set, get) => {
         'data',
       );
       if (ApiClient.isApiResponse<OpenAIKeyGenResponse>(response)) {
-        const ephermeralToken = response.data.client_secret.value;
-        return ephermeralToken;
+        return response.data.client_secret.value;
       } else {
         // if the response is not successful, show a toast
         toast.error('Failed to Fetch Token');
@@ -155,6 +159,21 @@ export const useSessionHandler = create<SessionHandler>((set, get) => {
             modalities: ['text', 'audio'],
             instructions:
               message + '. Please be ' + emotion + ' in your response',
+          },
+        };
+        get().dataStream?.send(JSON.stringify(response));
+      } else {
+        toast.error('Failed to send message. Reload the page');
+      }
+    },
+
+    sendMessage: (message: string): void => {
+      if (get().dataStream && get().dataStream?.readyState === 'open') {
+        const response = {
+          type: 'response.create',
+          response: {
+            modalities: ['text', 'audio'],
+            instructions: message,
           },
         };
         get().dataStream?.send(JSON.stringify(response));

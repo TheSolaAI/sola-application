@@ -13,15 +13,27 @@ const LOADING_QUOTES = [
 interface SessionControlsProps {}
 
 export const SessionControls: React.FC<SessionControlsProps> = () => {
-  const { muted, setMuted, state } = useSessionHandler();
-  const [message, setMessage] = useState('');
+  /**
+   * Global States
+   */
+  const { muted, setMuted, state, sendMessage } = useSessionHandler();
+
+  /**
+   * Local States
+   */
   const [loadingQuote] = useState(
     LOADING_QUOTES[Math.floor(Math.random() * LOADING_QUOTES.length)],
   );
+
+  /**
+   * Refs
+   */
   const inputRef = React.useRef<HTMLInputElement>(null);
 
-  const handleSendMessage = () => {
-    // Your message handling logic here
+  const sendMessageToAI = () => {
+    if (inputRef.current?.value === '') return;
+    sendMessage(inputRef.current?.value || '');
+    inputRef.current!.value = '';
   };
 
   return (
@@ -51,8 +63,6 @@ export const SessionControls: React.FC<SessionControlsProps> = () => {
           <input
             ref={inputRef}
             type="text"
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
             placeholder="Start Chatting..."
             className="
               bg-sec_background rounded-full p-4 pr-16
@@ -60,10 +70,17 @@ export const SessionControls: React.FC<SessionControlsProps> = () => {
               border border-transparent focus:border-primaryDark
               focus:outline-none transition-all duration-200
             "
+            onKeyUp={(e) => {
+              if (e.key === 'Enter') {
+                sendMessageToAI();
+              }
+            }}
           />
 
           <Button
-            onClick={handleSendMessage}
+            onClick={() => {
+              sendMessageToAI();
+            }}
             className="
               absolute right-2 top-1/2 -translate-y-1/2
               rounded-full p-3 w-12 h-12 bg-sec_background text-textColor

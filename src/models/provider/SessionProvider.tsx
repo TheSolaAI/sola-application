@@ -1,5 +1,5 @@
 import { FC, ReactNode, useEffect } from 'react';
-import { useChatRoomHandler } from '../ChatHandler.ts';
+import { useChatRoomHandler } from '../ChatRoomHandler.ts';
 import { useChatMessageHandler } from '../ChatMessageHandler.ts';
 import { useSessionHandler } from '../SessionHandler.ts';
 import { toast } from 'sonner';
