@@ -55,7 +55,7 @@ export async function getRugCheckFunction(args: {
       return `tell user that score: ${response.data.score} and issues are ${response.data.issues}`;
     } else {
       return 'An error occurred while checking if ${token} is a rug.';
-    }
+  }
 }
 
 
