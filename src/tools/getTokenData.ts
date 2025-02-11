@@ -2,8 +2,9 @@ import { Tool } from '../types/tool.ts';
 import { useChatMessageHandler } from '../models/ChatMessageHandler.ts';
 import { ApiClient, apiClient } from '../api/ApiClient.ts';
 import { TokenDataResponse } from '../types/response.ts';
+import { formatNumber } from '../utils/formatNumber.ts';
 
-const functionDescription = `Use this function to get the details or price of a token. NOTE: The user must specify the word Token`;
+const functionDescription = `Use this function to get the details or price of a token. NOTE: The user must specify the word Token. If the token address contains the sequence pump, do not remove it, it is part of the token.`;
 
 export const getTokenData: Tool = {
   implementation: getTokenDataFunction,
@@ -47,7 +48,7 @@ async function getTokenDataFunction(args: {
       'data',
     );
     if (ApiClient.isApiResponse<TokenDataResponse>(response)) {
-      return `Tell the user that the token ${response.data.metadata.name} has a price of $${response.data.price} and a market cap of $${response.data.price} at this moment while converting all numbers to proper American English from their scientific notations.
+      return `Tell the user that the token ${response.data.metadata.name} has a price of $${response.data.price} and a market cap of $${formatNumber(response.data.marketcap)} at this moment while converting all numbers to proper American English from their scientific notations.
       Only specify the price if if its reasonable to do so.`;
     } else {
       return 'An error occurred while fetching token data';

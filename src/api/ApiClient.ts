@@ -4,15 +4,17 @@ import { toast } from 'sonner';
 import { ApiError, ApiErrorDetail, ApiResponse } from '../types/api.ts';
 import { useUserHandler } from '../models/UserHandler.ts';
 
-type ServiceType = 'auth' | 'data';
+type ServiceType = 'auth' | 'data' | 'wallet';
 
 export class ApiClient {
   private authClient: AxiosInstance;
   private dataClient: AxiosInstance;
+  private walletClient: AxiosInstance;
 
   constructor() {
     const authServiceUrl = process.env.AUTH_SERVICE_URL;
     const dataServiceUrl = process.env.DATA_SERVICE_URL;
+    const walletServiceUrl = process.env.WALLET_SERVICE_URL;
 
     if (!authServiceUrl) {
       throw new Error('AUTH_SERVICE_URL environment variable is not defined');
@@ -20,10 +22,14 @@ export class ApiClient {
     if (!dataServiceUrl) {
       throw new Error('DATA_SERVICE_URL environment variable is not defined');
     }
+    if (!walletServiceUrl) {
+      throw new Error('WALLET_SERVICE_URL environment variable is not defined');
+    }
 
     // Create Axios instances for both services
     this.authClient = this.createClient(authServiceUrl);
     this.dataClient = this.createClient(dataServiceUrl);
+    this.walletClient = this.createClient(walletServiceUrl);
   }
 
   /**
@@ -77,7 +83,16 @@ export class ApiClient {
    * Returns the appropriate Axios client based on the service type.
    */
   private getClient(service: ServiceType): AxiosInstance {
-    return service === 'auth' ? this.authClient : this.dataClient;
+    switch (service) {
+      case 'auth':
+        return this.authClient;
+      case 'data':
+        return this.dataClient;
+      case 'wallet':
+        return this.walletClient;
+      default:
+        throw new Error(`Unsupported service type: ${service}`);
+    }
   }
 
   /**
