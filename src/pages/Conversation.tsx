@@ -1,11 +1,12 @@
 import { SessionControls } from '../components/SessionControls.tsx';
 import { useChatRoomHandler } from '../models/ChatRoomHandler.ts';
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { ChatRoom } from '../types/chatRoom.ts';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { useChatMessageHandler } from '../models/ChatMessageHandler.ts';
 import { SimpleMessageChatItem } from '../components/ui/message_items/SimpleMessageChatItem.tsx';
+import { ChatContentType, ChatItem } from '../types/chatItem.ts';
 
 const Conversation = () => {
   const navigate = useNavigate();
@@ -53,24 +54,28 @@ const Conversation = () => {
     }
   }, [currentChatRoom]);
 
+  /**
+   * The primary render function. If provided a chatItem, it returns the React component that should be rendered
+   */
+  const renderMessageItem = (
+    chatItem: ChatItem<ChatContentType>,
+    index: number,
+  ): React.ReactNode => {
+    if (chatItem.content.type === 'simple_message') {
+      return <SimpleMessageChatItem key={index} props={chatItem.content} />;
+    } else {
+      <></>;
+    }
+  };
+
   return (
     <div className="relative flex flex-col w-full h-full">
       <div className="flex-1 min-h-[calc(100vh-1rem)] overflow-y-auto w-full">
         {messages.map((message, index) => {
-          if (message.content.type === 'simple_message') {
-            return (
-              <SimpleMessageChatItem key={index} props={message.content} />
-            );
-          }
+          return renderMessageItem(message, index);
         })}
         {/* render the current chat item here*/}
-        {/*TODO: Split the choosing logic as detailed above into its own function and apply it to currentChatItem also*/}
-        {currentChatItem && (
-          <SimpleMessageChatItem
-            key={currentChatItem.id}
-            props={currentChatItem.content}
-          />
-        )}
+        {currentChatItem && renderMessageItem(currentChatItem, -1)}
       </div>
       {/* Session Controls wrapper */}
       <div className="absolute bottom-0 left-0 right-0 flex justify-center w-full p-4 pb-6 bg-gradient-to-t from-primaryDark/20  to-transparent">
