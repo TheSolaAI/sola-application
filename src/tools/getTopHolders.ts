@@ -26,19 +26,20 @@ export const getTopHolders: Tool = {
 };
 
 export async function getTopHoldersFunction(args: {
-  token_address: string;
+  tokenInput
+  : string;
 }): Promise<string> {
   useChatMessageHandler.getState().setCurrentChatItem({
     content: {
       type: 'simple_message',
-      text: `Checking if ${args.token_address} is a rug...`,
+      text: `Analyzing ${args.tokenInput} for top holders...`,
       response_id: 'temp',
       sender: 'system',
     },
     id: 0,
     createdAt: new Date().toISOString(),
   });
-  let token = args.token_address;
+  let token= args.tokenInput;
   let final_token = '';
   console.log(token.length);
   if (token.length > 35 || token.startsWith('$')) {
@@ -47,11 +48,12 @@ export async function getTopHoldersFunction(args: {
     final_token = `$${token}`;
   }
   const response = await apiClient.get<TopHolder[]>(
-    'data/token/top_holders?token=' + final_token,
+    '/data/token/top_holders?token_address=' + final_token,
     undefined,
     'data',
   )
   if (ApiClient.isApiResponse<TopHolder[]>(response)) {
+    //impl topholder card
     return `tell user that the top holders are: ${response.data} and dont read out any info`;
   } else {
     return `An error occurred while checking top holders ${final_token}.`;

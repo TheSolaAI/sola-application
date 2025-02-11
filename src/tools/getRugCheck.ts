@@ -26,35 +26,37 @@ export const getRugCheck: Tool = {
 };
 
 export async function getRugCheckFunction(args: {
-  token_address: string;
+  token: string;
 }): Promise<string> {
   useChatMessageHandler.getState().setCurrentChatItem({
     content: {
       type: 'simple_message',
-      text: `Checking if ${args.token_address} is a rug...`,
+      text: `Checking if ${args.token} is a rug...`,
       response_id: 'temp',
       sender: 'system',
     },
     id: 0,
     createdAt: new Date().toISOString(),
   });
-  let token = args.token_address;
+  console.log(args)
+  let token = args.token;
   let final_token = '';
-    console.log(token.length);
     if (token.length > 35 || token.startsWith('$')) {
       final_token = token;
     } else {
       final_token = `$${token}`;
     }
   const response = await apiClient.get<RugCheckCard>(
-    'data/token/rug_check?token=' + final_token,
+    '/data/token/rug_check?token_address=' + final_token,
     undefined,
     'data',
   )
+  console.log("im sending the ressponse")
   if (ApiClient.isApiResponse<RugCheckCard>(response)) {
-      return `tell user that score: ${response.data.score} and issues are ${response.data.issues}`;
+    console.log(response.data)
+      return `tell user that score: ${response.data.score} and issues are ${response.data.issues}. Do not read out the token address.`;
     } else {
-      return 'An error occurred while checking if ${token} is a rug.';
+      return `An error occurred while checking if ${token} is a rug.`;
   }
 }
 

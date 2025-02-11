@@ -28,4 +28,4 @@ export const depositLulo: Tool = {
 };
 
 //TODO: Shift the trigger logic here from conversation.tsx
-export function depositLuloFunction() {}
+export async function depositLuloFunction() {}
