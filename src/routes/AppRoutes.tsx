@@ -16,7 +16,7 @@ import OnRamp from '../pages/OnRamp';
 import Pricing from '../pages/Pricing';
 import { SessionProvider } from '../models/provider/SessionProvider.tsx';
 
-const AppRoutes= () => {
+const AppRoutes = () => {
   const accessToken = localStorage.getItem('privy:token');
   if (!accessToken) {
     return <Onboarding />;
