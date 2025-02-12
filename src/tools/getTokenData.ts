@@ -2,12 +2,9 @@ import { Tool } from '../types/tool.ts';
 import { useChatMessageHandler } from '../models/ChatMessageHandler.ts';
 import { ApiClient, apiClient } from '../api/ApiClient.ts';
 import { TokenDataResponse } from '../types/response.ts';
-<<<<<<< HEAD
-import { formatNumber } from '../utils/formatNumber.ts';
-=======
 import { TokenDataMessageItem } from '../components/ui/message_items/TokenDataMessageItem.tsx';
 import { TokenDataChatContent } from '../types/chatItem.ts';
->>>>>>> 139bfa0e1b90a1878b9893972d895b1a5667ecda
+
 
 const functionDescription = `Use this function to get the details or price of a token. NOTE: The user must specify the word Token. If the token address contains the sequence pump, do not remove it, it is part of the token.`;
 
@@ -54,34 +51,6 @@ async function getTokenDataFunction(
     createdAt: new Date().toISOString(),
   });
 
-<<<<<<< HEAD
-  if (args.token_address.length > 35) {
-    // this is a token address
-    const response = await apiClient.get<TokenDataResponse>(
-      '/data/token/address?token_address=' + args.token_address,
-      undefined,
-      'data',
-    );
-    if (ApiClient.isApiResponse<TokenDataResponse>(response)) {
-      return `Tell the user that the token ${response.data.metadata.name} has a price of $${response.data.price} and a market cap of $${formatNumber(response.data.marketcap)} at this moment while converting all numbers to proper American English from their scientific notations.
-      Only specify the price if if its reasonable to do so.`;
-    } else {
-      return 'An error occurred while fetching token data';
-    }
-  } else {
-    
-    const response = await apiClient.get<TokenDataResponse>(
-      '/data/token/symbol?symbol=' + args.token_address,
-      undefined,
-      'data',
-    );
-    if (ApiClient.isApiResponse<TokenDataResponse>(response)) {
-      return `The token ${response.data.metadata.name} has a price of $${response.data.price} and a market cap of $${response.data.price} at this moment.
-      The price has changed by ${response.data.price_change_24}% in the last 24 hours.`;
-    } else {
-      return 'An error occurred while fetching token data';
-    }
-=======
   const isAddress = args.token_address.length > 35;
   const url = isAddress
     ? '/data/token/address?token_address=' + args.token_address
@@ -122,6 +91,6 @@ async function getTokenDataFunction(
       status: 'error',
       response: 'An error occurred while fetching token data',
     };
->>>>>>> 139bfa0e1b90a1878b9893972d895b1a5667ecda
+
   }
 }
