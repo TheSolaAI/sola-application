@@ -7,9 +7,17 @@ import { useNavigate } from 'react-router-dom';
 import { useChatMessageHandler } from '../models/ChatMessageHandler.ts';
 import { SimpleMessageChatItem } from '../components/ui/message_items/SimpleMessageChatItem.tsx';
 import { ChatContentType, ChatItem } from '../types/chatItem.ts';
+import { useLayoutContext } from '../layout/LayoutProvider.tsx';
+import useThemeManager from '../models/ThemeManager.ts';
+import { hexToRgb } from '../utils/hexToRGB.ts';
 
 const Conversation = () => {
   const navigate = useNavigate();
+  const { theme } = useThemeManager();
+  const { audioIntensity } = useLayoutContext();
+
+  const primaryRGB = hexToRgb(theme.primary);
+  const primaryDarkRGB = hexToRgb(theme.primaryDark);
 
   /**
    * Global state
@@ -78,7 +86,13 @@ const Conversation = () => {
         {currentChatItem && renderMessageItem(currentChatItem, -1)}
       </div>
       {/* Session Controls wrapper */}
-      <div className="absolute bottom-0 left-0 right-0 flex justify-center w-full p-4 pb-6 bg-gradient-to-t from-primaryDark/20  to-transparent">
+      <div
+        className="absolute bottom-0 left-0 right-0 flex justify-center w-full p-4 pb-6 animate-wave transition-all duration-[5000]"
+        style={{
+          background: `linear-gradient(to top, rgba(${primaryRGB.r}, ${primaryRGB.g}, ${primaryRGB.b}, ${0.5 + 1.5 * audioIntensity}), rgba(${primaryDarkRGB.r}, ${primaryDarkRGB.g}, ${primaryDarkRGB.b}, ${0.3 + 1.2 * audioIntensity}), transparent)`,
+          transition: 'background 0.1s linear',
+        }}
+      >
         <SessionControls />
       </div>
     </div>
