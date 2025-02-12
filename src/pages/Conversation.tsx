@@ -77,17 +77,18 @@ const Conversation = () => {
   };
 
   return (
-    <div className="relative flex flex-col w-full h-full">
-      <div className="flex-1 min-h-[calc(100vh-1rem)] overflow-y-auto w-full">
+    <div className="relative flex flex-col w-full h-screen pt-16">
+      {/* Messages Container (Scrollable) */}
+      <div className="flex-1 max-h-[80vh] overflow-y-auto w-full sm:w-[60%] self-center pb-[6rem] no-scrollbar">
         {messages.map((message, index) => {
           return renderMessageItem(message, index);
         })}
-        {/* render the current chat item here*/}
         {currentChatItem && renderMessageItem(currentChatItem, -1)}
       </div>
-      {/* Session Controls wrapper */}
+
+      {/* Session Controls (Fixed at Bottom of the Screen) */}
       <div
-        className="absolute bottom-0 left-0 right-0 flex justify-center w-full p-4 pb-6 animate-wave transition-all duration-[5000]"
+        className="absolute bottom-0 left-0 right-0 flex justify-center w-full p-4 pb-8 animate-wave transition-all duration-[5000]"
         style={{
           background: `linear-gradient(to top, rgba(${primaryRGB.r}, ${primaryRGB.g}, ${primaryRGB.b}, ${0.5 + 1.5 * audioIntensity}), rgba(${primaryDarkRGB.r}, ${primaryDarkRGB.g}, ${primaryDarkRGB.b}, ${0.3 + 1.2 * audioIntensity}), transparent)`,
           transition: 'background 0.1s linear',

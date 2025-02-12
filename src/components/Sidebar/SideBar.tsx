@@ -124,7 +124,7 @@ export const Sidebar: FC<SidebarProps> = ({
       {/* Mobile Menu Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`transition-duration-500 fixed left-8 top-8 z-50 ease-in-out lg:hidden ${isOpen || walletLensOpen ? 'opacity-0 hidden' : 'opacity-100 visible'}`}
+        className={`transition-duration-500 fixed left-4 top-4 z-50 ease-in-out lg:hidden ${isOpen || walletLensOpen ? 'opacity-0 hidden' : 'opacity-100 visible'}`}
       >
         <Menu size={24} color={theme.textColor} />
       </button>
