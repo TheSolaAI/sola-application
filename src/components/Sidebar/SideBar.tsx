@@ -218,7 +218,7 @@ export const Sidebar: FC<SidebarProps> = ({
                     </button>
                   </button>
 
-                  {isEditing && (
+                  {isEditing && room.id && (
                     <EditRoom
                       isOpen={true}
                       onClose={() => setEditingRoom(null)}

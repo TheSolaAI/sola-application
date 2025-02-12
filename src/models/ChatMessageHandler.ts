@@ -145,7 +145,7 @@ export const useChatMessageHandler = create<ChatMessageHandler>((set, get) => {
         // no chat room has been selected so we create a new one with our default agent and navigate the user to that room
         const newRoom = await useChatRoomHandler
           .getState()
-          .createChatRoom({ name: 'New', agentId: 1 });
+          .createChatRoom({ name: 'New Chat', agentId: 1 });
         if (newRoom) {
           useChatRoomHandler.getState().setCurrentChatRoom(newRoom);
           // we then add this message to the new room on our server

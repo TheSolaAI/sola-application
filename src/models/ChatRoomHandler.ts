@@ -80,7 +80,7 @@ export const useChatRoomHandler = create<ChatRoomHandler>((set, get) => {
         return;
       }
       const response = await apiClient.delete(
-        API_URLS.CHAT_ROOMS + `/${roomId}`,
+        API_URLS.CHAT_ROOMS + `${roomId}/`,
         'auth',
       );
       if (ApiClient.isApiResponse(response)) {
@@ -101,8 +101,8 @@ export const useChatRoomHandler = create<ChatRoomHandler>((set, get) => {
         set({ state: 'error' });
         return;
       }
-      const response = await apiClient.put<ChatRoomResponse>(
-        API_URLS.CHAT_ROOMS + `/${room.id}`,
+      const response = await apiClient.patch<ChatRoomResponse>(
+        API_URLS.CHAT_ROOMS + `${room.id}/`,
         room,
         'auth',
       );
@@ -131,12 +131,12 @@ export const useChatRoomHandler = create<ChatRoomHandler>((set, get) => {
       if (ApiClient.isApiResponse<ChatRoomResponse>(response)) {
         set({
           rooms: [
-            ...get().rooms,
             {
               id: response.data.id,
               name: response.data.name,
               agentId: response.data.agent_id,
             },
+            ...get().rooms,
           ],
           state: 'idle',
         });
