@@ -1,10 +1,12 @@
 import { FC, ReactNode, useEffect } from 'react';
 import { useSessionHandler } from '../SessionHandler.ts';
-import { useChatMessageHandler } from '../ChatMessageHandler.ts';
+import {
+  createChatItemFromTool,
+  useChatMessageHandler,
+} from '../ChatMessageHandler.ts';
 import { SimpleMessageChatContent } from '../../types/chatItem.ts';
 import { useAgentHandler } from '../AgentHandler.ts';
 import { useChatRoomHandler } from '../ChatRoomHandler.ts';
-import { Tool } from '../../types/tool.ts';
 
 interface EventProviderProps {
   children: ReactNode;
@@ -17,6 +19,7 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
   const { dataStream, updateSession, sendMessage } = useSessionHandler();
   const { getToolsForAgent } = useAgentHandler();
   const { currentChatRoom } = useChatRoomHandler();
+  const { addMessage } = useChatMessageHandler();
 
   /**
    * The direct api access is used in all these classes to prevent asynchronous
@@ -68,15 +71,18 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
               if (output.type === 'function_call') {
                 // Check the tools this agent has access to
                 const tool = getToolsForAgent(currentChatRoom!.agentId).find(
-                  (tool: Tool) => tool.abstraction.name === output.name,
+                  (tool) => tool.abstraction.name === output.name,
                 );
                 if (tool) {
                   // call the tool handling function and add its output chat item to the chat
-                  const response = await tool.implementation(
+                  const tool_result = await tool.implementation(
                     JSON.parse(output.arguments),
+                    eventData.response_id,
                   );
-                  // send the response back to OpenAI
-                  sendMessage(response);
+                  // add the message to our local array and also our database history
+                  addMessage(createChatItemFromTool(tool, tool_result.props));
+                  // send the response to OpenAI
+                  sendMessage(tool_result.response);
                 } else {
                   // this agent does not support this tool. This is a fail-safe as mostly openAI will not send out
                   // a function call as it was not provided the context even
@@ -86,7 +92,7 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
             }
           }
         }
-        console.log(JSON.stringify(eventData, null, 2));
+        // console.log(JSON.stringify(eventData, null, 2));
       };
     };
     handleEvents();

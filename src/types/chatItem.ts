@@ -1,7 +1,7 @@
 export interface ChatItem<T extends BaseChatContent> {
   // Make ChatItem generic
   id: number;
-  content: T; // Insert any of the ChatContent types here
+  content: T;
   createdAt: string;
 }
 
@@ -10,9 +10,25 @@ export interface BaseChatContent {
   sender: 'user' | 'assistant' | 'system';
 }
 
-export type ChatContentType = SimpleMessageChatContent;
+export type ChatContentType = SimpleMessageChatContent | TokenDataChatContent;
 
 export interface SimpleMessageChatContent extends BaseChatContent {
   type: 'simple_message';
   text: string;
+}
+
+export interface TokenDataChatContent extends BaseChatContent {
+  type: 'token_data';
+  name: string;
+  symbol: string;
+  price: number;
+  marketCap: number;
+  image: string;
+}
+
+/**
+ * This type is used on the UI side to ensure type safety when rendering a message item
+ */
+export interface ChatItemProps<T extends ChatContentType> {
+  props: T;
 }

@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { useChatMessageHandler } from '../models/ChatMessageHandler.ts';
 import { SimpleMessageChatItem } from '../components/ui/message_items/SimpleMessageChatItem.tsx';
 import { ChatContentType, ChatItem } from '../types/chatItem.ts';
+import { TokenDataMessageItem } from '../components/ui/message_items/TokenDataMessageItem.tsx';
 
 const Conversation = () => {
   const navigate = useNavigate();
@@ -63,6 +64,8 @@ const Conversation = () => {
   ): React.ReactNode => {
     if (chatItem.content.type === 'simple_message') {
       return <SimpleMessageChatItem key={index} props={chatItem.content} />;
+    } else if (chatItem.content.type === 'token_data') {
+      return <TokenDataMessageItem key={index} props={chatItem.content} />;
     } else {
       <></>;
     }
