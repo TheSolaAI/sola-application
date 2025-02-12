@@ -8,6 +8,9 @@ interface LayoutContextType {
   setWalletLensOpen: React.Dispatch<React.SetStateAction<boolean>>;
   canAutoClose: boolean;
   setCanAutoClose: React.Dispatch<React.SetStateAction<boolean>>;
+  audioIntensity: number;
+  setAudioIntensity: React.Dispatch<React.SetStateAction<number>>;
+  audioEl: HTMLAudioElement;
   handleWalletLensOpen: (state: boolean) => void;
 }
 
@@ -19,6 +22,13 @@ export const LayoutProvider: React.FC<{ children: ReactNode }> = ({
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [walletLensOpen, setWalletLensOpen] = useState(false);
   const [canAutoClose, setCanAutoClose] = useState(false);
+  const [audioIntensity, setAudioIntensity] = useState(0);
+
+  /**
+   * Audio element to stream the incoming audio from webRTC
+   */
+  const audioEl = document.createElement('audio');
+  audioEl.autoplay = true;
 
   const handleWalletLensOpen = (state: boolean) => {
     if (state) {
@@ -42,6 +52,9 @@ export const LayoutProvider: React.FC<{ children: ReactNode }> = ({
         setWalletLensOpen,
         canAutoClose,
         setCanAutoClose,
+        audioIntensity,
+        setAudioIntensity,
+        audioEl,
         handleWalletLensOpen,
       }}
     >

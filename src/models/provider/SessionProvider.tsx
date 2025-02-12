@@ -5,6 +5,7 @@ import { useSessionHandler } from '../SessionHandler.ts';
 import { toast } from 'sonner';
 import { useUserHandler } from '../UserHandler.ts';
 import { EventProvider } from './EventProvider.tsx';
+import { useLayoutContext } from '../../layout/LayoutProvider.tsx';
 
 interface SessionProviderProps {
   children: ReactNode;
@@ -25,6 +26,37 @@ export const SessionProvider: FC<SessionProviderProps> = ({ children }) => {
     muted,
     mediaStream,
   } = useSessionHandler();
+  const { audioEl, setAudioIntensity } = useLayoutContext();
+
+  const setupAudioVisualizer = (audioEl: HTMLAudioElement | null) => {
+    if (!audioEl) return;
+
+    const audioContext = new AudioContext();
+    const analyser = audioContext.createAnalyser();
+    analyser.fftSize = 256;
+
+    const source = audioContext.createMediaStreamSource(
+      audioEl.srcObject as MediaStream,
+    );
+    source.connect(analyser);
+    analyser.connect(audioContext.destination);
+
+    const dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+    const updateGradient = () => {
+      analyser.getByteFrequencyData(dataArray);
+
+      // Calculate the average volume
+      const volume = dataArray.reduce((a, b) => a + b, 0) / dataArray.length;
+      const intensity = Math.min(volume / 255, 1);
+
+      setAudioIntensity(intensity);
+
+      requestAnimationFrame(updateGradient);
+    };
+
+    updateGradient();
+  };
 
   /**
    * Runs when the application launches and starts the session with OpenAI. Even when room switches
@@ -35,9 +67,10 @@ export const SessionProvider: FC<SessionProviderProps> = ({ children }) => {
       const token = await initSessionHandler();
       if (token === null) return; // if the token is not available, do not proceed
       const peerConnection = new RTCPeerConnection();
-      const audioEl = document.createElement('audio');
-      audioEl.autoplay = true;
-      peerConnection.ontrack = (e) => (audioEl.srcObject = e.streams[0]);
+      peerConnection.ontrack = (e) => {
+        audioEl.srcObject = e.streams[0];
+        setupAudioVisualizer(audioEl);
+      };
       const mediaStream = await navigator.mediaDevices.getUserMedia({
         audio: true,
       });
