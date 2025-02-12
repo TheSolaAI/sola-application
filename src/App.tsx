@@ -39,7 +39,7 @@ function App() {
   return (
     <WalletProvider isAuthenticated={authenticated && ready}>
       <LayoutProvider>
-        <AppRoutes isAuthenticated={authenticated} />
+        <AppRoutes />
       </LayoutProvider>
     </WalletProvider>
   );

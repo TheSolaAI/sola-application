@@ -16,12 +16,9 @@ import OnRamp from '../pages/OnRamp';
 import Pricing from '../pages/Pricing';
 import { SessionProvider } from '../models/provider/SessionProvider.tsx';
 
-interface Props {
-  isAuthenticated: boolean;
-}
-
-const AppRoutes: React.FC<Props> = ({ isAuthenticated }) => {
-  if (!isAuthenticated) {
+const AppRoutes= () => {
+  const accessToken = localStorage.getItem('privy:token');
+  if (!accessToken) {
     return <Onboarding />;
   }
 
