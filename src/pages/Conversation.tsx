@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { useChatMessageHandler } from '../models/ChatMessageHandler.ts';
 import { SimpleMessageChatItem } from '../components/ui/message_items/SimpleMessageChatItem.tsx';
 
+
 const Conversation = () => {
   const navigate = useNavigate();
 
@@ -59,7 +60,7 @@ const Conversation = () => {
         {messages.map((message, index) => {
           if (message.content.type === 'simple_message') {
             return (
-              <SimpleMessageChatItem key={index} props={message.content} />
+              <SimpleMessageChatItem key={index} props={message.content}/>
             );
           }
         })}

@@ -4,6 +4,7 @@ import { useChatMessageHandler } from '../models/ChatMessageHandler.ts';
 import { LimitOrderParams, LimitOrderResponse } from '../types/jupiter.ts';
 import { Tool } from '../types/tool.ts';
 import { tokenList } from '../config/tokens/tokenMapping.ts';
+import { ConnectedSolanaWallet } from '@privy-io/react-auth';
 
 
 
@@ -51,6 +52,7 @@ export async function createLimitOrder(args: {
   token: 'SOL' | 'SOLA' | 'USDC' | 'BONK' | 'USDT' | 'JUP' | 'WIF';
   action: 'BUY' | 'SELL';
   limitPrice: number;
+  currentWallet: ConnectedSolanaWallet | null;
 }): Promise<string> {
   useChatMessageHandler.getState().setCurrentChatItem({
     content: {
@@ -62,7 +64,8 @@ export async function createLimitOrder(args: {
     id: 0,
     createdAt: new Date().toISOString(),
   });
-
+  
+  let currentWallet = args.currentWallet;
   if (!currentWallet) return 'User wallet is not connected.';
   if (!rpc) return 'Please contact admin, as RPC is not attached.';
 

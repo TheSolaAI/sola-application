@@ -5,6 +5,7 @@ import { SimpleMessageChatContent } from '../../types/chatItem.ts';
 import { useAgentHandler } from '../AgentHandler.ts';
 import { useChatRoomHandler } from '../ChatRoomHandler.ts';
 import { Tool } from '../../types/tool.ts';
+import { useWalletHandler } from '../WalletHandler.ts';
 
 interface EventProviderProps {
   children: ReactNode;
@@ -17,6 +18,7 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
   const { dataStream, updateSession, sendMessage } = useSessionHandler();
   const { getToolsForAgent } = useAgentHandler();
   const { currentChatRoom } = useChatRoomHandler();
+  const { currentWallet } = useWalletHandler();
 
   /**
    * The direct api access is used in all these classes to prevent asynchronous
@@ -72,9 +74,11 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
                 );
                 if (tool) {
                   // call the tool handling function and add its output chat item to the chat
-                  const response = await tool.implementation(
-                    JSON.parse(output.arguments),
-                  );
+                  const response = await tool.implementation({
+                    ...JSON.parse(output.arguments),
+                    wallet: currentWallet,
+                  });
+                  
                   // send the response back to OpenAI
                   sendMessage(response);
                 } else {
