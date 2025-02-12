@@ -70,6 +70,9 @@ const Conversation = () => {
     chatItem: ChatItem<ChatContentType>,
     index: number,
   ): React.ReactNode => {
+    if (chatItem === null) {
+      return <></>;
+    }
     if (chatItem.content.type === 'simple_message') {
       return <SimpleMessageChatItem key={index} props={chatItem.content} />;
     } else if (chatItem.content.type === 'token_data') {
@@ -83,8 +86,8 @@ const Conversation = () => {
     <div className="relative flex flex-col w-full h-screen pt-16">
       {/* Messages Container (Scrollable) */}
       <div className="flex-1 max-h-[80vh] overflow-y-auto w-full sm:w-[60%] self-center pb-[6rem] no-scrollbar">
-        {messages.map((message, index) => {
-          return renderMessageItem(message, index);
+        {messages.map((chatItem, index) => {
+          return renderMessageItem(chatItem, index);
         })}
         {currentChatItem && renderMessageItem(currentChatItem, -1)}
       </div>
