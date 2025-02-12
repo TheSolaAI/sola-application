@@ -31,8 +31,8 @@ const EditRoomContent: React.FC<EditRoomContentProps> = ({
     updateChatRoom({
       id: roodID,
       name: name,
-      agentId: currentChatRoom?.agentId || 0,
     });
+    onClose();
   };
 
   /**

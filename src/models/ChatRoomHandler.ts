@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { ChatRoom } from '../types/chatRoom.ts';
+import { ChatRoom, ChatRoomPatch } from '../types/chatRoom.ts';
 import { ApiClient, apiClient } from '../api/ApiClient.ts';
 import { ChatRoomResponse } from '../types/response.ts';
 import { API_URLS } from '../config/api_urls.ts';
@@ -27,7 +27,7 @@ interface ChatRoomHandler {
   initRoomHandler: () => Promise<void>;
   setCurrentChatRoom: (room: ChatRoom) => void; // sets the current chat room
   deleteChatRoom: (roomId: number) => Promise<void>; // delete a chat room only if its present locally
-  updateChatRoom: (room: ChatRoom) => Promise<void>; // update a chat room only if its present locally
+  updateChatRoom: (room: ChatRoomPatch) => Promise<void>; // update a chat room only if its present locally
   createChatRoom: (room: ChatRoom) => Promise<ChatRoom | null>; // create a new chat room using the room object
 }
 
