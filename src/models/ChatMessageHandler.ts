@@ -164,6 +164,8 @@ export const useChatMessageHandler = create<ChatMessageHandler>((set, get) => {
           if (ApiClient.isApiError(response)) {
             toast.error('Failed to Save Message, Reload the Page');
           }
+          // add the message to our local state
+          set({ messages: [...get().messages, chatItem] });
         }
       } else {
         // this means a chat room has already been selected so we just add the message to that room
@@ -175,6 +177,8 @@ export const useChatMessageHandler = create<ChatMessageHandler>((set, get) => {
         if (ApiClient.isApiError(response)) {
           toast.error('Failed to Save Message, Reload the Page');
         }
+        // add the message to our local state
+        set({ messages: [...get().messages, chatItem] });
       }
     },
 
