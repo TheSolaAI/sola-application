@@ -11,14 +11,21 @@ import {
   ChatContentType,
   ChatItem,
   SimpleMessageChatContent,
+  TokenDataChatContent,
 } from '../types/chatItem.ts';
+import { Tool } from '../types/tool.ts';
+import { generateUniqueId } from '../utils/randomID.ts';
 
 interface ChatMessageHandler {
   state: 'idle' | 'loading' | 'error'; // the state of the chat message handler
 
   messages: ChatItem<ChatContentType>[]; // stores an array of all the chat messages. Is managed entirely by this model
 
-  currentChatItem: ChatItem<ChatContentType> | null; // the current message that is being generated
+  /**
+   * The current message that is being generated. This currently only supports Simple Messages
+   * // TODO: Add support for other loader messsage types.
+   */
+  currentChatItem: ChatItem<SimpleMessageChatContent> | null;
 
   next: string | null; // the next url to fetch more messages. If set to null then no more messages are available
 
@@ -46,7 +53,7 @@ interface ChatMessageHandler {
    * @param messageUpdater
    */
   setCurrentChatItem: (
-    messageUpdater: ChatItem<ChatContentType> | null,
+    messageUpdater: ChatItem<SimpleMessageChatContent> | null,
   ) => void;
 
   /**
@@ -145,7 +152,7 @@ export const useChatMessageHandler = create<ChatMessageHandler>((set, get) => {
         // no chat room has been selected so we create a new one with our default agent and navigate the user to that room
         const newRoom = await useChatRoomHandler
           .getState()
-          .createChatRoom({ name: 'New', agentId: 1 });
+          .createChatRoom({ name: 'New Chat', agentId: 1 });
         if (newRoom) {
           useChatRoomHandler.getState().setCurrentChatRoom(newRoom);
           // we then add this message to the new room on our server
@@ -155,8 +162,10 @@ export const useChatMessageHandler = create<ChatMessageHandler>((set, get) => {
             'auth',
           );
           if (ApiClient.isApiError(response)) {
-            toast.error('I,m failing here');
+            toast.error('Failed to Save Message, Reload the Page');
           }
+          // add the message to our local state
+          set({ messages: [...get().messages, chatItem] });
         }
       } else {
         // this means a chat room has already been selected so we just add the message to that room
@@ -168,10 +177,14 @@ export const useChatMessageHandler = create<ChatMessageHandler>((set, get) => {
         if (ApiClient.isApiError(response)) {
           toast.error('Failed to Save Message, Reload the Page');
         }
+        // add the message to our local state
+        set({ messages: [...get().messages, chatItem] });
       }
     },
 
-    setCurrentChatItem: (message: ChatItem<ChatContentType> | null) => {
+    setCurrentChatItem: (
+      message: ChatItem<SimpleMessageChatContent> | null,
+    ) => {
       set({ currentChatItem: message });
     },
 
@@ -223,6 +236,8 @@ const parseChatItemContent = (item: ChatMessageResponseWrapper) => {
   const parsedContent = JSON.parse(item.message);
   if (isSimpleMessageChatContent(parsedContent)) {
     return createChatItem<SimpleMessageChatContent>(item, parsedContent);
+  } else if (isTokenDataChatContent(parsedContent)) {
+    return createChatItem<TokenDataChatContent>(item, parsedContent);
   }
 };
 
@@ -244,4 +259,29 @@ function isSimpleMessageChatContent(
   content: any,
 ): content is SimpleMessageChatContent {
   return content.type === 'simple_message';
+}
+
+function isTokenDataChatContent(content: any): content is TokenDataChatContent {
+  return content.type === 'token_data';
+}
+
+export function createChatItemFromTool(
+  tool: Tool,
+  data: any,
+): ChatItem<ChatContentType> {
+  let message: ChatItem<ChatContentType>;
+
+  switch (tool.representation?.props_type) {
+    case 'token_data': {
+      message = {
+        id: generateUniqueId(),
+        content: data as TokenDataChatContent,
+        createdAt: new Date().toISOString(),
+      };
+      return message;
+    }
+    default: {
+      throw new Error('Unsupported props_type');
+    }
+  }
 }

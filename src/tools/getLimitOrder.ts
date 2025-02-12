@@ -19,9 +19,13 @@ export const getLimitOrders: Tool = {
   },
 };
 
-async function getLimitOrderFunction(args: {currentWallet:ConnectedSolanaWallet}
+async function getLimitOrderFunction(args: {currentWallet:ConnectedSolanaWallet | null}
 ): Promise<string> {
+
   let wallet = args.currentWallet;
+  if (!wallet) {
+    return 'error fetching data';
+  }
   let params: ShowLimitOrderParams = {
     public_key:wallet.address
   }

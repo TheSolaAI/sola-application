@@ -29,7 +29,6 @@ export async function getTrendingNFTsFunction() {
   });
   let response = await apiClient.get<TrendingNFTCard[]>('/data/nft/top_nft', undefined, 'data');
   if (ApiClient.isApiResponse<TrendingNFTCard[]>(response)) {
-    
     return `trending NFTs: ${response.data.map((nft) => nft.name).join(', ')}`;
   } else {
     return `An error occurred while fetching trending NFTs. Please try again later.`;

@@ -239,12 +239,18 @@ module.exports = {
         2: '0px 1px 4px rgba(0, 0, 0, 0.12)',
       },
       keyframes: {
+        waveEffect: {
+          '0%': { opacity: '0.8' },
+          '50%': { opacity: '1.2' },
+          '100%': { opacity: '0.8' },
+        },
         rotating: {
           '0%, 100%': { transform: 'rotate(360deg)' },
           '50%': { transform: 'rotate(0deg)' },
         },
       },
       animation: {
+        wave: 'waveEffect 3s infinite ease-in-out',
         'ping-once': 'ping 5s cubic-bezier(0, 0, 0.2, 1)',
         rotating: 'rotating 30s linear infinite',
         'spin-1.5': 'spin 1.5s linear infinite',

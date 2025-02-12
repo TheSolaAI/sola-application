@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { ChatRoom } from '../types/chatRoom.ts';
+import { ChatRoom, ChatRoomPatch } from '../types/chatRoom.ts';
 import { ApiClient, apiClient } from '../api/ApiClient.ts';
 import { ChatRoomResponse } from '../types/response.ts';
 import { API_URLS } from '../config/api_urls.ts';
@@ -27,7 +27,7 @@ interface ChatRoomHandler {
   initRoomHandler: () => Promise<void>;
   setCurrentChatRoom: (room: ChatRoom) => void; // sets the current chat room
   deleteChatRoom: (roomId: number) => Promise<void>; // delete a chat room only if its present locally
-  updateChatRoom: (room: ChatRoom) => Promise<void>; // update a chat room only if its present locally
+  updateChatRoom: (room: ChatRoomPatch) => Promise<void>; // update a chat room only if its present locally
   createChatRoom: (room: ChatRoom) => Promise<ChatRoom | null>; // create a new chat room using the room object
 }
 
@@ -80,7 +80,7 @@ export const useChatRoomHandler = create<ChatRoomHandler>((set, get) => {
         return;
       }
       const response = await apiClient.delete(
-        API_URLS.CHAT_ROOMS + `/${roomId}`,
+        API_URLS.CHAT_ROOMS + `${roomId}/`,
         'auth',
       );
       if (ApiClient.isApiResponse(response)) {
@@ -101,8 +101,8 @@ export const useChatRoomHandler = create<ChatRoomHandler>((set, get) => {
         set({ state: 'error' });
         return;
       }
-      const response = await apiClient.put<ChatRoomResponse>(
-        API_URLS.CHAT_ROOMS + `/${room.id}`,
+      const response = await apiClient.patch<ChatRoomResponse>(
+        API_URLS.CHAT_ROOMS + `${room.id}/`,
         room,
         'auth',
       );
@@ -131,12 +131,12 @@ export const useChatRoomHandler = create<ChatRoomHandler>((set, get) => {
       if (ApiClient.isApiResponse<ChatRoomResponse>(response)) {
         set({
           rooms: [
-            ...get().rooms,
             {
               id: response.data.id,
               name: response.data.name,
               agentId: response.data.agent_id,
             },
+            ...get().rooms,
           ],
           state: 'idle',
         });

@@ -7,9 +7,20 @@ import { useNavigate } from 'react-router-dom';
 import { useChatMessageHandler } from '../models/ChatMessageHandler.ts';
 import { SimpleMessageChatItem } from '../components/ui/message_items/SimpleMessageChatItem.tsx';
 import { ChatContentType, ChatItem } from '../types/chatItem.ts';
+import { useLayoutContext } from '../layout/LayoutProvider.tsx';
+import useThemeManager from '../models/ThemeManager.ts';
+import { hexToRgb } from '../utils/hexToRGB.ts';
+import { TokenDataMessageItem } from '../components/ui/message_items/TokenDataMessageItem.tsx';
+import WalletLensButton from '../components/wallet/WalletLensButton.tsx';
 
 const Conversation = () => {
   const navigate = useNavigate();
+  const { theme } = useThemeManager();
+  const { audioIntensity } = useLayoutContext();
+  const { handleWalletLensOpen, walletLensOpen } = useLayoutContext();
+
+  const primaryRGB = hexToRgb(theme.primary);
+  const primaryDarkRGB = hexToRgb(theme.primaryDark);
 
   /**
    * Global state
@@ -63,22 +74,37 @@ const Conversation = () => {
   ): React.ReactNode => {
     if (chatItem.content.type === 'simple_message') {
       return <SimpleMessageChatItem key={index} props={chatItem.content} />;
+    } else if (chatItem.content.type === 'token_data') {
+      return <TokenDataMessageItem key={index} props={chatItem.content} />;
     } else {
       <></>;
     }
   };
 
   return (
-    <div className="relative flex flex-col w-full h-full">
-      <div className="flex-1 min-h-[calc(100vh-1rem)] overflow-y-auto w-full">
+    <div className="relative flex flex-col w-full h-screen">
+      <div className="self-end p-1">
+        <WalletLensButton
+          onClick={() => handleWalletLensOpen(!walletLensOpen)}
+        />
+      </div>
+
+      {/* Messages Container (Scrollable) */}
+      <div className="flex-1 max-h-[80vh] overflow-y-auto w-full sm:w-[60%] px-1 self-center pb-[6rem] no-scrollbar">
         {messages.map((message, index) => {
           return renderMessageItem(message, index);
         })}
-        {/* render the current chat item here*/}
         {currentChatItem && renderMessageItem(currentChatItem, -1)}
       </div>
-      {/* Session Controls wrapper */}
-      <div className="absolute bottom-0 left-0 right-0 flex justify-center w-full p-4 pb-6 bg-gradient-to-t from-primaryDark/20  to-transparent">
+
+      {/* Session Controls (Fixed at Bottom of the Screen) */}
+      <div
+        className="absolute bottom-0 left-0 right-0 flex justify-center w-full p-4 pb-8 animate-wave transition-all duration-[5000]"
+        style={{
+          background: `linear-gradient(to top, rgba(${primaryRGB.r}, ${primaryRGB.g}, ${primaryRGB.b}, ${0.5 + 1.5 * audioIntensity}), rgba(${primaryDarkRGB.r}, ${primaryDarkRGB.g}, ${primaryDarkRGB.b}, ${0.3 + 1.2 * audioIntensity}), transparent)`,
+          transition: 'background 0.1s linear',
+        }}
+      >
         <SessionControls />
       </div>
     </div>

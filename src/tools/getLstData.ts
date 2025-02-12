@@ -1,7 +1,5 @@
-import { ApiClient, apiClient } from '../api/ApiClient.ts';
 import { getLstDataHandler } from '../lib/solana/lst_data.ts';
 import { useChatMessageHandler } from '../models/ChatMessageHandler.ts';
-import { LSTData } from '../types/data_types.ts';
 import { Tool } from '../types/tool.ts';
 
 const functionDescription =

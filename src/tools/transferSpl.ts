@@ -1,32 +1,37 @@
+import { ConnectedSolanaWallet } from "@privy-io/react-auth";
 import { createTransferInstruction, getAssociatedTokenAddress, getOrCreateAssociatedTokenAccount } from "@solana/spl-token";
 import { Connection, Keypair, ParsedAccountData, PublicKey, Transaction } from "@solana/web3.js";
+import bs58 from 'bs58';
 
 const functionDescription =
   'Call this function when the user wants to send tokens that are not SOLANA or SOL using address or .sol domain. the .sol domains are random and doesnt need to make sense in meaining, so dont autocorrect anything from .sol domains.';
 
 export const transferSpl = {
-  type: 'function',
-  name: 'transferSpl',
-  description: functionDescription,
-  parameters: {
-    type: 'object',
-    properties: {
-      amount: {
-        type: 'number',
-        description: 'Quantity of tokenA to swap.',
+  immplementation: transferSplTx,
+  abstraction: {
+    type: 'function',
+    name: 'transferSpl',
+    description: functionDescription,
+    parameters: {
+      type: 'object',
+      properties: {
+        amount: {
+          type: 'number',
+          description: 'Quantity of tokenA to swap.',
+        },
+        token: {
+          type: 'string',
+          enum: ['SOLA', 'USDC', 'JUP', 'USDT', 'BONK'],
+          description: 'The token that the user wants to send.',
+        },
+        address: {
+          type: 'string',
+          description: 'Recipient address or his .sol domain.',
+        },
       },
-      token: {
-        type: 'string',
-        enum: ['SOLA', 'USDC', 'JUP', 'USDT', 'BONK'],
-        description: 'The token that the user wants to send.',
-      },
-      address: {
-        type: 'string',
-        description: 'Recipient address or his .sol domain.',
-      },
+      required: ['quantity', 'token', 'address'],
     },
-    required: ['quantity', 'token', 'address'],
-  },
+  }
 };
 
 export async function transferSplTx(args: {
@@ -34,7 +39,11 @@ export async function transferSplTx(args: {
   recipientAddress: string,
   amount: number,
   token: string,
+  currentWallet: ConnectedSolanaWallet | null;
 }): Promise<Transaction | null> {
+  if (args.currentWallet === null) {
+    return null;
+  }
   let senderAddress = args.senderAddress;
   let recipientAddress = args.recipientAddress;
   let token = args.token;
@@ -80,6 +89,7 @@ export async function transferSplTx(args: {
     ),
   );
   tx.feePayer = new PublicKey(senderAddress);
+  args.currentWallet.signTransaction(tx);
   return tx;
 }
 

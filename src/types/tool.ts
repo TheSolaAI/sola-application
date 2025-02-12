@@ -1,12 +1,35 @@
-import React from 'react';
+import { FC } from 'react';
+import { BaseChatContent, TokenDataChatContent } from './chatItem.ts';
 
-export interface Tool {
-  implementation: (args: any) => Promise<string>; // takes in arguments returned form openAI and returns the response to send to it.
+export interface BaseTool {
+  implementation: (
+    args: any,
+    response_id: string,
+  ) => Promise<{
+    status: 'success' | 'error';
+    response: string;
+    props?: BaseChatContent;
+  }>;
   abstraction: {
     type: `function`;
     name: string;
     description: string;
     parameters: any;
   };
-  representation?: React.ReactElement;
 }
+export interface TokenDataTool extends BaseTool {
+  implementation: (
+    args: { token_address: string },
+    response_id: string,
+  ) => Promise<{
+    status: 'success' | 'error';
+    response: string;
+    props?: TokenDataChatContent;
+  }>;
+  representation?: {
+    props_type: 'token_data';
+    component: FC<{ props: TokenDataChatContent }>;
+  };
+}
+
+export type Tool = TokenDataTool;

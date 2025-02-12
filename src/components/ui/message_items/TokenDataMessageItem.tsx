@@ -1,5 +1,20 @@
 import { FC } from 'react';
+import {
+  ChatItemProps,
+  TokenDataChatContent,
+} from '../../../types/chatItem.ts';
+import BaseChatItem from './general/BaseChatItem.tsx';
 
-interface TokenDataMessageItemProps {}
+export const TokenDataMessageItem: FC<ChatItemProps<TokenDataChatContent>> = ({
+  props,
+}) => {
+  // TODO: Implement this component properly
 
-export const TokenDataMessageItem: FC<TokenDataMessageItemProps> = ({}) => {};
+  return (
+    <div>
+      <BaseChatItem>
+        <p className="text-sm text-textColor">{JSON.stringify(props)}</p>
+      </BaseChatItem>
+    </div>
+  );
+};

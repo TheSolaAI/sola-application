@@ -26,7 +26,7 @@ export const getBubblemap: Tool = {
 
 export async function getBubblemapFunction(args: {
   token: string;
-  currentWallet: ConnectedSolanaWallet;
+  currentWallet: ConnectedSolanaWallet | null;
 }): Promise<string> {
   useChatMessageHandler.getState().setCurrentChatItem({
     content: {
