@@ -1,10 +1,11 @@
 import { Connection, VersionedTransaction } from '@solana/web3.js';
-import { ApiClient, apiClient } from '../api/ApiClient.ts';
+import { ApiClient} from '../api/ApiClient.ts';
 import { useChatMessageHandler } from '../models/ChatMessageHandler.ts';
 import { LimitOrderParams, LimitOrderResponse } from '../types/jupiter.ts';
 import { Tool } from '../types/tool.ts';
 import { tokenList } from '../config/tokens/tokenMapping.ts';
 import { ConnectedSolanaWallet } from '@privy-io/react-auth';
+import { limitOrderTx } from '../lib/solana/limitOrderTx.ts';
 
 
 
@@ -64,7 +65,7 @@ export async function createLimitOrder(args: {
     id: 0,
     createdAt: new Date().toISOString(),
   });
-  
+
   let currentWallet = args.currentWallet;
   if (!currentWallet) return 'User wallet is not connected.';
   if (!rpc) return 'Please contact admin, as RPC is not attached.';
@@ -80,11 +81,7 @@ export async function createLimitOrder(args: {
 
   const connection = new Connection(rpc);
   try {
-    const resp = await apiClient.post<LimitOrderResponse>(
-      'api/wallet/jup/limit-order/create',
-      params,
-      'wallet'
-    );
+    const resp = await limitOrderTx(params);
     if (ApiClient.isApiResponse<LimitOrderResponse>(resp)) {
       const transaction = resp.data.tx;
       if (!transaction) {

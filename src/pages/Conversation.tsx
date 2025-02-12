@@ -72,11 +72,7 @@ const Conversation = () => {
     <div className="relative flex flex-col w-full h-full">
       <div className="flex-1 min-h-[calc(100vh-1rem)] overflow-y-auto w-full">
         {messages.map((message, index) => {
-          if (message.content.type === 'simple_message') {
-            return (
-              <SimpleMessageChatItem key={index} props={message.content} />
-            );
-          }
+          return renderMessageItem(message, index);
         })}
         {/* render the current chat item here*/}
         {currentChatItem && renderMessageItem(currentChatItem, -1)}

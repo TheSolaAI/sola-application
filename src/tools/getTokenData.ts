@@ -54,7 +54,7 @@ async function getTokenDataFunction(args: {
       return 'An error occurred while fetching token data';
     }
   } else {
-    // this is a token symbol
+    
     const response = await apiClient.get<TokenDataResponse>(
       '/data/token/symbol?symbol=' + args.token_address,
       undefined,

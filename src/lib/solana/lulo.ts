@@ -1,4 +1,4 @@
-import ApiClient from '../../api/ApiClient';
+import { apiClient, ApiClient } from '../../api/ApiClient';
 import {
   DepositParams,
   DepositResponse,
@@ -15,23 +15,28 @@ const wallet_service_url = process.env.WALLET_SERVICE_URL;
 export async function getAssetsLulo(
   params: AssetsParams,
 ): Promise<AssetsResponse | null> {
-  let resp = await ApiClient.get<AssetsResponse>(
+  let resp = await apiClient.get<AssetsResponse>(
     wallet_service_url + 'api/wallet/lulo/assets?owner=' + params.owner,
   );
-  return resp;
+  if (ApiClient.isApiError(resp)) {
+    console.error('Error during getAssetsLulo:', resp.errors);
+    return null;
+  }
+  return resp.data;
 }
 
-export async function depositLulo(
+export async function depositLuloTx(
   params: DepositParams,
 ): Promise<VersionedTransaction[] | null> {
-  const response = await ApiClient.post<DepositResponse>(
+  const response = await apiClient.post<DepositResponse>(
     wallet_service_url + 'api/wallet/lulo/deposit',
     params,
   );
-  if (!response) {
+  if (ApiClient.isApiError(response)) {
+    console.error('Error during deposit:', response.errors);
     return null;
   }
-  const deposit_transactions = response['transactions'][0];
+  const deposit_transactions = response.data['transactions'][0];
   try {
     let transactions = [];
     for (let i in deposit_transactions) {
@@ -49,16 +54,18 @@ export async function depositLulo(
 export async function withdrawLulo(
   params: WithdrawParams,
 ): Promise<VersionedTransaction[] | null> {
-  const response = await ApiClient.post<WithdrawResponse>(
+  const response = await apiClient.post<WithdrawResponse>(
     wallet_service_url + 'api/wallet/lulo/withdraw',
     params,
   );
-  if (!response) {
+  
+  if (ApiClient.isApiError(response)) {
+    console.error('Error during withdraw:', response.errors);
     return null;
   }
 
   const withdraw_transactions: WithdrawTransaction[] | null =
-    response.transactions[0];
+    response.data.transactions[0];
   if (!withdraw_transactions) {
     return null;
   }

@@ -52,7 +52,9 @@ export async function getTopHoldersFunction(args: {
     undefined,
     'data',
   )
+
   if (ApiClient.isApiResponse<TopHolder[]>(response)) {
+    
     //impl topholder card
     return `tell user that the top holders are: ${response.data} and dont read out any info`;
   } else {

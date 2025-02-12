@@ -1,4 +1,5 @@
 import { ApiClient, apiClient } from '../api/ApiClient.ts';
+import { getLstDataHandler } from '../lib/solana/lst_data.ts';
 import { useChatMessageHandler } from '../models/ChatMessageHandler.ts';
 import { LSTData } from '../types/data_types.ts';
 import { Tool } from '../types/tool.ts';
@@ -31,16 +32,11 @@ export async function getLstDataFunction() {
     id: 0,
     createdAt: new Date().toISOString(),
   });
-  let response = await apiClient.get<LSTData[]>(
-    '/data/sanctum/top_apy',
-    undefined,
-    'data',
-  );
-  if (ApiClient.isApiResponse<LSTData[]>(response)) {
-    //impl topholder card
-    return `lst data: ${response.data}`;
-  } else {
-    return `An error occurred while fetching LST data. Please try again later.`;
+  let response = await getLstDataHandler();
+  if (!response) { 
+    return 'error fetching data';
   }
+  console.log(response)
+  return `${response} is the lst data`
 
 }

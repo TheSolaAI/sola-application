@@ -1,13 +1,14 @@
 export type TokenData = {
   image: string;
   metadata: {
-    description: string;
     name: string;
     symbol: string;
-    token_standard: string;
+    address:string;
   };
   price: number;
   marketcap: number;
+  volume: number;
+  price_change_24: number;
 };
 
 export type LSTData = {

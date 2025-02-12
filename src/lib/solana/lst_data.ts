@@ -1,11 +1,15 @@
 import { LSTData } from '../../types/data_types';
-import ApiClient from '../../api/ApiClient';
+import { apiClient, ApiClient } from '../../api/ApiClient';
 
 const data_service_url = process.env.DATA_SERVICE_URL;
 
-export async function getLstData(): Promise<LSTData[] | null> {
-  let resp = await ApiClient.get<LSTData[]>(
+export async function getLstDataHandler(): Promise<LSTData[] | null> {
+  let resp = await apiClient.get<LSTData[]>(
     data_service_url + 'data/sanctum/top_apy',
   );
-  return resp;
+  if (ApiClient.isApiError(resp)) {
+    console.error('Error during getLstData:', resp.errors);
+    return null;
+  }
+  return resp.data;
 }
