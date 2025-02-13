@@ -1,19 +1,20 @@
-import { ConnectedSolanaWallet } from "@privy-io/react-auth";
-import { Connection } from "@solana/web3.js";
-import { SwapParams } from "../types/jupiter";
-import { tokenList } from "../config/tokens/tokenMapping";
-import { swapTx } from "../lib/solana/swapTx";
-import { Tool } from "../types/tool";
-import { SwapChatContent } from "../types/chatItem";
+import { ConnectedSolanaWallet } from '@privy-io/react-auth';
+import { Connection } from '@solana/web3.js';
+import { SwapParams } from '../types/jupiter';
+import { tokenList } from '../config/tokens/tokenMapping';
+import { swapTx } from '../lib/solana/swapTx';
+import { Tool } from '../types/tool';
+import { SwapChatContent } from '../types/chatItem';
+import { SwapChatItem } from '../components/ui/message_items/SwapMessageItem.tsx';
 
 const functionDescription =
   'Call this function when the user wants to swap tokens. The swap can be based on a specific amount of tokenA (interpreted as a dollar amount or token quantity), or to receive a specified amount of tokenB.';
 
-export const swapTokens:Tool = {
+export const swapTokens: Tool = {
   implementation: swapTokensFunction,
   representation: {
     props_type: 'swap',
-    component: SwapMessageItem,
+    component: SwapChatItem,
   },
   abstraction: {
     type: 'function',
@@ -46,7 +47,7 @@ export const swapTokens:Tool = {
       },
       required: ['swapType', 'amount', 'tokenA', 'tokenB'],
     },
-  }
+  },
 };
 
 export async function swapTokensFunction(args: {
@@ -59,8 +60,7 @@ export async function swapTokensFunction(args: {
   status: 'success' | 'error';
   response: string;
   props?: SwapChatContent;
-}>
-{
+}> {
   let rpc = process.env.SOLANA_RPC;
   if (!rpc) {
     return {
@@ -97,27 +97,25 @@ export async function swapTokensFunction(args: {
   const rawTransaction = signedTransaction.serialize();
 
   const txid = await connection.sendRawTransaction(rawTransaction, {
-      skipPreflight: true,
-      maxRetries: 10,
+    skipPreflight: true,
+    maxRetries: 10,
   });
   const data: SwapChatContent = {
     response_id: 'temp',
     sender: 'system',
     type: 'swap',
     data: {
-        swap_mode: args.swapType,
-        amount: args.quantity,
-        input_mint: tokenList[args.tokenA].MINT,
-        output_mint: tokenList[args.tokenB].MINT,
-        public_key: wallet.address,
+      swap_mode: args.swapType,
+      amount: args.quantity,
+      input_mint: tokenList[args.tokenA].MINT,
+      output_mint: tokenList[args.tokenB].MINT,
+      public_key: wallet.address,
     },
-    txn: txid
-};
+    txn: txid,
+  };
   return {
     status: 'success',
     response: `Swap successful. Transaction ID: ${txid}`,
-    props: data
-  }
+    props: data,
+  };
 }
-
-

@@ -1,6 +1,5 @@
 import { TokenBalance } from './lulo';
 import { ShowLimitOrder } from './jupiter';
-import { ApiErrorDetail } from './api';
 
 export type MessageCard = {
   type:
@@ -135,7 +134,6 @@ export interface TopHolder {
   amount: number;
   insider: boolean;
   owner: string;
-
 }
 
 export interface BubblemapCard {

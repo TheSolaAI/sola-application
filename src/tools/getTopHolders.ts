@@ -2,6 +2,7 @@ import { Tool } from '../types/tool.ts';
 import { useChatMessageHandler } from '../models/ChatMessageHandler.ts';
 import { getTopHoldersHandler } from '../lib/solana/topHolders.ts';
 import { TopHoldersChatContent } from '../types/chatItem.ts';
+import { TopHoldersMessageItem } from '../components/ui/message_items/TopHoldersMessageItem.tsx';
 
 const functionDescription = `
   This function retrieves the top holders for a token.
@@ -30,8 +31,7 @@ export const getTopHolders: Tool = {
 };
 
 export async function getTopHoldersFunction(args: {
-  tokenInput
-  : string;
+  tokenInput: string;
 }): Promise<{
   status: 'success' | 'error';
   response: string;
@@ -47,7 +47,7 @@ export async function getTopHoldersFunction(args: {
     id: 0,
     createdAt: new Date().toISOString(),
   });
-  let token= args.tokenInput;
+  let token = args.tokenInput;
   let final_token = '';
   console.log(token.length);
   if (token.length > 35 || token.startsWith('$')) {
@@ -70,8 +70,7 @@ export async function getTopHoldersFunction(args: {
       type: 'top_holders',
       response_id: 'temp',
       sender: 'system',
-      data:response
+      data: response,
     },
-  }
-
+  };
 }

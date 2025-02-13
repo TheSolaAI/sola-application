@@ -1,10 +1,5 @@
 import { LSTData, RugCheck } from './data_types';
-import {
-  LimitOrderResponse,
-  ShowLimitOrderResponse,
-  SwapParams,
-} from './jupiter';
-import { WithdrawResponse } from './lulo';
+import { ShowLimitOrderResponse, SwapParams } from './jupiter';
 import {
   BubblemapCard,
   MarketDataCard,
@@ -14,7 +9,6 @@ import {
   NFTCollectionCard,
   LuloCard,
 } from './messageCard';
-
 
 export interface ChatItem<T extends BaseChatContent> {
   // Make ChatItem generic
@@ -34,9 +28,6 @@ export type ChatContentType =
   | TokenDataChatContent
   | NFTCollectionChatContent
   | LuloChatContent
-  | DepositLuloChatContent
-  | WithdrawLuloChatContent
-  | CreateLimitOrderChatContent
   | ShowLimitOrdersChatContent
   | SwapChatContent
   | MarketDataChatContent
@@ -71,20 +62,6 @@ export interface LuloChatContent extends BaseChatContent {
   data: LuloCard;
 }
 
-export interface DepositLuloChatContent extends BaseChatContent {
-  type: 'deposit_lulo';
-  data: TransactionCard;
-}
-export interface WithdrawLuloChatContent extends BaseChatContent {
-  type: 'withdraw_lulo';
-  data: TransactionCard;
-}
-
-export interface CreateLimitOrderChatContent extends BaseChatContent {
-  type: 'create_limit_order';
-  data: LimitOrderResponse;
-}
-
 export interface ShowLimitOrdersChatContent extends BaseChatContent {
   type: 'get_limit_order';
   data: ShowLimitOrderResponse;
@@ -95,23 +72,22 @@ export interface ShowLSTDataChatContent extends BaseChatContent {
   data: LSTData[];
 }
 
-export interface NFTPriceChatContent extends BaseChatContent {
-  type: 'nft_price';
-}
-
 export interface RugCheckChatContent extends BaseChatContent {
   type: 'rug_check';
   data: RugCheck;
 }
+
 export interface TopHoldersChatContent extends BaseChatContent {
   type: 'top_holders';
   data: TopHolder[];
 }
+
 export interface SwapChatContent extends BaseChatContent {
   type: 'swap';
   data: SwapParams;
   txn: string;
 }
+
 export interface TransferChatContent extends BaseChatContent {
   type: 'transfer';
   from: string;
@@ -121,6 +97,7 @@ export interface TransferChatContent extends BaseChatContent {
   status: string;
   txn: string;
 }
+
 export interface BubbleMapChatContent extends BaseChatContent {
   type: 'bubble_map';
   data: BubblemapCard;

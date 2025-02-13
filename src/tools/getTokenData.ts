@@ -5,7 +5,6 @@ import { TokenDataResponse } from '../types/response.ts';
 import { TokenDataMessageItem } from '../components/ui/message_items/TokenDataMessageItem.tsx';
 import { TokenDataChatContent } from '../types/chatItem.ts';
 
-
 const functionDescription = `Use this function to get the details or price of a token. NOTE: The user must specify the word Token. If the token address contains the sequence pump, do not remove it, it is part of the token.`;
 
 export const getTokenData: Tool = {
@@ -69,11 +68,15 @@ async function getTokenDataFunction(
       response_id,
       sender: 'assistant',
       type: 'token_data',
-      name: response.data.metadata.name,
-      symbol: response.data.metadata.symbol,
-      price: response.data.price,
-      marketCap: response.data.marketcap,
-      image: response.data.image,
+      data: {
+        address: args.token_address,
+        image: response.data.image,
+        metadata: response.data.metadata,
+        volume: response.data.volume.toString(),
+        marketCap: response.data.marketcap.toString(),
+        price: response.data.price.toString(),
+        priceChange: response.data.price_change_24.toString(),
+      },
     };
 
     // Construct response message
@@ -91,6 +94,5 @@ async function getTokenDataFunction(
       status: 'error',
       response: 'An error occurred while fetching token data',
     };
-
   }
 }

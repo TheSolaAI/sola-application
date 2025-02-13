@@ -1,17 +1,15 @@
 import { Connection, VersionedTransaction } from '@solana/web3.js';
-import { ApiClient} from '../api/ApiClient.ts';
+import { ApiClient } from '../api/ApiClient.ts';
 import { useChatMessageHandler } from '../models/ChatMessageHandler.ts';
 import { LimitOrderParams, LimitOrderResponse } from '../types/jupiter.ts';
 import { Tool } from '../types/tool.ts';
 import { tokenList } from '../config/tokens/tokenMapping.ts';
 import { ConnectedSolanaWallet } from '@privy-io/react-auth';
 import { limitOrderTx } from '../lib/solana/limitOrderTx.ts';
-import { CreateLimitOrderChatContent } from '../types/chatItem.ts';
-
-
+import { TransactionChatContent } from '../types/chatItem.ts';
+import { TransactionDataMessageItem } from '../components/ui/message_items/TransactionCard.tsx';
 
 const rpc = process.env.SOLANA_RPC;
-
 
 const functionDescription =
   'Creates a limit order to buy or sell a token at a specified price.';
@@ -19,8 +17,8 @@ const functionDescription =
 export const limitOrder: Tool = {
   implementation: createLimitOrder,
   representation: {
-    props_type: 'create_limit_order',
-    component: CreateLimitOrderMessageItem,
+    props_type: 'transaction_message',
+    component: TransactionDataMessageItem,
   },
 
   abstraction: {
@@ -63,7 +61,7 @@ export async function createLimitOrder(args: {
 }): Promise<{
   status: 'success' | 'error';
   response: string;
-  props?: CreateLimitOrderChatContent;
+  props?: TransactionChatContent;
 }> {
   useChatMessageHandler.getState().setCurrentChatItem({
     content: {
@@ -77,17 +75,17 @@ export async function createLimitOrder(args: {
   });
 
   let currentWallet = args.currentWallet;
-  if (!currentWallet) { 
+  if (!currentWallet) {
     return {
       status: 'error',
       response: 'Please connect your wallet first.',
     };
-    }
-  if (!rpc) { 
+  }
+  if (!rpc) {
     return {
       status: 'error',
       response: 'Please set your SOLANA_RPC environment variable.',
-    }
+    };
   }
 
   const params: LimitOrderParams = {
@@ -106,47 +104,46 @@ export async function createLimitOrder(args: {
       const transaction = resp.data.tx;
       if (!transaction) {
         return {
-          status: "error",
-          response: "error during transaction"
-        }
+          status: 'error',
+          response: 'error during transaction',
+        };
       }
-  
+
       const transactionBuffer = Buffer.from(transaction, 'base64');
       const final_tx = VersionedTransaction.deserialize(transactionBuffer);
       const signedTransaction = await currentWallet.signTransaction(final_tx);
       const rawTransaction = signedTransaction.serialize();
-  
+
       const txid = await connection.sendRawTransaction(rawTransaction, {
         skipPreflight: true,
         maxRetries: 10,
       });
-  
+
       return {
-        status: "success",
+        status: 'success',
         response: 'Limit order created successfully',
         props: {
           response_id: 'temp',
           sender: 'system',
-          type: 'create_limit_order',
+          type: 'transaction_message',
           data: {
-            order: resp.data.order,
-            tx: txid
-          }
-        }
-      }
+            title: resp.data.order,
+            status: 'success',
+            link: txid,
+          },
+        },
+      };
     } else {
       return {
-        status: "error",
-        response:"error during transaction"
-      }
+        status: 'error',
+        response: 'error during transaction',
+      };
     }
-  
-  }
-  catch (error) {
+  } catch (error) {
     console.error('Error creating limit order:', error);
     return {
-      status: "error",
-      response:"error during transaction"
-    }
+      status: 'error',
+      response: 'error during transaction',
+    };
   }
 }

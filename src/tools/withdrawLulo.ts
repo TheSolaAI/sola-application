@@ -1,12 +1,16 @@
-import { ConnectedSolanaWallet } from "@privy-io/react-auth";
-import { Tool } from "../types/tool";
-import { useChatMessageHandler } from "../models/ChatMessageHandler";
-import { SimpleMessageChatContent, WithdrawLuloChatContent } from '../types/chatItem';
-import { WithdrawParams } from "../types/lulo";
-import { tokenList } from "../config/tokens/tokenMapping";
-import { withdrawLuloTx } from "../lib/solana/lulo";
-import { Connection } from "@solana/web3.js";
-import { TransactionCard } from "../types/messageCard";
+import { ConnectedSolanaWallet } from '@privy-io/react-auth';
+import { Tool } from '../types/tool';
+import { useChatMessageHandler } from '../models/ChatMessageHandler';
+import {
+  SimpleMessageChatContent,
+  TransactionChatContent,
+} from '../types/chatItem';
+import { WithdrawParams } from '../types/lulo';
+import { tokenList } from '../config/tokens/tokenMapping';
+import { withdrawLuloTx } from '../lib/solana/lulo';
+import { Connection } from '@solana/web3.js';
+import { TransactionCard } from '../types/messageCard';
+import { TransactionDataMessageItem } from '../components/ui/message_items/TransactionCard.tsx';
 
 const functionDescription =
   'Call this function ONLY when the user explicitly requests to withdraw stable coins from Lulo. Ensure the user specifies the correct stable coin (USDS or USDC) and an amount. DO NOT assume or attach any arbitrary number if unclear. USDS and USDC are DISTINCT coins—select appropriately. This function is NOT for deposits or any other operation. Confirm the user’s intent before proceeding if you are unsure of the intent.';
@@ -15,7 +19,7 @@ export const withdrawLulo: Tool = {
   implementation: withdrawLuloFunction,
   representation: {
     props_type: 'withdraw_lulo',
-    component: WithdrawLuloMessageItem,
+    component: TransactionDataMessageItem,
   },
   abstraction: {
     type: 'function',
@@ -41,21 +45,23 @@ export const withdrawLulo: Tool = {
       },
       required: ['token'],
     },
-  }
+  },
 };
 
 // TODO: Shift the trigger logic here from conversation.tsx
-export async function withdrawLuloFunction(
-  args: { amount: number, token: 'USDT' | 'USDS' | 'USDC', currentWallet: ConnectedSolanaWallet | null }
-): Promise<{
+export async function withdrawLuloFunction(args: {
+  amount: number;
+  token: 'USDT' | 'USDS' | 'USDC';
+  currentWallet: ConnectedSolanaWallet | null;
+}): Promise<{
   status: 'success' | 'error';
   response: string;
-  props?: WithdrawLuloChatContent;
+  props?: TransactionChatContent;
 }> {
   useChatMessageHandler.getState().setCurrentChatItem({
     content: {
       type: 'simple_message',
-      response_id: "temp",
+      response_id: 'temp',
       text: 'Creating a withdrawal transaction...',
     } as SimpleMessageChatContent,
     id: 0,
@@ -99,20 +105,23 @@ export async function withdrawLuloFunction(
       transaction.message.recentBlockhash = blockhash;
       console.log(transaction);
 
-      const signedTransaction = await args.currentWallet.signTransaction(transaction);
-      const signature = await connection.sendRawTransaction(signedTransaction.serialize());
+      const signedTransaction =
+        await args.currentWallet.signTransaction(transaction);
+      const signature = await connection.sendRawTransaction(
+        signedTransaction.serialize(),
+      );
 
       const data: TransactionCard = {
         link: signature,
-        title: "completed",
-        status: 'success'
+        title: 'completed',
+        status: 'success',
       };
 
-      const uiProps: WithdrawLuloChatContent = {
+      const uiProps: TransactionChatContent = {
         response_id: 'temp',
         sender: 'assistant',
-        type: 'withdraw_lulo',
-        data
+        type: 'transaction_message',
+        data,
       };
 
       return {

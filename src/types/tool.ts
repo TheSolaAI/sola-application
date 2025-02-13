@@ -1,7 +1,19 @@
 import { FC } from 'react';
-import { BaseChatContent, DepositLuloChatContent, TokenDataChatContent, LuloChatContent, WithdrawLuloChatContent , ShowLSTDataChatContent,ShowLimitOrdersChatContent,SimpleMessageChatContent,BubbleMapChatContent,RugCheckChatContent,TopHoldersChatContent,SwapChatContent,CreateLimitOrderChatContent,TransferChatContent, MarketDataChatContent} from './chatItem.ts';
-import { ConnectedSolanaWallet} from '@privy-io/react-auth';
-
+import {
+  BaseChatContent,
+  TokenDataChatContent,
+  LuloChatContent,
+  ShowLSTDataChatContent,
+  ShowLimitOrdersChatContent,
+  BubbleMapChatContent,
+  RugCheckChatContent,
+  TopHoldersChatContent,
+  SwapChatContent,
+  TransferChatContent,
+  MarketDataChatContent,
+  TransactionChatContent,
+} from './chatItem.ts';
+import { ConnectedSolanaWallet } from '@privy-io/react-auth';
 
 export interface BaseTool {
   implementation: (
@@ -36,31 +48,39 @@ export interface TokenDataTool extends BaseTool {
 
 export interface DepositLuloTool extends BaseTool {
   implementation: (
-    args: { amount:number, token:'USDT' | 'USDS' | 'USDC',currentWallet:ConnectedSolanaWallet|null },
+    args: {
+      amount: number;
+      token: 'USDT' | 'USDS' | 'USDC';
+      currentWallet: ConnectedSolanaWallet | null;
+    },
     response_id: string,
   ) => Promise<{
     status: 'success' | 'error';
     response: string;
-    props?: DepositLuloChatContent;
+    props?: TransactionChatContent;
   }>;
   representation?: {
-    props_type: 'deposit_lulo';
-    component: FC<{ props: DepositLuloChatContent }>;
+    props_type: 'transaction_message';
+    component: FC<{ props: TransactionChatContent }>;
   };
 }
 
 export interface WithdrawLuloTool extends BaseTool {
   implementation: (
-    args: { amount: number, token: 'USDT' | 'USDS' | 'USDC', currentWallet: ConnectedSolanaWallet | null },
+    args: {
+      amount: number;
+      token: 'USDT' | 'USDS' | 'USDC';
+      currentWallet: ConnectedSolanaWallet | null;
+    },
     response_id: string,
   ) => Promise<{
     status: 'success' | 'error';
     response: string;
-    props?: WithdrawLuloChatContent;
+    props?: TransactionChatContent;
   }>;
   representation?: {
     props_type: 'withdraw_lulo';
-    component: FC<{ props: DepositLuloChatContent }>;
+    component: FC<{ props: TransactionChatContent }>;
   };
 }
 
@@ -82,7 +102,7 @@ export interface UserAssetsLuloTool extends BaseTool {
 export interface CreateLimitOrderTool extends BaseTool {
   implementation: (
     args: {
-      token:  'SOL' | 'SOLA' | 'USDC' | 'BONK' | 'USDT' | 'JUP' | 'WIF';
+      token: 'SOL' | 'SOLA' | 'USDC' | 'BONK' | 'USDT' | 'JUP' | 'WIF';
       amount: number;
       limitPrice: number;
       action: 'BUY' | 'SELL';
@@ -92,11 +112,11 @@ export interface CreateLimitOrderTool extends BaseTool {
   ) => Promise<{
     status: 'success' | 'error';
     response: string;
-    props?: CreateLimitOrderChatContent;
+    props?: TransactionChatContent;
   }>;
   representation?: {
-    props_type: 'create_limit_order';
-    component: FC<{ props: CreateLimitOrderChatContent }>;
+    props_type: 'transaction_message';
+    component: FC<{ props: TransactionChatContent }>;
   };
 }
 
@@ -110,7 +130,7 @@ export interface GetLSTDataTool extends BaseTool {
     props?: ShowLSTDataChatContent;
   }>;
   representation?: {
-    props_type: 'get_lst_data',
+    props_type: 'get_lst_data';
     component: FC<{ props: ShowLSTDataChatContent }>;
   };
 }
@@ -132,7 +152,7 @@ export interface ShowLimitOrdersTool extends BaseTool {
 
 export interface RugCheckTool extends BaseTool {
   implementation: (
-    args: { token:string},
+    args: { token: string },
     response_id: string,
   ) => Promise<{
     status: 'success' | 'error';
@@ -208,14 +228,14 @@ export interface MarketDataTool extends BaseTool {
   representation?: {
     props_type: 'market_data';
     component: FC<{ props: MarketDataChatContent }>;
-  }
+  };
 }
 
 export interface TransferSolTool extends BaseTool {
   implementation: (
     args: {
-      recipientAddress: string,
-      amount: number,
+      recipientAddress: string;
+      amount: number;
       currentWallet: ConnectedSolanaWallet | null;
     },
     response_id: string,
@@ -250,7 +270,8 @@ export interface TransferSPLTool extends BaseTool {
   };
 }
 
-export type Tool = TokenDataTool
+export type Tool =
+  | TokenDataTool
   | DepositLuloTool
   | WithdrawLuloTool
   | UserAssetsLuloTool

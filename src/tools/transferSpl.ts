@@ -1,18 +1,29 @@
-import { ConnectedSolanaWallet } from "@privy-io/react-auth";
-import { createTransferInstruction, getAssociatedTokenAddress, getOrCreateAssociatedTokenAccount } from "@solana/spl-token";
-import { Connection, Keypair, ParsedAccountData, PublicKey, Transaction } from "@solana/web3.js";
+import { ConnectedSolanaWallet } from '@privy-io/react-auth';
+import {
+  createTransferInstruction,
+  getAssociatedTokenAddress,
+  getOrCreateAssociatedTokenAccount,
+} from '@solana/spl-token';
+import {
+  Connection,
+  Keypair,
+  ParsedAccountData,
+  PublicKey,
+  Transaction,
+} from '@solana/web3.js';
 import bs58 from 'bs58';
-import { Tool } from "../types/tool";
-import { TransferChatContent } from "../types/chatItem";
+import { Tool } from '../types/tool';
+import { TransferChatContent } from '../types/chatItem';
+import { TransferChatItem } from '../components/ui/message_items/TransferMessageItem.tsx';
 
 const functionDescription =
   'Call this function when the user wants to send tokens that are not SOLANA or SOL using address or .sol domain. the .sol domains are random and doesnt need to make sense in meaining, so dont autocorrect anything from .sol domains.';
 
-export const transferSpl:Tool = {
+export const transferSpl: Tool = {
   implementation: transferSplTx,
   representation: {
     props_type: 'transfer_spl',
-    component: TransferMessageItem,
+    component: TransferChatItem,
   },
   abstraction: {
     type: 'function',
@@ -37,20 +48,19 @@ export const transferSpl:Tool = {
       },
       required: ['quantity', 'token', 'address'],
     },
-  }
+  },
 };
 
 export async function transferSplTx(args: {
-  recipientAddress: string,
-  amount: number,
-  token: string,
+  recipientAddress: string;
+  amount: number;
+  token: string;
   currentWallet: ConnectedSolanaWallet | null;
 }): Promise<{
   status: 'success' | 'error';
   response: string;
   props?: TransferChatContent;
 }> {
-
   if (args.currentWallet === null) {
     return {
       status: 'error',
@@ -67,7 +77,7 @@ export async function transferSplTx(args: {
     return {
       status: 'error',
       response: 'RPC not found',
-    }
+    };
   }
   if (!sola_ata_keypair) {
     return {
@@ -120,18 +130,17 @@ export async function transferSplTx(args: {
     token: token,
     status: 'success',
     txn: signature,
-  }
+  };
   return {
     status: 'success',
     response: 'Transaction sent',
     props: data,
   };
-
 }
 
 async function getNumberDecimals(mintAddress: string): Promise<number> {
   let rpc = process.env.SOLANA_RPC;
-  
+
   if (!rpc) {
     return 0;
   }

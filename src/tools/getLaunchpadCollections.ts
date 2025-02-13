@@ -1,5 +1,5 @@
 const functionDescription =
-  'Call this function when the user wants to know about the upcomming nft launches.';
+  'Call this function when the user wants to know about the upcoming nft launches.';
 
 export const getNFTLaunchpad = {
   type: 'function',

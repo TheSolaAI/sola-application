@@ -2,6 +2,7 @@ import { getLstDataHandler } from '../lib/solana/lst_data.ts';
 import { useChatMessageHandler } from '../models/ChatMessageHandler.ts';
 import { ShowLSTDataChatContent } from '../types/chatItem.ts';
 import { Tool } from '../types/tool.ts';
+import { ShowLSTDataChatItem } from '../components/ui/message_items/LSTCardItem.tsx';
 
 const functionDescription =
   'Call this function when the user wants to know the highest apy in LST (Liquid Staking Token). General questions would be what is the best lst to stake? etc';
@@ -10,7 +11,7 @@ export const getLstData: Tool = {
   implementation: getLstDataFunction,
   representation: {
     props_type: 'get_lst_data',
-    component: GetLstDataMessageItem,
+    component: ShowLSTDataChatItem,
   },
   abstraction: {
     type: 'function',
@@ -23,9 +24,7 @@ export const getLstData: Tool = {
   },
 };
 
-//TODO: Shift the trigger logic here from conversation.tsx
-export async function getLstDataFunction()
-  : Promise<{
+export async function getLstDataFunction(): Promise<{
   status: 'success' | 'error';
   response: string;
   props?: ShowLSTDataChatContent;
@@ -41,13 +40,13 @@ export async function getLstDataFunction()
     createdAt: new Date().toISOString(),
   });
   let response = await getLstDataHandler();
-  if (!response) { 
+  if (!response) {
     return {
       status: 'error',
       response: 'Error fetching lst data',
-    }
+    };
   }
-  
+
   return {
     status: 'success',
     response: 'LST data fetched successfully',
@@ -57,6 +56,5 @@ export async function getLstDataFunction()
       type: 'get_lst_data',
       data: response,
     },
-  }
-
+  };
 }

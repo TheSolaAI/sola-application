@@ -2,14 +2,15 @@ import { useChatMessageHandler } from '../models/ChatMessageHandler.ts';
 import { Tool } from '../types/tool.ts';
 import { getTokenDataSymbol } from '../lib/solana/tokenData.ts';
 import { BubbleMapChatContent } from '../types/chatItem.ts';
+import { BubbleMapChatItem } from '../components/ui/message_items/BubbleMapCardItem.tsx';
 
 const functionDescription = `Fetches a bubblemap for the specified token.`;
 
 export const getBubblemap: Tool = {
   implementation: getBubblemapFunction,
   representation: {
-    props_type: "bubble_map",
-    component: BubbleMapMessageItem,
+    props_type: 'bubble_map',
+    component: BubbleMapChatItem,
   },
   abstraction: {
     type: 'function',
@@ -28,9 +29,7 @@ export const getBubblemap: Tool = {
   },
 };
 
-export async function getBubblemapFunction(args: {
-  token: string;
-}): Promise<{
+export async function getBubblemapFunction(args: { token: string }): Promise<{
   status: 'success' | 'error';
   response: string;
   props?: BubbleMapChatContent;
@@ -71,9 +70,7 @@ export async function getBubblemapFunction(args: {
       type: 'bubble_map',
       data: {
         token: token,
-      }
+      },
     },
   };
 }
-
-

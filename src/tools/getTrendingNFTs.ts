@@ -1,5 +1,5 @@
-import { ApiClient, apiClient } from "../api/ApiClient";
-import { useChatMessageHandler } from "../models/ChatMessageHandler";
+import { ApiClient, apiClient } from '../api/ApiClient';
+import { useChatMessageHandler } from '../models/ChatMessageHandler';
 import { TrendingNFTCard } from '../types/messageCard';
 
 const functionDescription =
@@ -27,7 +27,11 @@ export async function getTrendingNFTsFunction() {
     id: 0,
     createdAt: new Date().toISOString(),
   });
-  let response = await apiClient.get<TrendingNFTCard[]>('/data/nft/top_nft', undefined, 'data');
+  let response = await apiClient.get<TrendingNFTCard[]>(
+    '/data/nft/top_nft',
+    undefined,
+    'data',
+  );
   if (ApiClient.isApiResponse<TrendingNFTCard[]>(response)) {
     return `trending NFTs: ${response.data.map((nft) => nft.name).join(', ')}`;
   } else {

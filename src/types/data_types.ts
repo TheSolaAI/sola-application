@@ -1,11 +1,11 @@
-import { Risk } from "./messageCard";
+import { Risk } from './messageCard';
 
 export type TokenData = {
   image: string;
   metadata: {
     name: string;
     symbol: string;
-    address:string;
+    address: string;
   };
   price: number;
   marketcap: number;
