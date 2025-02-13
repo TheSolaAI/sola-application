@@ -5,6 +5,7 @@ import { ChatRoomResponse } from '../types/response.ts';
 import { API_URLS } from '../config/api_urls.ts';
 import { toast } from 'sonner';
 import { useChatMessageHandler } from './ChatMessageHandler.ts';
+import { useSessionHandler } from './SessionHandler.ts';
 
 interface ChatRoomHandler {
   state: 'idle' | 'loading' | 'error'; // the state of the chat room handler
@@ -25,7 +26,7 @@ interface ChatRoomHandler {
    * On load the currentChatRoom is set to null, and is only set when the user selects a chat room or creates a new one.
    */
   initRoomHandler: () => Promise<void>;
-  setCurrentChatRoom: (room: ChatRoom) => void; // sets the current chat room
+  setCurrentChatRoom: (room: ChatRoom) => Promise<void>; // sets the current chat room
   deleteChatRoom: (roomId: number) => Promise<void>; // delete a chat room only if its present locally
   updateChatRoom: (room: ChatRoomPatch) => Promise<void>; // update a chat room only if its present locally
   createChatRoom: (room: ChatRoom) => Promise<ChatRoom | null>; // create a new chat room using the room object
@@ -40,10 +41,12 @@ export const useChatRoomHandler = create<ChatRoomHandler>((set, get) => {
 
     setState: (state: 'idle' | 'loading' | 'error'): void => set({ state }),
 
-    setCurrentChatRoom: (room: ChatRoom): void => {
+    setCurrentChatRoom: async (room: ChatRoom): Promise<void> => {
       set({ currentChatRoom: room });
+      // update the session with the tools that are available for this agent
+      useSessionHandler.getState().updateSession();
       // now fetch that chat room's messages
-      useChatMessageHandler.getState().initChatMessageHandler();
+      await useChatMessageHandler.getState().initChatMessageHandler();
     },
 
     initRoomHandler: async () => {

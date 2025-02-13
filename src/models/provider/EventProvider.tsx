@@ -92,7 +92,7 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
             }
           }
         }
-        // console.log(JSON.stringify(eventData, null, 2));
+        console.log(JSON.stringify(eventData, null, 2));
       };
     };
     handleEvents();
