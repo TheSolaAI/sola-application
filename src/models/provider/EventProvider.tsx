@@ -19,7 +19,6 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
    */
   const { dataStream, updateSession, sendMessage } = useSessionHandler();
   const { getToolsForAgent } = useAgentHandler();
-  const { currentChatRoom } = useChatRoomHandler();
   const { currentWallet } = useWalletHandler();
   const { addMessage } = useChatMessageHandler();
 
@@ -72,24 +71,28 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
               // check if the output is a function call. If it is a message call then ignore
               if (output.type === 'function_call') {
                 // Check the tools this agent has access to
-                const tool = getToolsForAgent(currentChatRoom!.agentId).find(
-                  (tool) => tool.abstraction.name === output.name,
-                );
+                const tool = getToolsForAgent(
+                  useChatRoomHandler.getState().currentChatRoom?.agentId!,
+                ).find((tool) => tool.abstraction.name === output.name);
                 if (tool) {
                   // call the tool handling function and add its output chat item to the chat
-                  const response = await tool.implementation({
-                    ...JSON.parse(output.arguments),
+                  const response = await tool.implementation(
+                    {
+                      ...JSON.parse(output.arguments),
                       currentWallet: currentWallet,
-                  },
-                  eventData.response_id);
-                  
+                    },
+                    eventData.response_id,
+                  );
+
                   // send the response back to OpenAI
                   sendMessage(response.response);
-                  const tool_result = await tool.implementation({
-                    ...JSON.parse(output.arguments),
+                  const tool_result = await tool.implementation(
+                    {
+                      ...JSON.parse(output.arguments),
                       currentWallet: currentWallet,
-                  },
-                  eventData.response_id);
+                    },
+                    eventData.response_id,
+                  );
                   // add the message to our local array and also our database history
                   addMessage(createChatItemFromTool(tool, tool_result.props));
                   // send the response to OpenAI
