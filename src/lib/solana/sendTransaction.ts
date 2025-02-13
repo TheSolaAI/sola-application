@@ -1,7 +1,7 @@
 import { Connection, VersionedTransaction, PublicKey, TransactionMessage,ComputeBudgetProgram} from "@solana/web3.js";
 import { ConnectedSolanaWallet } from "@privy-io/react-auth"
 
-export async function sendTransaction(
+export async function sendTransactionWithPriority(
     wallet: ConnectedSolanaWallet,
     transaction: string,
     fee: number,

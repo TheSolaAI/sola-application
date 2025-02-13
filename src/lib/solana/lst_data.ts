@@ -7,5 +7,5 @@ export async function getLstData(): Promise<LSTData[] | null> {
   let resp = await ApiClient.get<LSTData[]>(
     data_service_url + 'data/sanctum/top_apy',
   );
-  return resp;
+  return resp; 
 }
