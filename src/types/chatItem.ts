@@ -1,3 +1,12 @@
+import { LSTData, RugCheck, TransactionData } from './data_types';
+import {
+  LimitOrderResponse,
+  ShowLimitOrderResponse,
+  SwapParams,
+} from './jupiter';
+import { AssetsResponse, WithdrawResponse } from './lulo';
+import { BubblemapCard, MarketDataCard, TopHolder } from './messageCard';
+
 export interface ChatItem<T extends BaseChatContent> {
   // Make ChatItem generic
   id: number;
@@ -12,19 +21,29 @@ export interface BaseChatContent {
 
 export type ChatContentType =
   | SimpleMessageChatContent
+  | TransactionChatContent
   | TokenDataChatContent
-  | TransactionDataChatContent;
+  | DepositLuloChatContent
+  | WithdrawLuloChatContent
+  | UserAssetsLuloChatContent
+  | CreateLimitOrderChatContent
+  | ShowLimitOrdersChatContent
+  | SwapChatContent
+  | MarketDataChatContent
+  | BubbleMapChatContent
+  | ShowLSTDataChatContent
+  | RugCheckChatContent
+  | TopHoldersChatContent
+  | TransferChatContent;
 
 export interface SimpleMessageChatContent extends BaseChatContent {
   type: 'simple_message';
   text: string;
 }
 
-export interface TransactionDataChatContent extends BaseChatContent {
-  type: 'transaction_data';
-  title: string;
-  status: string;
-  link: string;
+export interface TransactionChatContent extends BaseChatContent {
+  type: 'transaction_message';
+  data: TransactionData;
 }
 
 export interface TokenDataChatContent extends BaseChatContent {
@@ -34,6 +53,70 @@ export interface TokenDataChatContent extends BaseChatContent {
   price: number;
   marketCap: number;
   image: string;
+}
+
+export interface DepositLuloChatContent extends BaseChatContent {
+  type: 'deposit_lulo';
+  data: TransactionData;
+}
+export interface WithdrawLuloChatContent extends BaseChatContent {
+  type: 'withdraw_lulo';
+  data: WithdrawResponse;
+}
+export interface UserAssetsLuloChatContent extends BaseChatContent {
+  type: 'user_assets_lulo';
+  data: AssetsResponse;
+}
+
+export interface CreateLimitOrderChatContent extends BaseChatContent {
+  type: 'create_limit_order';
+  data: LimitOrderResponse;
+}
+
+export interface ShowLimitOrdersChatContent extends BaseChatContent {
+  type: 'get_limit_order';
+  data: ShowLimitOrderResponse;
+}
+
+export interface ShowLSTDataChatContent extends BaseChatContent {
+  type: 'get_lst_data';
+  data: LSTData[];
+}
+
+export interface NFTPriceChatContent extends BaseChatContent {
+  type: 'nft_price';
+}
+
+export interface RugCheckChatContent extends BaseChatContent {
+  type: 'rug_check';
+  data: RugCheck;
+}
+export interface TopHoldersChatContent extends BaseChatContent {
+  type: 'top_holders';
+  data: TopHolder[];
+}
+export interface SwapChatContent extends BaseChatContent {
+  type: 'swap';
+  data: SwapParams;
+  txn: string;
+}
+export interface TransferChatContent extends BaseChatContent {
+  type: 'transfer';
+  from: string;
+  to: string;
+  amount: string;
+  token: string;
+  status: string;
+  txn: string;
+}
+export interface BubbleMapChatContent extends BaseChatContent {
+  type: 'bubble_map';
+  data: BubblemapCard;
+}
+
+export interface MarketDataChatContent extends BaseChatContent {
+  type: 'market_data';
+  data: MarketDataCard;
 }
 
 /**

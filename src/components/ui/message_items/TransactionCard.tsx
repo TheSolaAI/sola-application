@@ -9,7 +9,7 @@
  * - `props.link` (string): A URL linking to the transaction details on Solscan.
  *
  * Dependencies:
- * - `ChatItemProps<TransactionDataChatContent>`: Type definition for chat item props.
+ * - `ChatItemProps<TransactionChatContent>`: Type definition for chat item props.
  * - `BaseMonoGridChatItem`: A wrapper component for consistent chat item styling.
  *
  * Usage:
@@ -27,21 +27,21 @@
 import { FC } from 'react';
 import {
   ChatItemProps,
-  TransactionDataChatContent,
+  TransactionChatContent,
 } from '../../../types/chatItem.ts';
 import BaseMonoGridChatItem from './general/BaseMonoGridChatItem.tsx';
 
-export const TokenDataMessageItem: FC<
-  ChatItemProps<TransactionDataChatContent>
+export const TransactionDataMessageItem: FC<
+  ChatItemProps<TransactionChatContent>
 > = ({ props }) => {
   return (
     <div>
       <BaseMonoGridChatItem>
         <img src="/solscan.png" alt="solscan" className="h-10 w-10" />
-        <span className="font-semibold text-lg">{props.title}</span>
-        <span>{props.status}</span>
+        <span className="font-semibold text-lg">{props.data.title}</span>
+        <span>{props.data.status}</span>
         <a
-          href={props.link}
+          href={props.data.link}
           target="_blank"
           rel="noopener noreferrer"
           className="text-primaryDark hover:underline text-sm"
