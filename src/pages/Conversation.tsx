@@ -913,6 +913,10 @@ const Conversation = () => {
 
   const startSession = async () => {
     let url = process.env.DATA_SERVICE_URL;
+    while (!appState.accessToken) {
+
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    }
     try {
       const tokenResponse = await fetch(`${url}data/session/create`, {
         method: 'GET', // or "POST" if required
@@ -921,7 +925,7 @@ const Conversation = () => {
           'Content-Type': 'application/json',
         },
       });
-
+      
       const data = await tokenResponse.json();
       const EPHEMERAL_KEY = data.client_secret?.value;
 
