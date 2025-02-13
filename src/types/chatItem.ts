@@ -35,7 +35,6 @@ export type ChatContentType =
   | ShowLSTDataChatContent
   | RugCheckChatContent
   | TopHoldersChatContent
-  | TransferChatContent;
 
 export interface SimpleMessageChatContent extends BaseChatContent {
   type: 'simple_message';
@@ -43,7 +42,7 @@ export interface SimpleMessageChatContent extends BaseChatContent {
 }
 
 export interface TransactionChatContent extends BaseChatContent {
-  type: 'transaction_message';
+  type: 'transaction_message'|'transfer_sol' | 'transfer_spl';
   data: TransactionCard;
 }
 
@@ -85,16 +84,6 @@ export interface TopHoldersChatContent extends BaseChatContent {
 export interface SwapChatContent extends BaseChatContent {
   type: 'swap';
   data: SwapParams;
-  txn: string;
-}
-
-export interface TransferChatContent extends BaseChatContent {
-  type: 'transfer';
-  from: string;
-  to: string;
-  amount: number;
-  token: string;
-  status: string;
   txn: string;
 }
 

@@ -9,7 +9,6 @@ import {
   RugCheckChatContent,
   TopHoldersChatContent,
   SwapChatContent,
-  TransferChatContent,
   MarketDataChatContent,
   TransactionChatContent,
 } from './chatItem.ts';
@@ -242,11 +241,11 @@ export interface TransferSolTool extends BaseTool {
   ) => Promise<{
     status: 'success' | 'error';
     response: string;
-    props?: TransferChatContent;
+    props?: TransactionChatContent;
   }>;
   representation?: {
     props_type: 'transfer_sol';
-    component: FC<{ props: TransferChatContent }>;
+    component: FC<{ props: TransactionChatContent }>;
   };
 }
 
@@ -262,11 +261,11 @@ export interface TransferSPLTool extends BaseTool {
   ) => Promise<{
     status: 'success' | 'error';
     response: string;
-    props?: TransferChatContent;
+    props?: TransactionChatContent ;
   }>;
   representation?: {
     props_type: 'transfer_spl';
-    component: FC<{ props: TransferChatContent }>;
+    component: FC<{ props: TransactionChatContent  }>;
   };
 }
 

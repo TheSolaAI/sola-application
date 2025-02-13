@@ -21,7 +21,6 @@ import {
   TokenDataChatContent,
   TopHoldersChatContent,
   TransactionChatContent,
-  TransferChatContent,
 } from '../types/chatItem.ts';
 import { Tool } from '../types/tool.ts';
 import { generateUniqueId } from '../utils/randomID.ts';
@@ -357,7 +356,7 @@ export function createChatItemFromTool(
     case 'transfer_sol': {
       message = {
         id: generateUniqueId(),
-        content: data as TransferChatContent,
+        content: data as TransactionChatContent ,
         createdAt: new Date().toISOString(),
       };
       return message;
@@ -365,7 +364,7 @@ export function createChatItemFromTool(
     case 'transfer_spl': {
       message = {
         id: generateUniqueId(),
-        content: data as TransferChatContent,
+        content: data as TransactionChatContent ,
         createdAt: new Date().toISOString(),
       };
       return message;

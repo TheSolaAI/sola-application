@@ -5,7 +5,7 @@ export { getRugCheck } from './getRugCheck';
 export { getBubblemap } from './getBubblemap';
 export { getLstData } from './getLstData';
 export { swapLST } from './swapLSTfromClick';
-export { getMarketData } from './getMarketData';
+// export { getMarketData } from './getMarketData';
 export { getBlinks } from './getBlinks';
 export { limitOrder } from './limitOrder';
 export { getLimitOrders } from './getLimitOrder';

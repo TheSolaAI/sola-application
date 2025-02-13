@@ -6,7 +6,7 @@ import {
   Transaction,
 } from '@solana/web3.js';
 import { Tool } from '../types/tool';
-import { TransferChatContent } from '../types/chatItem';
+import { TransactionChatContent} from '../types/chatItem';
 import { TransferChatItem } from '../components/ui/message_items/TransferMessageItem.tsx';
 
 const functionDescription =
@@ -46,7 +46,7 @@ export async function transferSolTxFunction(args: {
 }): Promise<{
   status: 'success' | 'error';
   response: string;
-  props?: TransferChatContent;
+  props?: TransactionChatContent ;
 }> {
   if (args.currentWallet === null) {
     return {
@@ -78,17 +78,20 @@ export async function transferSolTxFunction(args: {
   const signature = await connection.sendRawTransaction(
     transaction.serialize(),
   );
-  const data: TransferChatContent = {
+  let title = `Transfer ${amount} SOL to ${recipientAddress}`
+  let link = signature
+
+  const data: TransactionChatContent  = {
     response_id: 'temp',
     sender: 'assistant',
-    type: 'transfer',
-    from: senderAddress,
-    to: recipientAddress,
-    amount: amount,
-    token: 'SOL',
-    status: 'success',
-    txn: signature,
+    type: 'transfer_sol',
+    data: {
+      title,
+      link,
+      status:"success"
+    }
   };
+
   return {
     status: 'success',
     response: 'Transaction sent',
