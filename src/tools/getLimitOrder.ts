@@ -2,12 +2,17 @@ import { ConnectedSolanaWallet } from '@privy-io/react-auth';
 import { Tool } from '../types/tool.ts';
 import { ShowLimitOrderParams} from '../types/jupiter.ts';
 import { getLimitOrderHandler } from '../lib/solana/limitOrderTx.ts';
+import { ShowLimitOrdersChatContent } from '../types/chatItem.ts';
 
 const functionDescription =
   'Call this function when the user wants view their open limit orders.';
 
 export const getLimitOrders: Tool = {
   implementation: getLimitOrderFunction,
+  representation: {
+    props_type: 'show_limit_orders',
+    component: GetLimitOrderMessageItem,
+  },
   abstraction: {
     type: 'function',
     name: 'getLimitOrders',
@@ -20,20 +25,39 @@ export const getLimitOrders: Tool = {
 };
 
 async function getLimitOrderFunction(args: {currentWallet:ConnectedSolanaWallet | null}
-): Promise<string> {
+): Promise<{
+  status: 'success' | 'error';
+  response: string;
+  props?: ShowLimitOrdersChatContent;
+}> {
 
   let wallet = args.currentWallet;
   if (!wallet) {
-    return 'error fetching data';
+    return {
+      status: 'error',
+      response: 'No wallet connected',
+    };
   }
   let params: ShowLimitOrderParams = {
     public_key:wallet.address
   }
   let resp = await getLimitOrderHandler(params)
   if (!resp) {
-    return 'error fetching data';
+    return {
+      status: 'error',
+      response: 'Error fetching limit orders',
+    };
   }
-  console.log(resp.orders);
-  return `limit orders are ${resp.orders}`;
-
+  let data: ShowLimitOrdersChatContent = {
+    response_id: 'temp',
+    sender: 'system',
+    type: 'get_limit_order',
+    data: resp,
+  };
+  
+  return {
+    status: 'success',
+    response: 'Success',
+    props: data
+  };
 }

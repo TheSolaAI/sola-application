@@ -1,12 +1,16 @@
-import { ConnectedSolanaWallet } from '@privy-io/react-auth';
 import { useChatMessageHandler } from '../models/ChatMessageHandler.ts';
 import { Tool } from '../types/tool.ts';
 import { getTokenDataSymbol } from '../lib/solana/tokenData.ts';
+import { BubbleMapChatContent } from '../types/chatItem.ts';
 
 const functionDescription = `Fetches a bubblemap for the specified token.`;
 
 export const getBubblemap: Tool = {
   implementation: getBubblemapFunction,
+  representation: {
+    props_type: "bubble_map",
+    component: BubbleMapMessageItem,
+  },
   abstraction: {
     type: 'function',
     name: 'getBubblemap',
@@ -26,8 +30,11 @@ export const getBubblemap: Tool = {
 
 export async function getBubblemapFunction(args: {
   token: string;
-  currentWallet: ConnectedSolanaWallet | null;
-}): Promise<string> {
+}): Promise<{
+  status: 'success' | 'error';
+  response: string;
+  props?: BubbleMapChatContent;
+}> {
   useChatMessageHandler.getState().setCurrentChatItem({
     content: {
       type: 'simple_message',
@@ -46,14 +53,27 @@ export async function getBubblemapFunction(args: {
     const tokenDetails = await getTokenDataSymbol(formattedToken);
 
     if (!tokenDetails) {
-      return 'Invalid token symbol';
+      return {
+        status: 'error',
+        response: `Token ${formattedToken} not found`,
+      };
     }
 
     token = tokenDetails.metadata.address || 'NaN';
   }
 
-  const url = `https://app.bubblemaps.io/sol/token/${token}`;
-  console.log(url);
-  return url;
+  return {
+    status: 'success',
+    response: `Here is the bubblemap for ${token}`,
+    props: {
+      response_id: 'temp',
+      sender: 'system',
+      type: 'bubble_map',
+      data: {
+        token: token,
+      }
+    },
+  };
 }
+
 

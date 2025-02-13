@@ -46,3 +46,9 @@ export type WithdrawParams = {
 export type WithdrawResponse = {
   transactions: WithdrawTransaction[][];
 };
+
+export type LuloTransaction = {
+  transaction: string;
+  status: 'pending' | 'completed' | 'failed';
+};
+

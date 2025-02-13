@@ -6,6 +6,7 @@ import { Tool } from '../types/tool.ts';
 import { tokenList } from '../config/tokens/tokenMapping.ts';
 import { ConnectedSolanaWallet } from '@privy-io/react-auth';
 import { limitOrderTx } from '../lib/solana/limitOrderTx.ts';
+import { CreateLimitOrderChatContent } from '../types/chatItem.ts';
 
 
 
@@ -17,6 +18,11 @@ const functionDescription =
 
 export const limitOrder: Tool = {
   implementation: createLimitOrder,
+  representation: {
+    props_type: 'create_limit_order',
+    component: CreateLimitOrderMessageItem,
+  },
+
   abstraction: {
     type: 'function',
     name: 'limitOrder',
@@ -54,7 +60,11 @@ export async function createLimitOrder(args: {
   action: 'BUY' | 'SELL';
   limitPrice: number;
   currentWallet: ConnectedSolanaWallet | null;
-}): Promise<string> {
+}): Promise<{
+  status: 'success' | 'error';
+  response: string;
+  props?: CreateLimitOrderChatContent;
+}> {
   useChatMessageHandler.getState().setCurrentChatItem({
     content: {
       type: 'simple_message',
@@ -67,8 +77,18 @@ export async function createLimitOrder(args: {
   });
 
   let currentWallet = args.currentWallet;
-  if (!currentWallet) return 'User wallet is not connected.';
-  if (!rpc) return 'Please contact admin, as RPC is not attached.';
+  if (!currentWallet) { 
+    return {
+      status: 'error',
+      response: 'Please connect your wallet first.',
+    };
+    }
+  if (!rpc) { 
+    return {
+      status: 'error',
+      response: 'Please set your SOLANA_RPC environment variable.',
+    }
+  }
 
   const params: LimitOrderParams = {
     token_mint_a: tokenList[args.token].MINT,
@@ -85,7 +105,10 @@ export async function createLimitOrder(args: {
     if (ApiClient.isApiResponse<LimitOrderResponse>(resp)) {
       const transaction = resp.data.tx;
       if (!transaction) {
-        return 'The limit order creation failed. Please try again later.';
+        return {
+          status: "error",
+          response: "error during transaction"
+        }
       }
   
       const transactionBuffer = Buffer.from(transaction, 'base64');
@@ -98,14 +121,32 @@ export async function createLimitOrder(args: {
         maxRetries: 10,
       });
   
-      return `Limit order has been created successfully. Transaction ID: ${txid}`;
+      return {
+        status: "success",
+        response: 'Limit order created successfully',
+        props: {
+          response_id: 'temp',
+          sender: 'system',
+          type: 'create_limit_order',
+          data: {
+            order: resp.data.order,
+            tx: txid
+          }
+        }
+      }
     } else {
-      return 'The limit order creation failed. Please try again later.';
+      return {
+        status: "error",
+        response:"error during transaction"
+      }
     }
   
   }
   catch (error) {
     console.error('Error creating limit order:', error);
-    return 'The limit order creation failed. Please try again later.';
+    return {
+      status: "error",
+      response:"error during transaction"
+    }
   }
 }

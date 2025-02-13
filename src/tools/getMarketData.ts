@@ -5,6 +5,10 @@ const functionDescription =
 
 export const getMarketData: Tool = {
   implementation: getMarketDataFunction,
+  representation: {
+    props_type: 'market_data',
+    component: MarketDataMessageItem,
+  },
   abstraction: {
     type: 'function',
     name: 'getMarketData',

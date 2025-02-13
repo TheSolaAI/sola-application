@@ -1,14 +1,17 @@
-import { ApiClient, apiClient } from '../api/ApiClient.ts';
-import { TopHolder } from '../types/messageCard.ts';
 import { Tool } from '../types/tool.ts';
 import { useChatMessageHandler } from '../models/ChatMessageHandler.ts';
 import { getTopHoldersHandler } from '../lib/solana/topHolders.ts';
+import { TopHoldersChatContent } from '../types/chatItem.ts';
 
 const functionDescription = `
   This function retrieves the top holders for a token.
 `;
 export const getTopHolders: Tool = {
   implementation: getTopHoldersFunction,
+  representation: {
+    props_type: 'top_holders',
+    component: TopHoldersMessageItem,
+  },
   abstraction: {
     type: 'function',
     name: 'getTopHolders',
@@ -29,7 +32,11 @@ export const getTopHolders: Tool = {
 export async function getTopHoldersFunction(args: {
   tokenInput
   : string;
-}): Promise<string> {
+}): Promise<{
+  status: 'success' | 'error';
+  response: string;
+  props?: TopHoldersChatContent;
+}> {
   useChatMessageHandler.getState().setCurrentChatItem({
     content: {
       type: 'simple_message',
@@ -50,9 +57,21 @@ export async function getTopHoldersFunction(args: {
   }
   const response = await getTopHoldersHandler(final_token);
   if (!response) {
-    return `An error occurred while checking top holders ${final_token}.`;
+    return {
+      status: 'error',
+      response: 'Error fetching top holders',
+    };
   }
   console.log(response);
-  return `tell user that the top holders are: ${response} and dont read out any info`
+  return {
+    status: 'success',
+    response: 'top holders fetched successfully',
+    props: {
+      type: 'top_holders',
+      response_id: 'temp',
+      sender: 'system',
+      data:response
+    },
+  }
 
 }

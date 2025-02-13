@@ -51,7 +51,7 @@ export async function depositLuloTx(
     return null;
   }
 }
-export async function withdrawLulo(
+export async function withdrawLuloTx(
   params: WithdrawParams,
 ): Promise<VersionedTransaction[] | null> {
   const response = await apiClient.post<WithdrawResponse>(

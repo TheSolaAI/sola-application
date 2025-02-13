@@ -1,17 +1,22 @@
 import { ConnectedSolanaWallet } from '@privy-io/react-auth';
 import { Tool } from '../types/tool.ts';
-import { DepositParams} from '../types/lulo.ts';
+import { DepositParams, LuloTransaction} from '../types/lulo.ts';
 import { Connection } from '@solana/web3.js';
 import { tokenList } from '../config/tokens/tokenMapping.ts';
 import { depositLuloTx } from '../lib/solana/lulo.ts';
 import { useChatMessageHandler } from '../models/ChatMessageHandler.ts';
-import { SimpleMessageChatContent } from '../types/chatItem.ts';
+import { DepositLuloChatContent, SimpleMessageChatContent } from '../types/chatItem.ts';
+import { DepositLuloMessageItem } from '../components/ui/message_items/DepositLuloMessageItem.tsx';
 
 const functionDescription =
   'Call this function ONLY when the user explicitly requests to deposit stable coins into Lulo. Ensure the user specifies the correct stable coin (USDS or USDC) and an amount. DO NOT make assumptions about the coin or the amount if unclear. USDS and USDC are DISTINCT coins—choose appropriately. This function is NOT for withdrawals or any other operation. Confirm the user’s intent before proceeding if you are unsure about it.';
 
 export const depositLulo: Tool = {
   implementation: handleDepositLulo,
+  representation: {
+    props_type: 'deposit_lulo',
+    component: DepositLuloMessageItem,
+  },
   abstraction: {
     type: 'function',
     name: 'depositLulo',
@@ -39,7 +44,11 @@ export async function handleDepositLulo(args: {
   amount: number;
   token: 'USDT' | 'USDS' | 'USDC';
   currentWallet: ConnectedSolanaWallet | null;
-}): Promise<string> {
+}): Promise<{
+  status: 'success' | 'error';
+  response: string;
+  props?: DepositLuloChatContent;
+}> {
   useChatMessageHandler.getState().setCurrentChatItem({
     content: {
       type: 'simple_message',
@@ -50,8 +59,20 @@ export async function handleDepositLulo(args: {
     createdAt: new Date().toISOString(),
   });
   const rpc = process.env.SOLANA_RPC;
-  if (!args.currentWallet) return 'User wallet is not connected.';
-  if (!rpc) return 'Please contact admin, as RPC is not attached.';
+  
+
+  if (!args.currentWallet){
+    return {
+      status: 'error',
+      response: 'Please connect your wallet first.',
+    };
+  } ;
+  if (!rpc) {
+    return {
+      status: 'error',
+      response: 'RPC endpoint not found',
+    };
+  };
 
   const params: DepositParams = {
     owner: `${args.currentWallet.address}`,
@@ -64,21 +85,46 @@ export async function handleDepositLulo(args: {
   try {
     const resp = await depositLuloTx(params);
     if (!resp) {
-      return 'Deposit failed. Please try again later.';
+      return {
+        status: 'error',
+        response: 'Deposit failed. Please try again later.',
+      };
     }
+
     for (const transaction of resp) {
         const { blockhash } = await connection.getLatestBlockhash();
         transaction.message.recentBlockhash = blockhash;
       console.log(transaction);
         const signedTransaction = await args.currentWallet.signTransaction(transaction);
-        const signature = await connection.sendRawTransaction(signedTransaction.serialize());
+      const signature = await connection.sendRawTransaction(signedTransaction.serialize());
 
-        return `Deposit successful. Transaction ID: ${signature}`;
+      const data: LuloTransaction = {
+        transaction:signature,
+        status: "completed"
+      };
+      
+      const uiProps: DepositLuloChatContent = {
+        response_id: 'temp',
+        sender: 'assistant',
+        type: 'deposit_lulo',
+        data
+      };
+        
+        return {
+          status: 'success',
+          response: 'Deposit successful.',
+        props:uiProps,
+        };
     }
-    return `Deposit successful.`;
-
+    return {
+      status: 'success',
+      response: 'Deposit successful.',
+    };
   } catch (error) {
     console.error('Error during deposit:', error);
-    return 'Deposit failed. Please try again later.';
+    return {
+      status: 'error',
+      response: 'Deposit failed. Please try again later.',
+    };
   }
 }

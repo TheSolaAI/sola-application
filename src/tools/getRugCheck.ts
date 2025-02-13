@@ -1,5 +1,6 @@
 import { ApiClient, apiClient } from '../api/ApiClient.ts';
 import { useChatMessageHandler } from '../models/ChatMessageHandler.ts';
+import { RugCheckChatContent } from '../types/chatItem.ts';
 import { RugCheckCard } from '../types/messageCard.ts';
 import { Tool } from '../types/tool.ts';
 
@@ -8,6 +9,10 @@ const functionDescription =
 
 export const getRugCheck: Tool = {
   implementation: getRugCheckFunction,
+  representation: {
+    props_type: 'rug_check',
+    component: RugCheckMessageItem,
+  },
   abstraction: {
     type: 'function',
     name: 'getRugCheck',
@@ -27,7 +32,11 @@ export const getRugCheck: Tool = {
 
 export async function getRugCheckFunction(args: {
   token: string;
-}): Promise<string> {
+}): Promise<{
+  status: 'success' | 'error';
+  response: string;
+  props?: RugCheckChatContent;
+}> {
   useChatMessageHandler.getState().setCurrentChatItem({
     content: {
       type: 'simple_message',
@@ -54,9 +63,23 @@ export async function getRugCheckFunction(args: {
   console.log("im sending the ressponse")
   if (ApiClient.isApiResponse<RugCheckCard>(response)) {
     console.log(response.data)
-      return `tell user that score: ${response.data.score} and issues are ${response.data.issues}. Do not read out the token address.`;
+    return {
+      status: 'success',
+      response: 'Rug check successful.',
+      props: {
+        type: 'rug_check',
+        sender: 'system',
+        response_id: 'temp',
+        data:response.data
+      },
+    }
+      
     } else {
-      return `An error occurred while checking if ${token} is a rug.`;
+    return {
+      status: 'error',
+      response: 'An error occurred while checking rug check.',
+    };
+    
   }
 }
 

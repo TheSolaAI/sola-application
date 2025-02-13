@@ -2,12 +2,18 @@ import { ConnectedSolanaWallet } from "@privy-io/react-auth";
 import { createTransferInstruction, getAssociatedTokenAddress, getOrCreateAssociatedTokenAccount } from "@solana/spl-token";
 import { Connection, Keypair, ParsedAccountData, PublicKey, Transaction } from "@solana/web3.js";
 import bs58 from 'bs58';
+import { Tool } from "../types/tool";
+import { TransferChatContent } from "../types/chatItem";
 
 const functionDescription =
   'Call this function when the user wants to send tokens that are not SOLANA or SOL using address or .sol domain. the .sol domains are random and doesnt need to make sense in meaining, so dont autocorrect anything from .sol domains.';
 
-export const transferSpl = {
-  immplementation: transferSplTx,
+export const transferSpl:Tool = {
+  implementation: transferSplTx,
+  representation: {
+    props_type: 'transfer_spl',
+    component: TransferMessageItem,
+  },
   abstraction: {
     type: 'function',
     name: 'transferSpl',
@@ -35,26 +41,39 @@ export const transferSpl = {
 };
 
 export async function transferSplTx(args: {
-  senderAddress: string,
   recipientAddress: string,
   amount: number,
   token: string,
   currentWallet: ConnectedSolanaWallet | null;
-}): Promise<Transaction | null> {
+}): Promise<{
+  status: 'success' | 'error';
+  response: string;
+  props?: TransferChatContent;
+}> {
+
   if (args.currentWallet === null) {
-    return null;
+    return {
+      status: 'error',
+      response: 'Wallet not connected',
+    };
   }
-  let senderAddress = args.senderAddress;
+  let senderAddress = args.currentWallet.address;
   let recipientAddress = args.recipientAddress;
   let token = args.token;
   let amount = args.amount;
   let rpc = process.env.SOLANA_RPC;
   let sola_ata_keypair = process.env.SOLANA_ATA_KEYPAIR;
   if (!rpc) {
-    return null;
+    return {
+      status: 'error',
+      response: 'RPC not found',
+    }
   }
   if (!sola_ata_keypair) {
-    return null;
+    return {
+      status: 'error',
+      response: 'SOLANA_ATA_KEYPAIR not found',
+    };
   }
   let b = bs58.decode(sola_ata_keypair);
   let j = new Uint8Array(
@@ -90,7 +109,24 @@ export async function transferSplTx(args: {
   );
   tx.feePayer = new PublicKey(senderAddress);
   args.currentWallet.signTransaction(tx);
-  return tx;
+  const signature = await connection.sendRawTransaction(tx.serialize());
+  const data: TransferChatContent = {
+    response_id: 'temp',
+    sender: 'assistant',
+    type: 'transfer',
+    from: senderAddress,
+    to: recipientAddress,
+    amount: amount,
+    token: token,
+    status: 'success',
+    txn: signature,
+  }
+  return {
+    status: 'success',
+    response: 'Transaction sent',
+    props: data,
+  };
+
 }
 
 async function getNumberDecimals(mintAddress: string): Promise<number> {
