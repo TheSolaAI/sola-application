@@ -1,11 +1,18 @@
-import { LSTData, RugCheck, TransactionData } from './data_types';
+import { LSTData, RugCheck } from './data_types';
 import {
   LimitOrderResponse,
   ShowLimitOrderResponse,
   SwapParams,
 } from './jupiter';
 import { AssetsResponse, WithdrawResponse } from './lulo';
-import { BubblemapCard, MarketDataCard, TopHolder } from './messageCard';
+import {
+  BubblemapCard,
+  MarketDataCard,
+  TopHolder,
+  TokenCard,
+  TransactionCard,
+  NFTCollectionCard, LuloCard,
+} from './messageCard';
 
 export interface ChatItem<T extends BaseChatContent> {
   // Make ChatItem generic
@@ -23,9 +30,10 @@ export type ChatContentType =
   | SimpleMessageChatContent
   | TransactionChatContent
   | TokenDataChatContent
+  | NFTCollectionChatContent
+  | LuloChatContent
   | DepositLuloChatContent
   | WithdrawLuloChatContent
-  | UserAssetsLuloChatContent
   | CreateLimitOrderChatContent
   | ShowLimitOrdersChatContent
   | SwapChatContent
@@ -43,29 +51,31 @@ export interface SimpleMessageChatContent extends BaseChatContent {
 
 export interface TransactionChatContent extends BaseChatContent {
   type: 'transaction_message';
-  data: TransactionData;
+  data: TransactionCard;
 }
 
 export interface TokenDataChatContent extends BaseChatContent {
   type: 'token_data';
-  name: string;
-  symbol: string;
-  price: number;
-  marketCap: number;
-  image: string;
+  data: TokenCard;
+}
+
+export interface NFTCollectionChatContent extends BaseChatContent {
+  type: 'nft_collection_data';
+  data: NFTCollectionCard;
+}
+
+export interface LuloChatContent extends BaseChatContent {
+  type: 'user_lulo_data';
+  data: LuloCard;
 }
 
 export interface DepositLuloChatContent extends BaseChatContent {
   type: 'deposit_lulo';
-  data: TransactionData;
+  data: TransactionCard;
 }
 export interface WithdrawLuloChatContent extends BaseChatContent {
   type: 'withdraw_lulo';
   data: WithdrawResponse;
-}
-export interface UserAssetsLuloChatContent extends BaseChatContent {
-  type: 'user_assets_lulo';
-  data: AssetsResponse;
 }
 
 export interface CreateLimitOrderChatContent extends BaseChatContent {

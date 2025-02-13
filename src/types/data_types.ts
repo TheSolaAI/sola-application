@@ -22,9 +22,3 @@ export type RugCheck = {
   score: number;
   issues: [];
 };
-
-export type TransactionData = {
-  title: string;
-  status: 'pending' | 'completed' | 'failed';
-  link: string;
-};
