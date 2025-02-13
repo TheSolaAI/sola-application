@@ -8,10 +8,20 @@ import {
 } from '../types/response.ts';
 import { API_URLS } from '../config/api_urls.ts';
 import {
+  BubbleMapChatContent,
   ChatContentType,
   ChatItem,
+  LuloChatContent,
+  MarketDataChatContent,
+  RugCheckChatContent,
+  ShowLimitOrdersChatContent,
+  ShowLSTDataChatContent,
   SimpleMessageChatContent,
+  SwapChatContent,
   TokenDataChatContent,
+  TopHoldersChatContent,
+  TransactionChatContent,
+  TransferChatContent,
 } from '../types/chatItem.ts';
 import { Tool } from '../types/tool.ts';
 import { generateUniqueId } from '../utils/randomID.ts';
@@ -276,6 +286,102 @@ export function createChatItemFromTool(
       message = {
         id: generateUniqueId(),
         content: data as TokenDataChatContent,
+        createdAt: new Date().toISOString(),
+      };
+      return message;
+    }
+    case 'bubble_map': {
+      message = {
+        id: generateUniqueId(),
+        content: data as BubbleMapChatContent,
+        createdAt: new Date().toISOString(),
+      };
+      return message;
+    }
+    case 'swap': {
+      message = {
+        id: generateUniqueId(),
+        content: data as SwapChatContent,
+        createdAt: new Date().toISOString(),
+      };
+      return message;
+    }
+    case 'get_lst_data': {
+      message = {
+        id: generateUniqueId(),
+        content: data as ShowLSTDataChatContent,
+        createdAt: new Date().toISOString(),
+      };
+      return message;
+    }
+    case 'rug_check': {
+      message = {
+        id: generateUniqueId(),
+        content: data as RugCheckChatContent,
+        createdAt: new Date().toISOString(),
+      };
+      return message;
+    }
+    case 'market_data': {
+      message = {
+        id: generateUniqueId(),
+        content: data as MarketDataChatContent,
+        createdAt: new Date().toISOString(),
+      };
+      return message;
+    }
+    case 'show_limit_orders': {
+      message = {
+        id: generateUniqueId(),
+        content: data as ShowLimitOrdersChatContent,
+        createdAt: new Date().toISOString(),
+      };
+      return message;
+    }
+    case 'transaction_message': {
+      message = {
+        id: generateUniqueId(),
+        content: data as TransactionChatContent,
+        createdAt: new Date().toISOString(),
+      };
+      return message;
+    }
+    case 'top_holders': {
+      message = {
+        id: generateUniqueId(),
+        content: data as TopHoldersChatContent,
+        createdAt: new Date().toISOString(),
+      };
+      return message;
+    }
+    case 'transfer_sol': {
+      message = {
+        id: generateUniqueId(),
+        content: data as TransferChatContent,
+        createdAt: new Date().toISOString(),
+      };
+      return message;
+    }
+    case 'transfer_spl': {
+      message = {
+        id: generateUniqueId(),
+        content: data as TransferChatContent,
+        createdAt: new Date().toISOString(),
+      };
+      return message;
+    }
+    case 'withdraw_lulo': {
+      message = {
+        id: generateUniqueId(),
+        content: data as LuloChatContent,
+        createdAt: new Date().toISOString(),
+      };
+      return message;
+    }
+    case 'user_assets_lulo': {
+      message = {
+        id: generateUniqueId(),
+        content: data as TransactionChatContent,
         createdAt: new Date().toISOString(),
       };
       return message;

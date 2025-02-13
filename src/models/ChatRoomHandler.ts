@@ -16,7 +16,7 @@ interface ChatRoomHandler {
   currentChatRoom: ChatRoom | null;
 
   /**
-   * A Boolean property on whether or not all the rooms have been loaded
+   * A Boolean property on whether all the rooms have been loaded
    */
   allRoomsLoaded: boolean;
 
@@ -97,7 +97,7 @@ export const useChatRoomHandler = create<ChatRoomHandler>((set, get) => {
       }
     },
 
-    updateChatRoom: async (room: ChatRoom): Promise<void> => {
+    updateChatRoom: async (room: ChatRoomPatch): Promise<void> => {
       set({ state: 'loading' });
       if (!get().rooms.find((r: ChatRoom) => r.id === room.id)) {
         toast.error('Room not found');
@@ -112,8 +112,8 @@ export const useChatRoomHandler = create<ChatRoomHandler>((set, get) => {
 
       if (ApiClient.isApiResponse(response)) {
         set({
-          rooms: get().rooms.map((r: ChatRoom) =>
-            r.id === room.id ? room : r,
+          rooms: get().rooms.map((r: ChatRoomPatch) =>
+            r.id === room.id ? (room as ChatRoom) : (r as ChatRoom),
           ),
           state: 'idle',
         });
