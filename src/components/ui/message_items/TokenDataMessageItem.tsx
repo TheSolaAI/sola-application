@@ -1,20 +1,96 @@
+/**
+ * This component displays token-related data, including price, price change,
+ * market cap, and 24-hour volume. It also provides a button to view the token
+ * on Dexscreener.
+ *
+ * Dependencies:
+ * - `ChatItemProps<TokenDataChatContent>`: Type definition for chat item props.
+ * - `BaseGridChatItem`: A wrapper component for grid-based chat item layout.
+ * - `ExternalLink`: Icon from `lucide-react` for external links.
+ * - `formatNumber`: Utility function for formatting large numbers.
+ *
+ * Usage:
+ * ```tsx
+ * <TokenDataMessageItem
+ *   props={{
+ *     data: {
+ *       metadata: { name: "SOL" },
+ *       price: 120.45,
+ *       priceChange: -2.5,
+ *       marketCap: 500000000,
+ *       volume: 12000000,
+ *       address: "SOL_TOKEN_ADDRESS"
+ *     }
+ *   }}
+ * />
+ * ```
+ */
+
 import { FC } from 'react';
 import {
   ChatItemProps,
   TokenDataChatContent,
 } from '../../../types/chatItem.ts';
-import BaseChatItem from './general/BaseChatItem.tsx';
+import BaseGridChatItem from './general/BaseGridChatItem.tsx';
+import { ExternalLink } from 'lucide-react';
+import { formatNumber } from '../../../utils/formatNumber.ts';
 
 export const TokenDataMessageItem: FC<ChatItemProps<TokenDataChatContent>> = ({
   props,
 }) => {
-  // TODO: Implement this component properly
-
   return (
     <div>
-      <BaseChatItem>
-        <p className="text-sm text-textColor">{JSON.stringify(props)}</p>
-      </BaseChatItem>
+      <BaseGridChatItem col={3}>
+        <div className="p-2 rounded-lg bg-sec_background text-secText">
+          <div className="flex justify-between items-start">
+            <div className="flex gap-4 items-center">
+              <div>
+                <h3 className="truncate text-sm font-medium">
+                  {props.data.metadata?.name || 'Unknown'}
+                </h3>
+                <p className="mt-1 text-xs font-medium">
+                  ${Number(Number(props.data.price).toFixed(7))}
+                </p>
+                <p
+                  className={`text-xs font-medium ${
+                    Number(props.data.priceChange) > 0
+                      ? 'text-green-500'
+                      : Number(props.data.priceChange) < 0
+                        ? 'text-red-500'
+                        : 'text-bodydark2'
+                  }`}
+                >
+                  {Number(Number(props.data.priceChange).toFixed(2)) ||
+                    'Unknown'}
+                  %
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={() =>
+                window.open(
+                  `https://dexscreener.com/solana/${props.data.address}`,
+                  '_blank',
+                )
+              }
+              className="p-1 rounded-lg bg-sec_background hover:opacity-80 transition"
+            >
+              <ExternalLink className="w-4 h-4 text-primaryDark" />
+            </button>
+          </div>
+
+          <div className="flex flex-row gap-2 text-sm mt-2">
+            {[
+              { label: 'MC', value: props.data.marketCap },
+              { label: '24H Vol', value: props.data.volume },
+            ].map(({ label, value }, i) => (
+              <p key={i}>
+                {label}: ${formatNumber(Number(value)) || 'Unknown'}
+              </p>
+            ))}
+          </div>
+        </div>
+      </BaseGridChatItem>
     </div>
   );
 };

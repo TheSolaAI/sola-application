@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import { BaseChatContent, DepositLuloChatContent, TokenDataChatContent, UserAssetsLuloChatContent, WithdrawLuloChatContent , ShowLSTDataChatContent,ShowLimitOrdersChatContent,SimpleMessageChatContent,BubbleMapChatContent,RugCheckChatContent,TopHoldersChatContent,SwapChatContent,CreateLimitOrderChatContent,TransferChatContent, MarketDataChatContent} from './chatItem.ts';
+import { BaseChatContent, DepositLuloChatContent, TokenDataChatContent, LuloChatContent, WithdrawLuloChatContent , ShowLSTDataChatContent,ShowLimitOrdersChatContent,SimpleMessageChatContent,BubbleMapChatContent,RugCheckChatContent,TopHoldersChatContent,SwapChatContent,CreateLimitOrderChatContent,TransferChatContent, MarketDataChatContent} from './chatItem.ts';
 import { ConnectedSolanaWallet} from '@privy-io/react-auth';
 
 
@@ -71,11 +71,11 @@ export interface UserAssetsLuloTool extends BaseTool {
   ) => Promise<{
     status: 'success' | 'error';
     response: string;
-    props?: UserAssetsLuloChatContent;
+    props?: LuloChatContent;
   }>;
   representation?: {
     props_type: 'user_assets_lulo';
-    component: FC<{ props: UserAssetsLuloChatContent }>;
+    component: FC<{ props: LuloChatContent }>;
   };
 }
 

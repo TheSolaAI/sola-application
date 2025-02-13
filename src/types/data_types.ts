@@ -1,3 +1,5 @@
+import { Risk } from "./messageCard";
+
 export type TokenData = {
   image: string;
   metadata: {
@@ -21,5 +23,5 @@ export type LSTData = {
 
 export type RugCheck = {
   score: number;
-  issues: [];
+  issues: Risk[];
 };

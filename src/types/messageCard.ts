@@ -55,7 +55,7 @@ export interface AiTranscription {
 
 export interface TransactionCard {
   title: string;
-  status: string;
+  status: 'pending' | 'success' | 'failed';
   link: string;
 }
 

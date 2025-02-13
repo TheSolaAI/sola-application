@@ -114,7 +114,7 @@ export const useSessionHandler = create<SessionHandler>((set, get) => {
       set({ muted });
     },
 
-    updateSession: (): void => {
+    updateSession: async (): void => {
       // extract only the abstraction from each tool and pass to OpenAI
       const tools = useChatRoomHandler.getState().currentChatRoom
         ? useAgentHandler
@@ -136,6 +136,7 @@ export const useSessionHandler = create<SessionHandler>((set, get) => {
           temperature: 0.6,
         },
       };
+      toast.success('Session Updated');
       // send the event across the data stream
       get().dataStream?.send(JSON.stringify(updateParams));
       set({ state: 'idle' }); // we now have a working session and we are ready to receive messages

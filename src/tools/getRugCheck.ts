@@ -70,7 +70,10 @@ export async function getRugCheckFunction(args: {
         type: 'rug_check',
         sender: 'system',
         response_id: 'temp',
-        data:response.data
+        data: {
+          score: response.data.score,
+          issues: response.data.issues,
+        }
       },
     }
       

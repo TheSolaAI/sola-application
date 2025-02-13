@@ -2,10 +2,11 @@ import { ConnectedSolanaWallet } from "@privy-io/react-auth";
 import { Tool } from "../types/tool";
 import { useChatMessageHandler } from "../models/ChatMessageHandler";
 import { SimpleMessageChatContent, WithdrawLuloChatContent } from '../types/chatItem';
-import { LuloTransaction, WithdrawParams } from "../types/lulo";
+import { WithdrawParams } from "../types/lulo";
 import { tokenList } from "../config/tokens/tokenMapping";
 import { withdrawLuloTx } from "../lib/solana/lulo";
 import { Connection } from "@solana/web3.js";
+import { TransactionCard } from "../types/messageCard";
 
 const functionDescription =
   'Call this function ONLY when the user explicitly requests to withdraw stable coins from Lulo. Ensure the user specifies the correct stable coin (USDS or USDC) and an amount. DO NOT assume or attach any arbitrary number if unclear. USDS and USDC are DISTINCT coins—select appropriately. This function is NOT for deposits or any other operation. Confirm the user’s intent before proceeding if you are unsure of the intent.';
@@ -101,9 +102,10 @@ export async function withdrawLuloFunction(
       const signedTransaction = await args.currentWallet.signTransaction(transaction);
       const signature = await connection.sendRawTransaction(signedTransaction.serialize());
 
-      const data: LuloTransaction = {
-        transaction: signature,
-        status: "completed"
+      const data: TransactionCard = {
+        link: signature,
+        title: "completed",
+        status: 'success'
       };
 
       const uiProps: WithdrawLuloChatContent = {

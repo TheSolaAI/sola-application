@@ -7,11 +7,7 @@ import {
 import { SimpleMessageChatContent } from '../../types/chatItem.ts';
 import { useAgentHandler } from '../AgentHandler.ts';
 import { useChatRoomHandler } from '../ChatRoomHandler.ts';
-<<<<<<< HEAD
-import { Tool } from '../../types/tool.ts';
 import { useWalletHandler } from '../WalletHandler.ts';
-=======
->>>>>>> 139bfa0e1b90a1878b9893972d895b1a5667ecda
 
 interface EventProviderProps {
   children: ReactNode;
@@ -24,11 +20,8 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
   const { dataStream, updateSession, sendMessage } = useSessionHandler();
   const { getToolsForAgent } = useAgentHandler();
   const { currentChatRoom } = useChatRoomHandler();
-<<<<<<< HEAD
   const { currentWallet } = useWalletHandler();
-=======
   const { addMessage } = useChatMessageHandler();
->>>>>>> 139bfa0e1b90a1878b9893972d895b1a5667ecda
 
   /**
    * The direct api access is used in all these classes to prevent asynchronous
@@ -84,24 +77,23 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
                 );
                 if (tool) {
                   // call the tool handling function and add its output chat item to the chat
-<<<<<<< HEAD
                   const response = await tool.implementation({
                     ...JSON.parse(output.arguments),
-                    wallet: currentWallet,
-                  });
+                      currentWallet: currentWallet,
+                  },
+                  eventData.response_id);
                   
                   // send the response back to OpenAI
-                  sendMessage(response);
-=======
-                  const tool_result = await tool.implementation(
-                    JSON.parse(output.arguments),
-                    eventData.response_id,
-                  );
+                  sendMessage(response.response);
+                  const tool_result = await tool.implementation({
+                    ...JSON.parse(output.arguments),
+                      currentWallet: currentWallet,
+                  },
+                  eventData.response_id);
                   // add the message to our local array and also our database history
                   addMessage(createChatItemFromTool(tool, tool_result.props));
                   // send the response to OpenAI
                   sendMessage(tool_result.response);
->>>>>>> 139bfa0e1b90a1878b9893972d895b1a5667ecda
                 } else {
                   // this agent does not support this tool. This is a fail-safe as mostly openAI will not send out
                   // a function call as it was not provided the context even
@@ -111,10 +103,7 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
             }
           }
         }
-<<<<<<< HEAD
-=======
-        // console.log(JSON.stringify(eventData, null, 2));
->>>>>>> 139bfa0e1b90a1878b9893972d895b1a5667ecda
+        console.log(JSON.stringify(eventData, null, 2));
       };
     };
     handleEvents();

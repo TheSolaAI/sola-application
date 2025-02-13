@@ -1,7 +1,7 @@
 import { ConnectedSolanaWallet } from "@privy-io/react-auth";
 import { getAssetsLulo } from "../lib/solana/lulo";
 import { AssetsParams } from "../types/lulo";
-import { UserAssetsLuloChatContent } from "../types/chatItem";
+import { LuloChatContent } from "../types/chatItem";
 import { Tool } from "../types/tool";
 
 const functionDescription =
@@ -30,7 +30,7 @@ export async function getLuloAssetsFunction(args: {
 }): Promise<{
   status: 'success' | 'error';
   response: string;
-  props?: UserAssetsLuloChatContent;
+  props?: LuloChatContent;
 }> {
   let wallet = args.currentWallet;
   if (!wallet) { 
@@ -50,10 +50,10 @@ export async function getLuloAssetsFunction(args: {
     };
    }
   
-  let data: UserAssetsLuloChatContent = {
+  let data: LuloChatContent = {
     response_id: 'temp',
     sender: 'system',
-    type: 'user_assets_lulo',
+    type: 'user_lulo_data',
     data: response,
   }
   return {
