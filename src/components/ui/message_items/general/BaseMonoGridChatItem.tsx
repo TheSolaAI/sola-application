@@ -3,22 +3,17 @@ import useThemeManager from '../../../../models/ThemeManager.ts';
 import { Bot } from 'lucide-react';
 
 interface BaseMonoGridChatItemProps {
-  index: number;
   children: ReactNode;
 }
 
 export default function BaseMonoGridChatItem({
-  index,
   children,
 }: BaseMonoGridChatItemProps) {
   const { theme } = useThemeManager();
   const childrenArray = React.Children.toArray(children);
   const [img, div1, div2, div3] = childrenArray;
   return (
-    <div
-      key={index}
-      className="flex gap-2 my-1 md:gap-4 justify-start max-w-[90%] md:max-w-[80%] transition-opacity duration-500 overflow-y-auto"
-    >
+    <div className="flex gap-2 my-1 md:gap-4 justify-start max-w-[90%] md:max-w-[80%] transition-opacity duration-500 overflow-y-auto">
       {' '}
       <div className="opacity-0">
         <Bot color={theme.secText} />
