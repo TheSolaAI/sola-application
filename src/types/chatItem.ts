@@ -4,14 +4,15 @@ import {
   ShowLimitOrderResponse,
   SwapParams,
 } from './jupiter';
-import { AssetsResponse, WithdrawResponse } from './lulo';
+import { WithdrawResponse } from './lulo';
 import {
   BubblemapCard,
   MarketDataCard,
   TopHolder,
   TokenCard,
   TransactionCard,
-  NFTCollectionCard, LuloCard,
+  NFTCollectionCard,
+  LuloCard,
 } from './messageCard';
 
 export interface ChatItem<T extends BaseChatContent> {

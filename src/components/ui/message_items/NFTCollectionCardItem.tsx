@@ -28,7 +28,9 @@ interface NFTCollectionChatItemProps {
   props: NFTCollectionChatContent;
 }
 
-export const NFTCollectionChatItem: FC<NFTCollectionChatItemProps> = ({ props }) => {
+export const NFTCollectionChatItem: FC<NFTCollectionChatItemProps> = ({
+  props,
+}) => {
   return (
     <BaseMonoGridChatItem>
       <img
