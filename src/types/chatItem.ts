@@ -10,11 +10,21 @@ export interface BaseChatContent {
   sender: 'user' | 'assistant' | 'system';
 }
 
-export type ChatContentType = SimpleMessageChatContent | TokenDataChatContent;
+export type ChatContentType =
+  | SimpleMessageChatContent
+  | TokenDataChatContent
+  | TransactionDataChatContent;
 
 export interface SimpleMessageChatContent extends BaseChatContent {
   type: 'simple_message';
   text: string;
+}
+
+export interface TransactionDataChatContent extends BaseChatContent {
+  type: 'transaction_data';
+  title: string;
+  status: string;
+  link: string;
 }
 
 export interface TokenDataChatContent extends BaseChatContent {
