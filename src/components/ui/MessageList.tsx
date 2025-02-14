@@ -195,7 +195,9 @@ const MessageList: React.FC<Props> = ({ messageList }) => {
                                 : 'text-bodydark2'
                           }`}
                         >
-                          {Number(Number(token.priceChange).toFixed(2)) || 'Unknown'}%
+                          {Number(Number(token.priceChange).toFixed(2)) ||
+                            'Unknown'}
+                          %
                         </p>
                       </div>
                     </div>
