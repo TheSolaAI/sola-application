@@ -115,13 +115,21 @@ const Conversation = () => {
     if (type === 'user_lulo_data') {
       return <LuloChatItem key={index} props={chatItem.content} />;
     }
-    // if (
-    //   ['transaction_message', 'transfer_sol', 'transfer_spl'].includes(type)
-    // ) {
-    //   return (
-    //     <TransactionDataMessageItem key={index} props={chatItem.content} />
-    //   );
-    // }
+    if (type === 'transaction_message') {
+      return (
+        <TransactionDataMessageItem key={index} props={chatItem.content} />
+      );
+    }
+    if (type === 'transfer_sol') {
+      return (
+        <TransactionDataMessageItem key={index} props={chatItem.content} />
+      );
+    }
+    if (type === 'transfer_spl') {
+      return (
+        <TransactionDataMessageItem key={index} props={chatItem.content} />
+      );
+    }
 
     return null; // Prevent rendering an empty fragment
   };
@@ -137,7 +145,6 @@ const Conversation = () => {
       {/* Messages Container (Scrollable) */}
       <div className="flex-1 max-h-[80vh] overflow-y-auto w-full sm:w-[60%] self-center pb-[6rem] no-scrollbar">
         {messages.map((chatItem, index) => {
-          console.log(chatItem);
           return renderMessageItem(chatItem, index);
         })}
         {currentChatItem && renderMessageItem(currentChatItem, -1)}

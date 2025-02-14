@@ -34,7 +34,7 @@ export type ChatContentType =
   | BubbleMapChatContent
   | ShowLSTDataChatContent
   | RugCheckChatContent
-  | TopHoldersChatContent
+  | TopHoldersChatContent;
 
 export interface SimpleMessageChatContent extends BaseChatContent {
   type: 'simple_message';
@@ -42,7 +42,7 @@ export interface SimpleMessageChatContent extends BaseChatContent {
 }
 
 export interface TransactionChatContent extends BaseChatContent {
-  type: 'transaction_message'|'transfer_sol' | 'transfer_spl';
+  type: 'transaction_message' | 'transfer_sol' | 'transfer_spl';
   data: TransactionCard;
 }
 

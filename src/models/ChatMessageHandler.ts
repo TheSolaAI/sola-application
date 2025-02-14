@@ -253,6 +253,20 @@ const parseChatItemContent = (item: ChatMessageResponseWrapper) => {
     return createChatItem<SwapChatContent>(item, parsedContent);
   } else if (isLstChatContent(parsedContent)) {
     return createChatItem<ShowLSTDataChatContent>(item, parsedContent);
+  } else if (isRugCheckChatContent(parsedContent)) {
+    return createChatItem<RugCheckChatContent>(item, parsedContent);
+  } else if (isMarketDataChatContent(parsedContent)) {
+    return createChatItem<MarketDataChatContent>(item, parsedContent);
+  } else if (isTopHoldersChatContent(parsedContent)) {
+    return createChatItem<TopHoldersChatContent>(item, parsedContent);
+  } else if (isUserLuloChatContent(parsedContent)) {
+    return createChatItem<LuloChatContent>(item, parsedContent);
+  } else if (isTransactionDataChatContent(parsedContent)) {
+    return createChatItem<TransactionChatContent>(item, parsedContent);
+  } else if (isTransferSolChatContent(parsedContent)) {
+    return createChatItem<TransactionChatContent>(item, parsedContent);
+  } else if (isTransferSplChatContent(parsedContent)) {
+    return createChatItem<TransactionChatContent>(item, parsedContent);
   }
 };
 
@@ -284,10 +298,40 @@ function isBubblemapChatContent(content: any): content is BubbleMapChatContent {
 function isSwapChatContent(content: any): content is SwapChatContent {
   return content.type === 'swap';
 }
-function isLstChatContent(content): content is ShowLSTDataChatContent {
+function isLstChatContent(content: any): content is ShowLSTDataChatContent {
   return content.type === 'get_lst_data';
 }
-
+function isRugCheckChatContent(content: any): content is RugCheckChatContent {
+  return content.type === 'rug_check';
+}
+function isMarketDataChatContent(
+  content: any,
+): content is MarketDataChatContent {
+  return content.type === 'market_data';
+}
+function isTopHoldersChatContent(
+  content: any,
+): content is TopHoldersChatContent {
+  return content.type === 'top_holders';
+}
+function isUserLuloChatContent(content: any): content is LuloChatContent {
+  return content.type === 'user_lulo_data';
+}
+function isTransactionDataChatContent(
+  content: any,
+): content is TransactionChatContent {
+  return content.type === 'transaction_message';
+}
+function isTransferSolChatContent(
+  content: any,
+): content is TransactionChatContent {
+  return content.type === 'transfer_sol';
+}
+function isTransferSplChatContent(
+  content: any,
+): content is TransactionChatContent {
+  return content.type === 'transfer_spl';
+}
 
 export function createChatItemFromTool(
   tool: Tool,
