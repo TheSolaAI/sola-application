@@ -81,41 +81,52 @@ const Conversation = () => {
     chatItem: ChatItem<ChatContentType>,
     index: number,
   ): React.ReactNode => {
-    console.log(chatItem)
-    console.log(chatItem.content)
-    if (chatItem === null) {
-      return <></>;
-    }
-    if (chatItem.content.type === 'simple_message') {
+    if (!chatItem) return null;
+
+    console.log(chatItem);
+    console.log(chatItem.content);
+
+    const { type } = chatItem.content;
+
+    if (type === 'simple_message') {
       return <SimpleMessageChatItem key={index} props={chatItem.content} />;
-    } else if (chatItem.content.type === 'token_data') {
-      return <TokenDataMessageItem key={index} props={chatItem.content} />;
-    } else if (chatItem.content.type === 'bubble_map') {
-      return <BubbleMapChatItem key={index} props={chatItem.content} />;
-    } else if (chatItem.content.type === 'swap') {
-      return <SwapChatItem key={index} props={chatItem.content} />;
-    } else if (chatItem.content.type === 'get_lst_data') {
-      return <ShowLSTDataChatItem key={index} props={chatItem.content} />;
-    } else if (chatItem.content.type === 'rug_check') {
-      return <RugCheckChatItem key={index} props={chatItem.content} />;
-    } else if (chatItem.content.type === 'market_data') {
-      return <MarketDataChatItem key={index} props={chatItem.content} />;
-    } else if (chatItem.content.type === 'get_limit_order') {
-      return <ShowLimitOrdersChatItem key={index} props={chatItem.content} />;
-    } else if (chatItem.content.type === 'transaction_message') {
-      return <TransactionDataMessageItem key={index} props={chatItem.content} />;
-    } else if (chatItem.content.type === 'top_holders') {
-      return <TopHoldersMessageItem key={index} props={chatItem.content} />;
-    } else if (chatItem.content.type === 'transfer_sol') {
-      return <TransactionDataMessageItem key={index} props={chatItem.content} />;
-    } else if (chatItem.content.type === 'transfer_spl') {
-      return <TransactionDataMessageItem key={index} props={chatItem.content} />;
-    } else if (chatItem.content.type === 'user_lulo_data') {
-      return <LuloChatItem key={index} props={chatItem.content} />;
-    } else {
-      return null; // Prevent rendering an empty fragment
     }
-    
+    if (type === 'token_data') {
+      return <TokenDataMessageItem key={index} props={chatItem.content} />;
+    }
+    if (type === 'bubble_map') {
+      return <BubbleMapChatItem key={index} props={chatItem.content} />;
+    }
+    if (type === 'swap') {
+      return <SwapChatItem key={index} props={chatItem.content} />;
+    }
+    if (type === 'get_lst_data') {
+      return <ShowLSTDataChatItem key={index} props={chatItem.content} />;
+    }
+    if (type === 'rug_check') {
+      return <RugCheckChatItem key={index} props={chatItem.content} />;
+    }
+    if (type === 'market_data') {
+      return <MarketDataChatItem key={index} props={chatItem.content} />;
+    }
+    if (type === 'get_limit_order') {
+      return <ShowLimitOrdersChatItem key={index} props={chatItem.content} />;
+    }
+    if (type === 'top_holders') {
+      return <TopHoldersMessageItem key={index} props={chatItem.content} />;
+    }
+    if (type === 'user_lulo_data') {
+      return <LuloChatItem key={index} props={chatItem.content} />;
+    }
+    // if (
+    //   ['transaction_message', 'transfer_sol', 'transfer_spl'].includes(type)
+    // ) {
+    //   return (
+    //     <TransactionDataMessageItem key={index} props={chatItem.content} />
+    //   );
+    // }
+
+    return null; // Prevent rendering an empty fragment
   };
 
   return (
