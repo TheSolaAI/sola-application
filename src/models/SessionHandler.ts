@@ -114,16 +114,15 @@ export const useSessionHandler = create<SessionHandler>((set, get) => {
       set({ muted });
     },
 
-    updateSession: async (): void => {
+    updateSession: async (): Promise<void> => {
       // extract only the abstraction from each tool and pass to OpenAI
-      const tools = useChatRoomHandler.getState().currentChatRoom
-        ? useAgentHandler
-            .getState()
-            .getToolsForAgent(
-              useChatRoomHandler.getState().currentChatRoom!.agentId,
-            )
-            .map((tool) => tool.abstraction)
-        : undefined;
+      const tools = useAgentHandler
+        .getState()
+        .getToolsForAgent(
+          useChatRoomHandler.getState().currentChatRoom?.agentId ||
+            useChatRoomHandler.getState().newRoomId,
+        )
+        .map((tool) => tool.abstraction);
 
       const updateParams = {
         type: 'session.update',

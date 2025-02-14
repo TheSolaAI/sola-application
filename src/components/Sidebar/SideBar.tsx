@@ -38,7 +38,7 @@ export const Sidebar: FC<SidebarProps> = ({
    * Global State
    */
   const { theme } = useThemeManager();
-  const { rooms, setCurrentChatRoom } = useChatRoomHandler();
+  const { rooms, setCurrentChatRoom, setNewRoomId } = useChatRoomHandler();
   const { pathname } = useLocation();
   const { agents } = useAgentHandler();
   const { walletLensOpen } = useLayoutContext();
@@ -173,7 +173,10 @@ export const Sidebar: FC<SidebarProps> = ({
             if (isMobile) setIsOpen(false);
           }}
           anchorEl={agentSelectRef.current}
-          onSelect={() => {
+          onSelect={(agentId: number) => {
+            console.log(agentId);
+            setNewRoomId(agentId);
+            setCurrentChatRoom(null);
             navigate(`/`);
             setAgentSelectOpen(false);
           }}
@@ -186,7 +189,6 @@ export const Sidebar: FC<SidebarProps> = ({
               const isEditing = editingRoom === room.id;
 
               //TODO: add agent id from database query
-
               return (
                 <div key={room.id} className="w-full">
                   <button

@@ -159,9 +159,10 @@ export const useChatMessageHandler = create<ChatMessageHandler>((set, get) => {
       const currentRoomID = useChatRoomHandler.getState().currentChatRoom?.id;
       if (currentRoomID === undefined) {
         // no chat room has been selected so we create a new one with our default agent and navigate the user to that room
-        const newRoom = await useChatRoomHandler
-          .getState()
-          .createChatRoom({ name: 'New Chat', agentId: 1 });
+        const newRoom = await useChatRoomHandler.getState().createChatRoom({
+          name: 'New Chat',
+          agentId: useChatRoomHandler.getState().newRoomId,
+        });
         if (newRoom) {
           useChatRoomHandler.getState().setCurrentChatRoom(newRoom);
           // we then add this message to the new room on our server
@@ -356,7 +357,7 @@ export function createChatItemFromTool(
     case 'transfer_sol': {
       message = {
         id: generateUniqueId(),
-        content: data as TransactionChatContent ,
+        content: data as TransactionChatContent,
         createdAt: new Date().toISOString(),
       };
       return message;
@@ -364,7 +365,7 @@ export function createChatItemFromTool(
     case 'transfer_spl': {
       message = {
         id: generateUniqueId(),
-        content: data as TransactionChatContent ,
+        content: data as TransactionChatContent,
         createdAt: new Date().toISOString(),
       };
       return message;
