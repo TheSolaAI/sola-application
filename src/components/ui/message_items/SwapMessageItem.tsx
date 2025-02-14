@@ -13,7 +13,7 @@ export const SwapChatItem: FC<SwapChatItemProps> = ({ props }) => {
       <span className="font-semibold text-lg">Swap</span>
       <span>Amount: {props.data.amount}</span>
       <a
-        href={props.txn}
+        href={`https://solscan.io/tx/${props.txn}`}
         target="_blank"
         rel="noopener noreferrer"
         className="text-primaryDark hover:underline text-sm"
