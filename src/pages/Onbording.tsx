@@ -44,7 +44,7 @@ function Onboarding() {
           <img
             src="/sola_black_logo.svg"
             alt={'logo'}
-            className="h-8 w-8 rounded-xl fill-textColor bg-baseBackground"
+            className="h-8 w-8 rounded-xl fill-textColor bg-light-backgroundContrast"
           />
           <a
             href="/"

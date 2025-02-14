@@ -34,7 +34,7 @@ const Conversation = () => {
   /**
    * Global state
    */
-  const { setCurrentChatRoom, rooms, currentChatRoom, allRoomsLoaded } =
+  const { setCurrentChatRoom, rooms, allRoomsLoaded } =
     useChatRoomHandler();
   const { messages, currentChatItem } = useChatMessageHandler();
 
@@ -63,16 +63,6 @@ const Conversation = () => {
       }
     }
   }, [chatRoomId, allRoomsLoaded]);
-
-  /**
-   * This useEffect will automatically navigate the user to the respective chat room based on the
-   * currentChatRoom state if they are not already there
-   */
-  useEffect(() => {
-    if (currentChatRoom) {
-      navigate(`/c/${currentChatRoom.id}`);
-    }
-  }, [currentChatRoom]);
 
   /**
    * The primary render function. If provided a chatItem, it returns the React component that should be rendered

@@ -157,10 +157,10 @@ export const Sidebar: FC<SidebarProps> = ({
         {/*New ChatRoom Button*/}
         <button
           ref={agentSelectRef}
-          className="group mt-10 flex items-center justify-center rounded-xl bg-background bg-gradient-to-r from-primary to-primaryDark p-[2px] transition-all duration-300 hover:scale-[102%] hover:shadow-[0px_0px_10px_1px] hover:shadow-primaryDark"
+          className="group mt-8 mb-4 flex items-center justify-center rounded-xl bg-background bg-gradient-to-r from-primary to-primaryDark p-[2px] transition-all duration-300 hover:shadow-primaryDark"
           onClick={() => setAgentSelectOpen(true)}
         >
-          <div className="flex h-full w-full flex-row items-center justify-between rounded-xl bg-background p-3">
+          <div className="flex h-full w-full flex-row items-center justify-center gap-4 rounded-xl bg-background p-2">
             <h1 className="text-textColor">New Chat</h1>
             <Edit size={16} color={theme.textColor} />
           </div>
@@ -187,8 +187,8 @@ export const Sidebar: FC<SidebarProps> = ({
           <div className="flex flex-col items-start space-y-2">
             {rooms.map((room) => {
               const isEditing = editingRoom === room.id;
+              if (!room.id) return null;
 
-              //TODO: add agent id from database query
               return (
                 <div key={room.id} className="w-full">
                   <button
@@ -196,20 +196,23 @@ export const Sidebar: FC<SidebarProps> = ({
                       if (isMobile) setIsOpen(false);
                       setCurrentChatRoom(room);
                     }}
-                    className={`group font-small flex w-full items-center gap-3 rounded-xl p-3 transition-color duration-300 ease-in-out  
-              ${pathname === `/c/${room.id}` || pathname.startsWith(`/c/${room.id}/`) ? 'bg-primary' : ''}`}
+                    className={`group font-small flex w-full justify-between items-center gap-3 rounded-xl p-2 transition-color duration-300 ease-in-out hover:bg-primary
+              ${pathname === `/c/${room.id}` || pathname.startsWith(`/c/${room.id}/`) ? 'bg-primaryDark' : ''}`}
                   >
-                    {React.createElement(
-                      agents[room.agentId ? room.agentId - 1 : 0].logo,
-                      {
-                        className: 'w-4 h-4',
-                        color: theme.textColor,
-                      },
-                    )}
+                    <div className="flex items-center gap-6">
+                      {React.createElement(
+                        agents[room.agentId ? room.agentId - 1 : 0].logo,
+                        {
+                          className: 'w-4 h-4',
+                          color: theme.textColor,
+                        },
+                      )}
 
-                    <h1 className="text-textColor font-normal flex-1">
-                      {room.name}
-                    </h1>
+                      <h1 className="text-textColor font-normal">
+                        {room.name}
+                      </h1>
+                    </div>
+
                     <button
                       ref={(el) => el && (editButtonRefs.current[room.id] = el)}
                       onClick={(e) => handleEditClick(e, room.id)}
