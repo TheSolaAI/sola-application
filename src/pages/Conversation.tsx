@@ -83,15 +83,13 @@ const Conversation = () => {
   ): React.ReactNode => {
     if (!chatItem) return null;
 
-    console.log(chatItem);
-    console.log(chatItem.content);
-
     const { type } = chatItem.content;
 
     if (type === 'simple_message') {
       return <SimpleMessageChatItem key={index} props={chatItem.content} />;
     }
     if (type === 'token_data') {
+      console.log(chatItem);
       return <TokenDataMessageItem key={index} props={chatItem.content} />;
     }
     if (type === 'bubble_map') {

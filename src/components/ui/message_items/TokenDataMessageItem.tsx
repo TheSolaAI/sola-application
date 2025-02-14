@@ -40,10 +40,15 @@ export const TokenDataMessageItem: FC<ChatItemProps<TokenDataChatContent>> = ({
 }) => {
   return (
     <div>
-      <BaseGridChatItem col={3}>
-        <div className="p-2 rounded-lg bg-sec_background text-secText">
+      <BaseGridChatItem col={2}>
+        <div className="p-2 rounded-lg bg-sec_background overflow-x-auto text-secText">
           <div className="flex justify-between items-start">
             <div className="flex gap-4 items-center">
+              <img
+                src={props.data.image}
+                alt={'coin logo'}
+                className="h-12 w-12 rounded-lg"
+              />
               <div>
                 <h3 className="truncate text-sm font-medium">
                   {props.data.metadata?.name || 'Unknown'}
@@ -82,7 +87,7 @@ export const TokenDataMessageItem: FC<ChatItemProps<TokenDataChatContent>> = ({
           <div className="flex flex-row gap-2 text-sm mt-2">
             {[
               { label: 'MC', value: props.data.marketCap },
-              { label: '24H Vol', value: props.data.volume },
+              { label: '24H_Vol', value: props.data.volume },
             ].map(({ label, value }, i) => (
               <p key={i}>
                 {label}: ${formatNumber(Number(value)) || 'Unknown'}
