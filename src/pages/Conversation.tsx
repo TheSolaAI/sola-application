@@ -934,7 +934,9 @@ const Conversation = () => {
 
       // Set up to play remote audio from the model
       audioElement.current = document.createElement('audio');
-      audioElement.current.autoplay = true;
+      audioElement.current.autoplay = true;//thats it??   
+      audioElement.current.volume = 1.0;
+      audioElement.current.setAttribute('playsinline', 'true');
       pc.ontrack = (e) => {
         const stream = e.streams[0];
         if (audioElement.current) {
