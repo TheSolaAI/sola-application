@@ -137,6 +137,7 @@ const Conversation = () => {
       {/* Messages Container (Scrollable) */}
       <div className="flex-1 max-h-[80vh] overflow-y-auto w-full sm:w-[60%] self-center pb-[6rem] no-scrollbar">
         {messages.map((chatItem, index) => {
+          console.log(chatItem);
           return renderMessageItem(chatItem, index);
         })}
         {currentChatItem && renderMessageItem(currentChatItem, -1)}

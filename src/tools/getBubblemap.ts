@@ -4,7 +4,7 @@ import { getTokenDataSymbol } from '../lib/solana/tokenData.ts';
 import { BubbleMapChatContent } from '../types/chatItem.ts';
 import { BubbleMapChatItem } from '../components/ui/message_items/BubbleMapCardItem.tsx';
 
-const functionDescription = `Fetches a bubblemap for the specified token.`;
+const functionDescription = `Fetches a bubblemap for the specified token. Either token symbol or token address is given as input`;
 
 export const getBubblemap: Tool = {
   implementation: getBubblemapFunction,

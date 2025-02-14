@@ -1,6 +1,6 @@
 import { FC } from 'react';
 import { BubbleMapChatContent } from '../../../types/chatItem.ts';
-import BaseMonoGridChatItem from './general/BaseMonoGridChatItem.tsx';
+import BaseGridChatItem from './general/BaseGridChatItem.tsx';
 
 interface BubbleMapChatItemProps {
   props: BubbleMapChatContent;
@@ -8,11 +8,11 @@ interface BubbleMapChatItemProps {
 
 export const BubbleMapChatItem: FC<BubbleMapChatItemProps> = ({ props }) => {
   return (
-    <BaseMonoGridChatItem>
+    <BaseGridChatItem col={1}>
       <iframe
         src={`https://app.bubblemaps.io/sol/token/${props.data.token}`}
         className="w-full h-64 md:h-94 rounded-lg"
       />
-    </BaseMonoGridChatItem>
+    </BaseGridChatItem>
   );
 };

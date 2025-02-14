@@ -247,6 +247,8 @@ const parseChatItemContent = (item: ChatMessageResponseWrapper) => {
     return createChatItem<SimpleMessageChatContent>(item, parsedContent);
   } else if (isTokenDataChatContent(parsedContent)) {
     return createChatItem<TokenDataChatContent>(item, parsedContent);
+  } else if (isBubblemapChatContent(parsedContent)) {
+    return createChatItem<BubbleMapChatContent>(item, parsedContent);
   }
 };
 
@@ -272,6 +274,10 @@ function isSimpleMessageChatContent(
 
 function isTokenDataChatContent(content: any): content is TokenDataChatContent {
   return content.type === 'token_data';
+}
+
+function isBubblemapChatContent(content: any): content is BubbleMapChatContent {
+  return content.type === 'bubble_map';
 }
 
 export function createChatItemFromTool(
