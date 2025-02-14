@@ -5,7 +5,7 @@ import { TokenDataResponse } from '../types/response.ts';
 import { TokenDataMessageItem } from '../components/ui/message_items/TokenDataMessageItem.tsx';
 import { TokenDataChatContent } from '../types/chatItem.ts';
 
-const functionDescription = `Use this function to get the details or price of a token. NOTE: The user must specify the word Token. If the token address contains the sequence pump, do not remove it, it is part of the token.`;
+const functionDescription = `Use this function to get the details like Market Cap or volume or price of a token.`;
 
 export const getTokenData: Tool = {
   implementation: getTokenDataFunction,

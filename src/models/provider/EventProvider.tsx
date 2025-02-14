@@ -33,6 +33,7 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
       if (dataStream === null) return;
       dataStream.onmessage = async (event) => {
         const eventData = JSON.parse(event.data);
+        console.log(eventData);
         if (eventData.type === 'session.created') {
           // update the session with our latest tools, voice and emotion
           updateSession();

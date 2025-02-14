@@ -230,7 +230,6 @@ export const useChatMessageHandler = create<ChatMessageHandler>((set, get) => {
         // add the message in our server
         await get().addMessage(get().currentChatItem!);
         set({
-          messages: [...get().messages, get().currentChatItem!],
           currentChatItem: null,
         });
       }
