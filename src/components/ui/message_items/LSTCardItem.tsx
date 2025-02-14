@@ -34,7 +34,7 @@ export const ShowLSTDataChatItem: FC<ShowLSTDataChatItemProps> = ({
       {props.data.map((sanctumCard, index) => (
         <div
           key={sanctumCard.symbol || index}
-          className="group relative overflow-hidden block rounded-xl bg-sec_background p-3 w-fit transition-all duration-300 ease-in-out hover:bg-surface cursor-pointer hover:shadow-lg"
+          className="group relative overflow-hidden block rounded-xl text-secText bg-sec_background p-3 w-fit transition-all duration-300 ease-in-out hover:bg-surface cursor-pointer hover:shadow-lg"
         >
           <div className="flex items-center gap-4">
             <img

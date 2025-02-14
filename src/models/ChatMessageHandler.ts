@@ -251,6 +251,8 @@ const parseChatItemContent = (item: ChatMessageResponseWrapper) => {
     return createChatItem<BubbleMapChatContent>(item, parsedContent);
   } else if (isSwapChatContent(parsedContent)) {
     return createChatItem<SwapChatContent>(item, parsedContent);
+  } else if (isLstChatContent(parsedContent)) {
+    return createChatItem<ShowLSTDataChatContent>(item, parsedContent);
   }
 };
 
@@ -282,6 +284,10 @@ function isBubblemapChatContent(content: any): content is BubbleMapChatContent {
 function isSwapChatContent(content: any): content is SwapChatContent {
   return content.type === 'swap';
 }
+function isLstChatContent(content): content is ShowLSTDataChatContent {
+  return content.type === 'get_lst_data';
+}
+
 
 export function createChatItemFromTool(
   tool: Tool,
