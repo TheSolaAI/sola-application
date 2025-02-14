@@ -10,13 +10,11 @@ const LOADING_QUOTES = [
   'Charging brain cells...',
 ] as const;
 
-interface SessionControlsProps {}
-
-export const SessionControls: React.FC<SessionControlsProps> = () => {
+export const SessionControls = () => {
   /**
    * Global States
    */
-  const { muted, setMuted, state, sendMessage } = useSessionHandler();
+  const { muted, setMuted, state, sendTextMessage } = useSessionHandler();
 
   /**
    * Local States
@@ -32,7 +30,8 @@ export const SessionControls: React.FC<SessionControlsProps> = () => {
 
   const sendMessageToAI = () => {
     if (inputRef.current?.value === '') return;
-    sendMessage(inputRef.current?.value || '');
+    console.log('message to send', inputRef.current?.value);
+    sendTextMessage(inputRef.current?.value || '');
     inputRef.current!.value = '';
   };
 

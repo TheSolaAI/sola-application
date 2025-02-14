@@ -33,7 +33,6 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
       if (dataStream === null) return;
       dataStream.onmessage = async (event) => {
         const eventData = JSON.parse(event.data);
-        console.log(eventData);
         if (eventData.type === 'session.created') {
           // update the session with our latest tools, voice and emotion
           updateSession();
@@ -76,17 +75,6 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
                   useChatRoomHandler.getState().currentChatRoom?.agentId!,
                 ).find((tool) => tool.abstraction.name === output.name);
                 if (tool) {
-                  // call the tool handling function and add its output chat item to the chat
-                  const response = await tool.implementation(
-                    {
-                      ...JSON.parse(output.arguments),
-                      currentWallet: currentWallet,
-                    },
-                    eventData.response_id,
-                  );
-
-                  // send the response back to OpenAI
-                  sendMessage(response.response);
                   const tool_result = await tool.implementation(
                     {
                       ...JSON.parse(output.arguments),
@@ -95,7 +83,8 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
                     eventData.response_id,
                   );
                   // add the message to our local array and also our database history
-                  addMessage(createChatItemFromTool(tool, tool_result.props));
+                  if (tool_result.status === 'success')
+                    addMessage(createChatItemFromTool(tool, tool_result.props));
                   // send the response to OpenAI
                   sendMessage(tool_result.response);
                 } else {

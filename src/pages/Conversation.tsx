@@ -89,7 +89,6 @@ const Conversation = () => {
       return <SimpleMessageChatItem key={index} props={chatItem.content} />;
     }
     if (type === 'token_data') {
-      console.log(chatItem);
       return <TokenDataMessageItem key={index} props={chatItem.content} />;
     }
     if (type === 'bubble_map') {

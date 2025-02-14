@@ -60,6 +60,7 @@ interface SessionHandler {
    * Use this function to send an user typed message to the AI
    */
   sendMessage: (message: string) => void;
+  sendTextMessage: (message: string) => void;
 }
 
 export const useSessionHandler = create<SessionHandler>((set, get) => {
@@ -171,14 +172,36 @@ export const useSessionHandler = create<SessionHandler>((set, get) => {
 
     sendMessage: (message: string): void => {
       if (get().dataStream && get().dataStream?.readyState === 'open') {
+        console.log(message);
         const response = {
           type: 'response.create',
           response: {
-            modalities: ['text', 'audio'],
             instructions: message,
           },
         };
         get().dataStream?.send(JSON.stringify(response));
+      } else {
+        toast.error('Failed to send message. Reload the page');
+      }
+    },
+    sendTextMessage: (message: string): void => {
+      if (get().dataStream && get().dataStream?.readyState === 'open') {
+        console.log(message);
+        const textMessage = {
+          type: 'conversation.item.create',
+          item: {
+            type: 'message',
+            role: 'user',
+            content: [
+              {
+                type: 'input_text',
+                text: message,
+              },
+            ],
+          },
+        };
+        get().dataStream?.send(JSON.stringify(textMessage));
+        get().dataStream?.send(JSON.stringify({ type: 'response.create' }));
       } else {
         toast.error('Failed to send message. Reload the page');
       }
