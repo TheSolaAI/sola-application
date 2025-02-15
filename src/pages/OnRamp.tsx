@@ -1,5 +1,4 @@
 import { useFundWallet } from '@privy-io/react-auth/solana';
-import { Button } from '@headlessui/react';
 import { useState } from 'react';
 import { useWalletHandler } from '../models/WalletHandler.ts';
 
@@ -60,7 +59,7 @@ const OnRamp = () => {
           <img src={'./card.svg'} className="h-52" />
         </div>
         <div>
-          <Button
+          <button
             onClick={handleFundWallet}
             disabled={isLoading}
             className={`
@@ -69,7 +68,7 @@ const OnRamp = () => {
           `}
           >
             {isLoading ? 'Funding...' : 'Fund Wallet'}
-          </Button>
+          </button>
         </div>
         {error && (
           <div className="mt-4 text-sm text-red-500 text-center">{error}</div>
