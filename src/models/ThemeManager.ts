@@ -86,5 +86,4 @@ const ThemeManager: StateCreator<ThemeStore> = (set, get) => {
 };
 
 const useThemeManager = create<ThemeStore>(ThemeManager);
-
 export default useThemeManager;

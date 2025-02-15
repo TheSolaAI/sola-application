@@ -9,7 +9,7 @@ import './css/style.css';
 import './css/satoshi.css';
 import { Toaster } from 'sonner';
 import useThemeManager from './models/ThemeManager.ts';
-import useIsMobile from './components/utils/isMobile.tsx';
+import useIsMobile from './utils/isMobile.tsx';
 
 // Sentry Initialization
 Sentry.init({
@@ -68,7 +68,7 @@ const RootApp = () => {
             appearance: {
               theme: theme.name === 'dark' ? 'dark' : 'light',
               accentColor: theme.primary || '#1D1D1F',
-              logo: '/logo.svg',
+              logo: '/sola_black_logo.svg',
               showWalletLoginFirst: true,
             },
           }}
@@ -76,6 +76,7 @@ const RootApp = () => {
           {' '}
           <Toaster
             position={isMobile ? 'top-center' : 'bottom-right'}
+            duration={1500}
             richColors
           />
           <App />

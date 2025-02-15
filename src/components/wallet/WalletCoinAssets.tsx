@@ -1,7 +1,7 @@
 import { useWalletHandler } from '../../models/WalletHandler.ts';
 import { useEffect, useRef, useState } from 'react';
 import { AgCharts } from 'ag-charts-react';
-import { titleCase } from '../utils/titleCase.ts';
+import { titleCase } from '../../utils/titleCase.ts';
 import { ArrowUpDown, PauseIcon, PlayIcon } from 'lucide-react';
 import {
   CoinsSortDropDown,

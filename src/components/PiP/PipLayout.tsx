@@ -1,9 +1,9 @@
 import { useCallback, useState } from 'react';
 import { usePipStore } from '../../models/PipState.ts';
 import PiPWindow from './PipWindow';
-import { Minimize, Maximize } from 'react-feather';
+import { Maximize, Minimize } from 'lucide-react';
 import { toast } from 'sonner';
-import { SessionActive, SessionStopped } from '../SessionControls';
+import { SessionControls, SessionStopped } from '../SessionControls';
 
 interface PipLayoutProps {
   startSession: () => void;
@@ -34,7 +34,10 @@ export default function PipLayout({
     <div>
       {isSupported ? (
         <>
-          <button onClick={pipWindow ? closePipWindow : startPiP} className='hidden md:block'>
+          <button
+            onClick={pipWindow ? closePipWindow : startPiP}
+            className="hidden md:block"
+          >
             {pipWindow ? <Maximize /> : <Minimize />}
           </button>
           {pipWindow && (
@@ -49,7 +52,7 @@ export default function PipLayout({
                 }}
               >
                 {isSessionActive ? (
-                  <SessionActive stopSession={stopSession} />
+                  <SessionControls stopSession={stopSession} />
                 ) : (
                   <SessionStopped startSession={startSession} />
                 )}

@@ -1,31 +1,54 @@
-import React, { useRef, useState } from 'react';
-import { Trash2, Upload } from 'react-feather';
+import React, { useState } from 'react';
+import { Trash2, Upload } from 'lucide-react';
 import { Dropdown } from '../general/DropDown.tsx';
+import { useChatRoomHandler } from '../../models/ChatRoomHandler.ts';
 
 interface EditRoomContentProps {
   onClose: () => void;
+  roodID: number;
 }
 
-const EditRoomContent: React.FC<EditRoomContentProps> = ({ onClose }) => {
-  const fileInputRef = useRef<HTMLInputElement>(null);
+const EditRoomContent: React.FC<EditRoomContentProps> = ({
+  onClose,
+  roodID,
+}) => {
+  const {
+    updateChatRoom,
+    deleteChatRoom,
+    currentChatRoom,
+    createChatRoom,
+    setCurrentChatRoom,
+  } = useChatRoomHandler();
+
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [name, setName] = useState('');
-  const [roomIcon] = useState('');
 
+  /**
+   * Update the name of the selected chat room
+   */
   const handleNameSubmit = () => {
     console.log('Name submitted');
+    updateChatRoom({
+      id: roodID,
+      name: name,
+    });
+    onClose();
   };
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      console.log('File uploaded');
-    }
-  };
-
+  /**
+   * Delete the selected room.
+   * if the current room is deleted , move to a new room.
+   */
   const handleDelete = () => {
     if (showDeleteConfirm) {
       console.log('Delete confirmed');
+      deleteChatRoom(roodID);
+      if (roodID === currentChatRoom?.id) {
+        console.log('creating new room');
+        createChatRoom({ name: 'New Chat', agentId: 1 }).then((room) => {
+          if (room) setCurrentChatRoom(room);
+        });
+      }
       onClose();
     } else {
       setShowDeleteConfirm(true);
@@ -34,36 +57,6 @@ const EditRoomContent: React.FC<EditRoomContentProps> = ({ onClose }) => {
 
   return (
     <div className="space-y-6 lg:w-[250px]">
-      {/* Chat Icon Section */}
-      <div className="flex flex-col items-center gap-4">
-        <div className="relative">
-          {roomIcon ? (
-            <img
-              src={roomIcon}
-              alt="Chat Icon"
-              className="w-20 h-20 rounded-full object-cover"
-            />
-          ) : (
-            <div className="w-20 h-20 rounded-full bg-surface flex items-center justify-center">
-              <Upload className="w-8 h-8 text-textColor/50" />
-            </div>
-          )}
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            className="absolute bottom-0 right-0 p-2 rounded-full bg-primary text-white hover:bg-primaryDark transition-colors"
-          >
-            <Upload className="w-4 h-4" />
-          </button>
-        </div>
-        <input
-          type="file"
-          ref={fileInputRef}
-          onChange={handleFileChange}
-          accept="image/*"
-          className="hidden"
-        />
-      </div>
-
       {/* Chat Name Section */}
       <div className="space-y-2">
         <label className="text-sm font-medium text-textColor">Chat Name</label>
@@ -71,10 +64,16 @@ const EditRoomContent: React.FC<EditRoomContentProps> = ({ onClose }) => {
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          onBlur={handleNameSubmit}
           className="w-full px-3 py-2 rounded-lg border border-border bg-surface text-textColor focus:outline-none focus:ring-2 focus:ring-primary"
           placeholder="Enter chat name"
         />
+        <button
+          onClick={handleNameSubmit}
+          className={`w-full px-4 py-2 rounded-lg flex items-center justify-center gap-2 transition-colors bg-primary/90 hover:bg-primary`}
+        >
+          <Upload className="w-4 h-4" />
+          Edit Name
+        </button>
       </div>
 
       {/* Delete Section */}
@@ -99,13 +98,14 @@ interface EditRoomProps {
   isOpen: boolean;
   onClose: () => void;
   anchorEl: null | HTMLElement;
-  roomID: string;
+  roomID: number;
 }
 
 export const EditRoom: React.FC<EditRoomProps> = ({
   isOpen,
   onClose,
   anchorEl,
+  roomID,
 }) => {
   return (
     <Dropdown
@@ -117,7 +117,7 @@ export const EditRoom: React.FC<EditRoomProps> = ({
       width="auto"
       direction="down"
     >
-      <EditRoomContent onClose={onClose} />
+      <EditRoomContent onClose={onClose} roodID={roomID} />
     </Dropdown>
   );
 };

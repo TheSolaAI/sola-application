@@ -26,7 +26,7 @@ export const AgentSelect: React.FC<AgentSelectProps> = ({
       mobileTitle="Select Agent for New Chat"
       direction="down"
     >
-      <div className="space-y-5 my-3">
+      <div>
         {agents.map((agent) => (
           <button
             key={agent.agentID}

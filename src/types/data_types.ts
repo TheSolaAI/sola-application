@@ -1,13 +1,16 @@
+import { Risk } from './messageCard';
+
 export type TokenData = {
   image: string;
   metadata: {
-    description: string;
     name: string;
     symbol: string;
-    token_standard: string;
+    address: string;
   };
   price: number;
   marketcap: number;
+  volume: number;
+  price_change_24: number;
 };
 
 export type LSTData = {
@@ -20,5 +23,5 @@ export type LSTData = {
 
 export type RugCheck = {
   score: number;
-  issues: [];
+  issues: Risk[];
 };

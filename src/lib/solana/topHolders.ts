@@ -1,11 +1,17 @@
-import ApiClient from '../../api/ApiClient';
+import { ApiClient, apiClient } from '../../api/ApiClient';
 import { TopHolder } from '../../types/messageCard';
-const data_service_url = process.env.DATA_SERVICE_URL;
-export async function getTopHolders(
+
+export async function getTopHoldersHandler(
   token: string,
 ): Promise<TopHolder[] | null> {
-  const resp = await ApiClient.get<TopHolder[]>(
-    data_service_url + 'data/token/top_holders?token=' + token,
+  const resp = await apiClient.get<TopHolder[]>(
+    '/data/token/top_holders?token=' + token,
+    undefined,
+    'data',
   );
-  return resp;
+  if (ApiClient.isApiError(resp)) {
+    console.error('Error during getTopHoldersHandler:', resp.errors);
+    return null;
+  }
+  return resp.data;
 }

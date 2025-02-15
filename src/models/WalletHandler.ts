@@ -125,7 +125,7 @@ export const useWalletHandler = create<WalletHandler>((set, get) => {
         },
       }));
     } catch (error) {
-      console.log('Error fetching tokens and NFTs', error);
+      toast.error('Error Fetching Wallet Assets');
     }
   };
 

@@ -1,5 +1,5 @@
 import { SwapParams, SwapResponse } from '../../types/jupiter';
-import ApiClient from '../../api/ApiClient';
+import { ApiClient, apiClient } from '../../api/ApiClient';
 import { VersionedTransaction } from '@solana/web3.js';
 
 const wallet_service_url = process.env.WALLET_SERVICE_URL;
@@ -7,15 +7,18 @@ const wallet_service_url = process.env.WALLET_SERVICE_URL;
 export async function swapTx(
   params: SwapParams,
 ): Promise<VersionedTransaction | null> {
-  const response = await ApiClient.post<SwapResponse>(
-    wallet_service_url + 'api/wallet/jup/swap',
+  const response = await apiClient.post<SwapResponse>(
+    '/api/wallet/jup/swap',
     params,
+    'wallet'
   );
-  if (!response) {
+  
+  if (ApiClient.isApiError(response)) {
+    throw new Error('Invalid response from API');
     return null;
   }
   try {
-    const swapTransaction = response.transaction;
+    const swapTransaction = response.data.transaction;
     const transactionBuffer = Buffer.from(swapTransaction, 'base64');
     const transaction = VersionedTransaction.deserialize(transactionBuffer);
     return transaction;

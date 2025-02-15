@@ -1,16 +1,15 @@
-import { ChevronLeft, Edit, Edit2, Menu, User } from 'react-feather';
+import { ChevronLeft, Edit, Edit2, Menu, User } from 'lucide-react';
 import React, { FC, useEffect, useRef, useState } from 'react';
 import useThemeManager from '../../models/ThemeManager.ts';
-import { useChat } from '../../hooks/useChatRoom.ts';
-import { useRoomStore } from '../../models/RoomState.ts';
-import { NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { AgentSelect } from './AgentSelect.tsx';
 import { EditRoom } from './EditRoom.tsx';
 import { ProfileDropDown } from './ProfileDropDown.tsx';
-import useIsMobile from '../utils/isMobile.tsx';
+import useIsMobile from '../../utils/isMobile.tsx';
 import { VscPinned } from 'react-icons/vsc';
 import { useAgentHandler } from '../../models/AgentHandler.ts';
 import { useLayoutContext } from '../../layout/LayoutProvider.tsx';
+import { useChatRoomHandler } from '../../models/ChatRoomHandler.ts';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -39,8 +38,7 @@ export const Sidebar: FC<SidebarProps> = ({
    * Global State
    */
   const { theme } = useThemeManager();
-  const { getRooms } = useChat();
-  const { rooms, setCurrentAgentId } = useRoomStore();
+  const { rooms, setCurrentChatRoom, setNewRoomId } = useChatRoomHandler();
   const { pathname } = useLocation();
   const { agents } = useAgentHandler();
   const { walletLensOpen } = useLayoutContext();
@@ -49,7 +47,7 @@ export const Sidebar: FC<SidebarProps> = ({
    * Local State
    */
   const [agentSelectOpen, setAgentSelectOpen] = useState(false);
-  const [editingRoom, setEditingRoom] = useState<string | null>(null);
+  const [editingRoom, setEditingRoom] = useState<number | null>(null);
   const [profileOpen, setProfileOpen] = useState(false);
   const [autoOpened, setAutoOpened] = useState(false);
   const isMobile = useIsMobile();
@@ -98,18 +96,17 @@ export const Sidebar: FC<SidebarProps> = ({
   /**
    * Handle edit button click for a chat room
    */
-  const handleEditClick = (e: React.MouseEvent, roomId: string) => {
+  const handleEditClick = (e: React.MouseEvent, roomId: number) => {
     e.preventDefault();
     e.stopPropagation();
     setEditingRoom(editingRoom === roomId ? null : roomId);
   };
 
   /**
-   * Runs at the load of the screen and sets up event listeners and loads the rooms from the server.
+   * Sets up listener to close when clicking outside of the sidebar
    */
   useEffect(() => {
     document.addEventListener('mousedown', handleClickOutside);
-    getRooms();
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
@@ -127,7 +124,7 @@ export const Sidebar: FC<SidebarProps> = ({
       {/* Mobile Menu Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`transition-duration-500 fixed left-8 top-8 z-50 ease-in-out lg:hidden ${isOpen || walletLensOpen ? 'opacity-0 hidden' : 'opacity-100 visible'}`}
+        className={`transition-duration-500 fixed left-4 top-4 z-50 ease-in-out lg:hidden ${isOpen || walletLensOpen ? 'opacity-0 hidden' : 'opacity-100 visible'}`}
       >
         <Menu size={24} color={theme.textColor} />
       </button>
@@ -160,10 +157,10 @@ export const Sidebar: FC<SidebarProps> = ({
         {/*New ChatRoom Button*/}
         <button
           ref={agentSelectRef}
-          className="group mt-10 flex items-center justify-center rounded-xl bg-background bg-gradient-to-r from-primary to-primaryDark p-[2px] transition-all duration-300 hover:scale-[102%] hover:shadow-[0px_0px_10px_1px] hover:shadow-primaryDark"
+          className="group mt-8 mb-4 flex items-center justify-center rounded-xl bg-background bg-gradient-to-r from-primary to-primaryDark p-[2px] transition-all duration-300 hover:shadow-primaryDark"
           onClick={() => setAgentSelectOpen(true)}
         >
-          <div className="flex h-full w-full flex-row items-center justify-between rounded-xl bg-background p-3">
+          <div className="flex h-full w-full flex-row items-center justify-center gap-4 rounded-xl bg-background p-2">
             <h1 className="text-textColor">New Chat</h1>
             <Edit size={16} color={theme.textColor} />
           </div>
@@ -177,41 +174,45 @@ export const Sidebar: FC<SidebarProps> = ({
           }}
           anchorEl={agentSelectRef.current}
           onSelect={(agentId: number) => {
-            setCurrentAgentId(agentId);
+            console.log(agentId);
+            setNewRoomId(agentId);
+            setCurrentChatRoom(null);
             navigate(`/`);
             setAgentSelectOpen(false);
           }}
         />
 
-        {/*  ChatRooms List - Now Scrollable */}
+        {/*  ChatRooms List */}
         <div className="mt-[10px] flex-1 pr-4 overflow-y-auto scrollbar-thin scrollbar-thumb-primary scrollbar-track-sec_background ">
           <div className="flex flex-col items-start space-y-2">
             {rooms.map((room) => {
               const isEditing = editingRoom === room.id;
-
-              //TODO: add agent id from database query
+              if (!room.id) return null;
 
               return (
                 <div key={room.id} className="w-full">
-                  <NavLink
-                    to={`/c/${room.id}`}
+                  <button
                     onClick={() => {
                       if (isMobile) setIsOpen(false);
+                      setCurrentChatRoom(room);
                     }}
-                    className={`group font-small flex w-full items-center gap-3 rounded-xl p-3 transition-color duration-300 ease-in-out  
-              ${pathname === `/c/${room.id}` || pathname.startsWith(`/c/${room.id}/`) ? 'bg-primary' : ''}`}
+                    className={`group font-small flex w-full justify-between items-center gap-3 rounded-xl p-2 transition-color duration-300 ease-in-out hover:bg-primary
+              ${pathname === `/c/${room.id}` || pathname.startsWith(`/c/${room.id}/`) ? 'bg-primaryDark' : ''}`}
                   >
-                    {React.createElement(
-                      agents[room.agent_id ? room.agent_id - 1 : 0].logo,
-                      {
-                        className: 'w-4 h-4',
-                        color: theme.textColor,
-                      },
-                    )}
+                    <div className="flex items-center gap-4 md:gap-6">
+                      {React.createElement(
+                        agents[room.agentId ? room.agentId - 1 : 0].logo,
+                        {
+                          className: 'w-4 h-4',
+                          color: theme.textColor,
+                        },
+                      )}
 
-                    <h1 className="text-textColor font-normal flex-1">
-                      {room.name}
-                    </h1>
+                      <h1 className="text-textColor font-normal">
+                        {room.name}
+                      </h1>
+                    </div>
+
                     <button
                       ref={(el) => el && (editButtonRefs.current[room.id] = el)}
                       onClick={(e) => handleEditClick(e, room.id)}
@@ -220,9 +221,9 @@ export const Sidebar: FC<SidebarProps> = ({
                     >
                       <Edit2 size={16} color={theme.textColor} />
                     </button>
-                  </NavLink>
+                  </button>
 
-                  {isEditing && (
+                  {isEditing && room.id && (
                     <EditRoom
                       isOpen={true}
                       onClose={() => setEditingRoom(null)}
@@ -237,7 +238,7 @@ export const Sidebar: FC<SidebarProps> = ({
         </div>
 
         {/* Bottom Section */}
-        <div className="mt-4">
+        <div className="mt-4 w-full">
           <div
             className="flex flex-row justify-center items-center gap-5 bg-gradient-to-r from-primaryDark to-primary p-[10px] rounded-xl mb-10 shadow-primaryDark cursor-pointer"
             // onClick={() => navigate('/pricing')}

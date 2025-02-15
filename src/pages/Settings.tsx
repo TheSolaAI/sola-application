@@ -1,145 +1,40 @@
-import { useEffect, useState } from 'react';
-import { ChevronDown } from 'react-feather';
-import useAppState from '../models/AppState.ts';
-import { AIEMOTION, AIVOICE } from '../config/ai/aiConfig';
-import useUser from '../hooks/useUser';
-import { AiEmotion, AiVoice } from '../types/database/aiConfig';
-import { usePrivy } from '@privy-io/react-auth';
+/**
+ * Component to display configurable settings to the user
+ */
 import useThemeManager from '../models/ThemeManager.ts';
+import { Sun, Moon } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const Settings: React.FC = () => {
-  const { aiVoice, aiEmotion, setAccessToken } = useAppState();
-  const { updateSettings } = useUser();
-  const { getAccessToken } = usePrivy();
-
-  const [isVoiceOpen, setIsVoiceOpen] = useState<boolean>(false);
-  const [isEmotionOpen, setIsEmotionOpen] = useState<boolean>(false);
-
-  const { theme } = useThemeManager();
-
-  const toggleVoiceDropdown = () => setIsVoiceOpen((prev) => !prev);
-  const toggleEmotionDropdown = () => setIsEmotionOpen((prev) => !prev);
-
-  const handleVoiceSelection = (voice: AiVoice) => {
-    updateSettings({ voice_preference: voice });
-    setIsVoiceOpen(false);
-  };
-
-  const handleEmotionSelection = (emotion: AiEmotion) => {
-    updateSettings({ emotion_choice: emotion });
-    setIsEmotionOpen(false);
-  };
-
-  useEffect(() => {
-    const fetchAccessToken = async () => {
-      const token = await getAccessToken();
-      setAccessToken(token);
-    };
-
-    fetchAccessToken();
-  }, []);
+  const { theme, setTheme } = useThemeManager();
 
   return (
     <div className=" h-screen p-4 bg-background animate-in fade-in-0 duration-300">
-      <div className="bg-sec_background rounded-lg p-4 ">
+      <div className=" relative bg-sec_background rounded-lg p-4 top-12 sm:top-2">
         <h1 className="font-bold text-xl dark:text-purple-300">
           APP CONFIGURATION:
         </h1>
         <div className="flex flex-col gap-6 p-4 m-4">
-          {/* AI Voice Configuration */}
-          <div>
-            <span className="text-boxdark font-medium dark:text-bodydark2">
-              AI Voice :
-            </span>
-            <div className="relative inline-block text-left m-2">
-              <button
-                onClick={toggleVoiceDropdown}
-                className="inline-flex justify-between w-full rounded-md shadow-sm px-4 py-2 bg-white text-sm font-medium text-boxdark-2 dark:bg-bodydark2 hover:bg-opacity-70 focus:outline-none focus:ring-2 focus:ring-boxdark focus:ring-offset-2 focus:ring-offset-gray-100"
-              >
-                {aiVoice}
-                <ChevronDown
-                  className={`h-5 w-5 transform transition-transform duration-200 ${
-                    isVoiceOpen ? 'rotate-180' : 'rotate-0'
-                  }`}
-                />
-              </button>
-              {isVoiceOpen && (
-                <div
-                  className="absolute z-10 mt-2 w-full rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none dark:bg-bodydark2"
-                  role="menu"
-                >
-                  <div className="py-1">
-                    {AIVOICE.map((voice) => (
-                      <button
-                        key={voice}
-                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-bodydark"
-                        onClick={() => handleVoiceSelection(voice as AiVoice)}
-                      >
-                        {voice}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* AI Emotion Configuration */}
-          <div>
-            <span className="text-boxdark font-medium dark:text-bodydark2">
-              AI Emotion :
-            </span>
-            <div className="relative inline-block text-left mx-2">
-              <button
-                onClick={toggleEmotionDropdown}
-                className="inline-flex justify-between w-full rounded-md shadow-sm px-4 py-2 bg-white text-sm font-medium text-boxdark-2 dark:bg-bodydark2 hover:bg-opacity-70 focus:outline-none focus:ring-2 focus:ring-boxdark focus:ring-offset-2 focus:ring-offset-gray-100"
-              >
-                {aiEmotion}
-                <ChevronDown
-                  className={`h-5 w-5 transform transition-transform duration-200 ${
-                    isEmotionOpen ? 'rotate-180' : 'rotate-0'
-                  }`}
-                />
-              </button>
-              {isEmotionOpen && (
-                <div
-                  className="absolute z-10 mt-2 w-full rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none dark:bg-bodydark2"
-                  role="menu"
-                >
-                  <div className="py-1">
-                    {AIEMOTION.map((emotion) => (
-                      <button
-                        key={emotion}
-                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-bodydark"
-                        onClick={() =>
-                          handleEmotionSelection(emotion as AiEmotion)
-                        }
-                      >
-                        {emotion}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Theme Settings  */}
-          <div className="flex flex-col gap-2">
+          {/* Toggle app theme */}
+          <div className="flex items-center gap-4">
             <span className="text-textColor">Theme (Light/Dark) :</span>
-            <div className="flex gap-4">
-              <button
-                className={`bg-border text-textColor rounded-lg px-4 py-2 border-2 ${theme.name === 'light' ? 'border-red' : 'border-transparent'}`}
-                onClick={() => updateSettings({ theme: 'light' })}
+            <div
+              className="w-16 h-8 bg-border rounded-full flex items-center p-1 cursor-pointer"
+              onClick={() =>
+                setTheme(theme.name === 'light' ? 'dark' : 'light')
+              }
+            >
+              <motion.div
+                className="w-6 h-6 bg-background text-textColor rounded-full flex items-center justify-center"
+                animate={{ x: theme.name === 'light' ? 0 : 32 }}
+                transition={{ type: 'spring', stiffness: 300, damping: 20 }}
               >
-                Light
-              </button>
-              <button
-                className={`bg-border text-textColor rounded-lg px-4 py-2 border-2 ${theme.name === 'dark' ? 'border-red' : 'border-transparent'}`}
-                onClick={() => updateSettings({ theme: 'dark' })}
-              >
-                Dark
-              </button>
+                {theme.name === 'light' ? (
+                  <Sun size={16} />
+                ) : (
+                  <Moon size={16} />
+                )}
+              </motion.div>
             </div>
           </div>
         </div>
