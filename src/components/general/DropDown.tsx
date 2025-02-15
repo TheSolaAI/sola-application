@@ -128,7 +128,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
         />
         <motion.div
           ref={popupRef}
-          className="fixed bottom-0 left-0 right-0 z-50 rounded-t-xl border-t border-border bg-background p-4 max-h-[80vh] overflow-y-auto w-screen flex flex-col items-center"
+          className="fixed bottom-0 left-0 right-0 z-50 rounded-t-xl border-t border-border bg-background max-h-[80vh] overflow-y-auto w-screen flex flex-col items-center"
           initial={{ y: '100%' }}
           animate={{ y: 0 }}
           exit={{ y: '100%' }}
@@ -152,15 +152,14 @@ export const Dropdown: React.FC<DropdownProps> = ({
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -10 }}
-        transition={{ duration: 0.3, ease: 'easeOut' }}
-        className={`fixed z-50 rounded-xl border-border border-[0.5px] bg-baseBackground p-2 ${
+        transition={{ duration: 0.3, ease: 'easeInOut' }}
+        className={`fixed z-50 rounded-xl bg-baseBackground p-2 ${
           finalHorizontalAlignment === 'right'
             ? 'origin-top-right'
             : 'origin-top-left'
         }`}
         style={{
           top: position.top ? `${position.top}px` : 'auto',
-          left: position.left ? `${position.left}px` : 'auto',
           width: position.width === 'auto' ? 'auto' : `${position.width}px`,
           bottom: position.bottom ? `${position.bottom}px` : 'auto',
         }}

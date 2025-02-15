@@ -1,8 +1,9 @@
 import { FC } from 'react';
 import { Dropdown } from '../general/DropDown.tsx';
-import { CreditCard, LogOut, Settings } from 'lucide-react';
+import { LogOut, Settings } from 'lucide-react';
 import { usePrivy } from '@privy-io/react-auth';
 import { useNavigate } from 'react-router-dom';
+import { useSessionHandler } from '../../models/SessionHandler.ts';
 
 interface ProfileDropDownProps {
   isOpen: boolean;
@@ -18,13 +19,17 @@ export const ProfileDropDown: FC<ProfileDropDownProps> = ({
   /**
    * State Management
    */
-
   const { logout } = usePrivy();
+  const { setMediaStream, setDataStream, setPeerConnection, setMuted } =
+    useSessionHandler();
   const navigation = useNavigate();
 
   const logoutHandler = () => {
     // TODO: Close the session and datastream to OpenAI
-
+    setMediaStream(null);
+    setDataStream(null);
+    setPeerConnection(null);
+    setMuted(true);
     logout();
   };
 
@@ -33,15 +38,14 @@ export const ProfileDropDown: FC<ProfileDropDownProps> = ({
       isOpen={isOpen}
       onClose={onClose}
       anchorEl={anchorEl}
-      title="Profile"
       mobileTitle="Profile"
       direction="up"
       width="auto"
     >
-      <div className="w-full">
+      <div className="w-full ">
         {/*Settings*/}
         <button
-          className="w-full hover:bg-primary/85 flex-row flex items-center justify-between p-3 rounded-xl"
+          className="w-full hover:bg-primary/85 flex-row flex gap-4 items-center justify-around p-3 rounded-xl"
           onClick={() => {
             //   Navigate to settings page
             navigation('/settings/configuration');
@@ -50,19 +54,6 @@ export const ProfileDropDown: FC<ProfileDropDownProps> = ({
         >
           <h1 className="text-textColor font-medium text-md">Settings</h1>
           <Settings className="text-secText w-5 h-5" />
-        </button>
-        <button
-          className="w-full hover:bg-surface flex-row flex items-center justify-between p-3 rounded-xl gap-x-5"
-          onClick={() => {
-            //   Navigate to wallet configuration page
-            navigation('/wallet');
-            onClose();
-          }}
-        >
-          <h1 className="text-textColor text-left font-medium text-md">
-            Wallet Configuration
-          </h1>
-          <CreditCard className="text-secText w-5 h-5" />
         </button>
         <button
           className="w-full hover:bg-surface flex-row flex items-center justify-between p-3 rounded-xl"

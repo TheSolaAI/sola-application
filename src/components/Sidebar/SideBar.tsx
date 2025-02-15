@@ -238,7 +238,7 @@ export const Sidebar: FC<SidebarProps> = ({
         </div>
 
         {/* Bottom Section */}
-        <div className="mt-4">
+        <div className="mt-4 w-full">
           <div
             className="flex flex-row justify-center items-center gap-5 bg-gradient-to-r from-primaryDark to-primary p-[10px] rounded-xl mb-10 shadow-primaryDark cursor-pointer"
             // onClick={() => navigate('/pricing')}

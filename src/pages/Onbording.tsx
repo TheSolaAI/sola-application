@@ -25,9 +25,11 @@ import 'react-awesome-button/dist/styles.css';
 import '../css/buttons.css';
 import { AwesomeButton } from 'react-awesome-button';
 import { FaGithub } from 'react-icons/fa';
+import useThemeManager from '../models/ThemeManager.ts';
 
 function Onboarding() {
   const { login, authenticated, ready } = usePrivy();
+  const { theme } = useThemeManager();
   const disableLogin = !ready || (ready && authenticated);
 
   return (
@@ -44,7 +46,7 @@ function Onboarding() {
           <img
             src="/sola_black_logo.svg"
             alt={'logo'}
-            className="h-8 w-8 rounded-xl fill-textColor bg-light-backgroundContrast"
+            className={`h-8 w-8 rounded-xl fill-textColor  ${theme.name === 'dark' ? 'bg-light-backgroundContrast' : 'bg-background'}`}
           />
           <a
             href="/"

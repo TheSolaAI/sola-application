@@ -25,9 +25,9 @@ interface SessionHandler {
    */
   initSessionHandler: () => Promise<string | null>;
 
-  setPeerConnection: (peerConnection: RTCPeerConnection) => void; // sets the peer connection
-  setDataStream: (dataStream: RTCDataChannel) => void; // sets the data stream
-  setMediaStream: (mediaStream: MediaStream) => void; // sets the media stream
+  setPeerConnection: (peerConnection: RTCPeerConnection | null) => void; // sets the peer connection
+  setDataStream: (dataStream: RTCDataChannel | null) => void; // sets the data stream
+  setMediaStream: (mediaStream: MediaStream | null) => void; // sets the media stream
 
   setAiVoice: (aiVoice: AIVoice) => void; // sets the voice of the AI
   setAiEmotion: (aiEmotion: AIEmotion) => void; // sets the emotion of the AI
@@ -95,11 +95,11 @@ export const useSessionHandler = create<SessionHandler>((set, get) => {
       set({ dataStream });
     },
 
-    setPeerConnection: (peerConnection: RTCPeerConnection): void => {
+    setPeerConnection: (peerConnection: RTCPeerConnection | null): void => {
       set({ peerConnection });
     },
 
-    setMediaStream: (mediaStream: MediaStream): void => {
+    setMediaStream: (mediaStream: MediaStream | null): void => {
       set({ mediaStream });
     },
 
