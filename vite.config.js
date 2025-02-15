@@ -63,6 +63,7 @@ export default defineConfig(({ mode }) => {
           clientsClaim: true,
           skipWaiting: true,
           maximumFileSizeToCacheInBytes: 50000000,
+          runtimeCaching: [],
         },
         devOptions: {
           enabled: true,
