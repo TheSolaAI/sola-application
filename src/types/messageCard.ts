@@ -82,7 +82,6 @@ export type NFTCard = {
   image: string;
   price: string;
   size: string;
-  date: string;
 };
 
 export type TrendingNFTCard = {

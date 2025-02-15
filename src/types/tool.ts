@@ -12,6 +12,7 @@ import {
   MarketDataChatContent,
   TransactionChatContent,
   GetTrendingNFTSChatContent,
+  NFTPriceChatContent,
 } from './chatItem.ts';
 import { ConnectedSolanaWallet } from '@privy-io/react-auth';
 
@@ -287,6 +288,24 @@ export interface GetTrendingNFTSTool extends BaseTool {
   };
 }
 
+export interface NFTPriceTool extends BaseTool {
+  implementation: (
+    args: {
+      nft_name: string;
+      currentWallet: ConnectedSolanaWallet | null;
+    },
+    response_id: string,
+  ) => Promise<{
+    status: 'success' | 'error';
+    response: string;
+    props?: NFTPriceChatContent;
+  }>;
+  representation?: {
+    props_type: 'nft_price';
+    component: FC<{ props: NFTPriceChatContent }>;
+  };
+}
+
 export type Tool =
   | TokenDataTool
   | DepositLuloTool
@@ -302,4 +321,5 @@ export type Tool =
   | MarketDataTool
   | TransferSolTool
   | TransferSPLTool
-  | GetTrendingNFTSTool;
+  | GetTrendingNFTSTool
+  | NFTPriceTool;

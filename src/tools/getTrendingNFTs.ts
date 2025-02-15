@@ -3,6 +3,7 @@ import { useChatMessageHandler } from '../models/ChatMessageHandler';
 import { TrendingNFTCard } from '../types/messageCard';
 import { Tool } from '../types/tool';
 import { GetTrendingNFTSChatContent } from '../types/chatItem';
+import { ConnectedSolanaWallet } from '@privy-io/react-auth';
 
 const functionDescription =
   'Call this function when the user wants to get the trending solana nfts.';
@@ -25,7 +26,9 @@ export const getTrendingNFTs:Tool = {
 };
 
 //TODO: Shift the trigger logic here from conversation.tsx
-export async function getTrendingNFTsFunction()
+export async function getTrendingNFTsFunction(args: {
+  currentWallet: ConnectedSolanaWallet | null;
+})
   : Promise<{
   status: 'success' | 'error';
   response: string;

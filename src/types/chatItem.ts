@@ -9,6 +9,7 @@ import {
   NFTCollectionCard,
   LuloCard,
   TrendingNFTCard,
+  NFTCard,
 } from './messageCard';
 
 export interface ChatItem<T extends BaseChatContent> {
@@ -108,6 +109,10 @@ export interface GetTrendingNFTSChatContent extends BaseChatContent {
   data: TrendingNFTCard[]
 }
 
+export interface NFTPriceChatContent extends BaseChatContent {
+  type: 'nft_price';
+  data: NFTCard
+}
 /**
  * This type is used on the UI side to ensure type safety when rendering a message item
  */
