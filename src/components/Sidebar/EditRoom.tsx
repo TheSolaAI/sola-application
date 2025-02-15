@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Trash2, Upload } from 'react-feather';
+import { Trash2, Upload } from 'lucide-react';
 import { Dropdown } from '../general/DropDown.tsx';
 import { useChatRoomHandler } from '../../models/ChatRoomHandler.ts';
 

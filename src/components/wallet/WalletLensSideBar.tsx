@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useWalletHandler } from '../../models/WalletHandler.ts';
 import SUPPORTED_WALLETS from '../../config/wallets/supportedWallets.ts';
 import { titleCase } from '../../utils/titleCase.ts';
-import { ChevronDown } from 'react-feather';
+import { ChevronDown } from 'lucide-react';
 import { WalletPicker } from './WalletPicker.tsx';
 import { FiCopy } from 'react-icons/fi';
 import { toast } from 'sonner';
@@ -46,7 +46,6 @@ export const WalletLensSideBar: React.FC<WalletLensSidebarProps> = ({
     if (SUPPORTED_WALLETS.includes(currentWallet?.walletClientType)) {
       setWalletLogo(`/wallets/${currentWallet?.walletClientType}.svg`);
     } else {
-      toast.error('Wallet not supported');
       setWalletLogo('/wallets/default.svg');
     }
   }, [currentWallet?.walletClientType]);

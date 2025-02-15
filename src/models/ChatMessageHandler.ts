@@ -21,6 +21,7 @@ import {
   TokenDataChatContent,
   TopHoldersChatContent,
   TransactionChatContent,
+  UserAudioChatContent,
 } from '../types/chatItem.ts';
 import { Tool } from '../types/tool.ts';
 import { generateUniqueId } from '../utils/randomID.ts';
@@ -32,7 +33,7 @@ interface ChatMessageHandler {
 
   /**
    * The current message that is being generated. This currently only supports Simple Messages
-   * // TODO: Add support for other loader messsage types.
+   * // TODO: Add support for other loader message types.
    */
   currentChatItem: ChatItem<SimpleMessageChatContent> | null;
 
@@ -245,6 +246,8 @@ const parseChatItemContent = (item: ChatMessageResponseWrapper) => {
   const parsedContent = JSON.parse(item.message);
   if (isSimpleMessageChatContent(parsedContent)) {
     return createChatItem<SimpleMessageChatContent>(item, parsedContent);
+  } else if (isUserAudioChatContent(parsedContent)) {
+    return createChatItem<UserAudioChatContent>(item, parsedContent);
   } else if (isTokenDataChatContent(parsedContent)) {
     return createChatItem<TokenDataChatContent>(item, parsedContent);
   } else if (isBubblemapChatContent(parsedContent)) {
@@ -288,6 +291,9 @@ function isSimpleMessageChatContent(
   content: any,
 ): content is SimpleMessageChatContent {
   return content.type === 'simple_message';
+}
+function isUserAudioChatContent(content: any): content is UserAudioChatContent {
+  return content.type === 'user_audio_chat';
 }
 function isTokenDataChatContent(content: any): content is TokenDataChatContent {
   return content.type === 'token_data';

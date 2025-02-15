@@ -24,6 +24,7 @@ export interface BaseChatContent {
 
 export type ChatContentType =
   | SimpleMessageChatContent
+  | UserAudioChatContent
   | TransactionChatContent
   | TokenDataChatContent
   | NFTCollectionChatContent
@@ -38,6 +39,11 @@ export type ChatContentType =
 
 export interface SimpleMessageChatContent extends BaseChatContent {
   type: 'simple_message';
+  text: string;
+}
+
+export interface UserAudioChatContent extends BaseChatContent {
+  type: 'user_audio_chat';
   text: string;
 }
 

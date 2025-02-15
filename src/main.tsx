@@ -68,7 +68,6 @@ const RootApp = () => {
             appearance: {
               theme: theme.name === 'dark' ? 'dark' : 'light',
               accentColor: theme.primary || '#1D1D1F',
-              logo: '/path-to-your-logo.svg',
               showWalletLoginFirst: true,
             },
           }}
@@ -76,6 +75,7 @@ const RootApp = () => {
           {' '}
           <Toaster
             position={isMobile ? 'top-center' : 'bottom-right'}
+            duration={1500}
             richColors
           />
           <App />

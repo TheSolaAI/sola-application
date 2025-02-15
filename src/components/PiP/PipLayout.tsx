@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 import { usePipStore } from '../../models/PipState.ts';
 import PiPWindow from './PipWindow';
-import { Maximize, Minimize } from 'react-feather';
+import { Maximize, Minimize } from 'lucide-react';
 import { toast } from 'sonner';
 import { SessionControls, SessionStopped } from '../SessionControls';
 

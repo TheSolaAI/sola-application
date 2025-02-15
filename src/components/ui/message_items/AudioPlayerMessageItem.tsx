@@ -8,27 +8,24 @@
 
 import ReactAudioPlayer from 'react-audio-player';
 import { AudioLines } from 'lucide-react';
-import useThemeManager from '../../models/ThemeManager.ts';
+import useThemeManager from '../../../models/ThemeManager.ts';
+import { UserAudioChatContent } from '../../../types/chatItem.ts';
 
-interface AudioPlayerProps {
-  index: number;
-  base64URL: string;
+interface AudioPlayerChatItemProps {
+  props: UserAudioChatContent;
 }
 
-export const AudioPlayer = ({ index, base64URL }: AudioPlayerProps) => {
+export const AudioPlayerMessageItem = ({ props }: AudioPlayerChatItemProps) => {
   const { theme } = useThemeManager();
 
   return (
-    <div
-      key={index}
-      className="flex flex-row-reverse items-start my-1 py-1 gap-2 md:gap-4 self-end justify-end max-w-[90%] md:max-w-[80%] overflow-hidden"
-    >
+    <div className="flex flex-row-reverse items-start my-1 py-1 gap-2 md:gap-4 max-w-[100%] md:max-w-[90%] overflow-hidden">
       <div>
-        <AudioLines color={theme.secText} />
+        <AudioLines color={theme.secText} strokeWidth={1.2} />
       </div>
       <div className="flex text-secText justify-end rounded-lg">
         <ReactAudioPlayer
-          src={base64URL}
+          src={props.text}
           controls
           autoPlay={false}
           className="max-w-[90%] drop-shadow-md invert contrast-75"

@@ -1,4 +1,4 @@
-import { ChevronLeft, Edit, Edit2, Menu, User } from 'react-feather';
+import { ChevronLeft, Edit, Edit2, Menu, User } from 'lucide-react';
 import React, { FC, useEffect, useRef, useState } from 'react';
 import useThemeManager from '../../models/ThemeManager.ts';
 import { useLocation, useNavigate } from 'react-router-dom';

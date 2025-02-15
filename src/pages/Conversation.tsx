@@ -21,6 +21,7 @@ import { ShowLimitOrdersChatItem } from '../components/ui/message_items/ShowLimi
 import { TransactionDataMessageItem } from '../components/ui/message_items/TransactionCard.tsx';
 import { LuloChatItem } from '../components/ui/message_items/LuloMessageItem.tsx';
 import { TopHoldersMessageItem } from '../components/ui/message_items/TopHoldersMessageItem.tsx';
+import { AudioPlayerMessageItem } from '../components/ui/message_items/AudioPlayerMessageItem.tsx';
 
 const Conversation = () => {
   const navigate = useNavigate();
@@ -34,8 +35,7 @@ const Conversation = () => {
   /**
    * Global state
    */
-  const { setCurrentChatRoom, rooms, allRoomsLoaded } =
-    useChatRoomHandler();
+  const { setCurrentChatRoom, rooms, allRoomsLoaded } = useChatRoomHandler();
   const { messages, currentChatItem } = useChatMessageHandler();
 
   /**
@@ -77,6 +77,9 @@ const Conversation = () => {
 
     if (type === 'simple_message') {
       return <SimpleMessageChatItem key={index} props={chatItem.content} />;
+    }
+    if (type === 'user_audio_chat') {
+      return <AudioPlayerMessageItem key={index} props={chatItem.content} />;
     }
     if (type === 'token_data') {
       return <TokenDataMessageItem key={index} props={chatItem.content} />;
