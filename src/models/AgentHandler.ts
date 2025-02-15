@@ -58,8 +58,8 @@ export const useAgentHandler = create<AgentHandler>((_setState, getState) => ({
       logo: Atom,
       tools: [
         walletActions,
-        // getNFTPrice,
-        // getTrendingNFTs,
+        getNFTPrice,
+        getTrendingNFTs,
         // getNFTLaunchpad,
         // getMarketData,
         getBlinks,

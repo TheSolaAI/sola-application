@@ -22,6 +22,8 @@ import { TransactionDataMessageItem } from '../components/ui/message_items/Trans
 import { LuloChatItem } from '../components/ui/message_items/LuloMessageItem.tsx';
 import { TopHoldersMessageItem } from '../components/ui/message_items/TopHoldersMessageItem.tsx';
 import { AudioPlayerMessageItem } from '../components/ui/message_items/AudioPlayerMessageItem.tsx';
+import { NFTCollectionMessageItem } from '../components/ui/message_items/NFTCollectionCardItem.tsx';
+import { TrendingNFTMessageItem } from '../components/ui/message_items/TrendingNFTMessageItem.tsx';
 
 const Conversation = () => {
   const navigate = useNavigate();
@@ -121,6 +123,16 @@ const Conversation = () => {
     if (type === 'transfer_spl') {
       return (
         <TransactionDataMessageItem key={index} props={chatItem.content} />
+      );
+    }
+    if (type === 'nft_collection_data') { 
+      return (
+        <NFTCollectionMessageItem key={index} props={chatItem.content} />
+      );
+    }
+    if (type === 'get_trending_nfts') {
+      return (
+        <TrendingNFTMessageItem key={index} props={chatItem.content} />
       );
     }
 

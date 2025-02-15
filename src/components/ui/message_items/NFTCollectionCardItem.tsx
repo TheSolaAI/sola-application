@@ -28,21 +28,23 @@ interface NFTCollectionChatItemProps {
   props: NFTCollectionChatContent;
 }
 
-export const NFTCollectionChatItem: FC<NFTCollectionChatItemProps> = ({
+export const NFTCollectionMessageItem: FC<NFTCollectionChatItemProps> = ({
   props,
 }) => {
   return (
     <BaseMonoGridChatItem>
       <img
         src={props.data.image}
-        alt={props.data.title}
-        className="h-20 w-20 rounded-lg"
+        alt={props.data.symbol}
+        className="h-20 w-50 rounded-lg"
       />
-      <h3 className=" hidden md:block md:text-large font-semibold">
-        {props.data.title || 'Unknown'}
-      </h3>
-      <p className={`mt-1 text-small`}>◎ {props.data.price}</p>
-      <p className="text-small">Listed: {props.data.listed || 'Unknown'}</p>
+      <h1 className=" hidden md:block md:text-large font-semibold">
+        {props.data.symbol || 'Unknown'}
+      </h1>
+      <p className={`mt-1 text-small`}>◎ {props.data.floor_price}</p>
+      <p className="text-small">Listed: {props.data.listed_count || 'Unknown'}</p>
+      <p className="text-small">Sales (24hr): {props.data.avg_price_24hr || 'Unknown'}</p>
+      <p className="text-small">Volume (All): {props.data.volume_all/10**9 || 'Unknown'}</p>
     </BaseMonoGridChatItem>
   );
 };

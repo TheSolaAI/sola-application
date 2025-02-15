@@ -12,7 +12,7 @@ import {
   MarketDataChatContent,
   TransactionChatContent,
   GetTrendingNFTSChatContent,
-  NFTPriceChatContent,
+  NFTCollectionChatContent,
 } from './chatItem.ts';
 import { ConnectedSolanaWallet } from '@privy-io/react-auth';
 
@@ -298,11 +298,11 @@ export interface NFTPriceTool extends BaseTool {
   ) => Promise<{
     status: 'success' | 'error';
     response: string;
-    props?: NFTPriceChatContent;
+    props?: NFTCollectionChatContent;
   }>;
   representation?: {
-    props_type: 'nft_price';
-    component: FC<{ props: NFTPriceChatContent }>;
+    props_type: 'nft_collection_data';
+    component: FC<{ props: NFTCollectionChatContent }>;
   };
 }
 

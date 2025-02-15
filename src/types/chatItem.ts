@@ -37,7 +37,8 @@ export type ChatContentType =
   | BubbleMapChatContent
   | ShowLSTDataChatContent
   | RugCheckChatContent
-  | TopHoldersChatContent;
+  | TopHoldersChatContent
+  | GetTrendingNFTSChatContent;
 
 export interface SimpleMessageChatContent extends BaseChatContent {
   type: 'simple_message';

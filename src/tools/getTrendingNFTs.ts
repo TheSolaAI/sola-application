@@ -4,6 +4,7 @@ import { TrendingNFTCard } from '../types/messageCard';
 import { Tool } from '../types/tool';
 import { GetTrendingNFTSChatContent } from '../types/chatItem';
 import { ConnectedSolanaWallet } from '@privy-io/react-auth';
+import { TrendingNFTMessageItem } from '../components/ui/message_items/TrendingNFTMessageItem';
 
 const functionDescription =
   'Call this function when the user wants to get the trending solana nfts.';
@@ -12,7 +13,7 @@ export const getTrendingNFTs:Tool = {
   implementation: getTrendingNFTsFunction,
   representation: {
     props_type: 'get_trending_nfts',
-    component: TrendingNFTCardMessageItem,
+    component: TrendingNFTMessageItem,
   },
   abstraction:{
     type: 'function',

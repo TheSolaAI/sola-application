@@ -1,9 +1,10 @@
 import { ConnectedSolanaWallet } from "@privy-io/react-auth";
-import { NFTPriceChatContent } from "../types/chatItem";
+import { NFTCollectionChatContent} from "../types/chatItem";
 import { Tool } from "../types/tool";
 import { useChatMessageHandler } from "../models/ChatMessageHandler";
-import { NFTCard } from "../types/messageCard";
+import { NFTCollectionCard } from '../types/messageCard';
 import { ApiClient, apiClient } from "../api/ApiClient";
+import { NFTCollectionMessageItem } from "../components/ui/message_items/NFTCollectionCardItem";
 
 
 const functionDescription =
@@ -12,8 +13,8 @@ const functionDescription =
 export const getNFTPrice: Tool = {
   implementation: getNFTPriceFunction,
   representation: {
-    props_type: 'nft_price',
-    component: NFTPriceMessageItem,
+    props_type: 'nft_collection_data',
+    component: NFTCollectionMessageItem,
   },
   abstraction: {
     type: 'function',
@@ -40,7 +41,7 @@ export async function getNFTPriceFunction(
 ): Promise<{
   status: 'success' | 'error';
   response: string;
-  props?: NFTPriceChatContent;
+  props?: NFTCollectionChatContent;
 }> {
 useChatMessageHandler.getState().setCurrentChatItem({
   content: {
@@ -54,12 +55,12 @@ useChatMessageHandler.getState().setCurrentChatItem({
 });
   
   const symbol = args.nft_name
-  let response = await apiClient.get<NFTCard>(
+  let response = await apiClient.get<NFTCollectionCard>(
     '/data/nft/symbol?nft_symbol=' + symbol,
     undefined,
     'data',
   );
-  if (ApiClient.isApiResponse<NFTCard>(response)) {
+  if (ApiClient.isApiResponse<NFTCollectionCard>(response)) {
     return {
       status: 'success',
       response: 'success',
@@ -67,7 +68,7 @@ useChatMessageHandler.getState().setCurrentChatItem({
         data: response.data,
         response_id: 'temp',
         sender: 'system',
-        type: 'nft_price',
+        type: 'nft_collection_data',
       }
     };
   } else {

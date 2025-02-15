@@ -11,8 +11,10 @@ import {
   BubbleMapChatContent,
   ChatContentType,
   ChatItem,
+  GetTrendingNFTSChatContent,
   LuloChatContent,
   MarketDataChatContent,
+  NFTCollectionChatContent,
   RugCheckChatContent,
   ShowLimitOrdersChatContent,
   ShowLSTDataChatContent,
@@ -25,6 +27,7 @@ import {
 } from '../types/chatItem.ts';
 import { Tool } from '../types/tool.ts';
 import { generateUniqueId } from '../utils/randomID.ts';
+
 
 interface ChatMessageHandler {
   state: 'idle' | 'loading' | 'error'; // the state of the chat message handler
@@ -270,6 +273,10 @@ const parseChatItemContent = (item: ChatMessageResponseWrapper) => {
     return createChatItem<TransactionChatContent>(item, parsedContent);
   } else if (isTransferSplChatContent(parsedContent)) {
     return createChatItem<TransactionChatContent>(item, parsedContent);
+  }else if (isNFTCollectionChatContent(parsedContent)){ 
+    return createChatItem<NFTCollectionChatContent>(item, parsedContent);
+  }else if (isTrendingNFTSChatContent(parsedContent)) {
+    return createChatItem<GetTrendingNFTSChatContent>(item, parsedContent);
   }
 };
 
@@ -337,6 +344,18 @@ function isTransferSplChatContent(
   content: any,
 ): content is TransactionChatContent {
   return content.type === 'transfer_spl';
+}
+
+function isNFTCollectionChatContent(
+  content: any,
+): content is NFTCollectionChatContent {
+  return content.type === 'nft_collection_data';
+}
+
+function isTrendingNFTSChatContent(
+  content: any,
+): content is GetTrendingNFTSChatContent{
+  return content.type === 'get_trending_nfts';
 }
 
 export function createChatItemFromTool(
@@ -450,8 +469,25 @@ export function createChatItemFromTool(
       };
       return message;
     }
+    case 'nft_collection_data': {
+      message = {
+        id: generateUniqueId(),
+        content: data as NFTCollectionChatContent,
+        createdAt: new Date().toISOString(),
+      };
+      return message;
+    }
+    case 'get_trending_nfts': {
+      message = {
+        id: generateUniqueId(),
+        content: data as GetTrendingNFTSChatContent,
+        createdAt: new Date().toISOString(),
+      };
+      return message;
+    }
     default: {
       throw new Error('Unsupported props_type');
     }
+    
   }
 }

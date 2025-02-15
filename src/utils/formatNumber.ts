@@ -6,6 +6,6 @@ export function formatNumber(num: number) {
   } else if (num >= 1_000) {
     return (num / 1_000).toFixed(2).replace(/\.0$/, '') + 'K';
   } else {
-    return num.toString();
+    return num.toFixed(2).toString();
   }
 }

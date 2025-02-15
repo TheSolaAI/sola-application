@@ -95,10 +95,11 @@ export type TrendingNFTCard = {
 
 export type NFTCollectionCard = {
   symbol: string;
-  title: string;
   image: string;
-  price: string;
-  listed: string;
+  floor_price: number;
+  avg_price_24hr: number;
+  listed_count: number;
+  volume_all: number;
 };
 
 export interface TokenCard {
