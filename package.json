@@ -33,7 +33,7 @@
     "clsx": "^2.1.1",
     "dotenv": "^16.4.7",
     "lucide-react": "^0.474.0",
-    "motion": "^12.0.6",
+    "motion": "^12.4.3",
     "react": "^18.2.0",
     "react-audio-player": "^0.17.0",
     "react-awesome-button": "^7.0.5",
