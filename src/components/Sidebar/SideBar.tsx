@@ -199,7 +199,7 @@ export const Sidebar: FC<SidebarProps> = ({
                     className={`group font-small flex w-full justify-between items-center gap-3 rounded-xl p-2 transition-color duration-300 ease-in-out hover:bg-primary
               ${pathname === `/c/${room.id}` || pathname.startsWith(`/c/${room.id}/`) ? 'bg-primaryDark' : ''}`}
                   >
-                    <div className="flex items-center gap-6">
+                    <div className="flex items-center gap-4 md:gap-6">
                       {React.createElement(
                         agents[room.agentId ? room.agentId - 1 : 0].logo,
                         {

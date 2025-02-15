@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Mic, MicOff, Send } from 'lucide-react';
-import { Button } from '@headlessui/react';
 import { useSessionHandler } from '../models/SessionHandler.ts';
 import { useLayoutContext } from '../layout/LayoutProvider.tsx';
 
@@ -78,7 +77,7 @@ export const SessionControls = () => {
             }}
           />
 
-          <Button
+          <button
             onClick={() => {
               sendMessageToAI();
             }}
@@ -89,10 +88,10 @@ export const SessionControls = () => {
             "
           >
             <Send height={16} />
-          </Button>
+          </button>
         </div>
 
-        <Button
+        <button
           onClick={() => {
             setMuted(!muted);
             if (muted) {
@@ -107,7 +106,7 @@ export const SessionControls = () => {
           "
         >
           {muted ? <MicOff height={16} /> : <Mic height={16} />}
-        </Button>
+        </button>
       </div>
     </div>
   );
