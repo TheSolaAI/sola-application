@@ -36,15 +36,18 @@ export const NFTCollectionMessageItem: FC<NFTCollectionChatItemProps> = ({
       <img
         src={props.data.image}
         alt={props.data.symbol}
-        className="h-20 w-50 rounded-lg"
+        className="h-16 w-16 rounded-lg"
       />
-      <h1 className=" hidden md:block md:text-large font-semibold">
-        {props.data.symbol || 'Unknown'}
-      </h1>
-      <p className={`mt-1 text-small`}>◎ {props.data.floor_price}</p>
-      <p className="text-small">Listed: {props.data.listed_count || 'Unknown'}</p>
-      <p className="text-small">Sales (24hr): {props.data.avg_price_24hr || 'Unknown'}</p>
-      <p className="text-small">Volume (All): {props.data.volume_all/10**9 || 'Unknown'}</p>
+      <p className={`mt-1 text-small`}>Floor: ◎ {props.data.floor_price}</p>
+      <p className="text-sm">
+        Listed: {props.data.listed_count || 'Unknown'}
+      </p>
+      <p className="text-sm font-thin">
+        Sales (24hr): {props.data.avg_price_24hr || 'Unknown'}
+      </p>
+      <p className="text-sm font-thin">
+        Total Vol: {(props.data.volume_all / 10 ** 9).toFixed(2) || 'Unknown'}
+      </p>
     </BaseMonoGridChatItem>
   );
 };

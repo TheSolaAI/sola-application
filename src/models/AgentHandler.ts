@@ -9,7 +9,7 @@ import {
   getLstData,
   getLuloAssets,
   // getMarketData,
-  getNFTLaunchpad,
+  // getNFTLaunchpad,
   getNFTPrice,
   getRugCheck,
   getTokenData,

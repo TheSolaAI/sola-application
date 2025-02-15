@@ -9,32 +9,31 @@ import { TrendingNFTMessageItem } from '../components/ui/message_items/TrendingN
 const functionDescription =
   'Call this function when the user wants to get the trending solana nfts.';
 
-export const getTrendingNFTs:Tool = {
+export const getTrendingNFTs: Tool = {
   implementation: getTrendingNFTsFunction,
   representation: {
     props_type: 'get_trending_nfts',
     component: TrendingNFTMessageItem,
   },
-  abstraction:{
+  abstraction: {
     type: 'function',
     name: 'getTrendingNFTs',
     description: functionDescription,
     parameters: {
       type: 'object',
-      properties: { },
+      properties: {},
     },
-  }
+  },
 };
 
 //TODO: Shift the trigger logic here from conversation.tsx
 export async function getTrendingNFTsFunction(args: {
   currentWallet: ConnectedSolanaWallet | null;
-})
-  : Promise<{
+}): Promise<{
   status: 'success' | 'error';
   response: string;
-  props?: GetTrendingNFTSChatContent
-  }>{
+  props?: GetTrendingNFTSChatContent;
+}> {
   useChatMessageHandler.getState().setCurrentChatItem({
     content: {
       type: 'simple_message',
@@ -59,7 +58,7 @@ export async function getTrendingNFTsFunction(args: {
         response_id: 'temp',
         sender: 'system',
         type: 'get_trending_nfts',
-      }
+      },
     };
   } else {
     return {
