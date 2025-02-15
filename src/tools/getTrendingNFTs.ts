@@ -1,22 +1,36 @@
 import { ApiClient, apiClient } from '../api/ApiClient';
 import { useChatMessageHandler } from '../models/ChatMessageHandler';
 import { TrendingNFTCard } from '../types/messageCard';
+import { Tool } from '../types/tool';
+import { GetTrendingNFTSChatContent } from '../types/chatItem';
 
 const functionDescription =
   'Call this function when the user wants to get the trending solana nfts.';
 
-export const getTrendingNFTs = {
-  type: 'function',
-  name: 'getTrendingNFTs',
-  description: functionDescription,
-  parameters: {
-    type: 'object',
-    properties: {},
+export const getTrendingNFTs:Tool = {
+  implementation: getTrendingNFTsFunction,
+  representation: {
+    props_type: 'get_trending_nfts',
+    component: TrendingNFTCardMessageItem,
   },
+  abstraction:{
+    type: 'function',
+    name: 'getTrendingNFTs',
+    description: functionDescription,
+    parameters: {
+      type: 'object',
+      properties: { },
+    },
+  }
 };
 
 //TODO: Shift the trigger logic here from conversation.tsx
-export async function getTrendingNFTsFunction() {
+export async function getTrendingNFTsFunction()
+  : Promise<{
+  status: 'success' | 'error';
+  response: string;
+  props?: GetTrendingNFTSChatContent
+  }>{
   useChatMessageHandler.getState().setCurrentChatItem({
     content: {
       type: 'simple_message',
@@ -33,8 +47,20 @@ export async function getTrendingNFTsFunction() {
     'data',
   );
   if (ApiClient.isApiResponse<TrendingNFTCard[]>(response)) {
-    return `trending NFTs: ${response.data.map((nft) => nft.name).join(', ')}`;
+    return {
+      status: 'success',
+      response: 'success',
+      props: {
+        data: response.data,
+        response_id: 'temp',
+        sender: 'system',
+        type: 'get_trending_nfts',
+      }
+    };
   } else {
-    return `An error occurred while fetching trending NFTs. Please try again later.`;
+    return {
+      status: 'error',
+      response: 'error',
+    };
   }
 }

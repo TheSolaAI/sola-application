@@ -8,6 +8,7 @@ import {
   TransactionCard,
   NFTCollectionCard,
   LuloCard,
+  TrendingNFTCard,
 } from './messageCard';
 
 export interface ChatItem<T extends BaseChatContent> {
@@ -101,6 +102,10 @@ export interface BubbleMapChatContent extends BaseChatContent {
 export interface MarketDataChatContent extends BaseChatContent {
   type: 'market_data';
   data: MarketDataCard;
+}
+export interface GetTrendingNFTSChatContent extends BaseChatContent {
+  type: 'get_trending_nfts';
+  data: TrendingNFTCard[]
 }
 
 /**
