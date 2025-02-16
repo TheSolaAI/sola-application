@@ -20,6 +20,7 @@ export default defineConfig(({ mode }) => {
       'process.env.ENVIORNMENT': JSON.stringify(env.ENVIORNMENT),
       'process.env.AUTH_SERVICE_URL': JSON.stringify(env.AUTH_SERVICE_URL),
       'process.env.OPENAI_API_URL': JSON.stringify(env.OPENAI_API_URL),
+      'process.env.ZYPH_INDEXER_URL':JSON.stringify(env.ZYPH_INDEXER_URL),
       __APP_VERSION__: JSON.stringify(require('./package.json').version),
     },
     build: {
