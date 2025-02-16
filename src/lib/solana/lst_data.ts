@@ -1,7 +1,7 @@
 import { LSTData } from '../../types/data_types';
 import { apiClient, ApiClient } from '../../api/ApiClient';
 
-const data_service_url = process.env.DATA_SERVICE_URL;
+const data_service_url = import.meta.env.VITE_DATA_SERVICE_URL;
 
 export async function getLstDataHandler(): Promise<LSTData[] | null> {
   let resp = await apiClient.get<LSTData[]>(

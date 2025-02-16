@@ -9,7 +9,7 @@ import { limitOrderTx } from '../lib/solana/limitOrderTx.ts';
 import { TransactionChatContent } from '../types/chatItem.ts';
 import { TransactionDataMessageItem } from '../components/ui/message_items/TransactionCard.tsx';
 
-const rpc = process.env.SOLANA_RPC;
+const rpc = import.meta.env.VITE_SOLANA_RPC;
 
 const functionDescription =
   'Creates a limit order to buy or sell a token at a specified price.';

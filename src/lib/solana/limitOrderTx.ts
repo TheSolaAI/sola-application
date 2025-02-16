@@ -6,7 +6,7 @@ import {
 } from '../../types/jupiter';
 import { apiClient, ApiClient } from '../../api/ApiClient';
 
-const wallet_service_url = process.env.WALLET_SERVICE_URL;
+const wallet_service_url = import.meta.env.VITE_WALLET_SERVICE_URL;
 
 export async function limitOrderTx(
   params: LimitOrderParams,

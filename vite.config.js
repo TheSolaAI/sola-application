@@ -1,4 +1,4 @@
-import { defineConfig, loadEnv } from 'vite';
+import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import { sentryVitePlugin } from '@sentry/vite-plugin';
@@ -7,19 +7,8 @@ import { VitePWA } from 'vite-plugin-pwa';
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd(), '');
   return {
     define: {
-      'process.env.PRVI_APP_ID': JSON.stringify(env.PRVI_APP_ID),
-      'process.env.HELIUS_API_KEY': JSON.stringify(env.HELIUS_API_KEY),
-      'process.env.SOLANA_RPC': JSON.stringify(env.SOLANA_RPC),
-      'process.env.WALLET_SERVICE_URL': JSON.stringify(env.WALLET_SERVICE_URL),
-      'process.env.DATA_SERVICE_URL': JSON.stringify(env.DATA_SERVICE_URL),
-      'process.env.ATA_PRIV_KEY': JSON.stringify(env.ATA_PRIV_KEY),
-      'process.env.PROXY_SERVER2_URL': JSON.stringify(env.PROXY_SERVER2_URL),
-      'process.env.ENVIORNMENT': JSON.stringify(env.ENVIORNMENT),
-      'process.env.AUTH_SERVICE_URL': JSON.stringify(env.AUTH_SERVICE_URL),
-      'process.env.OPENAI_API_URL': JSON.stringify(env.OPENAI_API_URL),
       __APP_VERSION__: JSON.stringify(require('./package.json').version),
     },
     build: {
@@ -80,7 +69,7 @@ export default defineConfig(({ mode }) => {
       //   open: true, // Open visual report in the browser
       // }),
       sentryVitePlugin({
-        authToken: process.env.SENTRY_AUTH_TOKEN,
+        authToken: process.env.VITE_SENTRY_AUTH_TOKEN,
         org: 'solaai',
         project: 'sola-application-frontend',
       }),

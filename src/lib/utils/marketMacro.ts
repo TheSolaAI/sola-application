@@ -1,6 +1,6 @@
 import ApiClient from '../../api/ApiClient';
 
-const url = process.env.DATA_SERVICE_URL;
+const url = import.meta.env.VITE_DATA_SERVICE_URL;
 
 export const getMarketData = async () => {
   if (!url) {
