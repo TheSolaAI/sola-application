@@ -13,7 +13,7 @@ import { useWalletHandler } from '../models/WalletHandler.ts';
 
 export const useLuloActions = () => {
   const { currentWallet } = useWalletHandler();
-  const rpc = process.env.SOLANA_RPC;
+  const rpc = import.meta.env.VITE_SOLANA_RPC;
   const { handleAddMessage } = useChatHandler();
   const { setMessageList } = useRoomStore();
 

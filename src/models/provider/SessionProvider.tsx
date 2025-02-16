@@ -80,10 +80,10 @@ export const SessionProvider: FC<SessionProviderProps> = ({ children }) => {
       const dataChannel = peerConnection.createDataChannel('oai-events');
       const offer = await peerConnection.createOffer();
       await peerConnection.setLocalDescription(offer);
-      if (!process.env.OPENAI_API_URL) {
+      if (!import.meta.env.VITE_OPENAI_API_URL) {
         throw new Error('OPENAI_API_URL is not set');
       }
-      const sdpResponse = await fetch(process.env.OPENAI_API_URL, {
+      const sdpResponse = await fetch(import.meta.env.VITE_OPENAI_API_URL, {
         method: 'POST',
         body: offer.sdp,
         headers: {

@@ -21,10 +21,8 @@ import {
 } from '@solana/web3.js';
 import bs58 from 'bs58';
 
-const rpc = process.env.SOLANA_RPC;
-const sola_ata_keypair = process.env.ATA_PRIV_KEY;
-
-
+const rpc = import.meta.env.VITE_SOLANA_RPC;
+const sola_ata_keypair = import.meta.env.VITE_ATA_PRIV_KEY;
 
 export async function transferSplTx(
   senderAddress: string,

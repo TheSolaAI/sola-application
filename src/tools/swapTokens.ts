@@ -61,7 +61,7 @@ export async function swapTokensFunction(args: {
   response: string;
   props?: SwapChatContent;
 }> {
-  let rpc = process.env.SOLANA_RPC;
+  let rpc = import.meta.env.VITE_SOLANA_RPC;
   if (!rpc) {
     return {
       status: 'error',

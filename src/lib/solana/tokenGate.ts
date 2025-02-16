@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { TokenGate } from '../../types/token_data';
 
-const url = process.env.WALLET_SERVICE_URL;
+const url = ;
 
 export const tokenGate = async (address: string) => {
   try {

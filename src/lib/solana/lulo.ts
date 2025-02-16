@@ -10,7 +10,7 @@ import {
 } from '../../types/lulo';
 import { VersionedTransaction } from '@solana/web3.js';
 
-const wallet_service_url = process.env.WALLET_SERVICE_URL;
+const wallet_service_url = import.meta.env.VITE_WALLET_SERVICE_URL;
 
 export async function getAssetsLulo(
   params: AssetsParams,
@@ -58,7 +58,7 @@ export async function withdrawLuloTx(
     wallet_service_url + 'api/wallet/lulo/withdraw',
     params,
   );
-  
+
   if (ApiClient.isApiError(response)) {
     console.error('Error during withdraw:', response.errors);
     return null;

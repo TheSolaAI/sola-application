@@ -2,7 +2,7 @@ import { SwapParams, SwapResponse } from '../../types/jupiter';
 import ApiClient from '../../api/ApiClient';
 import { VersionedTransaction } from '@solana/web3.js';
 
-const wallet_service_url = process.env.WALLET_SERVICE_URL;
+const wallet_service_url = import.meta.env.VITE_WALLET_SERVICE_URL;
 
 export async function swapLST(
   params: SwapParams,
@@ -23,4 +23,4 @@ export async function swapLST(
     console.error('Error during swap:', error);
     return null;
   }
-} 
+}

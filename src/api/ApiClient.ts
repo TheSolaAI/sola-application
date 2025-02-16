@@ -12,9 +12,9 @@ export class ApiClient {
   private walletClient: AxiosInstance;
 
   constructor() {
-    const authServiceUrl = process.env.AUTH_SERVICE_URL;
-    const dataServiceUrl = process.env.DATA_SERVICE_URL;
-    const walletServiceUrl = process.env.WALLET_SERVICE_URL;
+    const authServiceUrl = import.meta.env.VITE_AUTH_SERVICE_URL;
+    const dataServiceUrl = import.meta.env.VITE_DATA_SERVICE_URL;
+    const walletServiceUrl = import.meta.env.VITE_WALLET_SERVICE_URL;
 
     if (!authServiceUrl) {
       throw new Error('AUTH_SERVICE_URL environment variable is not defined');

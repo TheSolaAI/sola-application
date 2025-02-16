@@ -17,7 +17,8 @@ function RenderBlinks({ actionName }: RenderBlinksProps) {
     return <div>Invalid action name</div>;
   }
 
-  const rpc = process.env.SOLANA_RPC || 'https://api.mainnet-beta.solana.com';
+  const rpc =
+    import.meta.env.VITE_SOLANA_RPC || 'https://api.mainnet-beta.solana.com';
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const { adapter } = useActionSolanaWalletAdapter(rpc);
   // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -29,9 +30,7 @@ function RenderBlinks({ actionName }: RenderBlinksProps) {
       {!isLoading && action ? (
         <Blink action={action} adapter={adapter} />
       ) : (
-        <div className="text-primaryDark text-sm">
-          Loading blinks
-        </div>
+        <div className="text-primaryDark text-sm">Loading blinks</div>
       )}
     </>
   );

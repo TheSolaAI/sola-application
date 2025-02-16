@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 import { Connection, LAMPORTS_PER_SOL, PublicKey } from '@solana/web3.js';
 import { NFTAsset, TokenAsset, WalletAssets } from '../types/wallet.ts';
 
-let connection = new Connection(process.env.SOLANA_RPC!, 'confirmed');
+let connection = new Connection(import.meta.env.VITE_SOLANA_RPC!, 'confirmed');
 
 interface WalletHandler {
   currentWallet: ConnectedSolanaWallet | null; // The current wallet that the user is using
@@ -33,7 +33,7 @@ export const useWalletHandler = create<WalletHandler>((set, get) => {
     if (get().status === 'paused') return;
 
     try {
-      const response = await fetch(process.env.SOLANA_RPC!, {
+      const response = await fetch(import.meta.env.VITE_SOLANA_RPC!, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

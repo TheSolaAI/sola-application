@@ -1,7 +1,7 @@
 import { Connection } from '@solana/web3.js';
 import { getDomainKeySync, NameRegistryState } from '@bonfida/spl-name-service';
 
-const RPC = process.env.SOLANA_RPC;
+const RPC = import.meta.env.VITE_SOLANA_RPC;
 
 function isValidDomainNamee(domainName: string): boolean {
   const regex = /^[a-zA-Z0-9_-]+\.sol$/;

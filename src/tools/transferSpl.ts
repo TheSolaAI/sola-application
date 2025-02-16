@@ -13,7 +13,7 @@ import {
 } from '@solana/web3.js';
 import bs58 from 'bs58';
 import { Tool } from '../types/tool';
-import { TransactionChatContent} from '../types/chatItem';
+import { TransactionChatContent } from '../types/chatItem';
 import { TransferChatItem } from '../components/ui/message_items/TransferMessageItem.tsx';
 
 const functionDescription =
@@ -59,7 +59,7 @@ export async function transferSplTx(args: {
 }): Promise<{
   status: 'success' | 'error';
   response: string;
-  props?: TransactionChatContent ;
+  props?: TransactionChatContent;
 }> {
   if (args.currentWallet === null) {
     return {
@@ -71,8 +71,8 @@ export async function transferSplTx(args: {
   let recipientAddress = args.recipientAddress;
   let token = args.token;
   let amount = args.amount;
-  let rpc = process.env.SOLANA_RPC;
-  let sola_ata_keypair = process.env.SOLANA_ATA_KEYPAIR;
+  let rpc = import.meta.env.VITE_SOLANA_RPC;
+  let sola_ata_keypair = import.meta.env.VITE_ATA_PRIV_KEY;
   if (!rpc) {
     return {
       status: 'error',
@@ -121,18 +121,18 @@ export async function transferSplTx(args: {
   args.currentWallet.signTransaction(tx);
   const signature = await connection.sendRawTransaction(tx.serialize());
 
-  let title = `Transfer ${amount} SOL to ${recipientAddress}`
-  let link = signature
+  let title = `Transfer ${amount} SOL to ${recipientAddress}`;
+  let link = signature;
 
-  const data: TransactionChatContent  = {
+  const data: TransactionChatContent = {
     response_id: 'temp',
     sender: 'assistant',
     type: 'transfer_spl',
     data: {
       title,
       link,
-      status:"success"
-    }
+      status: 'success',
+    },
   };
 
   return {
@@ -143,7 +143,7 @@ export async function transferSplTx(args: {
 }
 
 async function getNumberDecimals(mintAddress: string): Promise<number> {
-  let rpc = process.env.SOLANA_RPC;
+  let rpc = import.meta.env.VITE_SOLANA_RPC;
 
   if (!rpc) {
     return 0;

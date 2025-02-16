@@ -61,7 +61,7 @@ export async function handleDepositLulo(args: {
     id: 0,
     createdAt: new Date().toISOString(),
   });
-  const rpc = process.env.SOLANA_RPC;
+  const rpc = import.meta.env.VITE_SOLANA_RPC;
 
   if (!args.currentWallet) {
     return {
