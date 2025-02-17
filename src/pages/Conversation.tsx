@@ -24,6 +24,7 @@ import { TopHoldersMessageItem } from '../components/ui/message_items/TopHolders
 import { AudioPlayerMessageItem } from '../components/ui/message_items/AudioPlayerMessageItem.tsx';
 import { NFTCollectionMessageItem } from '../components/ui/message_items/NFTCollectionCardItem.tsx';
 import { TrendingNFTMessageItem } from '../components/ui/message_items/TrendingNFTMessageItem.tsx';
+import { AiProjects } from '../components/ui/message_items/AiProjects.tsx';
 
 const Conversation = () => {
   const navigate = useNavigate();
@@ -125,15 +126,14 @@ const Conversation = () => {
         <TransactionDataMessageItem key={index} props={chatItem.content} />
       );
     }
-    if (type === 'nft_collection_data') { 
-      return (
-        <NFTCollectionMessageItem key={index} props={chatItem.content} />
-      );
+    if (type === 'nft_collection_data') {
+      return <NFTCollectionMessageItem key={index} props={chatItem.content} />;
     }
     if (type === 'get_trending_nfts') {
-      return (
-        <TrendingNFTMessageItem key={index} props={chatItem.content} />
-      );
+      return <TrendingNFTMessageItem key={index} props={chatItem.content} />;
+    }
+    if (type === 'ai_projects') {
+      return <AiProjects key={index} props={chatItem.content} />;
     }
 
     return null; // Prevent rendering an empty fragment

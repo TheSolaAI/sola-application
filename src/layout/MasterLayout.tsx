@@ -36,7 +36,7 @@ const MasterLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
             </main>
           </Panel>
         )}
-        {isOpen && (
+        {isOpen && !isMobile && (
           <>
             <PanelResizeHandle />
             <Panel id="right" order={2}>

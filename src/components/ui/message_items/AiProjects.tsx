@@ -1,24 +1,51 @@
-
-
-import { AudioLines } from 'lucide-react';
-import useThemeManager from '../../../models/ThemeManager.ts';
-import { AiProjectsClassificationChatContent } from '../../../types/chatItem.ts';
+import { AiProjectsChatContent } from '../../../types/chatItem.ts';
+import BaseGridChatItem from './general/BaseGridChatItem.tsx';
+import { FaSquareXTwitter } from 'react-icons/fa6';
+import { useDashboardHandler } from '../../../models/DashboardHandler.ts';
 
 interface AiProjectsChatItemProps {
-  props: AiProjectsClassificationChatContent;
+  props: AiProjectsChatContent;
 }
 
 export const AiProjects = ({ props }: AiProjectsChatItemProps) => {
-  const { theme } = useThemeManager();
+  const { openDashboard } = useDashboardHandler();
 
   return (
-    <div className="flex flex-row-reverse items-start my-1 py-1 gap-2 md:gap-4 max-w-[100%] md:max-w-[90%] overflow-hidden">
-      <div>
-        <AudioLines color={theme.secText} strokeWidth={1.2} />
-      </div>
-      <div className="flex text-secText justify-end rounded-lg">
-
-      </div>
-    </div>
+    <BaseGridChatItem col={2}>
+      {props.category === 'tokensByMindShare' &&
+        props.tokensByMindShare?.slice(0, 6).map((token, index) => (
+          <div
+            key={index}
+            className="group relative overflow-hidden block rounded-xl text-secText bg-sec_background p-3 w-fit transition-all duration-300 ease-in-out hover:bg-surface cursor-pointer hover:shadow-lg"
+            onClick={() => {
+              openDashboard('goatIndex', token.contractAddress);
+            }}
+          >
+            <div className="flex items-center gap-4">
+              <img
+                src={token.image}
+                alt="sanctumimage"
+                className="h-16 rounded-lg"
+              />
+              <div>
+                <p className="text-base font-medium">{token.name}</p>
+                <p className="text-sm font-thin">${token.symbol}</p>
+                <p className="text-base font-thin">
+                  Mindshare: {token.mindShare}
+                </p>
+                <p className="text-sm font-thin">
+                  <FaSquareXTwitter
+                    className="h-4 w-4 hover:opacity-90"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      window.open(`${token.twitter}`, '_blank');
+                    }}
+                  />
+                </p>
+              </div>
+            </div>
+          </div>
+        ))}
+    </BaseGridChatItem>
   );
 };

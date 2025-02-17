@@ -3,18 +3,21 @@ import axiosRetry from 'axios-retry';
 import { toast } from 'sonner';
 import { ApiError, ApiErrorDetail, ApiResponse } from '../types/api.ts';
 import { useUserHandler } from '../models/UserHandler.ts';
+import { GOAT_INDEX_API_URL } from '../config/api_urls.ts';
 
-type ServiceType = 'auth' | 'data' | 'wallet';
+type ServiceType = 'auth' | 'data' | 'wallet' | 'goatIndex';
 
 export class ApiClient {
   private authClient: AxiosInstance;
   private dataClient: AxiosInstance;
   private walletClient: AxiosInstance;
+  private goatIndexClient: AxiosInstance;
 
   constructor() {
     const authServiceUrl = import.meta.env.VITE_AUTH_SERVICE_URL;
     const dataServiceUrl = import.meta.env.VITE_DATA_SERVICE_URL;
     const walletServiceUrl = import.meta.env.VITE_WALLET_SERVICE_URL;
+    const goatIndexServiceUrl = GOAT_INDEX_API_URL;
 
     if (!authServiceUrl) {
       throw new Error('AUTH_SERVICE_URL environment variable is not defined');
@@ -30,6 +33,7 @@ export class ApiClient {
     this.authClient = this.createClient(authServiceUrl);
     this.dataClient = this.createClient(dataServiceUrl);
     this.walletClient = this.createClient(walletServiceUrl);
+    this.goatIndexClient = this.createClient(goatIndexServiceUrl);
   }
 
   /**
@@ -90,6 +94,8 @@ export class ApiClient {
         return this.dataClient;
       case 'wallet':
         return this.walletClient;
+      case 'goatIndex':
+        return this.goatIndexClient;
       default:
         throw new Error(`Unsupported service type: ${service}`);
     }
