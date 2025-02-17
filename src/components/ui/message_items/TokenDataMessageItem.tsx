@@ -74,7 +74,7 @@ export const TokenDataMessageItem: FC<ChatItemProps<TokenDataChatContent>> = ({
             <button
               onClick={() =>
                 window.open(
-                  `https://dexscreener.com/solana/${props.data.address}`,
+                  `https://dexscreener.com/solana/${props.data.metadata?.address}`,
                   '_blank',
                 )
               }
