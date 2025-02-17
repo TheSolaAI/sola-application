@@ -4,6 +4,8 @@ import { Sidebar } from '../components/Sidebar/SideBar.tsx';
 import { WalletLensSideBar } from '../components/wallet/WalletLensSideBar.tsx';
 import { useLayoutContext } from './LayoutProvider.tsx';
 import useIsMobile from '../utils/isMobile.tsx';
+import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
+import { useDashboardHandler } from '../models/DashboardHandler.ts';
 
 const MasterLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
   const {
@@ -14,6 +16,7 @@ const MasterLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
     walletLensOpen,
     handleWalletLensOpen,
   } = useLayoutContext();
+  const { isOpen } = useDashboardHandler();
 
   const isMobile = useIsMobile();
 
@@ -25,13 +28,24 @@ const MasterLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
         canAutoClose={canAutoClose}
         setCanAutoClose={setCanAutoClose}
       />
-      {!isMobile || !walletLensOpen ? (
-        <main className="w-full sm:rounded-2xl bg-background overflow-hidden">
-          {children}
-        </main>
-      ) : (
-        <></>
-      )}
+      <PanelGroup autoSaveId="conditional" direction="horizontal">
+        {(!isMobile || !walletLensOpen) && (
+          <Panel id="leftormiddle" minSize={35} order={1}>
+            <main className="w-full sm:rounded-2xl bg-background overflow-hidden">
+              {children}
+            </main>
+          </Panel>
+        )}
+        {isOpen && (
+          <>
+            <PanelResizeHandle />
+            <Panel id="right" order={2}>
+              hola
+            </Panel>
+          </>
+        )}
+      </PanelGroup>
+
       <WalletLensSideBar
         setVisible={handleWalletLensOpen}
         visible={walletLensOpen}

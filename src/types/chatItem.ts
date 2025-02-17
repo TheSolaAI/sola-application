@@ -38,7 +38,8 @@ export type ChatContentType =
   | ShowLSTDataChatContent
   | RugCheckChatContent
   | TopHoldersChatContent
-  | GetTrendingNFTSChatContent;
+  | GetTrendingNFTSChatContent
+  | AiProjectsClassificationChatContent;
 
 export interface SimpleMessageChatContent extends BaseChatContent {
   type: 'simple_message';
@@ -107,12 +108,17 @@ export interface MarketDataChatContent extends BaseChatContent {
 }
 export interface GetTrendingNFTSChatContent extends BaseChatContent {
   type: 'get_trending_nfts';
-  data: TrendingNFTCard[]
+  data: TrendingNFTCard[];
 }
 
 export interface NFTPriceChatContent extends BaseChatContent {
   type: 'nft_price';
-  data: NFTCard
+  data: NFTCard;
+}
+
+export interface AiProjectsClassificationChatContent extends BaseChatContent {
+  type: 'ai_projects_classification';
+  category?: string;
 }
 /**
  * This type is used on the UI side to ensure type safety when rendering a message item
