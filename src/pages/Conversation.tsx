@@ -132,7 +132,7 @@ const Conversation = () => {
     if (type === 'get_trending_nfts') {
       return <TrendingNFTMessageItem key={index} props={chatItem.content} />;
     }
-    if (type === 'ai_projects') {
+    if (type === 'ai_projects_classification') {
       return <AiProjects key={index} props={chatItem.content} />;
     }
 

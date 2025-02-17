@@ -52,17 +52,19 @@ export async function handleGetAiProjectsByClassification(): Promise<{
         response: 'Error getting AI projects.',
       };
     }
-    console.log(response);
 
     return {
       status: 'success',
-      response: 'Here are the top AI projects',
+      response: `Successfully fetched top agent details. ${response.data.data.topTokensOrderByMindShareDeltaIn6h
+        .slice(0, 6)
+        .map((project) => project.name)
+        .join(', ')}`,
       props: {
         response_id: 'topAiProjects',
         sender: 'system',
-        type: 'ai_projects',
+        type: 'ai_projects_classification',
         category: 'tokensByMindShare',
-        tokensByMindShare: response.data.topTokensOrderByMindShareIn6h,
+        tokensByMindShare: response.data.data.topTokensOrderByMindShareIn6h,
       },
     };
   } catch (e) {

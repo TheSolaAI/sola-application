@@ -361,7 +361,7 @@ function isTrendingNFTSChatContent(
 function isAiProjectClassificationChatContent(
   content: any,
 ): content is AiProjectsChatContent {
-  return content.type === 'ai_project_classification';
+  return content.type === 'ai_projects_classification';
 }
 
 export function createChatItemFromTool(

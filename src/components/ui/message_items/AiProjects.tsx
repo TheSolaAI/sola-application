@@ -16,7 +16,7 @@ export const AiProjects = ({ props }: AiProjectsChatItemProps) => {
         props.tokensByMindShare?.slice(0, 6).map((token, index) => (
           <div
             key={index}
-            className="group relative overflow-hidden block rounded-xl text-secText bg-sec_background p-3 w-fit transition-all duration-300 ease-in-out hover:bg-surface cursor-pointer hover:shadow-lg"
+            className="group relative overflow-hidden block rounded-xl text-secText bg-sec_background p-3 w-full transition-all duration-300 ease-in-out hover:bg-surface cursor-pointer hover:shadow-lg"
             onClick={() => {
               openDashboard('goatIndex', token.contractAddress);
             }}
@@ -28,22 +28,23 @@ export const AiProjects = ({ props }: AiProjectsChatItemProps) => {
                 className="h-16 rounded-lg"
               />
               <div>
-                <p className="text-base font-medium">{token.name}</p>
+                <p className="text-base font-semibold">{token.name}</p>
                 <p className="text-sm font-thin">${token.symbol}</p>
                 <p className="text-base font-thin">
-                  Mindshare: {token.mindShare}
-                </p>
-                <p className="text-sm font-thin">
-                  <FaSquareXTwitter
-                    className="h-4 w-4 hover:opacity-90"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      window.open(`${token.twitter}`, '_blank');
-                    }}
-                  />
+                  Mindshare: {Number(token.mindShare).toFixed(3)}
                 </p>
               </div>
             </div>
+            <p className="text-sm flex items-center gap-2 font-thin">
+              Follow:{' '}
+              <FaSquareXTwitter
+                className="h-4 w-4 hover:opacity-90"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  window.open(`${token.twitter}`, '_blank');
+                }}
+              />
+            </p>
           </div>
         ))}
     </BaseGridChatItem>

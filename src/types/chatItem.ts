@@ -118,7 +118,7 @@ export interface NFTPriceChatContent extends BaseChatContent {
 }
 
 export interface AiProjectsChatContent extends BaseChatContent {
-  type: 'ai_projects';
+  type: 'ai_projects_classification';
   category: string;
   tokensByMindShare?: GoatIndexTokenData[];
 }

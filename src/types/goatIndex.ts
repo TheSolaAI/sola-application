@@ -23,16 +23,18 @@ export type GoatIndexTokenData = {
 };
 
 export type GoatIndexTopAiProjectsApiResponse = {
-  projectsCount: GoatIndexProjectCount;
-  hasTokenCountGraphs: GoatIndexGraphData[];
-  totalMarketCapGraphs: GoatIndexGraphData[];
-  tradingVolumeGraphs: GoatIndexGraphData[];
-  topTokensOrderByMindShareIn6h: GoatIndexTokenData[];
-  topTokensOrderByMindShareIn1d: GoatIndexTokenData[];
-  topTokensOrderByMindShareIn7d: GoatIndexTokenData[];
-  topTokensOrderByMindShareDeltaIn6h: GoatIndexTokenData[];
-  topTokensOrderByMindShareDeltaIn1d: GoatIndexTokenData[];
-  topTokensOrderByPriceDeltaIn6h: GoatIndexTokenData[];
-  topTokensOrderByPriceDeltaIn1d: GoatIndexTokenData[];
-  newProjects: string[];
+  data: {
+    projectsCount: GoatIndexProjectCount;
+    hasTokenCountGraphs: GoatIndexGraphData[];
+    totalMarketCapGraphs: GoatIndexGraphData[];
+    tradingVolumeGraphs: GoatIndexGraphData[];
+    topTokensOrderByMindShareIn6h: GoatIndexTokenData[];
+    topTokensOrderByMindShareIn1d: GoatIndexTokenData[];
+    topTokensOrderByMindShareIn7d: GoatIndexTokenData[];
+    topTokensOrderByMindShareDeltaIn6h: GoatIndexTokenData[];
+    topTokensOrderByMindShareDeltaIn1d: GoatIndexTokenData[];
+    topTokensOrderByPriceDeltaIn6h: GoatIndexTokenData[];
+    topTokensOrderByPriceDeltaIn1d: GoatIndexTokenData[];
+    newProjects: string[];
+  };
 };
