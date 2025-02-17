@@ -40,10 +40,9 @@ export interface OpenAIKeyGenResponse {
 export interface TokenDataResponse {
   image: string;
   metadata: {
-    description: string;
     name: string;
     symbol: string;
-    token_standard: string;
+    address: string;
   };
   price: number;
   marketcap: number;
