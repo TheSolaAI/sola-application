@@ -894,10 +894,10 @@
     bs58 "5.0.0"
     buffer "^6.0.3"
 
-"@bonfida/spl-name-service@^3.0.7":
-  version "3.0.8"
-  resolved "https://registry.yarnpkg.com/@bonfida/spl-name-service/-/spl-name-service-3.0.8.tgz#eacddd3bb3f18621d9ecece95eeb745e0b5a3413"
-  integrity sha512-JsjQWLVYTY7ofVDdu5wNgVmRvqveJsTv0tEHTMGtyztsxlG37hxGJSTywX0P/u54MIzr0uaN5sA26m2cK0N/LA==
+"@bonfida/spl-name-service@^3.0.9":
+  version "3.0.9"
+  resolved "https://registry.yarnpkg.com/@bonfida/spl-name-service/-/spl-name-service-3.0.9.tgz#77454362d4b73f656e0ad3bfe4a4c8706a73829e"
+  integrity sha512-WawxrGJv82N0Jc+q+erqm2g7r1KjbljKC5ynFHlUFUbvmF2GOFmYxs8IKblNrNoDVj/2HGkCg7kZscKlq7t7xg==
   dependencies:
     "@bonfida/sns-records" "0.0.1"
     "@noble/curves" "^1.4.0"

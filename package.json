@@ -15,7 +15,7 @@
     "name": "Sola AI"
   },
   "dependencies": {
-    "@bonfida/spl-name-service": "^3.0.7",
+    "@bonfida/spl-name-service": "^3.0.9",
     "@dialectlabs/blinks": "0.18.3",
     "@microsoft/clarity": "^1.0.0",
     "@privy-io/react-auth": "^2.2.1",
