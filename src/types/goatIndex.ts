@@ -167,16 +167,13 @@ export interface AIProjectRankingResult {
   topTweets: Tweet[];
   metrics: Metrics;
   deltaMetrics: DeltaMetrics;
-  priceGraphs: GraphPoint[];
-  mindshareGraphs: GraphPoint[];
-  marketCapGraphs: GraphPoint[];
-  mentionTweets: Tweet[];
-  similarProjects: SimilarProjects;
 }
 
 export interface AIProjectRankingApiResponse {
-  results: AIProjectRankingResult[];
-  total: number;
-  currentPage: number;
-  totalPage: number;
+  data: {
+    data: AIProjectRankingResult[];
+    total: number;
+    currentPage: number;
+    totalPage: number;
+  };
 }

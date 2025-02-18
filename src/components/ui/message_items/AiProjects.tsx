@@ -47,6 +47,44 @@ export const AiProjects = ({ props }: AiProjectsChatItemProps) => {
             </p>
           </div>
         ))}
+
+      {props.category === 'tokenByRanking' &&
+        props.projectsByRanking?.slice(0, 6).map((token, index) => (
+          <div
+            key={index}
+            className="group relative overflow-hidden block rounded-xl text-secText bg-sec_background p-3 w-full transition-all duration-300 ease-in-out hover:bg-surface cursor-pointer hover:shadow-lg"
+            onClick={() => {
+              openDashboard('goatIndex', token.tokenDetail.contractAddress);
+            }}
+          >
+            <div className="flex items-center gap-4">
+              <img
+                src={token.tokenDetail.image}
+                alt="sanctumimage"
+                className="h-16 rounded-lg"
+              />
+              <div>
+                <p className="text-base font-semibold">
+                  {token.tokenDetail.name}
+                </p>
+                <p className="text-sm font-thin">${token.tokenDetail.symbol}</p>
+                <p className="text-base font-thin">
+                  Mindshare: {Number(token.metrics.mindShare).toFixed(3)}
+                </p>
+              </div>
+            </div>
+            <p className="text-sm flex items-center gap-2 font-thin">
+              Follow:{' '}
+              <FaSquareXTwitter
+                className="h-4 w-4 hover:opacity-90"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  window.open(`${token.tokenDetail.twitter}`, '_blank');
+                }}
+              />
+            </p>
+          </div>
+        ))}
     </BaseGridChatItem>
   );
 };

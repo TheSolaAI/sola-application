@@ -19,9 +19,12 @@ export const getAiProjectsByToken: Tool = {
     name: 'getAiProjectsByToken',
     description: functionDescription,
     parameters: {
-      withToken: {
-        type: 'boolean',
-        description: 'get ai projects with token or without token',
+      type: 'object',
+      properties: {
+        withToken: {
+          type: 'boolean',
+          description: 'get ai projects with token or without token',
+        },
       },
       required: ['withToken'],
     },
@@ -71,7 +74,7 @@ export async function handleGetAiProjectsByToken(args: {
       };
     }
 
-    console.log(response);
+    console.log(response.data.data.data);
 
     return {
       status: 'success',
@@ -81,7 +84,7 @@ export async function handleGetAiProjectsByToken(args: {
         sender: 'system',
         type: 'ai_projects_classification',
         category: 'tokenByRanking',
-        projectsByRanking: response.data.results,
+        projectsByRanking: response.data.data.data,
       },
     };
   } catch (e) {
