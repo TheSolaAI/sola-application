@@ -50,7 +50,7 @@ const MasterLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
         {isOpen && !isMobile && (
           <>
             <PanelResizeHandle className="w-1" />
-            <Panel id="right" order={2}>
+            <Panel id="right" order={2} minSize={30}>
               <main className="w-full h-full sm:rounded-2xl bg-background overflow-hidden">
                 {dashboardType === 'goatIndex' && <GoatIndexDashboard />}
               </main>
