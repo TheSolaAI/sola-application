@@ -6,6 +6,8 @@ import { useLayoutContext } from './LayoutProvider.tsx';
 import useIsMobile from '../utils/isMobile.tsx';
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 import { useDashboardHandler } from '../models/DashboardHandler.ts';
+import WalletLensButton from '../components/wallet/WalletLensButton.tsx';
+import { GoatIndexDashboard } from '../components/dashboard/GoatIndexDashboard.tsx';
 
 const MasterLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
   const {
@@ -16,7 +18,7 @@ const MasterLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
     walletLensOpen,
     handleWalletLensOpen,
   } = useLayoutContext();
-  const { isOpen } = useDashboardHandler();
+  const { isOpen, dashboardType } = useDashboardHandler();
 
   const isMobile = useIsMobile();
 
@@ -28,9 +30,18 @@ const MasterLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
         canAutoClose={canAutoClose}
         setCanAutoClose={setCanAutoClose}
       />
-      <PanelGroup autoSaveId="conditional" direction="horizontal">
+      <PanelGroup
+        className="relative"
+        autoSaveId="conditional"
+        direction="horizontal"
+      >
+        <div className="absolute t-3 right-2 z-10">
+          <WalletLensButton
+            onClick={() => handleWalletLensOpen(!walletLensOpen)}
+          />
+        </div>{' '}
         {(!isMobile || !walletLensOpen) && (
-          <Panel id="leftormiddle" minSize={35} order={1}>
+          <Panel id="leftormiddle" minSize={40} defaultSize={45} order={1}>
             <main className="w-full sm:rounded-2xl bg-background overflow-hidden">
               {children}
             </main>
@@ -38,9 +49,11 @@ const MasterLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
         )}
         {isOpen && !isMobile && (
           <>
-            <PanelResizeHandle />
+            <PanelResizeHandle className="w-1" />
             <Panel id="right" order={2}>
-              hola
+              <main className="w-full h-full sm:rounded-2xl bg-background overflow-hidden">
+                {dashboardType === 'goatIndex' && <GoatIndexDashboard />}
+              </main>
             </Panel>
           </>
         )}

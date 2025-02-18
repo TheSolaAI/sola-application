@@ -11,7 +11,6 @@ import { useLayoutContext } from '../layout/LayoutProvider.tsx';
 import useThemeManager from '../models/ThemeManager.ts';
 import { hexToRgb } from '../utils/hexToRGB.ts';
 import { TokenDataMessageItem } from '../components/ui/message_items/TokenDataMessageItem.tsx';
-import WalletLensButton from '../components/wallet/WalletLensButton.tsx';
 import { BubbleMapChatItem } from '../components/ui/message_items/BubbleMapCardItem.tsx';
 import { SwapChatItem } from '../components/ui/message_items/SwapMessageItem.tsx';
 import { ShowLSTDataChatItem } from '../components/ui/message_items/LSTCardItem.tsx';
@@ -30,7 +29,6 @@ const Conversation = () => {
   const navigate = useNavigate();
   const { theme } = useThemeManager();
   const { audioIntensity } = useLayoutContext();
-  const { handleWalletLensOpen, walletLensOpen } = useLayoutContext();
 
   const primaryRGB = hexToRgb(theme.primary);
   const primaryDarkRGB = hexToRgb(theme.primaryDark);
@@ -141,12 +139,6 @@ const Conversation = () => {
 
   return (
     <div className="relative flex flex-col w-full h-screen">
-      <div className="self-end p-1">
-        <WalletLensButton
-          onClick={() => handleWalletLensOpen(!walletLensOpen)}
-        />
-      </div>
-
       {/* Messages Container (Scrollable) */}
       <div className="flex-1 max-h-[80vh] overflow-y-auto w-full sm:w-[60%] self-center pb-[6rem] no-scrollbar">
         {messages.map((chatItem, index) => {
