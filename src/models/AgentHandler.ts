@@ -23,9 +23,10 @@ import {
   transferSpl,
   walletActions,
   withdrawLulo,
+  getAiProjectsByClassification,
+  getAiProjectsByToken,
 } from '../tools';
 import { Tool } from '../types/tool.ts';
-import { getAiProjectsByClassification } from '../tools/goatIndex/getAiProjectsByClassification.ts';
 
 interface AgentHandler {
   agents: Agent[];
@@ -62,6 +63,7 @@ export const useAgentHandler = create<AgentHandler>((_setState, getState) => ({
         // walletActions,
         swapTokens,
         getAiProjectsByClassification,
+        getAiProjectsByToken,
       ],
     },
     {

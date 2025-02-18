@@ -1,12 +1,14 @@
+type GraphPoint = {
+  date: string;
+  value: number;
+};
+
 type GoatIndexProjectCount = {
   latest: number;
   previous24Hours: number;
 };
 
-type GoatIndexGraphData = {
-  date: string;
-  value: number;
-};
+type GoatIndexGraphData = GraphPoint;
 
 interface Tweet {
   engagement: number;
@@ -50,16 +52,6 @@ interface DeltaMetrics {
   latest: Metrics;
 }
 
-interface GraphPoint {
-  date: string;
-  value: number;
-}
-
-interface SimilarProjects {
-  similarProjectsByMarketCap: SimilarProject[];
-  similarProjectsByMindShare: SimilarProject[];
-}
-
 interface SimilarProject {
   tokenId: string;
   chain: string;
@@ -73,6 +65,11 @@ interface SimilarProject {
   difference: number;
   marketCapGraphs: GraphPoint[];
   mindShareGraphs: GraphPoint[];
+}
+
+interface SimilarProjects {
+  similarProjectsByMarketCap: SimilarProject[];
+  similarProjectsByMindShare: SimilarProject[];
 }
 
 export type GoatIndexTokenData = {
@@ -106,49 +103,53 @@ export type GoatIndexTopAiProjectsApiResponse = {
   };
 };
 
+interface GithubAnalysis {
+  score: number;
+  contributors: number;
+  stars: number;
+  forks: number;
+  age: string;
+  communityHealthScore: number;
+  engagementScore: number;
+  documentationScore: number;
+  codeQualityScore: number;
+  codeConsistencyScore: number;
+  codeBestPracticesScore: number;
+}
+
+export interface AgentTokenDetail {
+  id: string;
+  chain: string;
+  contractAddress: string;
+  name: string;
+  symbol: string;
+  image: string;
+  creationTime: string;
+  description: string;
+  labels: string[];
+  category: string;
+  twitter: string;
+  devTwitter: string;
+  devDoxxed: boolean;
+  telegram: string;
+  website: string;
+  github: string;
+  framework: string;
+  warning: string;
+  status: string;
+  githubScore: string;
+  githubAnalysis: GithubAnalysis;
+  mindShare: number;
+  totalConversations: number;
+  priceDelta: number;
+  mindShareDelta: number;
+  isInWatchList: boolean;
+}
+
 export interface GoatIndexAgentResponse {
   data: {
     agentDetail: {
-      tokenDetail: {
-        id: string;
-        chain: string;
-        contractAddress: string;
-        name: string;
-        symbol: string;
-        image: string;
-        creationTime: string;
-        description: string;
-        labels: string[];
-        category: string;
-        twitter: string;
-        devTwitter: string;
-        devDoxxed: boolean;
-        telegram: string;
-        website: string;
-        github: string;
-        framework: string;
-        warning: string;
-        status: string;
-        githubScore: string;
-        githubAnalysis: {
-          score: number;
-          contributors: number;
-          stars: number;
-          forks: number;
-          age: string;
-          communityHealthScore: number;
-          engagementScore: number;
-          documentationScore: number;
-          codeQualityScore: number;
-          codeConsistencyScore: number;
-          codeBestPracticesScore: number;
-        };
-        mindShare: number;
-        totalConversations: number;
-        priceDelta: number;
-        mindShareDelta: number;
-        isInWatchList: boolean;
-      };
+      tokenDetail: AgentTokenDetail;
       topTweets: Tweet[];
       metrics: Metrics;
       deltaMetrics: DeltaMetrics;
@@ -159,4 +160,23 @@ export interface GoatIndexAgentResponse {
       similarProjects: SimilarProjects;
     };
   };
+}
+
+export interface AIProjectRankingResult {
+  tokenDetail: AgentTokenDetail;
+  topTweets: Tweet[];
+  metrics: Metrics;
+  deltaMetrics: DeltaMetrics;
+  priceGraphs: GraphPoint[];
+  mindshareGraphs: GraphPoint[];
+  marketCapGraphs: GraphPoint[];
+  mentionTweets: Tweet[];
+  similarProjects: SimilarProjects;
+}
+
+export interface AIProjectRankingApiResponse {
+  results: AIProjectRankingResult[];
+  total: number;
+  currentPage: number;
+  totalPage: number;
 }

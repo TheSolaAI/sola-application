@@ -12,7 +12,8 @@ import {
   MarketDataChatContent,
   TransactionChatContent,
   GetTrendingNFTSChatContent,
-  NFTCollectionChatContent, AiProjectsClassificationChatContent,
+  NFTCollectionChatContent,
+  AiProjectsChatContent,
 } from './chatItem.ts';
 import { ConnectedSolanaWallet } from '@privy-io/react-auth';
 
@@ -309,17 +310,29 @@ export interface NFTPriceTool extends BaseTool {
 export interface AiProjectByClassificationTool extends BaseTool {
   implementation: (
     args: {
-      category: string;
+      withToken: boolean;
     },
     response_id: string,
   ) => Promise<{
     status: 'success' | 'error';
     response: string;
-    props?: AiProjectsClassificationChatContent;
+    props?: AiProjectsChatContent;
   }>;
   representation?: {
     props_type: 'ai_projects_classification';
-    component: FC<{ props: AiProjectsClassificationChatContent }>;
+    component: FC<{ props: AiProjectsChatContent }>;
+  };
+}
+
+export interface AiProjectByToken extends BaseTool {
+  implementation: (response_id: string) => Promise<{
+    status: 'success' | 'error';
+    response: string;
+    props?: AiProjectsChatContent;
+  }>;
+  representation?: {
+    props_type: 'ai_projects_classification';
+    component: FC<{ props: AiProjectsChatContent }>;
   };
 }
 
@@ -340,4 +353,5 @@ export type Tool =
   | TransferSPLTool
   | GetTrendingNFTSTool
   | NFTPriceTool
-  | AiProjectByClassificationTool;
+  | AiProjectByClassificationTool
+  | AiProjectByToken;
