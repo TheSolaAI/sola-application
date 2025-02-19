@@ -106,7 +106,7 @@ export const GoatIndexDashboard = () => {
   const chartOptions: AgCartesianChartOptions = {
     theme: 'ag-vivid',
     background: {
-      fill: theme.sec_background,
+      fill: theme.baseBackground,
     },
     animation: {
       enabled: true,
@@ -200,13 +200,13 @@ export const GoatIndexDashboard = () => {
         initial={{ y: 10, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5, delay: 0.2 }}
-        className="rounded-2xl min-h-fit overflow-hidden"
+        className="rounded-2xl min-h-fit shadow-lg overflow-hidden"
       >
         <AgCharts options={chartOptions} />
       </motion.div>
       <motion.div
         variants={containerVariants}
-        className="flex flex-wrap gap-1 items-start overflow-y-auto scrollbar-thin scrollbar-thumb-primary scrollbar-track-background"
+        className="flex flex-wrap gap-1 items-start overflow-y-auto p-1 rounded-xl scrollbar-thin scrollbar-thumb-primary scrollbar-track-background"
       >
         <MetricCard
           label="Price"
