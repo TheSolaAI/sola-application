@@ -24,6 +24,7 @@ import { AudioPlayerMessageItem } from '../components/ui/message_items/AudioPlay
 import { NFTCollectionMessageItem } from '../components/ui/message_items/NFTCollectionCardItem.tsx';
 import { TrendingNFTMessageItem } from '../components/ui/message_items/TrendingNFTMessageItem.tsx';
 import { AiProjects } from '../components/ui/message_items/AiProjects.tsx';
+import { useAgentHandler } from '../models/AgentHandler.ts';
 
 const Conversation = () => {
   const navigate = useNavigate();
@@ -36,14 +37,19 @@ const Conversation = () => {
   /**
    * Global state
    */
-  const { setCurrentChatRoom, rooms, allRoomsLoaded } = useChatRoomHandler();
+  const { setCurrentChatRoom, rooms, allRoomsLoaded, newRoomId } =
+    useChatRoomHandler();
   const { messages, currentChatItem } = useChatMessageHandler();
+  const { agents } = useAgentHandler();
 
   /**
    * Current Route
    */
   const pathParts = window.location.pathname.split('/');
   const chatRoomId = pathParts[pathParts.length - 1];
+
+  const agent = agents.find((agent) => agent.agentID === newRoomId);
+  const agentName = agent ? agent.name : 'AI';
 
   useEffect(() => {
     if (chatRoomId && allRoomsLoaded) {
@@ -139,6 +145,15 @@ const Conversation = () => {
 
   return (
     <div className="relative flex flex-col w-full h-screen">
+      {messages.length === 0 && !currentChatItem && (
+        <div className="flex flex-col gap-2 items-center justify-center text-secText h-full w-full">
+          <span className="font-semibold text-title-xl">
+            Hey, How can I help you?
+          </span>
+          <span className="text-base ">I'm {agentName} agent</span>
+        </div>
+      )}
+
       {/* Messages Container (Scrollable) */}
       <div className="flex-1 mt-12 max-h-[80vh] overflow-y-auto w-full sm:w-[60%] self-center pb-[6rem] no-scrollbar">
         {messages.map((chatItem, index) => {
