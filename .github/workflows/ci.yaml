@@ -26,37 +26,28 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
           aws-region: us-east-1
 
-        # - name: Configure AWS CLI
-        #   run: |
-        #     aws configure set default.aws_access_key_id ${{ secrets.AWS_ACCESS_KEY }}
-        #     aws configure set default.aws_secret_access_key ${{ secrets.AWS_SECRET_KEY }}
-        #     aws configure set default.region us-east-1
-        #     aws configure set default.output json
-
       - name: Get .env from S3
         run: aws s3 cp s3://sola-secrets/.env .env
 
-      - name: Install and build
-        run: |
-          yarn install
-          yarn build
+      - name: Install Dependencies with Cache
+        run: yarn install --frozen-lockfile --prefer-offline
 
-      - name: Deploy to server
+      - name: Build with Increased Memory
+        run: NODE_OPTIONS="--max-old-space-size=8192" yarn build
+
+      - name: Deploy to S3
         run: |
           aws s3 sync dist/ s3://sola-frontend/ \
-            --exclude "*" \
-            --include "*.br" \
-            --content-encoding br \
-            --cache-control max-age=60 \
+            --exclude "*" --include "*.br" \
+            --content-encoding br --cache-control max-age=60 \
             --metadata-directive REPLACE
           aws s3 sync dist/ s3://sola-frontend/ \
-            --exclude "*" \
-            --include "*.gz" \
-            --content-encoding gzip \
-            --cache-control max-age=60 \
+            --exclude "*" --include "*.gz" \
+            --content-encoding gzip --cache-control max-age=60 \
             --metadata-directive REPLACE
           aws s3 sync dist/ s3://sola-frontend/ \
-            --exclude "*.br" \
-            --exclude "*.gz" \
+            --exclude "*.br" --exclude "*.gz" \
             --cache-control max-age=60
-          aws cloudfront create-invalidation --distribution-id EWH631DYZXDBA --paths "/*"
+
+      - name: Invalidate CloudFront Cache
+        run: aws cloudfront create-invalidation --distribution-id EWH631DYZXDBA --paths "/*"
