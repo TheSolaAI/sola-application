@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { Agent } from '../types/agent.ts';
 import { Atom, ChartNetwork, Wallet } from 'lucide-react';
+import { GiGoat } from 'react-icons/gi';
 import {
   depositLulo,
   getBlinks,
@@ -22,6 +23,9 @@ import {
   transferSpl,
   walletActions,
   withdrawLulo,
+  getAiProjectsByClassification,
+  getAiProjectsByToken,
+  getAiProjectsMindshare,
 } from '../tools';
 import { Tool } from '../types/tool.ts';
 
@@ -49,6 +53,19 @@ export const useAgentHandler = create<AgentHandler>((_setState, getState) => ({
         // getBlinks,
         limitOrder,
         getLimitOrders,
+      ],
+    },
+    {
+      agentID: 4,
+      name: 'GoatIndex',
+      description: 'Agent to analyse AI projects using GoatIndex',
+      logo: GiGoat,
+      tools: [
+        // walletActions,
+        swapTokens,
+        getAiProjectsByClassification,
+        getAiProjectsByToken,
+        getAiProjectsMindshare,
       ],
     },
     {

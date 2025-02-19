@@ -161,7 +161,7 @@ export const useChatRoomHandler = create<ChatRoomHandler>((set, get) => {
         return null;
       }
     },
-    newRoomId: 0,
+    newRoomId: 1,
     setNewRoomId: (roomId: number): void => {
       set({ newRoomId: roomId });
       useChatMessageHandler.setState({ messages: [] });

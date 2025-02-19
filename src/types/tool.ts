@@ -13,6 +13,7 @@ import {
   TransactionChatContent,
   GetTrendingNFTSChatContent,
   NFTCollectionChatContent,
+  AiProjectsChatContent,
 } from './chatItem.ts';
 import { ConnectedSolanaWallet } from '@privy-io/react-auth';
 
@@ -263,11 +264,11 @@ export interface TransferSPLTool extends BaseTool {
   ) => Promise<{
     status: 'success' | 'error';
     response: string;
-    props?: TransactionChatContent ;
+    props?: TransactionChatContent;
   }>;
   representation?: {
     props_type: 'transfer_spl';
-    component: FC<{ props: TransactionChatContent  }>;
+    component: FC<{ props: TransactionChatContent }>;
   };
 }
 
@@ -280,7 +281,7 @@ export interface GetTrendingNFTSTool extends BaseTool {
   ) => Promise<{
     status: 'success' | 'error';
     response: string;
-    props?: GetTrendingNFTSChatContent
+    props?: GetTrendingNFTSChatContent;
   }>;
   representation?: {
     props_type: 'get_trending_nfts';
@@ -306,6 +307,35 @@ export interface NFTPriceTool extends BaseTool {
   };
 }
 
+export interface AiProjectByClassificationTool extends BaseTool {
+  implementation: (
+    args: {
+      withToken: boolean;
+    },
+    response_id: string,
+  ) => Promise<{
+    status: 'success' | 'error';
+    response: string;
+    props?: AiProjectsChatContent;
+  }>;
+  representation?: {
+    props_type: 'ai_projects_classification';
+    component: FC<{ props: AiProjectsChatContent }>;
+  };
+}
+
+export interface AiProjectByToken extends BaseTool {
+  implementation: (response_id: string) => Promise<{
+    status: 'success' | 'error';
+    response: string;
+    props?: AiProjectsChatContent;
+  }>;
+  representation?: {
+    props_type: 'ai_projects_classification';
+    component: FC<{ props: AiProjectsChatContent }>;
+  };
+}
+
 export type Tool =
   | TokenDataTool
   | DepositLuloTool
@@ -322,4 +352,6 @@ export type Tool =
   | TransferSolTool
   | TransferSPLTool
   | GetTrendingNFTSTool
-  | NFTPriceTool;
+  | NFTPriceTool
+  | AiProjectByClassificationTool
+  | AiProjectByToken;

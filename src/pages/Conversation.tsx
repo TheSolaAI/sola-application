@@ -11,7 +11,6 @@ import { useLayoutContext } from '../layout/LayoutProvider.tsx';
 import useThemeManager from '../models/ThemeManager.ts';
 import { hexToRgb } from '../utils/hexToRGB.ts';
 import { TokenDataMessageItem } from '../components/ui/message_items/TokenDataMessageItem.tsx';
-import WalletLensButton from '../components/wallet/WalletLensButton.tsx';
 import { BubbleMapChatItem } from '../components/ui/message_items/BubbleMapCardItem.tsx';
 import { SwapChatItem } from '../components/ui/message_items/SwapMessageItem.tsx';
 import { ShowLSTDataChatItem } from '../components/ui/message_items/LSTCardItem.tsx';
@@ -24,12 +23,13 @@ import { TopHoldersMessageItem } from '../components/ui/message_items/TopHolders
 import { AudioPlayerMessageItem } from '../components/ui/message_items/AudioPlayerMessageItem.tsx';
 import { NFTCollectionMessageItem } from '../components/ui/message_items/NFTCollectionCardItem.tsx';
 import { TrendingNFTMessageItem } from '../components/ui/message_items/TrendingNFTMessageItem.tsx';
+import { AiProjects } from '../components/ui/message_items/AiProjects.tsx';
+import { useAgentHandler } from '../models/AgentHandler.ts';
 
 const Conversation = () => {
   const navigate = useNavigate();
   const { theme } = useThemeManager();
   const { audioIntensity } = useLayoutContext();
-  const { handleWalletLensOpen, walletLensOpen } = useLayoutContext();
 
   const primaryRGB = hexToRgb(theme.primary);
   const primaryDarkRGB = hexToRgb(theme.primaryDark);
@@ -37,14 +37,19 @@ const Conversation = () => {
   /**
    * Global state
    */
-  const { setCurrentChatRoom, rooms, allRoomsLoaded } = useChatRoomHandler();
+  const { setCurrentChatRoom, rooms, allRoomsLoaded, newRoomId } =
+    useChatRoomHandler();
   const { messages, currentChatItem } = useChatMessageHandler();
+  const { agents } = useAgentHandler();
 
   /**
    * Current Route
    */
   const pathParts = window.location.pathname.split('/');
   const chatRoomId = pathParts[pathParts.length - 1];
+
+  const agent = agents.find((agent) => agent.agentID === newRoomId);
+  const agentName = agent ? agent.name : 'AI';
 
   useEffect(() => {
     if (chatRoomId && allRoomsLoaded) {
@@ -125,15 +130,14 @@ const Conversation = () => {
         <TransactionDataMessageItem key={index} props={chatItem.content} />
       );
     }
-    if (type === 'nft_collection_data') { 
-      return (
-        <NFTCollectionMessageItem key={index} props={chatItem.content} />
-      );
+    if (type === 'nft_collection_data') {
+      return <NFTCollectionMessageItem key={index} props={chatItem.content} />;
     }
     if (type === 'get_trending_nfts') {
-      return (
-        <TrendingNFTMessageItem key={index} props={chatItem.content} />
-      );
+      return <TrendingNFTMessageItem key={index} props={chatItem.content} />;
+    }
+    if (type === 'ai_projects_classification') {
+      return <AiProjects key={index} props={chatItem.content} />;
     }
 
     return null; // Prevent rendering an empty fragment
@@ -141,14 +145,17 @@ const Conversation = () => {
 
   return (
     <div className="relative flex flex-col w-full h-screen">
-      <div className="self-end p-1">
-        <WalletLensButton
-          onClick={() => handleWalletLensOpen(!walletLensOpen)}
-        />
-      </div>
+      {messages.length === 0 && !currentChatItem && (
+        <div className="flex flex-col gap-2 items-center justify-center text-secText h-full w-full">
+          <span className="font-semibold text-title-xl">
+            Hey, How can I help you?
+          </span>
+          <span className="text-base ">I'm {agentName} agent</span>
+        </div>
+      )}
 
       {/* Messages Container (Scrollable) */}
-      <div className="flex-1 max-h-[80vh] overflow-y-auto w-full sm:w-[60%] self-center pb-[6rem] no-scrollbar">
+      <div className="flex-1 mt-12 max-h-[80vh] overflow-y-auto w-full sm:w-[60%] self-center pb-[6rem] no-scrollbar">
         {messages.map((chatItem, index) => {
           return renderMessageItem(chatItem, index);
         })}

@@ -8,6 +8,7 @@ import {
 } from '../types/response.ts';
 import { API_URLS } from '../config/api_urls.ts';
 import {
+  AiProjectsChatContent,
   BubbleMapChatContent,
   ChatContentType,
   ChatItem,
@@ -27,7 +28,6 @@ import {
 } from '../types/chatItem.ts';
 import { Tool } from '../types/tool.ts';
 import { generateUniqueId } from '../utils/randomID.ts';
-
 
 interface ChatMessageHandler {
   state: 'idle' | 'loading' | 'error'; // the state of the chat message handler
@@ -273,10 +273,12 @@ const parseChatItemContent = (item: ChatMessageResponseWrapper) => {
     return createChatItem<TransactionChatContent>(item, parsedContent);
   } else if (isTransferSplChatContent(parsedContent)) {
     return createChatItem<TransactionChatContent>(item, parsedContent);
-  }else if (isNFTCollectionChatContent(parsedContent)){ 
+  } else if (isNFTCollectionChatContent(parsedContent)) {
     return createChatItem<NFTCollectionChatContent>(item, parsedContent);
-  }else if (isTrendingNFTSChatContent(parsedContent)) {
+  } else if (isTrendingNFTSChatContent(parsedContent)) {
     return createChatItem<GetTrendingNFTSChatContent>(item, parsedContent);
+  } else if (isAiProjectClassificationChatContent(parsedContent)) {
+    return createChatItem<AiProjectsChatContent>(item, parsedContent);
   }
 };
 
@@ -351,11 +353,15 @@ function isNFTCollectionChatContent(
 ): content is NFTCollectionChatContent {
   return content.type === 'nft_collection_data';
 }
-
 function isTrendingNFTSChatContent(
   content: any,
-): content is GetTrendingNFTSChatContent{
+): content is GetTrendingNFTSChatContent {
   return content.type === 'get_trending_nfts';
+}
+function isAiProjectClassificationChatContent(
+  content: any,
+): content is AiProjectsChatContent {
+  return content.type === 'ai_projects_classification';
 }
 
 export function createChatItemFromTool(
@@ -485,9 +491,16 @@ export function createChatItemFromTool(
       };
       return message;
     }
+    case 'ai_projects_classification': {
+      message = {
+        id: generateUniqueId(),
+        content: data as AiProjectsChatContent,
+        createdAt: new Date().toISOString(),
+      };
+      return message;
+    }
     default: {
       throw new Error('Unsupported props_type');
     }
-    
   }
 }

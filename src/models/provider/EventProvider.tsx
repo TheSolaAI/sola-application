@@ -86,6 +86,7 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
                   if (tool_result.status === 'success')
                     addMessage(createChatItemFromTool(tool, tool_result.props));
                   // send the response to OpenAI
+                  console.log(tool_result.response);
                   sendMessage(tool_result.response);
                 } else {
                   // this agent does not support this tool. This is a fail-safe as mostly openAI will not send out

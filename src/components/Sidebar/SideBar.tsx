@@ -189,6 +189,10 @@ export const Sidebar: FC<SidebarProps> = ({
               const isEditing = editingRoom === room.id;
               if (!room.id) return null;
 
+              const AgentLogo = agents.find(
+                (agent) => agent.agentID === room.agentId,
+              )?.logo;
+
               return (
                 <div key={room.id} className="w-full">
                   <button
@@ -200,13 +204,12 @@ export const Sidebar: FC<SidebarProps> = ({
               ${pathname === `/c/${room.id}` || pathname.startsWith(`/c/${room.id}/`) ? 'bg-primaryDark' : ''}`}
                   >
                     <div className="flex items-center gap-4 md:gap-6">
-                      {React.createElement(
-                        agents[room.agentId ? room.agentId - 1 : 0].logo,
-                        {
-                          className: 'w-4 h-4',
-                          color: theme.textColor,
-                        },
-                      )}
+                      {AgentLogo
+                        ? React.createElement(AgentLogo, {
+                            className: 'w-4 h-4',
+                            color: theme.textColor,
+                          })
+                        : null}
 
                       <h1 className="text-textColor font-normal">
                         {room.name}

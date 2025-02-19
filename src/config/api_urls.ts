@@ -8,3 +8,6 @@ export const API_URLS = {
   CHAT_ROOMS: 'chatrooms/',
   SESSION: 'data/session/create',
 };
+
+export const GOAT_INDEX_API_URL =
+  'http://ecs-alb-goatindex-1007884834.us-east-1.elb.amazonaws.com/';

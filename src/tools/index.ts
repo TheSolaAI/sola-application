@@ -18,3 +18,6 @@ export { withdrawLulo } from './withdrawLulo';
 export { getNFTPrice } from './getNFTPrice';
 export { getTrendingNFTs } from './getTrendingNFTs';
 export { getNFTLaunchpad } from './getLaunchpadCollections';
+export { getAiProjectsByClassification } from './goatIndex/getAiProjectsByClassification';
+export { getAiProjectsByToken } from './goatIndex/getAiProjectsByToken';
+export { getAiProjectsMindshare } from './goatIndex/getMindshare.ts';

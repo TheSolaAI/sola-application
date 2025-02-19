@@ -11,6 +11,7 @@ import {
   TrendingNFTCard,
   NFTCard,
 } from './messageCard';
+import { AIProjectRankingResult, GoatIndexTokenData } from './goatIndex.ts';
 
 export interface ChatItem<T extends BaseChatContent> {
   // Make ChatItem generic
@@ -38,7 +39,8 @@ export type ChatContentType =
   | ShowLSTDataChatContent
   | RugCheckChatContent
   | TopHoldersChatContent
-  | GetTrendingNFTSChatContent;
+  | GetTrendingNFTSChatContent
+  | AiProjectsChatContent;
 
 export interface SimpleMessageChatContent extends BaseChatContent {
   type: 'simple_message';
@@ -107,12 +109,19 @@ export interface MarketDataChatContent extends BaseChatContent {
 }
 export interface GetTrendingNFTSChatContent extends BaseChatContent {
   type: 'get_trending_nfts';
-  data: TrendingNFTCard[]
+  data: TrendingNFTCard[];
 }
 
 export interface NFTPriceChatContent extends BaseChatContent {
   type: 'nft_price';
-  data: NFTCard
+  data: NFTCard;
+}
+
+export interface AiProjectsChatContent extends BaseChatContent {
+  type: 'ai_projects_classification';
+  category: string;
+  tokensByMindShare?: GoatIndexTokenData[];
+  projectsByRanking?: AIProjectRankingResult[];
 }
 /**
  * This type is used on the UI side to ensure type safety when rendering a message item
