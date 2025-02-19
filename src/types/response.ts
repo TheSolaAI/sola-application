@@ -43,7 +43,6 @@ export interface TokenDataResponse {
     name: string;
     symbol: string;
     address: string;
-
   };
   price: number;
   marketcap: number;
