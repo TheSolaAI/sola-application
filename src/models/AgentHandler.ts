@@ -25,6 +25,7 @@ import {
   withdrawLulo,
   getAiProjectsByClassification,
   getAiProjectsByToken,
+  getAiProjectsMindshare,
 } from '../tools';
 import { Tool } from '../types/tool.ts';
 
@@ -64,6 +65,7 @@ export const useAgentHandler = create<AgentHandler>((_setState, getState) => ({
         swapTokens,
         getAiProjectsByClassification,
         getAiProjectsByToken,
+        getAiProjectsMindshare,
       ],
     },
     {
