@@ -44,7 +44,7 @@
     "react-spinners": "^0.15.0",
     "recharts": "^2.15.1",
     "rollup-plugin-visualizer": "^5.14.0",
-    "sonner": "^1.7.2",
+    "sonner": "^2.0.0",
     "tailwind-merge": "^2.6.0",
     "tailwind-scrollbar": "^4.0.0",
     "tailwindcss-animate": "^1.0.7",
