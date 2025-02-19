@@ -59,14 +59,14 @@ export const SessionControls = () => {
           ${state === 'idle' ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}
         `}
       >
-        <div className="relative flex-1 max-w-full md:max-w-[600px]">
+        <div className="relative flex-1 max-w-full sm:max-w-[600px]">
           <input
             ref={inputRef}
             type="text"
             placeholder="Start Chatting..."
             className="
               bg-sec_background rounded-full p-4 pr-16
-              flex text-textColor w-full sm:w-[300px] md:w-[600px]
+              flex text-textColor w-full
               border border-transparent focus:border-primaryDark
               focus:outline-none transition-all duration-200
             "

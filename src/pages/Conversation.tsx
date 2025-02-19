@@ -140,7 +140,7 @@ const Conversation = () => {
   return (
     <div className="relative flex flex-col w-full h-screen">
       {/* Messages Container (Scrollable) */}
-      <div className="flex-1 max-h-[80vh] overflow-y-auto w-full sm:w-[60%] self-center pb-[6rem] no-scrollbar">
+      <div className="flex-1 mt-12 max-h-[80vh] overflow-y-auto w-full sm:w-[60%] self-center pb-[6rem] no-scrollbar">
         {messages.map((chatItem, index) => {
           return renderMessageItem(chatItem, index);
         })}

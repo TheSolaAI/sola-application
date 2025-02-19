@@ -39,6 +39,7 @@ import {
 } from '../ui/GoatIndexMetrics.tsx';
 import { FiExternalLink } from 'react-icons/fi';
 import { motion } from 'framer-motion';
+import { IoIosArrowForward } from 'react-icons/io';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -52,7 +53,7 @@ const containerVariants = {
 };
 
 export const GoatIndexDashboard = () => {
-  const { id } = useDashboardHandler();
+  const { id, closeDashboard } = useDashboardHandler();
   const { theme } = useThemeManager();
 
   const [agentDetails, setAgentDetails] =
@@ -171,11 +172,15 @@ export const GoatIndexDashboard = () => {
 
   return (
     <div className="h-full w-full flex flex-col gap-3 bg-background p-4 rounded-lg shadow-2xl">
+      <IoIosArrowForward
+        className="rounded-2xl cursor-pointer text-textColor w-12 h-12 hover:text-primary"
+        onClick={closeDashboard}
+      />
       <motion.p
         initial={{ x: -20, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         transition={{ duration: 0.5 }}
-        className="flex gap-4 text-2xl font-bold text-secText p-2"
+        className="flex gap-4 text-2xl items-center font-bold text-secText p-2"
       >
         Project: {agentDetails?.data.agentDetail.tokenDetail.name.toUpperCase()}{' '}
         <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
