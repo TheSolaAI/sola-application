@@ -61,6 +61,7 @@ interface SessionHandler {
    */
   sendMessage: (message: string) => void;
   sendTextMessage: (message: string) => void;
+  sendFunctionCallResponseMessage: (message: string, call_id: string) => void;
 }
 
 export const useSessionHandler = create<SessionHandler>((set, get) => {
@@ -199,6 +200,22 @@ export const useSessionHandler = create<SessionHandler>((set, get) => {
               },
             ],
           },
+        };
+        get().dataStream?.send(JSON.stringify(textMessage));
+        get().dataStream?.send(JSON.stringify({ type: 'response.create' }));
+      } else {
+        toast.error('Failed to send message. Reload the page');
+      }
+    },
+    sendFunctionCallResponseMessage: (
+      message: string,
+      call_id: string,
+    ): void => {
+      if (get().dataStream && get().dataStream?.readyState === 'open') {
+        const textMessage = {
+          type: 'function_call_output',
+          call_id: call_id,
+          output: message,
         };
         get().dataStream?.send(JSON.stringify(textMessage));
         get().dataStream?.send(JSON.stringify({ type: 'response.create' }));

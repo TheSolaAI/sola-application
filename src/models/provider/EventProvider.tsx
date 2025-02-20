@@ -17,7 +17,8 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
   /**
    * Global State
    */
-  const { dataStream, updateSession, sendMessage } = useSessionHandler();
+  const { dataStream, updateSession, sendFunctionCallResponseMessage } =
+    useSessionHandler();
   const { getToolsForAgent } = useAgentHandler();
   const { currentWallet } = useWalletHandler();
   const { addMessage } = useChatMessageHandler();
@@ -86,8 +87,10 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
                   if (tool_result.status === 'success')
                     addMessage(createChatItemFromTool(tool, tool_result.props));
                   // send the response to OpenAI
-                  console.log(tool_result.response);
-                  sendMessage(tool_result.response);
+                  sendFunctionCallResponseMessage(
+                    tool_result.response,
+                    output.call_id,
+                  );
                 } else {
                   // this agent does not support this tool. This is a fail-safe as mostly openAI will not send out
                   // a function call as it was not provided the context even
