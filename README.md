@@ -14,11 +14,7 @@ This application provides seamless interaction between the user, OpenAI, and blo
 * **Blockchain Data Filtering:** Microservices filter and process blockchain data based on user queries.
 * **Blockchain Interactions:** Supports Solana on-chain interactions (e.g., transfer, swap).
 
-## Microservice Overview
-
-![{16D54172-2C55-4994-8BA7-3B246A0B0994}](https://github.com/user-attachments/assets/f83edd23-b696-4630-a2e6-2f6bc59f6107)
-
-### Components
+### Core Components
 
 1. **Sola AI Application:** Serves as the central hub for processing user input, communicating with services, and integrating AI models with blockchain interactions.
    * Interfaces with OpenAI for natural language processing.
