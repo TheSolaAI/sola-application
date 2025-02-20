@@ -146,11 +146,11 @@ const Conversation = () => {
   return (
     <div className="relative flex flex-col w-full h-screen">
       {messages.length === 0 && !currentChatItem && (
-        <div className="flex flex-col gap-2 items-center justify-center text-secText h-full w-full">
+        <div className="flex flex-col gap-2 items-center justify-center text-secText h-full w-full animate-in fade-in duration-700">
           <span className="font-semibold text-title-xl">
             Hey, How can I help you?
           </span>
-          <span className="text-base ">I'm {agentName} agent</span>
+          <span className="text-base ">I&apos;m {agentName} agent</span>
         </div>
       )}
 
