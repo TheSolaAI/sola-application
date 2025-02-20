@@ -23,13 +23,18 @@ This application provides seamless interaction between the user, OpenAI, and blo
 1. **Sola AI Application:** Serves as the central hub for processing user input, communicating with services, and integrating AI models with blockchain interactions.
    * Interfaces with OpenAI for natural language processing.
    * Routes user requests to appropriate microservices.
+   * Provides AI powered intelligent interface.
 
 2. **Data Service:**
-   * Microservice providing blockchain data.
-   * Filters and structures Solana blockchain data based on user queries.
+   * Microservice providing blockchain data built using rust.
+   * Filters and structures Solana blockchain and web data based on user queries.
 
 3. **Wallet Service:**
    * Helps to build pre-defined transactions and provides transaction objects.
+   * Built using Rust for fast data processing.
+
+4. **User Service:**
+   * Manages user data such as chat rooms management, chat history, user settings.
 
 > Refer our [Docs](https://docs.solaai.xyz/application-overview/high-level-architecture) for a better understanding of the application architecture. 
 
