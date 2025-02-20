@@ -5,6 +5,7 @@ This guide will help you set up and run the Sola AI application locally.
 ## Prerequisites
 
 Before you begin, ensure you have the following installed:
+
 - Node.js (v18 or higher)
 - Yarn package manager
 - Git
@@ -14,23 +15,27 @@ Before you begin, ensure you have the following installed:
 ## Quick Start
 
 1. Clone the repository:
+
 ```sh
 git clone https://github.com/TheSolaAI/sola-application.git
 ```
 
 2. Navigate to the project directory:
+
 ```sh
 cd sola-application
 ```
 
 3. Install dependencies:
+
 ```sh
 yarn install
 ```
 
-4. Set up environment variables (see configuration section below)
+4. Set up environment variables (see env configuration and details section below)
 
 5. Start the development server:
+
 ```sh
 yarn dev
 ```
@@ -45,10 +50,10 @@ Create a `.env` file in the root directory with the following environment variab
 
 ```env
 # OpenAI Configuration
-VITE_OPENAI_API_URL=         # GPT-4.0 realtime/realtime mini model url
+VITE_OPENAI_API_URL=        # GPT-4.0 realtime/realtime mini model url
 
 # Authentication
-VITE_PRIVY_APP_ID=          # Privy application ID for wallet authentication
+VITE_PRIVY_APP_ID=          # Privy application ID
 VITE_SENTRY_AUTH_TOKEN=     # Sentry authentication token (optional for development)
 
 # Solana Configuration
@@ -56,10 +61,10 @@ VITE_HELIUS_API_KEY=        # Your Helius API key
 VITE_SOLANA_RPC=            # Solana RPC endpoint URL
 VITE_ATA_PRIV_KEY=          # Solana private key for validation
 
-# Microservices URLs (Whitelisted Access Required)
-VITE_WALLET_SERVICE_URL=    # Wallet service endpoint
-VITE_DATA_SERVICE_URL=      # Data stream service endpoint
-VITE_AUTH_SERVICE_URL=      # User authentication service endpoint
+# Microservices URLs (privy Whitelisted Access Required to interact with these endpoints)
+VITE_WALLET_SERVICE_URL=https://wallet-service.solaai.tech/         # Wallet service endpoint
+VITE_DATA_SERVICE_URL=https://data-stream-service.solaai.tech/      # Data stream service endpoint
+VITE_AUTH_SERVICE_URL=https://user-service.solaai.tech/api/v1/      # User authentication service endpoint
 
 # Environment
 VITE_ENVIORNMENT=          # 'development' or 'production'
@@ -77,6 +82,7 @@ VITE_ENVIORNMENT=          # 'development' or 'production'
 ### Security Note
 
 For production deployments:
+
 - Use Cloudflare Workers or similar service to secure sensitive keys
 - Never commit the `.env` file to version control
 - Implement proper key rotation and management
@@ -85,6 +91,7 @@ For production deployments:
 ## Development
 
 Start the development server:
+
 ```sh
 yarn dev
 ```
@@ -96,6 +103,7 @@ The application will be available at `http://localhost:5173`
 If you encounter issues during setup:
 
 1. **Node.js Version**
+
    - Ensure you're using Node.js v18 or higher
    - Use [nvm](https://github.com/nvm-sh/nvm) to manage Node.js versions:
      ```sh
@@ -104,6 +112,7 @@ If you encounter issues during setup:
      ```
 
 2. **Dependencies Issues**
+
    - Clear dependency cache and reinstall:
      ```sh
      rm -rf node_modules yarn.lock
@@ -112,18 +121,34 @@ If you encounter issues during setup:
      ```
 
 3. **Environment Variables**
+
    - Verify all required variables are set in `.env`
    - Check for typos in variable names
    - Ensure service endpoints are accessible
 
 4. **Network Issues**
+
    - Check your internet connection
    - Verify Solana RPC endpoint is responsive
    - Ensure you have access to required microservices
+   - 
+5. **Application Access and Configuration**
+   - Ensure your `.env` file is properly configured in the project root directory
+   - For microservices access:
+      - Option 1 (Recommended): Use our hosted services
+         - Requires a whitelisted wallet with our default Privy App ID
+         - Must use `VITE_PRIVY_APP_ID=cm5m351oa03ij5a8yrrj64qcv`
+         - Server performs authentication and validation checks
+      - Option 2 (Self-hosted): Run your own infrastructure
+         - Deploy microservices locally or on your infrastructure
+         - Use your own Privy App ID
+         - Implement custom service logic as needed
+   - Note: The application will have limited functionality without proper microservice access
 
 ## Support
 
 If you continue to experience issues:
+
 1. Check existing [GitHub Issues](https://github.com/TheSolaAI/sola-application/issues)
 2. Review the [Documentation](https://github.com/TheSolaAI/sola-application/docs)
 3. Open a new GitHub issue with:
