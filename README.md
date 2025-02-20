@@ -2,7 +2,7 @@
 
 Sola AI is a personalized AI voice assistant that bridges Solana blockchain technology and AI through a hands-free user experience.
 
-![img](https://github.com/user-attachments/assets/b7217eeb-20bc-408f-89c9-0883c13dd175)
+![app-screenshot](https://github.com/user-attachments/assets/c6464910-2ab6-45fd-b751-071562775d44)
 
 ## Overview
 
@@ -14,22 +14,23 @@ This application provides seamless interaction between the user, OpenAI, and blo
 * **Blockchain Data Filtering:** Microservices filter and process blockchain data based on user queries.
 * **Blockchain Interactions:** Supports Solana on-chain interactions (e.g., transfer, swap).
 
-## Microservice Overview
-
-![{16D54172-2C55-4994-8BA7-3B246A0B0994}](https://github.com/user-attachments/assets/f83edd23-b696-4630-a2e6-2f6bc59f6107)
-
-### Components
+### Core Components
 
 1. **Sola AI Application:** Serves as the central hub for processing user input, communicating with services, and integrating AI models with blockchain interactions.
    * Interfaces with OpenAI for natural language processing.
    * Routes user requests to appropriate microservices.
+   * Provides AI powered intelligent interface.
 
 2. **Data Service:**
-   * Microservice providing blockchain data.
-   * Filters and structures Solana blockchain data based on user queries.
+   * Microservice providing blockchain data built using rust.
+   * Filters and structures Solana blockchain and web data based on user queries.
 
 3. **Wallet Service:**
    * Helps to build pre-defined transactions and provides transaction objects.
+   * Built using Rust for fast data processing.
+
+4. **User Service:**
+   * Manages user data such as chat rooms management, chat history, user settings.
 
 > Refer our [Docs](https://docs.solaai.xyz/application-overview/high-level-architecture) for a better understanding of the application architecture. 
 
@@ -54,6 +55,10 @@ We welcome contributions! To contribute:
 3. Submit a pull request with detailed explanations of your changes.
 
 Please see the [CONTRIBUTING.md](CONTRIBUTING.md) file for more guidelines.
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=TheSolaAI/sola-application&type=Date)](https://star-history.com/#TheSolaAI/sola-application&Date)
 
 ## License
 
