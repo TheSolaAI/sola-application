@@ -2,7 +2,7 @@
 
 Sola AI is a personalized AI voice assistant that bridges Solana blockchain technology and AI through a hands-free user experience.
 
-![img](https://github.com/user-attachments/assets/b7217eeb-20bc-408f-89c9-0883c13dd175)
+![app-screenshot](https://github.com/user-attachments/assets/c6464910-2ab6-45fd-b751-071562775d44)
 
 ## Overview
 
@@ -55,6 +55,10 @@ We welcome contributions! To contribute:
 3. Submit a pull request with detailed explanations of your changes.
 
 Please see the [CONTRIBUTING.md](CONTRIBUTING.md) file for more guidelines.
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=TheSolaAI/sola-application&type=Date)](https://star-history.com/#TheSolaAI/sola-application&Date)
 
 ## License
 
