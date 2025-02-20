@@ -213,9 +213,12 @@ export const useSessionHandler = create<SessionHandler>((set, get) => {
     ): void => {
       if (get().dataStream && get().dataStream?.readyState === 'open') {
         const textMessage = {
-          type: 'function_call_output',
-          call_id: call_id,
-          output: message,
+          type: 'conversation.item.create',
+          item: {
+            type: 'function_call_output',
+            call_id: call_id,
+            output: JSON.stringify({ response: message }),
+          },
         };
         get().dataStream?.send(JSON.stringify(textMessage));
         get().dataStream?.send(JSON.stringify({ type: 'response.create' }));

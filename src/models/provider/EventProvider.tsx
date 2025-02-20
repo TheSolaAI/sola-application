@@ -87,6 +87,7 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
                   if (tool_result.status === 'success')
                     addMessage(createChatItemFromTool(tool, tool_result.props));
                   // send the response to OpenAI
+                  console.log(output.call_id);
                   sendFunctionCallResponseMessage(
                     tool_result.response,
                     output.call_id,
