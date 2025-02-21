@@ -50,6 +50,7 @@ Create a `.env` file in the root directory with the following environment variab
 
 ```env
 # OpenAI Configuration
+VITE_OPENAI_API_KEY=        # Openai Secret Key
 VITE_OPENAI_API_URL=        # GPT-4.0 realtime/realtime mini model url
 
 # Authentication
@@ -67,7 +68,7 @@ VITE_DATA_SERVICE_URL=https://data-stream-service.solaai.tech/      # Data strea
 VITE_AUTH_SERVICE_URL=https://user-service.solaai.tech/api/v1/      # User authentication service endpoint
 
 # Environment
-VITE_ENVIORNMENT=          # 'development' or 'production'
+VITE_ENVIORNMENT=development  # 'development' or 'production'
 ```
 
 ### Environment Variable Details

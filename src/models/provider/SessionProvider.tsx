@@ -64,7 +64,12 @@ export const SessionProvider: FC<SessionProviderProps> = ({ children }) => {
    */
   useEffect(() => {
     const init = async () => {
-      const token = await initSessionHandler();
+      let token: string | null = null;
+      if (import.meta.env.VITE_ENVIRONMENT === 'development') {
+        token = import.meta.env.VITE_OPENAI_API_KEY;
+      } else {
+        token = await initSessionHandler();
+      }
       if (token === null) return; // if the token is not available, do not proceed
       const peerConnection = new RTCPeerConnection();
       peerConnection.ontrack = (e) => {
