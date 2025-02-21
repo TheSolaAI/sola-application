@@ -71,7 +71,7 @@
     "eslint-plugin-react-hooks": "^5.1.0",
     "file-loader": "^6.2.0",
     "nodemon": "^3.1.9",
-    "postcss": "^8.4.27",
+    "postcss": "^8.5.3",
     "prettier": "^3.4.2",
     "prettier-plugin-tailwindcss": "^0.6.11",
     "tailwindcss": "^3.4.1",
