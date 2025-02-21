@@ -65,7 +65,6 @@ export const SessionProvider: FC<SessionProviderProps> = ({ children }) => {
   useEffect(() => {
     const init = async () => {
       let token: string | null = null;
-      console.log(import.meta.env.VITE_ENVIRONMENT);
       if (import.meta.env.VITE_ENVIRONMENT === 'development') {
         token = import.meta.env.VITE_OPENAI_API_KEY;
       } else {
