@@ -14,7 +14,7 @@ interface SettingsHandler {
    * Gets all settings from their respective handles and updates the server with the new settings.
    * Returns a boolean indicating if the update was successful.
    */
-  updateSettings: () => Promise<boolean>;
+  updateSettings: (emotion_choice?: string, theme?: string) => Promise<boolean>;
 }
 
 /**
@@ -39,10 +39,13 @@ export const useSettingsHandler = create<SettingsHandler>(() => {
       }
     },
 
-    updateSettings: async (): Promise<boolean> => {
-      // Collect settings from all the handlers
+    updateSettings: async (
+      emotion_choice?: string,
+      theme?: string,
+    ): Promise<boolean> => {
       const settings: UpdateUserSettingsRequest = {
-        theme: useThemeManager.getState().theme.name,
+        ...(emotion_choice !== undefined && { emotion_choice: emotion_choice }),
+        ...(theme !== undefined && { theme: theme }),
       };
       const response = await apiClient.patch(
         API_URLS.AUTH.SETTINGS.UPDATE,

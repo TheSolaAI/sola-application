@@ -20,7 +20,7 @@ export const AiProjects = ({ props }: AiProjectsChatItemProps) => {
           props.tokensByMindShare?.slice(0, 6).map((token, index) => (
             <div
               key={index}
-              className="group relative overflow-hidden block rounded-xl text-secText bg-sec_background p-3 w-full transition-all duration-300 ease-in-out hover:bg-surface cursor-pointer hover:shadow-lg"
+              className="group relative overflow-hidden block rounded-xl text-secText bg-sec_background p-3 shadow-sm w-full transition-all duration-300 ease-in-out hover:bg-surface cursor-pointer hover:shadow-lg"
               onClick={() => {
                 openDashboard('goatIndex', token.contractAddress);
               }}
@@ -56,7 +56,7 @@ export const AiProjects = ({ props }: AiProjectsChatItemProps) => {
           props.projectsByRanking?.slice(0, 6).map((token, index) => (
             <div
               key={index}
-              className="group relative overflow-hidden block rounded-xl text-secText bg-sec_background p-3 w-full transition-all duration-300 ease-in-out hover:bg-surface cursor-pointer hover:shadow-lg"
+              className="group relative overflow-hidden block rounded-xl text-secText bg-sec_background shadow-sm p-3 w-full transition-all duration-300 ease-in-out hover:bg-surface cursor-pointer hover:shadow-lg"
               onClick={() => {
                 openDashboard('goatIndex', token.tokenDetail.contractAddress);
               }}

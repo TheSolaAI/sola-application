@@ -9,6 +9,7 @@ interface ImportMetaEnv {
   readonly VITE_AUTH_SERVICE_URL: string;
   readonly VITE_SENTRY_AUTH_TOKEN: string;
   readonly VITE_ENVIRONMENT: string;
+  readonly VITE_OPENAI_API_KEY: string;
 }
 
 interface ImportMeta {

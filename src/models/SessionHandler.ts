@@ -30,7 +30,7 @@ interface SessionHandler {
   setMediaStream: (mediaStream: MediaStream | null) => void; // sets the media stream
 
   setAiVoice: (aiVoice: AIVoice) => void; // sets the voice of the AI
-  setAiEmotion: (aiEmotion: AIEmotion) => void; // sets the emotion of the AI
+  setAiEmotion: (aiEmotion: string) => void; // sets the emotion of the AI
 
   updateSession: () => void; // Updates the session with the latest tools, voice and emotion
 
@@ -59,8 +59,9 @@ interface SessionHandler {
   /**
    * Use this function to send an user typed message to the AI
    */
-  sendMessage: (message: string) => void;
+  sendUpdateMessage: (message: string) => void;
   sendTextMessage: (message: string) => void;
+  sendFunctionCallResponseMessage: (message: string, call_id: string) => void;
 }
 
 export const useSessionHandler = create<SessionHandler>((set, get) => {
@@ -136,6 +137,7 @@ export const useSessionHandler = create<SessionHandler>((set, get) => {
           temperature: 0.6,
         },
       };
+      console.log('update session', updateParams);
       toast.success('Session Updated');
       // send the event across the data stream
       get().dataStream?.send(JSON.stringify(updateParams));
@@ -170,13 +172,12 @@ export const useSessionHandler = create<SessionHandler>((set, get) => {
       }
     },
 
-    sendMessage: (message: string): void => {
+    sendUpdateMessage: (message: string): void => {
       if (get().dataStream && get().dataStream?.readyState === 'open') {
-        console.log(message);
         const response = {
-          type: 'response.create',
-          response: {
-            instructions: message,
+          type: 'session.update',
+          session: {
+            instructions: getPrimeDirective(message),
           },
         };
         get().dataStream?.send(JSON.stringify(response));
@@ -198,6 +199,25 @@ export const useSessionHandler = create<SessionHandler>((set, get) => {
                 text: message,
               },
             ],
+          },
+        };
+        get().dataStream?.send(JSON.stringify(textMessage));
+        get().dataStream?.send(JSON.stringify({ type: 'response.create' }));
+      } else {
+        toast.error('Failed to send message. Reload the page');
+      }
+    },
+    sendFunctionCallResponseMessage: (
+      message: string,
+      call_id: string,
+    ): void => {
+      if (get().dataStream && get().dataStream?.readyState === 'open') {
+        const textMessage = {
+          type: 'conversation.item.create',
+          item: {
+            type: 'function_call_output',
+            call_id: call_id,
+            output: JSON.stringify({ response: message }),
           },
         };
         get().dataStream?.send(JSON.stringify(textMessage));
