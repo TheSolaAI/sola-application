@@ -115,7 +115,7 @@ export async function swapTokensFunction(args: {
   };
   return {
     status: 'success',
-    response: `Swap successful. Transaction ID: ${txid}`,
+    response: `Your swap for ${args.quantity} ${args.tokenA} to ${args.tokenB} has been submitted.`,
     props: data,
   };
 }
