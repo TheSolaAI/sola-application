@@ -2,25 +2,30 @@
  * Component to display configurable settings to the user
  */
 import useThemeManager from '../models/ThemeManager.ts';
-import { Sun, Moon, X } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { IoIosSunny, IoMdArrowRoundBack } from 'react-icons/io';
+import { IoMoonOutline } from 'react-icons/io5';
 
 const Settings: React.FC = () => {
+  /**
+   * Global State Management
+   */
   const { theme, setTheme } = useThemeManager();
-  const goBack = () => {
+
+  const handleGoBack = () => {
     window.history.back(); // Navigates back to the previous page
   };
 
   return (
-    <div className=" h-screen p-4 bg-background animate-in fade-in-0 duration-300">
-      <div className=" relative bg-sec_background rounded-lg p-4 top-12 sm:top-2">
-        {/* Close button */}
-        <button 
-          className="absolute top-2 right-2 text-textColor hover:text-red-500" 
-          onClick={goBack}
-        >
-          <X size={20} />
-        </button>
+    <div className="relative flex flex-col gap-2 top-12 h-screen p-4 bg-background animate-in fade-in-0 duration-300">
+      {/* Close button */}
+      <button
+        className="top-8 px-4 w-fit py-2 bg-primary text-textColor rounded-full hover:text-textColorContrast hover:bg-primaryDark"
+        onClick={handleGoBack}
+      >
+        <IoMdArrowRoundBack />
+      </button>
+      <div className="bg-sec_background rounded-lg p-4 top-4 sm:top-16">
         <h1 className="font-bold text-xl dark:text-purple-300">
           APP CONFIGURATION:
         </h1>
@@ -40,9 +45,9 @@ const Settings: React.FC = () => {
                 transition={{ type: 'spring', stiffness: 300, damping: 20 }}
               >
                 {theme.name === 'light' ? (
-                  <Sun size={16} />
+                  <IoIosSunny size={16} />
                 ) : (
-                  <Moon size={16} />
+                  <IoMoonOutline size={16} />
                 )}
               </motion.div>
             </div>
