@@ -46,7 +46,6 @@ export const LayoutProvider: React.FC<{ children: ReactNode }> = ({
    */
   const audioEl = document.createElement('audio');
   audioEl.autoplay = true;
-  audioEl.volume = 1.0;
   audioEl.setAttribute('playsinline', 'true');
 
   /**
