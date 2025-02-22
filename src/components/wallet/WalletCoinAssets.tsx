@@ -10,8 +10,7 @@ import {
 } from './CoinsSortDropDown.tsx';
 import { TokenAsset } from '../../types/wallet.ts';
 import useThemeManager from '../../models/ThemeManager.ts';
-import { formatNumber } from '../../lib/utils/walletNumberConverter.ts';
-
+import { formatNumber } from '../../utils/formatNumber.ts';
 const WalletCoinAssets = () => {
   const {
     walletAssets,

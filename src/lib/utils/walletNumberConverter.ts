@@ -1,4 +1,4 @@
-export function formatNumber(num: number): string {
+export function formatWalletNumber(num: number): string {
     if (Math.abs(num) >= 1) {
         return num.toFixed(2);
     }

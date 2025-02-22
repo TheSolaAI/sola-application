@@ -8,6 +8,7 @@ import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 import { useDashboardHandler } from '../models/DashboardHandler.ts';
 import WalletLensButton from '../components/wallet/WalletLensButton.tsx';
 import { GoatIndexDashboard } from '../components/dashboard/GoatIndexDashboard.tsx';
+import { TokenDataDashboard } from '../components/dashboard/TokenDataDashboard.tsx';
 
 const MasterLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
   const {
@@ -53,6 +54,7 @@ const MasterLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
             <Panel id="right" order={2} minSize={30}>
               <main className="w-full h-full sm:rounded-2xl bg-background overflow-hidden">
                 {dashboardType === 'goatIndex' && <GoatIndexDashboard />}
+                {dashboardType === 'tokenData' && <TokenDataDashboard />}
               </main>
             </Panel>
           </>

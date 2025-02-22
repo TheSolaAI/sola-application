@@ -70,7 +70,6 @@ async function getTokenDataFunction(
         sender: 'assistant',
         type: 'token_data',
         data: {
-          address: args.token_address,
           image: response.data.image,
           metadata: response.data.metadata,
           volume: response.data.volume.toString(),

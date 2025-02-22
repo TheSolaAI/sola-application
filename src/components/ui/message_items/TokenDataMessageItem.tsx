@@ -34,12 +34,18 @@ import {
 import BaseGridChatItem from './general/BaseGridChatItem.tsx';
 import { ExternalLink } from 'lucide-react';
 import { formatNumber } from '../../../utils/formatNumber.ts';
+import { useDashboardHandler } from '../../../models/DashboardHandler.ts';
 
 export const TokenDataMessageItem: FC<ChatItemProps<TokenDataChatContent>> = ({
   props,
 }) => {
+  const { openDashboard } = useDashboardHandler();
   return (
-    <div>
+    <div
+    onClick={() => {
+      openDashboard('tokenData', props.data.metadata?.address,props);
+    }}
+    >
       <BaseGridChatItem col={2}>
         <div className="p-2 rounded-lg bg-sec_background overflow-x-auto text-secText">
           <div className="flex justify-between items-start">
@@ -74,7 +80,7 @@ export const TokenDataMessageItem: FC<ChatItemProps<TokenDataChatContent>> = ({
             <button
               onClick={() =>
                 window.open(
-                  `https://dexscreener.com/solana/${props.data.address}`,
+                  `https://dexscreener.com/solana/${props.data.metadata.address}`,
                   '_blank',
                 )
               }

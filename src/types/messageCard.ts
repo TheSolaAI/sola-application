@@ -103,13 +103,11 @@ export type NFTCollectionCard = {
 };
 
 export interface TokenCard {
-  address: string;
   image?: string;
-  metadata?: {
+  metadata: {
     name: string;
     symbol: string;
     address:string;
-    
   };
   price?: string;
   marketCap?: string;
