@@ -183,7 +183,7 @@ export const Sidebar: FC<SidebarProps> = ({
         />
 
         {/*  ChatRooms List */}
-        <div className="mt-[10px] flex-1 pr-4 overflow-y-auto scrollbar-thin scrollbar-thumb-primary scrollbar-track-sec_background ">
+        <div className="mt-[10px] flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-primary scrollbar-track-sec_background ">
           <div className="flex flex-col items-start space-y-2">
             {rooms.map((room) => {
               const isEditing = editingRoom === room.id;
@@ -200,7 +200,8 @@ export const Sidebar: FC<SidebarProps> = ({
                       if (isMobile) setIsOpen(false);
                       setCurrentChatRoom(room);
                     }}
-                    className={`group font-small flex w-full justify-between items-center gap-3 rounded-xl p-2 transition-color duration-300 ease-in-out hover:bg-primary
+                    ref={(el) => el && (editButtonRefs.current[room.id!] = el)}
+                    className={`group font-small flex w-full justify-between items-center rounded-xl p-[10px] transition-color duration-300 ease-in-out hover:bg-primaryDark
               ${pathname === `/c/${room.id}` || pathname.startsWith(`/c/${room.id}/`) ? 'bg-primaryDark' : ''}`}
                   >
                     <div className="flex items-center gap-4 md:gap-6">
@@ -217,8 +218,7 @@ export const Sidebar: FC<SidebarProps> = ({
                     </div>
 
                     <button
-                      ref={(el) => el && (editButtonRefs.current[room.id] = el)}
-                      onClick={(e) => handleEditClick(e, room.id)}
+                      onClick={(e) => handleEditClick(e, room.id!)}
                       className={`transition-opacity duration-300 group-hover:opacity-100 
                 ${pathname === `/c/${room.id}` || pathname.startsWith(`/c/${room.id}/`) ? 'lg:opacity-100' : 'lg:opacity-0'}`}
                     >

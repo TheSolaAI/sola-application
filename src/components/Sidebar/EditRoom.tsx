@@ -116,6 +116,7 @@ export const EditRoom: React.FC<EditRoomProps> = ({
       mobileTitle="Chat Settings"
       width="auto"
       direction="down"
+      horizontalAlignment="right"
     >
       <EditRoomContent onClose={onClose} roodID={roomID} />
     </Dropdown>
