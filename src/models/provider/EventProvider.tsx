@@ -8,6 +8,7 @@ import { SimpleMessageChatContent } from '../../types/chatItem.ts';
 import { useAgentHandler } from '../AgentHandler.ts';
 import { useChatRoomHandler } from '../ChatRoomHandler.ts';
 import { useWalletHandler } from '../WalletHandler.ts';
+import { useCreditHandler } from '../CreditHandler.ts';
 
 interface EventProviderProps {
   children: ReactNode;
@@ -22,6 +23,7 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
   const { getToolsForAgent } = useAgentHandler();
   const { currentWallet } = useWalletHandler();
   const { addMessage } = useChatMessageHandler();
+  const {} = useCreditHandler();
 
   /**
    * The direct api access is used in all these classes to prevent asynchronous
@@ -83,11 +85,11 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
                     },
                     eventData.response_id,
                   );
+                  // calculate the cost of this function call and the input and output tokens used by it
                   // add the message to our local array and also our database history
                   if (tool_result.status === 'success')
                     addMessage(createChatItemFromTool(tool, tool_result.props));
                   // send the response to OpenAI
-                  console.log(output.call_id);
                   sendFunctionCallResponseMessage(
                     tool_result.response,
                     output.call_id,
