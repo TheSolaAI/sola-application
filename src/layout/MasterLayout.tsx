@@ -7,7 +7,7 @@ import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 import { useDashboardHandler } from '../models/DashboardHandler.ts';
 import WalletLensButton from '../components/wallet/WalletLensButton.tsx';
 import { GoatIndexDashboard } from '../components/dashboard/GoatIndexDashboard.tsx';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 
 const slideRight = {
   initial: { x: '100%', opacity: 0 },
@@ -42,7 +42,7 @@ const MasterLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
         autoSaveId="conditional"
         direction="horizontal"
       >
-        <div className="absolute t-3 right-2 z-10">
+        <div className="absolute t-3 right-2 z-20">
           <WalletLensButton
             onClick={() => handleWalletLensOpen(!walletLensOpen)}
           />

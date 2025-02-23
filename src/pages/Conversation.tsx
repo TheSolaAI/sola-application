@@ -148,8 +148,7 @@ const Conversation = () => {
         </div>
       )}
 
-      {/* Messages Container with fade effects */}
-      <div className="flex-1 w-full h-full pt-12">
+      <div className="flex-1 w-full h-full">
         <div className="relative w-full h-full">
           {/* Top fade gradient */}
           <div
