@@ -1,7 +1,7 @@
 import { ChevronLeft, Edit, Edit2, Menu, User } from 'lucide-react';
 import React, { FC, useEffect, useRef, useState } from 'react';
 import useThemeManager from '../../models/ThemeManager.ts';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { AgentSelect } from './AgentSelect.tsx';
 import { EditRoom } from './EditRoom.tsx';
 import { ProfileDropDown } from './ProfileDropDown.tsx';
@@ -24,8 +24,6 @@ export const Sidebar: FC<SidebarProps> = ({
   canAutoClose,
   setCanAutoClose,
 }) => {
-  const navigate = useNavigate();
-
   /**
    * Refs
    */
@@ -38,7 +36,7 @@ export const Sidebar: FC<SidebarProps> = ({
    * Global State
    */
   const { theme } = useThemeManager();
-  const { rooms, setCurrentChatRoom, setNewRoomId } = useChatRoomHandler();
+  const { rooms, setCurrentChatRoom, createChatRoom } = useChatRoomHandler();
   const { pathname } = useLocation();
   const { agents } = useAgentHandler();
   const { walletLensOpen } = useLayoutContext();
@@ -174,11 +172,9 @@ export const Sidebar: FC<SidebarProps> = ({
           }}
           anchorEl={agentSelectRef.current}
           onSelect={(agentId: number) => {
-            console.log(agentId);
-            setNewRoomId(agentId);
-            setCurrentChatRoom(null);
-            navigate(`/`);
-            setAgentSelectOpen(false);
+            createChatRoom({ name: 'New Chat', agentId }).then((room) => {
+              if (room) setCurrentChatRoom(room);
+            });
           }}
         />
 
