@@ -64,7 +64,7 @@
     "@types/node": "^22.10.5",
     "@types/react": "^18.2.17",
     "@types/react-dom": "^18.2.7",
-    "@typescript-eslint/eslint-plugin": "^8.22.0",
+    "@typescript-eslint/eslint-plugin": "^8.24.1",
     "@typescript-eslint/parser": "^8.22.0",
     "@vite-pwa/assets-generator": "^0.2.6",
     "@vitejs/plugin-react": "^4.0.3",
