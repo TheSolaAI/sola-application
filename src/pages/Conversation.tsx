@@ -1,6 +1,6 @@
 import { SessionControls } from '../components/SessionControls.tsx';
 import { useChatRoomHandler } from '../models/ChatRoomHandler.ts';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ChatRoom } from '../types/chatRoom.ts';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
@@ -24,20 +24,30 @@ import { AudioPlayerMessageItem } from '../components/ui/message_items/AudioPlay
 import { NFTCollectionMessageItem } from '../components/ui/message_items/NFTCollectionCardItem.tsx';
 import { TrendingNFTMessageItem } from '../components/ui/message_items/TrendingNFTMessageItem.tsx';
 import { AiProjects } from '../components/ui/message_items/AiProjects.tsx';
+import { useAgentHandler } from '../models/AgentHandler.ts';
+import quick_prompts from '../config/quick_prompts.json';
+import { useSessionHandler } from '../models/SessionHandler.ts';
+import { ScaleLoader } from 'react-spinners';
 
 const Conversation = () => {
   const navigate = useNavigate();
-  const { theme } = useThemeManager();
-  const { audioIntensity } = useLayoutContext();
-
-  const primaryRGB = hexToRgb(theme.primary);
-  const primaryDarkRGB = hexToRgb(theme.primaryDark);
 
   /**
    * Global state
    */
   const { setCurrentChatRoom, rooms, allRoomsLoaded } = useChatRoomHandler();
-  const { messages, currentChatItem } = useChatMessageHandler();
+  const { messages, currentChatItem, state } = useChatMessageHandler();
+  const { sendTextMessage } = useSessionHandler();
+  const { agents } = useAgentHandler();
+  const { theme } = useThemeManager();
+  const { audioIntensity } = useLayoutContext();
+
+  /**
+   * Local State
+   */
+  const primaryRGB = hexToRgb(theme.primary);
+  const primaryDarkRGB = hexToRgb(theme.primaryDark);
+  const [suggestions, setSuggestions] = useState<string[]>([]);
 
   /**
    * Current Route
@@ -65,6 +75,18 @@ const Conversation = () => {
     }
   }, [chatRoomId, allRoomsLoaded]);
 
+  /**
+   * Load some random suggestions
+   */
+  useEffect(() => {
+    const promptsCopy = [...quick_prompts];
+    for (let i = promptsCopy.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [promptsCopy[i], promptsCopy[j]] = [promptsCopy[j], promptsCopy[i]];
+    }
+
+    setSuggestions(promptsCopy.slice(0, 6));
+  }, []);
   /**
    * The primary render function. If provided a chatItem, it returns the React component that should be rendered
    */
@@ -140,11 +162,57 @@ const Conversation = () => {
   return (
     <div className="relative flex flex-col w-full h-screen overflow-hidden">
       {/* Empty state message */}
-      {messages.length === 0 && !currentChatItem && (
-        <div className="absolute inset-0 flex flex-col gap-2 items-center justify-center text-secText animate-in fade-in duration-700">
-          <span className="font-semibold text-title-xl">
-            Hey, How can I help you?
+      {state === 'loading' && (
+        <div
+          className={
+            'absolute inset-0 flex flex-col gap-4 items-center justify-center'
+          }
+        >
+          <ScaleLoader color={theme.textColor} height={80} width={20} />
+        </div>
+      )}
+
+      {messages.length === 0 && !currentChatItem && state !== 'loading' && (
+        <div className="absolute inset-0 flex flex-col gap-4 items-center justify-center p-4 z-50">
+          {/* Title */}
+          <span className="font-semibold text-lg md:text-title-xl text-secText animate-in fade-in duration-700">
+            Ask Sola AI
           </span>
+
+          {/* Example Prompts */}
+          <div className="flex flex-col gap-3 bg-sec_background rounded-lg p-4 md:w-[40%] mt-3 md:mt-5">
+            {suggestions.map((prompt) => (
+              <button
+                key={prompt}
+                onClick={() => {
+                  sendTextMessage(prompt);
+                }}
+                className={'w-full '}
+              >
+                <p className="px-2 py-1 text-md md:text-md font-medium text-secText text-start">
+                  {prompt}
+                </p>
+              </button>
+            ))}
+          </div>
+
+          {/* Available Agents */}
+          <div className="flex flex-wrap gap-2 p-2 w-full justify-center">
+            {agents.map((agent) => {
+              const Icon = agent.logo;
+              return (
+                <div
+                  key={agent.slug}
+                  className="flex items-center gap-2 bg-sec_background rounded-2xl px-3 py-2"
+                >
+                  <Icon className="w-4 h-4 md:w-5 md:h-5 text-secText" />
+                  <span className="text-xs md:text-sm font-medium text-secText">
+                    {agent.name}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
         </div>
       )}
 
@@ -163,7 +231,7 @@ const Conversation = () => {
 
           {/* Scrollable content */}
           <div className="absolute inset-0 overflow-y-auto no-scrollbar">
-            <div className="w-full sm:w-[60%] mx-auto pb-32">
+            <div className="w-full sm:w-[60%] mx-auto pb-32 mt-10">
               {messages.map((chatItem, index) =>
                 renderMessageItem(chatItem, index),
               )}
