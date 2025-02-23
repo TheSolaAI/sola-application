@@ -1,12 +1,3 @@
-/**
- * Component to render an audio player with controls. This component uses `ReactAudioPlayer` for rendering audio controls.
- *
- * Props:
- * - `index`: The index of the audio item, used as the key in the component.
- * - `base64URL`: The base64-encoded audio URL for the audio file.
- */
-
-import ReactAudioPlayer from 'react-audio-player';
 import { AudioLines } from 'lucide-react';
 import useThemeManager from '../../../models/ThemeManager.ts';
 import { UserAudioChatContent } from '../../../types/chatItem.ts';
@@ -23,12 +14,12 @@ export const AudioPlayerMessageItem = ({ props }: AudioPlayerChatItemProps) => {
       <div>
         <AudioLines color={theme.secText} strokeWidth={1.2} />
       </div>
-      <div className="flex text-secText justify-end rounded-lg">
-        <ReactAudioPlayer
+      <div className="flex justify-end overflow-hidden">
+        <audio
           src={props.text}
           controls
-          autoPlay={false}
-          className="max-w-[90%] drop-shadow-md invert contrast-75"
+          preload="metadata"
+          className="max-w-[90%] drop-shadow-md my-1 invert contrast-75"
         />
       </div>
     </div>
