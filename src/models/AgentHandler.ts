@@ -4,13 +4,15 @@ import { Atom, ChartNetwork, Wallet } from 'lucide-react';
 import { GiGoat } from 'react-icons/gi';
 import {
   depositLulo,
+  getAgentSwapper,
+  getAiProjectsByClassification,
+  getAiProjectsByToken,
+  getAiProjectsMindshare,
   getBlinks,
   getBubblemap,
   getLimitOrders,
   getLstData,
   getLuloAssets,
-  // getMarketData,
-  // getNFTLaunchpad,
   getNFTPrice,
   getRugCheck,
   getTokenData,
@@ -23,25 +25,24 @@ import {
   transferSpl,
   walletActions,
   withdrawLulo,
-  getAiProjectsByClassification,
-  getAiProjectsByToken,
-  getAiProjectsMindshare,
 } from '../tools';
-import { Tool } from '../types/tool.ts';
 
 interface AgentHandler {
   agents: Agent[];
-  getToolsForAgent: (agentId: number) => Tool[]; // Returns the tools array for a given agent ID
+  currentActiveAgent: Agent | null; // this is the current active agent in the session
+
+  setCurrentActiveAgent: (agent: Agent | null) => void;
 }
 
 export const useAgentHandler = create<AgentHandler>((_setState, getState) => ({
   agents: [
     {
-      agentID: 1,
       name: 'Token Analyst',
+      slug: 'token-analyst',
       description: 'Designed for deep token analysis and trading experience.',
       logo: ChartNetwork,
       tools: [
+        getAgentSwapper,
         // walletActions,
         getTokenData,
         getTopHolders,
@@ -56,11 +57,12 @@ export const useAgentHandler = create<AgentHandler>((_setState, getState) => ({
       ],
     },
     {
-      agentID: 4,
       name: 'GoatIndex',
+      slug: 'goatindex',
       description: 'Agent to analyse AI projects using GoatIndex',
       logo: GiGoat,
       tools: [
+        getAgentSwapper,
         // walletActions,
         swapTokens,
         getAiProjectsByClassification,
@@ -69,11 +71,12 @@ export const useAgentHandler = create<AgentHandler>((_setState, getState) => ({
       ],
     },
     {
-      agentID: 2,
       name: 'NFT Analyst',
+      slug: 'nft-analyst',
       description: 'Designed for NFT-related tasks and price queries.',
       logo: Atom,
       tools: [
+        getAgentSwapper,
         walletActions,
         getNFTPrice,
         getTrendingNFTs,
@@ -83,12 +86,13 @@ export const useAgentHandler = create<AgentHandler>((_setState, getState) => ({
       ],
     },
     {
-      agentID: 3,
       name: 'DAM',
+      slug: 'dam',
       description:
         'DeFi Asset Manager - for Lulo operations and LST management.',
       logo: Wallet,
       tools: [
+        getAgentSwapper,
         // walletActions,
         swapTokens,
         transferSolTx,
@@ -103,10 +107,9 @@ export const useAgentHandler = create<AgentHandler>((_setState, getState) => ({
       ],
     },
   ],
+  currentActiveAgent: null,
 
-  getToolsForAgent: (agentId: number) => {
-    return (
-      getState().agents.find((agent) => agent.agentID === agentId)?.tools || []
-    );
+  setCurrentActiveAgent: (agent: Agent | null) => {
+    getState().currentActiveAgent = agent;
   },
 }));

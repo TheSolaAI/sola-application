@@ -1,5 +1,6 @@
 import { FC } from 'react';
 import {
+  AgentSwapChatContent,
   AiProjectsChatContent,
   BaseChatContent,
   BubbleMapChatContent,
@@ -17,6 +18,13 @@ import {
 } from './chatItem.ts';
 import { ConnectedSolanaWallet } from '@privy-io/react-auth';
 
+export interface BaseToolAbstraction {
+  type: `function`;
+  name: string;
+  description: string;
+  parameters: any;
+}
+
 export interface BaseTool {
   implementation: (
     args: any,
@@ -26,14 +34,25 @@ export interface BaseTool {
     response: string;
     props?: BaseChatContent;
   }>; // The implementation of the function that is executed when the tool is called
-  abstraction: {
-    type: `function`;
-    name: string;
-    description: string;
-    parameters: any;
-  }; // the description of the function that is sent to OpenAI
+  abstraction: BaseToolAbstraction; // the description of the function that is sent to OpenAI
   cost?: number; // the cost of the function call in credits
 }
+
+export interface AgentSwapTool extends BaseTool {
+  implementation: (
+    args: { agent: string; original_request: string },
+    response_id: string,
+  ) => Promise<{
+    status: 'success' | 'error';
+    response: string;
+    props?: AgentSwapChatContent;
+  }>;
+  representation?: {
+    props_type: 'agent_swap';
+    component: FC<{ props: AgentSwapChatContent }>;
+  };
+}
+
 export interface TokenDataTool extends BaseTool {
   implementation: (
     args: { token_address: string },
@@ -338,6 +357,7 @@ export interface AiProjectByToken extends BaseTool {
 }
 
 export type Tool =
+  | AgentSwapTool
   | TokenDataTool
   | DepositLuloTool
   | WithdrawLuloTool
