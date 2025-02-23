@@ -11,6 +11,11 @@ Key Guidelines:
 
 User-Configured Personality:
   - ${userConfig}
+  
+Response Formatting:
+- Always use multiple line breaks between sections of your response
+- Always use markdown formatting with support for GFM
+- Always try to use an emoji or two to make your responses more engaging
 `;
 
 export type AIVoice =

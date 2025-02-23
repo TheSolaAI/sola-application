@@ -15,9 +15,7 @@ export default function BaseChatItem({ children }: BaseChatItemProps) {
       <div>
         <Volleyball color={theme.secText} strokeWidth={1.2} />
       </div>
-      <div className="bg-sec_background text-secText p-2 w-full rounded-lg break-words whitespace-normal">
-        {children}
-      </div>
+      <div className="p-2 w-full break-words whitespace-normal">{children}</div>
     </div>
   );
 }
