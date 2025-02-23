@@ -2,7 +2,7 @@ import React from 'react';
 import { Tool } from './tool.ts';
 
 export interface Agent {
-  agentID: number;
+  slug: string;
   name: string;
   description: string;
   logo: React.ElementType;

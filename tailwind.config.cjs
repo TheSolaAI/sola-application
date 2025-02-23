@@ -244,6 +244,10 @@ module.exports = {
           '50%': { opacity: '1.2' },
           '100%': { opacity: '0.8' },
         },
+        wave: {
+          '0%, 100%': { transform: 'translateY(10%)' },
+          '50%': { transform: 'translateY(5%)' },
+        },
         rotating: {
           '0%, 100%': { transform: 'rotate(360deg)' },
           '50%': { transform: 'rotate(0deg)' },

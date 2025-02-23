@@ -1,6 +1,6 @@
 import { SessionControls } from '../components/SessionControls.tsx';
 import { useChatRoomHandler } from '../models/ChatRoomHandler.ts';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ChatRoom } from '../types/chatRoom.ts';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
@@ -25,31 +25,35 @@ import { NFTCollectionMessageItem } from '../components/ui/message_items/NFTColl
 import { TrendingNFTMessageItem } from '../components/ui/message_items/TrendingNFTMessageItem.tsx';
 import { AiProjects } from '../components/ui/message_items/AiProjects.tsx';
 import { useAgentHandler } from '../models/AgentHandler.ts';
+import quick_prompts from '../config/quick_prompts.json';
+import { useSessionHandler } from '../models/SessionHandler.ts';
+import { ScaleLoader } from 'react-spinners';
 
 const Conversation = () => {
   const navigate = useNavigate();
-  const { theme } = useThemeManager();
-  const { audioIntensity } = useLayoutContext();
-
-  const primaryRGB = hexToRgb(theme.primary);
-  const primaryDarkRGB = hexToRgb(theme.primaryDark);
 
   /**
    * Global state
    */
-  const { setCurrentChatRoom, rooms, allRoomsLoaded, newRoomId } =
-    useChatRoomHandler();
-  const { messages, currentChatItem } = useChatMessageHandler();
+  const { setCurrentChatRoom, rooms, allRoomsLoaded } = useChatRoomHandler();
+  const { messages, currentChatItem, state } = useChatMessageHandler();
+  const { sendTextMessage } = useSessionHandler();
   const { agents } = useAgentHandler();
+  const { theme } = useThemeManager();
+  const { audioIntensity } = useLayoutContext();
+
+  /**
+   * Local State
+   */
+  const primaryRGB = hexToRgb(theme.primary);
+  const primaryDarkRGB = hexToRgb(theme.primaryDark);
+  const [suggestions, setSuggestions] = useState<string[]>([]);
 
   /**
    * Current Route
    */
   const pathParts = window.location.pathname.split('/');
   const chatRoomId = pathParts[pathParts.length - 1];
-
-  const agent = agents.find((agent) => agent.agentID === newRoomId);
-  const agentName = agent ? agent.name : 'AI';
 
   useEffect(() => {
     if (chatRoomId && allRoomsLoaded) {
@@ -71,6 +75,18 @@ const Conversation = () => {
     }
   }, [chatRoomId, allRoomsLoaded]);
 
+  /**
+   * Load some random suggestions
+   */
+  useEffect(() => {
+    const promptsCopy = [...quick_prompts];
+    for (let i = promptsCopy.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [promptsCopy[i], promptsCopy[j]] = [promptsCopy[j], promptsCopy[i]];
+    }
+
+    setSuggestions(promptsCopy.slice(0, 6));
+  }, []);
   /**
    * The primary render function. If provided a chatItem, it returns the React component that should be rendered
    */
@@ -144,29 +160,105 @@ const Conversation = () => {
   };
 
   return (
-    <div className="relative flex flex-col w-full h-screen">
-      {messages.length === 0 && !currentChatItem && (
-        <div className="flex flex-col gap-2 items-center justify-center text-secText h-full w-full animate-in fade-in duration-700">
-          <span className="font-semibold text-title-xl">
-            Hey, How can I help you?
-          </span>
-          <span className="text-base ">I&apos;m {agentName} agent</span>
+    <div className="relative flex flex-col w-full h-screen overflow-hidden">
+      {/* Empty state message */}
+      {state === 'loading' && (
+        <div
+          className={
+            'absolute inset-0 flex flex-col gap-4 items-center justify-center'
+          }
+        >
+          <ScaleLoader color={theme.textColor} height={80} width={20} />
         </div>
       )}
 
-      {/* Messages Container (Scrollable) */}
-      <div className="flex-1 mt-12 max-h-[80vh] overflow-y-auto w-full sm:w-[60%] self-center pb-[6rem] no-scrollbar">
-        {messages.map((chatItem, index) => {
-          return renderMessageItem(chatItem, index);
-        })}
-        {currentChatItem && renderMessageItem(currentChatItem, -1)}
+      {messages.length === 0 && !currentChatItem && state !== 'loading' && (
+        <div className="absolute inset-0 flex flex-col gap-4 items-center justify-center p-4 z-20">
+          {/* Title */}
+          <span className="font-semibold text-lg md:text-title-xl text-secText animate-in fade-in duration-700">
+            Ask Sola AI
+          </span>
+
+          {/* Example Prompts */}
+          <div className="flex flex-col gap-3 bg-sec_background rounded-lg p-4 md:w-[40%] mt-3 md:mt-5">
+            {suggestions.map((prompt) => (
+              <button
+                key={prompt}
+                onClick={() => {
+                  sendTextMessage(prompt);
+                }}
+                className={'w-full '}
+              >
+                <p className="px-2 py-1 text-md md:text-md font-medium text-secText text-start">
+                  {prompt}
+                </p>
+              </button>
+            ))}
+          </div>
+
+          {/* Available Agents */}
+          <div className="flex flex-wrap gap-2 p-2 w-full justify-center">
+            {agents.map((agent) => {
+              const Icon = agent.logo;
+              return (
+                <div
+                  key={agent.slug}
+                  className="flex items-center gap-2 bg-sec_background rounded-2xl px-3 py-2"
+                >
+                  <Icon className="w-4 h-4 md:w-5 md:h-5 text-secText" />
+                  <span className="text-xs md:text-sm font-medium text-secText">
+                    {agent.name}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      <div className="flex-1 w-full h-full">
+        <div className="relative w-full h-full">
+          {/* Top fade gradient */}
+          <div
+            className="absolute top-0 left-0 right-0 h-12 z-10 pointer-events-none"
+            style={{
+              background: `linear-gradient(to bottom, 
+                ${theme.background} 0%,
+                rgba(${primaryRGB.r}, ${primaryRGB.g}, ${primaryRGB.b}, 0) 100%
+              )`,
+            }}
+          />
+
+          {/* Scrollable content */}
+          <div className="absolute inset-0 overflow-y-auto no-scrollbar">
+            <div className="w-full sm:w-[60%] mx-auto pb-32 mt-10">
+              {messages.map((chatItem, index) =>
+                renderMessageItem(chatItem, index),
+              )}
+              {currentChatItem && renderMessageItem(currentChatItem, -1)}
+            </div>
+          </div>
+
+          {/* Bottom fade gradient (above the controls) */}
+          <div
+            className="absolute bottom-0 left-0 right-0 h-32 z-10 pointer-events-none"
+            style={{
+              background: `linear-gradient(to top, 
+                ${theme.background} 0%,
+                rgba(${primaryRGB.r}, ${primaryRGB.g}, ${primaryRGB.b}, 0) 100%
+              )`,
+            }}
+          />
+        </div>
       </div>
 
-      {/* Session Controls (Fixed at Bottom of the Screen) */}
+      {/* Session Controls (Fixed at Bottom) */}
       <div
-        className="absolute bottom-0 left-0 right-0 flex justify-center w-full p-4 pb-8 animate-wave transition-all duration-[5000]"
+        className="absolute bottom-0 left-0 right-0 z-20 p-4 pb-8"
         style={{
-          background: `linear-gradient(to top, rgba(${primaryRGB.r}, ${primaryRGB.g}, ${primaryRGB.b}, ${0.5 + 1.5 * audioIntensity}), rgba(${primaryDarkRGB.r}, ${primaryDarkRGB.g}, ${primaryDarkRGB.b}, ${0.3 + 1.2 * audioIntensity}), transparent)`,
+          background: `linear-gradient(to top, 
+            rgba(${primaryDarkRGB.r}, ${primaryDarkRGB.g}, ${primaryDarkRGB.b}, ${audioIntensity * 1.2}),
+            transparent 80%)`,
           transition: 'background 0.1s linear',
         }}
       >
