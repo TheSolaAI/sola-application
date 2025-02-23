@@ -63,6 +63,7 @@ export const SessionProvider: FC<SessionProviderProps> = ({ children }) => {
    * the session is not restarted as there is no context switch.
    */
   useEffect(() => {
+    // TODO: Add Check for the amount of credits the user has here. Add the credits amount as a dep in this hook
     const init = async () => {
       let token: string | null = null;
       if (import.meta.env.VITE_ENVIRONMENT === 'development') {

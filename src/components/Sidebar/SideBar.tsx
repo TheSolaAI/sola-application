@@ -1,7 +1,7 @@
 import { ChevronLeft, Edit, Edit2, Menu, User } from 'lucide-react';
 import React, { FC, useEffect, useRef, useState } from 'react';
 import useThemeManager from '../../models/ThemeManager.ts';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { AgentSelect } from './AgentSelect.tsx';
 import { EditRoom } from './EditRoom.tsx';
 import { ProfileDropDown } from './ProfileDropDown.tsx';
@@ -24,8 +24,6 @@ export const Sidebar: FC<SidebarProps> = ({
   canAutoClose,
   setCanAutoClose,
 }) => {
-  const navigate = useNavigate();
-
   /**
    * Refs
    */
@@ -38,7 +36,7 @@ export const Sidebar: FC<SidebarProps> = ({
    * Global State
    */
   const { theme } = useThemeManager();
-  const { rooms, setCurrentChatRoom, setNewRoomId } = useChatRoomHandler();
+  const { rooms, setCurrentChatRoom, createChatRoom } = useChatRoomHandler();
   const { pathname } = useLocation();
   const { agents } = useAgentHandler();
   const { walletLensOpen } = useLayoutContext();
@@ -174,16 +172,14 @@ export const Sidebar: FC<SidebarProps> = ({
           }}
           anchorEl={agentSelectRef.current}
           onSelect={(agentId: number) => {
-            console.log(agentId);
-            setNewRoomId(agentId);
-            setCurrentChatRoom(null);
-            navigate(`/`);
-            setAgentSelectOpen(false);
+            createChatRoom({ name: 'New Chat', agentId }).then((room) => {
+              if (room) setCurrentChatRoom(room);
+            });
           }}
         />
 
         {/*  ChatRooms List */}
-        <div className="mt-[10px] flex-1 pr-4 overflow-y-auto scrollbar-thin scrollbar-thumb-primary scrollbar-track-sec_background ">
+        <div className="mt-[10px] flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-primary scrollbar-track-sec_background ">
           <div className="flex flex-col items-start space-y-2">
             {rooms.map((room) => {
               const isEditing = editingRoom === room.id;
@@ -200,7 +196,8 @@ export const Sidebar: FC<SidebarProps> = ({
                       if (isMobile) setIsOpen(false);
                       setCurrentChatRoom(room);
                     }}
-                    className={`group font-small flex w-full justify-between items-center gap-3 rounded-xl p-2 transition-color duration-300 ease-in-out hover:bg-primary
+                    ref={(el) => el && (editButtonRefs.current[room.id!] = el)}
+                    className={`group font-small flex w-full justify-between items-center rounded-xl p-[10px] transition-color duration-300 ease-in-out hover:bg-primaryDark
               ${pathname === `/c/${room.id}` || pathname.startsWith(`/c/${room.id}/`) ? 'bg-primaryDark' : ''}`}
                   >
                     <div className="flex items-center gap-4 md:gap-6">
@@ -217,8 +214,7 @@ export const Sidebar: FC<SidebarProps> = ({
                     </div>
 
                     <button
-                      ref={(el) => el && (editButtonRefs.current[room.id] = el)}
-                      onClick={(e) => handleEditClick(e, room.id)}
+                      onClick={(e) => handleEditClick(e, room.id!)}
                       className={`transition-opacity duration-300 group-hover:opacity-100 
                 ${pathname === `/c/${room.id}` || pathname.startsWith(`/c/${room.id}/`) ? 'lg:opacity-100' : 'lg:opacity-0'}`}
                     >

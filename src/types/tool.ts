@@ -1,19 +1,19 @@
 import { FC } from 'react';
 import {
-  BaseChatContent,
-  TokenDataChatContent,
-  LuloChatContent,
-  ShowLSTDataChatContent,
-  ShowLimitOrdersChatContent,
-  BubbleMapChatContent,
-  RugCheckChatContent,
-  TopHoldersChatContent,
-  SwapChatContent,
-  MarketDataChatContent,
-  TransactionChatContent,
-  GetTrendingNFTSChatContent,
-  NFTCollectionChatContent,
   AiProjectsChatContent,
+  BaseChatContent,
+  BubbleMapChatContent,
+  GetTrendingNFTSChatContent,
+  LuloChatContent,
+  MarketDataChatContent,
+  NFTCollectionChatContent,
+  RugCheckChatContent,
+  ShowLimitOrdersChatContent,
+  ShowLSTDataChatContent,
+  SwapChatContent,
+  TokenDataChatContent,
+  TopHoldersChatContent,
+  TransactionChatContent,
 } from './chatItem.ts';
 import { ConnectedSolanaWallet } from '@privy-io/react-auth';
 
@@ -25,13 +25,14 @@ export interface BaseTool {
     status: 'success' | 'error';
     response: string;
     props?: BaseChatContent;
-  }>;
+  }>; // The implementation of the function that is executed when the tool is called
   abstraction: {
     type: `function`;
     name: string;
     description: string;
     parameters: any;
-  };
+  }; // the description of the function that is sent to OpenAI
+  cost?: number; // the cost of the function call in credits
 }
 export interface TokenDataTool extends BaseTool {
   implementation: (

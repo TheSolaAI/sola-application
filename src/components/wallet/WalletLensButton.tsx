@@ -30,7 +30,7 @@ function WalletLensButton({ onClick }: WalletLensButtonProps) {
     <>
       {/* External Button*/}
       <button
-        className=" my-2 rounded-lg sm:rounded-xl p-1 sm:p-4 flex flex-row gap-x-4 items-center hover:scale-[102%] hover:shadow-[0px_0px_1px_1px] hover:shadow-primaryDark transition-all duration-300"
+        className=" my-2 rounded-lg sm:rounded-xl p-1 sm:p-4 flex flex-row gap-x-4 items-center hover:border-2 border-primaryDark"
         onClick={onClick}
       >
         <img
