@@ -173,7 +173,7 @@ const Conversation = () => {
       )}
 
       {messages.length === 0 && !currentChatItem && state !== 'loading' && (
-        <div className="absolute inset-0 flex flex-col gap-4 items-center justify-center p-4 z-50">
+        <div className="absolute inset-0 flex flex-col gap-4 items-center justify-center p-4 z-20">
           {/* Title */}
           <span className="font-semibold text-lg md:text-title-xl text-secText animate-in fade-in duration-700">
             Ask Sola AI

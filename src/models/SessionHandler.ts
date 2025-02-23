@@ -182,7 +182,7 @@ export const useSessionHandler = create<SessionHandler>((set, get) => {
       if (!currentRoomId) {
         // We have not selected a chat room so first create one
         const newRoom = await useChatRoomHandler.getState().createChatRoom({
-          name: 'New Chat',
+          name: message.substring(0, 20),
         });
         if (newRoom) {
           await useChatRoomHandler.getState().setCurrentChatRoom(newRoom);
