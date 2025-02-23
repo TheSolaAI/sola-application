@@ -3,7 +3,7 @@ import { ApiClient, apiClient } from '../api/ApiClient.ts';
 import { OpenAIKeyGenResponse } from '../types/response.ts';
 import { API_URLS } from '../config/api_urls.ts';
 import { toast } from 'sonner';
-import { AIEmotion, AIVoice, getPrimeDirective } from '../config/ai.ts';
+import { AIVoice, getPrimeDirective } from '../config/ai.ts';
 import { useChatRoomHandler } from './ChatRoomHandler.ts';
 import { useAgentHandler } from './AgentHandler.ts';
 
@@ -15,7 +15,7 @@ interface SessionHandler {
   mediaStream: MediaStream | null; // the media stream for the webrtc session
 
   aiVoice: AIVoice; // the voice of the AI
-  aiEmotion: AIEmotion; // Emotion of the AI
+  aiEmotion: string; // Emotion of the AI
 
   muted: boolean; // the mute state of the user
 
@@ -26,7 +26,7 @@ interface SessionHandler {
   initSessionHandler: () => Promise<string | null>;
 
   setPeerConnection: (peerConnection: RTCPeerConnection | null) => void; // sets the peer connection
-  setDataStream: (dataStream: RTCDataChannel | null) => void; // sets the data stream
+  setDataStream: (dataStream: RTCDataChannel) => void; // sets the data stream
   setMediaStream: (mediaStream: MediaStream | null) => void; // sets the media stream
 
   setAiVoice: (aiVoice: AIVoice) => void; // sets the voice of the AI
@@ -60,7 +60,7 @@ interface SessionHandler {
    * Use this function to send an user typed message to the AI
    */
   sendUpdateMessage: (message: string) => void;
-  sendTextMessage: (message: string) => void;
+  sendTextMessage: (message: string) => Promise<void>;
   sendFunctionCallResponseMessage: (message: string, call_id: string) => void;
 }
 
@@ -108,7 +108,7 @@ export const useSessionHandler = create<SessionHandler>((set, get) => {
       set({ aiVoice });
     },
 
-    setAiEmotion: (aiEmotion: AIEmotion): void => {
+    setAiEmotion: (aiEmotion: string): void => {
       set({ aiEmotion });
     },
 
@@ -121,8 +121,7 @@ export const useSessionHandler = create<SessionHandler>((set, get) => {
       const tools = useAgentHandler
         .getState()
         .getToolsForAgent(
-          useChatRoomHandler.getState().currentChatRoom?.agentId ||
-            useChatRoomHandler.getState().newRoomId,
+          useChatRoomHandler.getState().currentChatRoom?.agentId!,
         )
         .map((tool) => tool.abstraction);
 
@@ -185,9 +184,19 @@ export const useSessionHandler = create<SessionHandler>((set, get) => {
         toast.error('Failed to send message. Reload the page');
       }
     },
-    sendTextMessage: (message: string): void => {
+    sendTextMessage: async (message: string): Promise<void> => {
+      const currentRoomId = useChatRoomHandler.getState().currentChatRoom?.id;
+      if (!currentRoomId) {
+        // We have not selected a chat room so first create one
+        const newRoom = await useChatRoomHandler.getState().createChatRoom({
+          name: 'New Chat',
+          agentId: 0,
+        });
+        if (newRoom) {
+          await useChatRoomHandler.getState().setCurrentChatRoom(newRoom);
+        }
+      }
       if (get().dataStream && get().dataStream?.readyState === 'open') {
-        console.log(message);
         const textMessage = {
           type: 'conversation.item.create',
           item: {
