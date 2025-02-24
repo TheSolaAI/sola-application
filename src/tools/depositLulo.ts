@@ -55,7 +55,7 @@ export async function handleDepositLulo(args: {
 }> {
   useChatMessageHandler.getState().setCurrentChatItem({
     content: {
-      type: 'simple_message',
+      type: 'loader_message',
       response_id: 'temp',
       text: 'creating a deposit transaction...',
     } as SimpleMessageChatContent,

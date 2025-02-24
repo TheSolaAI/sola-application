@@ -34,7 +34,7 @@ async function walletActionsFunction(args: {
     // set a temporary message that we are fetching wallet assets
     useChatMessageHandler.getState().setCurrentChatItem({
       content: {
-        type: 'simple_message',
+        type: 'loader_message',
         text: 'Fetching wallet balance...',
         response_id: 'temp',
         sender: 'system',

@@ -36,7 +36,7 @@ export async function getBubblemapFunction(args: { token: string }): Promise<{
 }> {
   useChatMessageHandler.getState().setCurrentChatItem({
     content: {
-      type: 'simple_message',
+      type: 'loader_message',
       text: `Fetching bubblemaps for ${args.token}...`,
       response_id: 'temp',
       sender: 'system',
