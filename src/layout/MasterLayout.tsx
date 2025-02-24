@@ -8,6 +8,7 @@ import { useDashboardHandler } from '../models/DashboardHandler.ts';
 import WalletLensButton from '../components/wallet/WalletLensButton.tsx';
 import { GoatIndexDashboard } from '../components/dashboard/GoatIndexDashboard.tsx';
 import { motion, AnimatePresence } from 'framer-motion';
+import { TokenDataDashboard } from '../components/dashboard/TokenDataDashboard.tsx';
 
 const slideRight = {
   initial: { x: '100%', opacity: 0 },
@@ -66,6 +67,7 @@ const MasterLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
                   {...slideRight}
                 >
                   {dashboardType === 'goatIndex' && <GoatIndexDashboard />}
+                  {dashboardType === 'tokenData' && <TokenDataDashboard />}
                 </motion.main>
               </Panel>
             </>

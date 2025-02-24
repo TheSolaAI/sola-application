@@ -2,6 +2,12 @@ import { TbActivityHeartbeat } from 'react-icons/tb';
 import { FaEye } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 
+
+type BasicMetricCardProps = {
+  label: string;
+  value: string | number;
+};
+
 type MetricCardProps = {
   label: string;
   value: string | number;
@@ -34,6 +40,18 @@ const cardVariants = {
     },
   },
 };
+
+export const BasicMetricCard = ({ label, value}: BasicMetricCardProps) => (
+  <motion.div
+    variants={cardVariants}
+    className="flex-auto basis-[calc(25%-0.75rem)] min-w-[180px] flex flex-col gap-2 bg-sec_background rounded-lg p-3"
+  >
+    <h3 className="text-lg text-secText truncate">{label}</h3>
+    <div className="flex justify-between items-center text-textColor">
+      <span className="truncate">{value}</span>
+    </div>
+  </motion.div>
+);
 
 export const MetricCard = ({ label, value, delta }: MetricCardProps) => (
   <motion.div

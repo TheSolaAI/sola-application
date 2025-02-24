@@ -102,17 +102,52 @@ export type NFTCollectionCard = {
   volume_all: number;
 };
 
+export interface TokenExtensions {
+  coingeckoId: string;
+  website: string;
+  telegram: string | null;
+  twitter: string;
+  description: string;
+  discord: string;
+}
+
 export interface TokenCard {
-  image?: string;
-  metadata: {
-    name: string;
-    symbol: string;
-    address:string;
-  };
-  price?: string;
-  marketCap?: string;
-  volume?: string;
-  priceChange?: string;
+  address: string;
+  decimals: number;
+  symbol: string;
+  name: string;
+  marketCap: number;
+  fdv: number;
+  extensions: TokenExtensions;
+  logoURI: string;
+  liquidity: number;
+  price: number;
+  priceChange30mPercent: number;
+  priceChange1hPercent: number;
+  priceChange4hPercent: number;
+  priceChange24hPercent: number;
+  uniqueWallet30m: number;
+  uniqueWallet1h: number;
+  uniqueWallet4h: number;
+  uniqueWallet24h: number;
+  holder: number;
+  sell30m: number;
+  buy30m: number;
+  vBuy30mUSD: number;
+  vSell30mUSD: number;
+  sell1h: number;
+  buy1h: number;
+  vBuy1hUSD: number;
+  vSell1hUSD: number;
+  sell4h: number;
+  buy4h: number;
+  vBuy4hUSD: number;
+  vSell4hUSD: number;
+  sell24h: number;
+  buy24h: number;
+  vBuy24hUSD: number;
+  vSell24hUSD: number;
+  topHolders?: TopHolder[];
 }
 
 export interface SanctumCard {

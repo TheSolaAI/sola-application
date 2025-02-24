@@ -40,10 +40,11 @@ export const TokenDataMessageItem: FC<ChatItemProps<TokenDataChatContent>> = ({
   props,
 }) => {
   const { openDashboard } = useDashboardHandler();
+  console.log(props.data);
   return (
     <div
     onClick={() => {
-      openDashboard('tokenData', props.data.metadata?.address,props);
+      openDashboard('tokenData', props.data.address,props);
     }}
     >
       <BaseGridChatItem col={2}>
@@ -51,27 +52,27 @@ export const TokenDataMessageItem: FC<ChatItemProps<TokenDataChatContent>> = ({
           <div className="flex justify-between items-start">
             <div className="flex gap-4 items-center">
               <img
-                src={props.data.image}
+                src={props.data.logoURI}
                 alt={'coin logo'}
                 className="h-12 w-12 rounded-lg"
               />
               <div>
                 <h3 className="truncate text-sm font-medium">
-                  {props.data.metadata?.name || 'Unknown'}
+                  {props.data.name || 'Unknown'}
                 </h3>
                 <p className="mt-1 text-xs font-medium">
                   ${Number(Number(props.data.price).toFixed(7))}
                 </p>
                 <p
                   className={`text-xs font-medium ${
-                    Number(props.data.priceChange) > 0
+                    Number(props.data.priceChange24hPercent) > 0
                       ? 'text-green-500'
-                      : Number(props.data.priceChange) < 0
+                      : Number(props.data.priceChange24hPercent) < 0
                         ? 'text-red-500'
                         : 'text-bodydark2'
                   }`}
                 >
-                  {Number(Number(props.data.priceChange).toFixed(2)) ||
+                  {Number(Number(props.data.priceChange24hPercent).toFixed(2)) ||
                     'Unknown'}
                   %
                 </p>
@@ -80,7 +81,7 @@ export const TokenDataMessageItem: FC<ChatItemProps<TokenDataChatContent>> = ({
             <button
               onClick={() =>
                 window.open(
-                  `https://dexscreener.com/solana/${props.data.metadata.address}`,
+                  `https://dexscreener.com/solana/${props.data.address}`,
                   '_blank',
                 )
               }
@@ -93,7 +94,10 @@ export const TokenDataMessageItem: FC<ChatItemProps<TokenDataChatContent>> = ({
           <div className="flex flex-row gap-2 text-sm mt-2">
             {[
               { label: 'MC', value: props.data.marketCap },
-              { label: '24H_Vol', value: props.data.volume },
+              {
+                label: '24H_Vol',
+                value: props.data.vBuy24hUSD + props.data.vSell24hUSD,
+              },
             ].map(({ label, value }, i) => (
               <p key={i}>
                 {label}: ${formatNumber(Number(value)) || 'Unknown'}
