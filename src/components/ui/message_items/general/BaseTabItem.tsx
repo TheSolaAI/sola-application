@@ -1,5 +1,6 @@
 // types.ts
 import { LucideIcon } from 'lucide-react';
+import { TokenDataChatContent } from '../../../../types/chatItem.ts';
 
 export interface TabContent {
   headers: string[];
@@ -18,6 +19,7 @@ export interface Tab {
 
 export interface TerminalTabsProps {
   tabs: Tab[];
+  agentDetails: TokenDataChatContent | null;
   activeTabId: number;
   onTabChange?: (tabId: number) => void;
   customTabContent?: (tab: Tab) => React.ReactNode;

@@ -69,18 +69,17 @@ async function getTokenDataFunction(
         response_id,
         sender: 'assistant',
         type: 'token_data',
-        data: response.data
+        data: response.data,
       };
 
       // Construct response message
-      const responseMessage =`The token ${response.data.name} has a price of $${response.data.price} and a market cap of $${response.data.marketCap} at this moment. The price has changed by ${response.data.priceChange24hPercent}% in the last 24 hours.`;
+      const responseMessage = `The token ${response.data.name} has a price of $${response.data.price} and a market cap of $${response.data.marketCap} at this moment. The price has changed by ${response.data.priceChange24hPercent}% in the last 24 hours.`;
 
       return {
         status: 'success',
         response: responseMessage,
         props: uiProps,
       };
-
     } else {
       return {
         status: 'error',
