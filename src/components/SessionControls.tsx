@@ -31,7 +31,6 @@ export const SessionControls = () => {
 
   const sendMessageToAI = () => {
     if (inputRef.current?.value === '') return;
-    console.log('message to send', inputRef.current?.value);
     sendTextMessage(inputRef.current?.value || '');
     inputRef.current!.value = '';
   };

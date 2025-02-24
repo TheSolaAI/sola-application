@@ -41,6 +41,7 @@ export const depositLulo: Tool = {
       required: ['amount', 'token'],
     },
   },
+  cost: 10,
 };
 
 export async function handleDepositLulo(args: {

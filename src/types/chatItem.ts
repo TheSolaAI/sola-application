@@ -2,14 +2,14 @@ import { LSTData, RugCheck } from './data_types';
 import { ShowLimitOrderResponse, SwapParams } from './jupiter';
 import {
   BubblemapCard,
-  MarketDataCard,
-  TopHolder,
-  TokenCard,
-  TransactionCard,
-  NFTCollectionCard,
   LuloCard,
-  TrendingNFTCard,
+  MarketDataCard,
   NFTCard,
+  NFTCollectionCard,
+  TokenCard,
+  TopHolder,
+  TransactionCard,
+  TrendingNFTCard,
 } from './messageCard';
 import { AIProjectRankingResult, GoatIndexTokenData } from './goatIndex.ts';
 
@@ -26,6 +26,7 @@ export interface BaseChatContent {
 }
 
 export type ChatContentType =
+  | AgentSwapChatContent
   | SimpleMessageChatContent
   | UserAudioChatContent
   | TransactionChatContent
@@ -50,6 +51,14 @@ export interface SimpleMessageChatContent extends BaseChatContent {
 export interface UserAudioChatContent extends BaseChatContent {
   type: 'user_audio_chat';
   text: string;
+}
+
+/**
+ * Note: Thiss chat content is not stored in the database and is only used in the chat
+ */
+export interface AgentSwapChatContent extends BaseChatContent {
+  type: 'agent_swap';
+  original_request: string;
 }
 
 export interface TransactionChatContent extends BaseChatContent {

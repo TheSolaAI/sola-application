@@ -162,6 +162,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
           top: position.top ? `${position.top}px` : 'auto',
           width: position.width === 'auto' ? 'auto' : `${position.width}px`,
           bottom: position.bottom ? `${position.bottom}px` : 'auto',
+          left: position.left ? `${position.left}px` : 'auto',
         }}
       >
         {title && (

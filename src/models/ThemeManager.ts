@@ -28,7 +28,7 @@ interface ThemeStore {
   resolveTheme: (themeName: string) => Theme;
 }
 
-const ThemeManager: StateCreator<ThemeStore> = (set, get) => {
+const ThemeHandler: StateCreator<ThemeStore> = (set, get) => {
   // Clone themes and enforce correct typing
   const availableThemes: Record<string, Theme> = Object.fromEntries(
     Object.entries(themeJSON).map(([name, theme]) => [
@@ -85,5 +85,5 @@ const ThemeManager: StateCreator<ThemeStore> = (set, get) => {
   };
 };
 
-const useThemeManager = create<ThemeStore>(ThemeManager);
+const useThemeManager = create<ThemeStore>(ThemeHandler);
 export default useThemeManager;

@@ -1,13 +1,11 @@
 import { ChevronLeft, Edit, Edit2, Menu, User } from 'lucide-react';
 import React, { FC, useEffect, useRef, useState } from 'react';
 import useThemeManager from '../../models/ThemeManager.ts';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { AgentSelect } from './AgentSelect.tsx';
+import { useLocation } from 'react-router-dom';
 import { EditRoom } from './EditRoom.tsx';
 import { ProfileDropDown } from './ProfileDropDown.tsx';
 import useIsMobile from '../../utils/isMobile.tsx';
 import { VscPinned } from 'react-icons/vsc';
-import { useAgentHandler } from '../../models/AgentHandler.ts';
 import { useLayoutContext } from '../../layout/LayoutProvider.tsx';
 import { useChatRoomHandler } from '../../models/ChatRoomHandler.ts';
 
@@ -24,8 +22,6 @@ export const Sidebar: FC<SidebarProps> = ({
   canAutoClose,
   setCanAutoClose,
 }) => {
-  const navigate = useNavigate();
-
   /**
    * Refs
    */
@@ -38,15 +34,13 @@ export const Sidebar: FC<SidebarProps> = ({
    * Global State
    */
   const { theme } = useThemeManager();
-  const { rooms, setCurrentChatRoom, setNewRoomId } = useChatRoomHandler();
+  const { rooms, setCurrentChatRoom, createChatRoom } = useChatRoomHandler();
   const { pathname } = useLocation();
-  const { agents } = useAgentHandler();
   const { walletLensOpen } = useLayoutContext();
 
   /**
    * Local State
    */
-  const [agentSelectOpen, setAgentSelectOpen] = useState(false);
   const [editingRoom, setEditingRoom] = useState<number | null>(null);
   const [profileOpen, setProfileOpen] = useState(false);
   const [autoOpened, setAutoOpened] = useState(false);
@@ -71,7 +65,6 @@ export const Sidebar: FC<SidebarProps> = ({
     if (!isMobile && canAutoClose && autoOpened) {
       setIsOpen(false);
       setAutoOpened(false);
-      setAgentSelectOpen(false);
       setProfileOpen(false);
       setEditingRoom(null);
     }
@@ -83,7 +76,6 @@ export const Sidebar: FC<SidebarProps> = ({
    */
   const handleClickOutside = (e: MouseEvent) => {
     if (sidebarRef.current && !sidebarRef.current.contains(e.target as Node)) {
-      setAgentSelectOpen(false);
       setProfileOpen(false);
 
       // On mobile, always close
@@ -158,7 +150,11 @@ export const Sidebar: FC<SidebarProps> = ({
         <button
           ref={agentSelectRef}
           className="group mt-8 mb-4 flex items-center justify-center rounded-xl bg-background bg-gradient-to-r from-primary to-primaryDark p-[2px] transition-all duration-300 hover:shadow-primaryDark"
-          onClick={() => setAgentSelectOpen(true)}
+          onClick={() =>
+            createChatRoom({ name: 'New Chat' }).then((room) => {
+              if (room) setCurrentChatRoom(room);
+            })
+          }
         >
           <div className="flex h-full w-full flex-row items-center justify-center gap-4 rounded-xl bg-background p-2">
             <h1 className="text-textColor">New Chat</h1>
@@ -166,33 +162,12 @@ export const Sidebar: FC<SidebarProps> = ({
           </div>
         </button>
 
-        <AgentSelect
-          isOpen={agentSelectOpen}
-          onClose={() => {
-            setAgentSelectOpen(false);
-            if (isMobile) setIsOpen(false);
-          }}
-          anchorEl={agentSelectRef.current}
-          onSelect={(agentId: number) => {
-            console.log(agentId);
-            setNewRoomId(agentId);
-            setCurrentChatRoom(null);
-            navigate(`/`);
-            setAgentSelectOpen(false);
-          }}
-        />
-
         {/*  ChatRooms List */}
-        <div className="mt-[10px] flex-1 pr-4 overflow-y-auto scrollbar-thin scrollbar-thumb-primary scrollbar-track-sec_background ">
+        <div className="mt-[10px] flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-primary scrollbar-track-sec_background ">
           <div className="flex flex-col items-start space-y-2">
             {rooms.map((room) => {
               const isEditing = editingRoom === room.id;
               if (!room.id) return null;
-
-              const AgentLogo = agents.find(
-                (agent) => agent.agentID === room.agentId,
-              )?.logo;
-
               return (
                 <div key={room.id} className="w-full">
                   <button
@@ -200,25 +175,14 @@ export const Sidebar: FC<SidebarProps> = ({
                       if (isMobile) setIsOpen(false);
                       setCurrentChatRoom(room);
                     }}
-                    className={`group font-small flex w-full justify-between items-center gap-3 rounded-xl p-2 transition-color duration-300 ease-in-out hover:bg-primary
+                    ref={(el) => el && (editButtonRefs.current[room.id!] = el)}
+                    className={`group font-small flex w-full justify-between items-center rounded-xl p-[10px] transition-color duration-300 ease-in-out hover:bg-primaryDark
               ${pathname === `/c/${room.id}` || pathname.startsWith(`/c/${room.id}/`) ? 'bg-primaryDark' : ''}`}
                   >
-                    <div className="flex items-center gap-4 md:gap-6">
-                      {AgentLogo
-                        ? React.createElement(AgentLogo, {
-                            className: 'w-4 h-4',
-                            color: theme.textColor,
-                          })
-                        : null}
-
-                      <h1 className="text-textColor font-normal">
-                        {room.name}
-                      </h1>
-                    </div>
+                    <h1 className="text-textColor font-normal">{room.name}</h1>
 
                     <button
-                      ref={(el) => el && (editButtonRefs.current[room.id] = el)}
-                      onClick={(e) => handleEditClick(e, room.id)}
+                      onClick={(e) => handleEditClick(e, room.id!)}
                       className={`transition-opacity duration-300 group-hover:opacity-100 
                 ${pathname === `/c/${room.id}` || pathname.startsWith(`/c/${room.id}/`) ? 'lg:opacity-100' : 'lg:opacity-0'}`}
                     >

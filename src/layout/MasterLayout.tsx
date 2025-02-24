@@ -43,7 +43,7 @@ const MasterLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
         autoSaveId="conditional"
         direction="horizontal"
       >
-        <div className="absolute t-3 right-2 z-10">
+        <div className="absolute t-3 right-2 z-20">
           <WalletLensButton
             onClick={() => handleWalletLensOpen(!walletLensOpen)}
           />

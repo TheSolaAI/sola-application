@@ -160,12 +160,12 @@ export const useChatMessageHandler = create<ChatMessageHandler>((set, get) => {
     },
 
     addMessage: async (chatItem: ChatItem<ChatContentType>) => {
+      // TODO: Add Check for the amount of credits the user has here.
       const currentRoomID = useChatRoomHandler.getState().currentChatRoom?.id;
       if (currentRoomID === undefined) {
         // no chat room has been selected so we create a new one with our default agent and navigate the user to that room
         const newRoom = await useChatRoomHandler.getState().createChatRoom({
           name: 'New Chat',
-          agentId: useChatRoomHandler.getState().newRoomId,
         });
         if (newRoom) {
           useChatRoomHandler.getState().setCurrentChatRoom(newRoom);

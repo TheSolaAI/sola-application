@@ -18,7 +18,8 @@ const Settings: React.FC = () => {
    * Global State Management
    */
   const { theme, setTheme } = useThemeManager();
-  const { aiEmotion, setAiEmotion, sendUpdateMessage } = useSessionHandler();
+  const { aiEmotion, setAiEmotion, updateSession } = useSessionHandler();
+  const { updateSettings } = useSettingsHandler();
 
   /**
    * Using privy hook to add or remove email
@@ -73,10 +74,10 @@ const Settings: React.FC = () => {
             </div>
             <button
               onClick={() => {
-                useSettingsHandler.getState().updateSettings(traits, undefined);
                 if (traits.length <= MAX_CHARS) {
-                  sendUpdateMessage(traits);
                   setAiEmotion(traits);
+                  updateSession();
+                  updateSettings();
                 } else {
                   toast.warning('Character Limit Exceeded!');
                 }
@@ -102,6 +103,10 @@ const Settings: React.FC = () => {
                   <button
                     onClick={async () => {
                       try {
+                        if (!user.email) {
+                          toast.error('No email linked');
+                          return;
+                        }
                         await unlinkEmail(user.email.address);
                         toast.success('Email unlinked successfully');
                       } catch (error) {
@@ -144,9 +149,7 @@ const Settings: React.FC = () => {
                   setLocalTheme('light');
                 }
                 setTheme(localTheme);
-                useSettingsHandler
-                  .getState()
-                  .updateSettings(undefined, localTheme);
+                useSettingsHandler.getState().updateSettings();
               }}
             >
               <motion.div

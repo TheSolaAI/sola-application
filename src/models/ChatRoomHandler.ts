@@ -30,11 +30,6 @@ interface ChatRoomHandler {
   deleteChatRoom: (roomId: number) => Promise<void>; // delete a chat room only if its present locally
   updateChatRoom: (room: ChatRoomPatch) => Promise<void>; // update a chat room only if its present locally
   createChatRoom: (room: ChatRoom) => Promise<ChatRoom | null>; // create a new chat room using the room object
-  /**
-   * New Chat room details
-   */
-  newRoomId: number;
-  setNewRoomId: (newRoomId: number) => void;
 }
 
 export const useChatRoomHandler = create<ChatRoomHandler>((set, get) => {
@@ -71,7 +66,6 @@ export const useChatRoomHandler = create<ChatRoomHandler>((set, get) => {
           rooms: response.data.map((room: ChatRoomResponse): ChatRoom => {
             return {
               id: room.id,
-              agentId: room.agent_id,
               name: room.name,
             };
           }),
@@ -134,7 +128,7 @@ export const useChatRoomHandler = create<ChatRoomHandler>((set, get) => {
       set({ state: 'loading' });
       const response = await apiClient.post<ChatRoomResponse>(
         API_URLS.CHAT_ROOMS,
-        { name: room.name, agent_id: room.agentId, session_id: 123 },
+        { name: room.name, session_id: 123 },
         'auth',
       );
 
@@ -144,7 +138,6 @@ export const useChatRoomHandler = create<ChatRoomHandler>((set, get) => {
             {
               id: response.data.id,
               name: response.data.name,
-              agentId: response.data.agent_id,
             },
             ...get().rooms,
           ],
@@ -153,18 +146,12 @@ export const useChatRoomHandler = create<ChatRoomHandler>((set, get) => {
         return {
           id: response.data.id,
           name: response.data.name,
-          agentId: response.data.agent_id,
         };
       } else {
         toast.error('Failed to create room');
         set({ state: 'error' });
         return null;
       }
-    },
-    newRoomId: 1,
-    setNewRoomId: (roomId: number): void => {
-      set({ newRoomId: roomId });
-      useChatMessageHandler.setState({ messages: [] });
     },
   };
 });
