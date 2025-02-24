@@ -252,6 +252,17 @@ module.exports = {
           '0%, 100%': { transform: 'rotate(360deg)' },
           '50%': { transform: 'rotate(0deg)' },
         },
+        tilt: {
+          '0%, 50%, 100%': {
+            transform: 'rotate(0deg)',
+          },
+          '25%': {
+            transform: 'rotate(2deg)',
+          },
+          '75%': {
+            transform: 'rotate(-2deg)',
+          },
+        },
       },
       animation: {
         wave: 'waveEffect 3s infinite ease-in-out',
@@ -260,6 +271,7 @@ module.exports = {
         'spin-1.5': 'spin 1.5s linear infinite',
         'spin-2': 'spin 2s linear infinite',
         'spin-3': 'spin 3s linear infinite',
+        tilt: 'tilt 10s infinite linear',
       },
     },
   },

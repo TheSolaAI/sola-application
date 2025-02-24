@@ -266,6 +266,7 @@ export const useChatMessageHandler = create<ChatMessageHandler>((set, get) => {
  */
 const parseChatItemContent = (item: ChatMessageResponseWrapper) => {
   const parsedContent = JSON.parse(item.message);
+  console.log(parsedContent);
   if (isSimpleMessageChatContent(parsedContent)) {
     return createChatItem<SimpleMessageChatContent>(item, parsedContent);
   } else if (isUserAudioChatContent(parsedContent)) {

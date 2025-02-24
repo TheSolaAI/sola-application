@@ -69,20 +69,11 @@ async function getTokenDataFunction(
         response_id,
         sender: 'assistant',
         type: 'token_data',
-        data: {
-          image: response.data.image,
-          metadata: response.data.metadata,
-          volume: response.data.volume.toString(),
-          marketCap: response.data.marketcap.toString(),
-          price: response.data.price.toString(),
-          priceChange: response.data.price_change_24.toString(),
-        },
+        data: response.data,
       };
 
       // Construct response message
-      const responseMessage = isAddress
-        ? `Tell the user that the token ${response.data.metadata.name} has a price of $${response.data.price} and a market cap of $${response.data.marketcap} at this moment.`
-        : `The token ${response.data.metadata.name} has a price of $${response.data.price} and a market cap of $${response.data.marketcap} at this moment. The price has changed by ${response.data.price_change_24}% in the last 24 hours.`;
+      const responseMessage = `The token ${response.data.name} has a price of $${response.data.price} and a market cap of $${response.data.marketCap} at this moment. The price has changed by ${response.data.priceChange24hPercent}% in the last 24 hours.`;
 
       return {
         status: 'success',

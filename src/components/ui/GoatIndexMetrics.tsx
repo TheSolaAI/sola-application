@@ -2,6 +2,11 @@ import { TbActivityHeartbeat } from 'react-icons/tb';
 import { FaEye } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 
+type BasicMetricCardProps = {
+  label: string;
+  value: string | number;
+};
+
 type MetricCardProps = {
   label: string;
   value: string | number;
@@ -35,19 +40,29 @@ const cardVariants = {
   },
 };
 
+export const BasicMetricCard = ({ label, value }: BasicMetricCardProps) => (
+  <motion.div
+    variants={cardVariants}
+    className="flex-auto basis-[calc(25%-0.75rem)] min-w-[180px] flex flex-col gap-2 bg-baseBackground rounded-lg p-3"
+  >
+    <h3 className="text-lg text-secText truncate">{label}</h3>
+    <div className="flex justify-between items-center text-textColor">
+      <span className="truncate">{value}</span>
+    </div>
+  </motion.div>
+);
+
 export const MetricCard = ({ label, value, delta }: MetricCardProps) => (
   <motion.div
     variants={cardVariants}
-    className="flex-auto basis-[calc(25%-0.75rem)] min-w-[180px] flex flex-col gap-2 bg-baseBackground/75 rounded-lg p-3 shadow-sm"
+    className="flex-auto basis-[calc(25%-0.75rem)] min-w-[180px] flex flex-col gap-2 bg-baseBackground rounded-lg p-3"
   >
     <h3 className="text-lg text-secText truncate">{label}</h3>
     <div className="flex justify-between items-center text-textColor">
       <span className="truncate">{value}</span>
       <span
-        className={`text-sm font-thin text-subtext ml-2 p-1 rounded-lg whitespace-nowrap ${
-          delta < 0
-            ? 'text-red-500 bg-red-200 '
-            : 'text-green-500 bg-green-200 '
+        className={`text-sm font-semibold p-1 rounded-lg text-subtext ml-2 whitespace-nowrap ${
+          delta < 0 ? 'text-red-400 bg-red-200' : 'text-green-400 bg-green-200'
         }`}
       >
         {delta.toFixed(2)}%
@@ -59,7 +74,7 @@ export const MetricCard = ({ label, value, delta }: MetricCardProps) => (
 export const LargeMetricCard = ({ label, value }: LargeMetricCardProps) => (
   <motion.div
     variants={cardVariants}
-    className="flex-auto basis-[calc(25%-0.75rem)] min-w-[180px] flex flex-col gap-2 bg-baseBackground/75 rounded-lg p-3 shadow-sm"
+    className="flex-auto basis-[calc(25%-0.75rem)] min-w-[180px] flex flex-col gap-2 bg-sec_background rounded-lg p-3"
   >
     <h3 className="text-lg text-secText truncate">{label}</h3>
     <span className="text-textColor truncate">{value}</span>
@@ -78,7 +93,7 @@ export const TweetCard = ({
       e.preventDefault();
       window.open(url, '_blank');
     }}
-    className="flex-auto basis-[calc(25%-0.8rem)] min-w-[100px] max-w-[25%] flex flex-col gap-2 bg-baseBackground/75 rounded-lg p-3 shadow-sm cursor-pointer hover:shadow-md hover:bg-primary/20"
+    className="flex-auto basis-[calc(25%-0.8rem)] min-w-[100px] max-w-[25%] flex flex-col gap-2 bg-sec_background rounded-lg p-3 cursor-pointer hover:bg-primary/20"
   >
     <h3 className="text-lg text-secText truncate">{label}</h3>
     <div className="flex justify-between items-center text-textColor">

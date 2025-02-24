@@ -13,7 +13,7 @@ import {
   ShowLSTDataChatContent,
   SwapChatContent,
   TokenDataChatContent,
-  TopHoldersChatContent,
+  // TopHoldersChatContent,
   TransactionChatContent,
 } from './chatItem.ts';
 import { ConnectedSolanaWallet } from '@privy-io/react-auth';
@@ -187,20 +187,20 @@ export interface RugCheckTool extends BaseTool {
   };
 }
 
-export interface TopHoldersTool extends BaseTool {
-  implementation: (
-    args: { tokenInput: string },
-    response_id: string,
-  ) => Promise<{
-    status: 'success' | 'error';
-    response: string;
-    props?: TopHoldersChatContent;
-  }>;
-  representation?: {
-    props_type: 'top_holders';
-    component: FC<{ props: TopHoldersChatContent }>;
-  };
-}
+// export interface TopHoldersTool extends BaseTool {
+//   implementation: (
+//     args: { tokenInput: string },
+//     response_id: string,
+//   ) => Promise<{
+//     status: 'success' | 'error';
+//     response: string;
+//     props?: TopHoldersChatContent;
+//   }>;
+//   representation?: {
+//     props_type: 'top_holders';
+//     component: FC<{ props: TopHoldersChatContent }>;
+//   };
+// }
 
 export interface BubbleMapTool extends BaseTool {
   implementation: (
@@ -366,7 +366,7 @@ export type Tool =
   | GetLSTDataTool
   | ShowLimitOrdersTool
   | RugCheckTool
-  | TopHoldersTool
+  // | TopHoldersTool
   | BubbleMapTool
   | SwapTool
   | MarketDataTool

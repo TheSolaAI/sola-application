@@ -1,6 +1,6 @@
 export { walletActions } from './walletActions';
 export { getTokenData } from './getTokenData';
-export { getTopHolders } from './getTopHolders';
+// export { getTopHolders } from './getTopHolders';
 export { getRugCheck } from './getRugCheck';
 export { getBubblemap } from './getBubblemap';
 export { getLstData } from './getLstData';

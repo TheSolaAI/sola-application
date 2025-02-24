@@ -71,7 +71,7 @@ export async function getRugCheckFunction(args: { token: string }): Promise<{
         response_id: 'temp',
         data: {
           score: response.data.score,
-          issues: response.data.issues,
+          message: response.data.message,
         },
       },
     };
