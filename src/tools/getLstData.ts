@@ -31,7 +31,7 @@ export async function getLstDataFunction(): Promise<{
 }> {
   useChatMessageHandler.getState().setCurrentChatItem({
     content: {
-      type: 'simple_message',
+      type: 'loader_message',
       text: `Fetching LST data...`,
       response_id: 'temp',
       sender: 'system',

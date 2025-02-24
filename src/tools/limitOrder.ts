@@ -65,7 +65,7 @@ export async function createLimitOrder(args: {
 }> {
   useChatMessageHandler.getState().setCurrentChatItem({
     content: {
-      type: 'simple_message',
+      type: 'loader_message',
       text: `Creating a limit order to ${args.action.toLowerCase()} ${args.amount} ${args.token} at $${args.limitPrice}...`,
       response_id: 'temp',
       sender: 'system',

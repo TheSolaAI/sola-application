@@ -41,7 +41,7 @@ async function getTokenDataFunction(
   // Add temporary message
   useChatMessageHandler.getState().setCurrentChatItem({
     content: {
-      type: 'simple_message',
+      type: 'loader_message',
       text: 'Fetching token data...',
       response_id: 'temp',
       sender: 'system',

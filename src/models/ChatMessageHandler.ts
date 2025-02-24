@@ -13,6 +13,8 @@ import {
   ChatContentType,
   ChatItem,
   GetTrendingNFTSChatContent,
+  InProgressChatContent,
+  LoaderMessageChatContent,
   LuloChatContent,
   MarketDataChatContent,
   NFTCollectionChatContent,
@@ -38,7 +40,9 @@ interface ChatMessageHandler {
    * The current message that is being generated. This currently only supports Simple Messages
    * // TODO: Add support for other loader message types.
    */
-  currentChatItem: ChatItem<SimpleMessageChatContent> | null;
+  currentChatItem: ChatItem<
+    InProgressChatContent | LoaderMessageChatContent
+  > | null;
 
   next: string | null; // the next url to fetch more messages. If set to null then no more messages are available
 
@@ -66,7 +70,9 @@ interface ChatMessageHandler {
    * @param messageUpdater
    */
   setCurrentChatItem: (
-    messageUpdater: ChatItem<SimpleMessageChatContent> | null,
+    messageUpdater: ChatItem<
+      LoaderMessageChatContent | InProgressChatContent
+    > | null,
   ) => void;
 
   /**
@@ -197,7 +203,9 @@ export const useChatMessageHandler = create<ChatMessageHandler>((set, get) => {
     },
 
     setCurrentChatItem: (
-      message: ChatItem<SimpleMessageChatContent> | null,
+      message: ChatItem<
+        InProgressChatContent | LoaderMessageChatContent
+      > | null,
     ) => {
       set({ currentChatItem: message });
     },
@@ -219,7 +227,7 @@ export const useChatMessageHandler = create<ChatMessageHandler>((set, get) => {
             id: 0,
             createdAt: new Date().toISOString(),
             content: {
-              type: 'simple_message',
+              type: 'in_progress_message',
               response_id: '',
               sender: 'user',
               text: delta,
@@ -232,7 +240,18 @@ export const useChatMessageHandler = create<ChatMessageHandler>((set, get) => {
     commitCurrentChatItem: async () => {
       if (get().currentChatItem) {
         // add the message in our server
-        await get().addMessage(get().currentChatItem!);
+        // convert the in progress chat item to a simple message chat item
+        const converted: ChatItem<SimpleMessageChatContent> = {
+          id: get().currentChatItem!.id,
+          content: {
+            type: 'simple_message',
+            response_id: get().currentChatItem!.content.response_id,
+            sender: get().currentChatItem!.content.sender,
+            text: get().currentChatItem!.content.text,
+          },
+          createdAt: get().currentChatItem!.createdAt,
+        };
+        await get().addMessage(converted);
         set({
           currentChatItem: null,
         });

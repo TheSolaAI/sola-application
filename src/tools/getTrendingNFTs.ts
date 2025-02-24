@@ -36,7 +36,7 @@ export async function getTrendingNFTsFunction(args: {
 }> {
   useChatMessageHandler.getState().setCurrentChatItem({
     content: {
-      type: 'simple_message',
+      type: 'loader_message',
       text: `Fetching trending NFTs...`,
       response_id: 'temp',
       sender: 'system',

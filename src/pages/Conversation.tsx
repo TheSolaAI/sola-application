@@ -28,6 +28,8 @@ import { useAgentHandler } from '../models/AgentHandler.ts';
 import quick_prompts from '../config/quick_prompts.json';
 import { useSessionHandler } from '../models/SessionHandler.ts';
 import { ScaleLoader } from 'react-spinners';
+import { LoaderMessageItem } from '../components/ui/message_items/LoaderMessageItem.tsx';
+import { InProgressMessageChatItem } from '../components/ui/message_items/InProgressMessageChatItem.tsx';
 
 const Conversation = () => {
   const navigate = useNavigate();
@@ -100,6 +102,12 @@ const Conversation = () => {
 
     if (type === 'simple_message') {
       return <SimpleMessageChatItem key={index} props={chatItem.content} />;
+    }
+    if (type === 'in_progress_message') {
+      return <InProgressMessageChatItem key={index} props={chatItem.content} />;
+    }
+    if (type === 'loader_message') {
+      return <LoaderMessageItem key={index} props={chatItem.content} />;
     }
     if (type === 'user_audio_chat') {
       return <AudioPlayerMessageItem key={index} props={chatItem.content} />;

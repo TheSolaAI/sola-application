@@ -30,7 +30,7 @@ export async function handleGetAiProjectsMindshare(): Promise<{
 }> {
   useChatMessageHandler.getState().setCurrentChatItem({
     content: {
-      type: 'simple_message',
+      type: 'loader_message',
       text: `Fetching AI projects...`,
       response_id: 'temp',
       sender: 'system',
