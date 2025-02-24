@@ -39,9 +39,13 @@ import { motion } from 'framer-motion';
 import { IoIosArrowForward } from 'react-icons/io';
 import { TokenDataChatContent } from '../../types/chatItem.ts';
 import { Tab } from '../ui/message_items/general/BaseTabItem.tsx';
-import { Activity, Terminal } from 'lucide-react';
+import { Activity, Terminal, Users } from 'lucide-react';
 import TerminalTabs from '../ui/TerminalPanel.tsx';
 import Button from '../general/Button.tsx';
+import { getTopHoldersFunction } from '../../tools/getTopHolders.ts';
+import { TopHolder } from '../../types/messageCard.ts';
+import { getTopHoldersHandler } from '../../lib/solana/topHolders.ts';
+
 
 
 const containerVariants = {
@@ -73,11 +77,18 @@ type TimeframeData = {
 
 type TimeframeKey = keyof TimeframeData;
 
+
+
 export const TokenDataDashboard = () => {
   const [activeTabId, setActiveTabId] = useState(1);
   const { id, closeDashboard, tokenData } = useDashboardHandler();
   const [agentDetails, setAgentDetails] = useState<TokenDataChatContent | null>(null);
   const [timeframe, setTimeframe] = useState('24h');
+  const [topHoldersLoading, setTopHoldersLoading] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
+  const MAX_RETRIES = 5;
+  const RETRY_DELAY = 3000; // 3 seconds
+
 
   useEffect(() => {
     async function fetchAgentDetails() {
@@ -94,6 +105,56 @@ export const TokenDataDashboard = () => {
     }
     fetchAgentDetails();
   }, [id]);
+
+  useEffect(() => { 
+    let timeoutId: NodeJS.Timeout;
+
+    async function fetchTopHolders() { 
+      if (!agentDetails?.data) return;
+      
+      try {
+        const topHolders = await getTopHoldersHandler(agentDetails.data.address);
+        if (topHolders && topHolders.length > 0) {
+          setAgentDetails(prev => {
+            if (!prev) return null;
+            return {
+              ...prev,
+              data: {
+                ...prev.data,
+                topHolders: topHolders
+              }
+            };
+          });
+          setTopHoldersLoading(false);
+          setRetryCount(0); // Reset retry count on success
+        } else if (retryCount < MAX_RETRIES) {
+          // If no holders found and we haven't exceeded max retries, try again
+          setRetryCount(prev => prev + 1);
+          timeoutId = setTimeout(fetchTopHolders, RETRY_DELAY);
+        } else {
+          setTopHoldersLoading(false);
+          toast.error('Unable to fetch top holders after multiple attempts');
+        }
+      } catch (e) {
+        if (retryCount < MAX_RETRIES) {
+          setRetryCount(prev => prev + 1);
+          timeoutId = setTimeout(fetchTopHolders, RETRY_DELAY);
+        } else {
+          setTopHoldersLoading(false);
+          toast.error('Error getting top holders');
+        }
+      }
+    }
+
+    if (!agentDetails?.data?.topHolders) {
+      setTopHoldersLoading(true);
+      fetchTopHolders();
+    }
+
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, [agentDetails?.data?.address, retryCount]);
 
 
   const getTimeframeData = (): TimeframeMetrics | null => {
@@ -146,6 +207,35 @@ export const TokenDataDashboard = () => {
     '24h': agentDetails?.data.priceChange24hPercent || 0,
   };
 
+  const transformHoldersToTabContent = (
+    holders: TopHolder[] | undefined,
+    totalSupply: number
+  ) => {
+    const headers = ['Rank', 'Address', 'Amount', 'Percentage', 'Type'];
+    
+    const rows = holders?.map((holder, index) => ({
+      Rank: index + 1,
+      Address: holder.owner,
+      Amount: holder.amount,
+      Percentage: ((holder.amount / totalSupply) * 100).toFixed(2),
+      Type: holder.insider ? 'Insider' : 'Holder'
+    })) || [];
+    
+    return {
+      headers,
+      rows,
+      isLoading: topHoldersLoading,
+      retryCount: retryCount,
+      maxRetries: MAX_RETRIES
+    };
+  };
+  const holdersTab = transformHoldersToTabContent(
+    agentDetails?.data?.topHolders,
+    1000000000
+  );
+
+
+
   const tabs: Tab[] = [
     {
       id: 1,
@@ -179,12 +269,7 @@ export const TokenDataDashboard = () => {
       id: 2,
       name: 'Holders',
       icon: Terminal,
-      content: {
-        headers: ['Interface', 'IP', 'Upload', 'Download'],
-        rows: [
-          { Interface: 'eth0', IP: '192.168.1.1', Upload: '1.2 MB/s', Download: '2.4 MB/s' }
-        ]
-      }
+      content:holdersTab
     },
     {
       id: 3,

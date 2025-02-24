@@ -11,6 +11,9 @@ export interface Tab {
   name: string;
   icon: LucideIcon;
   content?: TabContent;
+  isLoading?: boolean;
+  retryCount?: number;
+  maxRetries?: number;
 }
 
 export interface TerminalTabsProps {

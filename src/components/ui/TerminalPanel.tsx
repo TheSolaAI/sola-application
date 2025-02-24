@@ -5,6 +5,8 @@ import { Tab, TerminalTabsProps} from './message_items/general/BaseTabItem';
 import { formatNumber } from '../../utils/formatNumber';
 import { BasicMetricCard} from './GoatIndexMetrics';
 import { motion } from 'framer-motion';
+import BaseGridChatItem from './message_items/general/BaseGridChatItem';
+import { ExternalLink } from 'lucide-react';
 
 
 const TerminalTabs: React.FC<TerminalTabsProps> = ({
@@ -109,6 +111,88 @@ const TerminalTabs: React.FC<TerminalTabsProps> = ({
             src={`https://app.bubblemaps.io/sol/token/${tab.content.rows[0].address}`}
             className="w-full h-64 md:h-94 rounded-lg"
           />
+      );
+    }
+    if (tab.name === "Holders") {
+      const isLoading = tab.isLoading;
+      const rows = tab.content.rows;
+      const maxRetries = tab.maxRetries;
+      const retryCount = tab.retryCount
+
+      if (!maxRetries || !retryCount) {
+        return (
+          <BaseGridChatItem col={1}>
+            <div className="p-4 text-center text-gray-400">
+              Failed to load top holders
+            </div>
+          </BaseGridChatItem>
+        );
+      }
+    
+      if (isLoading) {
+        return (
+          <BaseGridChatItem col={1}>
+            <div className="p-4 flex flex-col items-center justify-center min-h-[200px]">
+              <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
+              <p className="mt-4 text-sm text-gray-400">
+                Loading top holders... Attempt {retryCount + 1}/{maxRetries}
+              </p>
+            </div>
+          </BaseGridChatItem>
+        );
+      }
+    
+      if (!rows || rows.length === 0) {
+        return (
+          <BaseGridChatItem col={1}>
+            <div className="p-4 text-center text-gray-400">
+              No holder data available
+            </div>
+          </BaseGridChatItem>
+        );
+      }
+    
+      return (
+        <BaseGridChatItem col={1}>
+          <div className="p-4">
+            <h2 className="text-lg font-semibold mb-4">Top Holders Information</h2>
+            <div>
+              <div className="grid grid-cols-2 gap-x-6 py-2 font-medium text-left uppercase tracking-wider border-b border-gray-700">
+                <span>Owner</span>
+                <span className="text-right">Balance</span>
+              </div>
+    
+              <div>
+                {rows.map((value, index) => (
+                  <div
+                    key={index}
+                    className="grid grid-cols-2 gap-x-6 py-2 items-center"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="truncate">
+                        {String(value.owner).slice(0, 5)}...
+                        {String(value.owner).slice(-5)}
+                      </span>
+                      <button
+                        onClick={() =>
+                          window.open(
+                            `https://solscan.io/account/${value.owner}`,
+                            '_blank',
+                          )
+                        }
+                        className="text-xs font-medium rounded-lg hover:scale-105 hover:shadow-lg transition-all"
+                      >
+                        <ExternalLink className="h-4 w-4" />
+                      </button>
+                    </div>
+    
+                    <div className="text-right">{formatNumber(Number(value.amount))}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </BaseGridChatItem>
       );
     }
 
