@@ -160,7 +160,7 @@ export interface SanctumCard {
 
 export interface RugCheckCard {
   score: number;
-  issues: Risk[];
+  message: string;
 }
 
 export interface TopHolder {
@@ -171,14 +171,6 @@ export interface TopHolder {
 
 export interface BubblemapCard {
   token: string;
-}
-
-export interface Risk {
-  name: string;
-  value: string;
-  description: string;
-  score: number;
-  level: 'none' | 'warn' | 'danger';
 }
 
 export interface MarketDataCard {

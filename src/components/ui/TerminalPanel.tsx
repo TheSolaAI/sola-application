@@ -141,6 +141,8 @@ const TerminalTabs: React.FC<TerminalTabsProps> = ({
           </BaseGridChatItem>
         );
       }
+
+      
     
       if (!rows || rows.length === 0) {
         return (
@@ -191,6 +193,32 @@ const TerminalTabs: React.FC<TerminalTabsProps> = ({
                 ))}
               </div>
             </div>
+          </div>
+        </BaseGridChatItem>
+      );
+    }
+    if (tab.name === "Token Score and Analytics") {
+        
+      const message = tab.content.rows[1] || "Failed to load";
+      const score = Number(tab.content.rows[0]) || 0;
+      const scoreColor =
+      score >=85
+          ? 'text-dark-green-500'
+          : score >= 70
+            ? 'text-light-green-500'
+            : score >=40
+              ? 'text-orange-500'
+              : 'text-red-500';
+    
+      return (
+        <BaseGridChatItem col={1}>
+          <div>
+          <span className={`${scoreColor} font-semibold p-2`}>
+            Risk Level: {score}
+          </span>
+          <span className={`font-semibold p-2`}>
+            Risk Level: {String(message)}
+          </span>
           </div>
         </BaseGridChatItem>
       );

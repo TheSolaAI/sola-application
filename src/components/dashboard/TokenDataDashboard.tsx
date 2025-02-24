@@ -26,25 +26,21 @@
 import { useEffect, useState } from 'react';
 import { useDashboardHandler } from '../../models/DashboardHandler.ts';
 import { toast } from 'sonner';
-import useThemeManager from '../../models/ThemeManager.ts';
 import { formatNumber } from '../../utils/formatNumber.ts';
 import {
   BasicMetricCard,
-  LargeMetricCard,
-  MetricCard,
-  TweetCard,
 } from '../ui/GoatIndexMetrics.tsx';
 import { FiExternalLink } from 'react-icons/fi';
 import { motion } from 'framer-motion';
 import { IoIosArrowForward } from 'react-icons/io';
 import { TokenDataChatContent } from '../../types/chatItem.ts';
 import { Tab } from '../ui/message_items/general/BaseTabItem.tsx';
-import { Activity, Terminal, Users } from 'lucide-react';
+import { Activity, Terminal} from 'lucide-react';
 import TerminalTabs from '../ui/TerminalPanel.tsx';
 import Button from '../general/Button.tsx';
-import { getTopHoldersFunction } from '../../tools/getTopHolders.ts';
 import { TopHolder } from '../../types/messageCard.ts';
 import { getTopHoldersHandler } from '../../lib/solana/topHolders.ts';
+import { getRugCheckFunction } from '../../tools/getRugCheck.ts';
 
 
 
@@ -88,6 +84,7 @@ export const TokenDataDashboard = () => {
   const [retryCount, setRetryCount] = useState(0);
   const MAX_RETRIES = 5;
   const RETRY_DELAY = 3000; // 3 seconds
+  const [tokenAnalysis, setTokenAnalysis] = useState<any>(null);
 
 
   useEffect(() => {
@@ -233,8 +230,25 @@ export const TokenDataDashboard = () => {
     agentDetails?.data?.topHolders,
     1000000000
   );
+  
+  useEffect(() => {
+    async function fetchTokenAnalysis() {
+      if (!agentDetails?.data?.address) return;
+      
+      try {
+        const analysis = await getRugCheckFunction({
+          token: agentDetails.data.address,
+        });
+        setTokenAnalysis(analysis);
+      } catch (e) {
+        toast.error('Error getting token analysis');
+      }
+    }
 
-
+    fetchTokenAnalysis();
+  }, [agentDetails?.data?.address]);
+  
+  const analysisReport = tokenAnalysis?.props?.data;
 
   const tabs: Tab[] = [
     {
@@ -287,12 +301,12 @@ export const TokenDataDashboard = () => {
 
     {
       id: 4,
-      name: 'Liquidity Providers',
+      name: 'Token Score and Analytics',
       icon: Terminal,
       content: {
-        headers: ['Interface', 'IP', 'Upload', 'Download'],
+        headers: ['score','message'],
         rows: [
-          { Interface: 'eth0', IP: '192.168.1.1', Upload: '1.2 MB/s', Download: '2.4 MB/s' }
+          { 'score': analysisReport?.score || "not found", 'message': analysisReport?.message || "not found"}
         ]
       }
     }
