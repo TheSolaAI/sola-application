@@ -28,6 +28,8 @@ export interface BaseChatContent {
 export type ChatContentType =
   | AgentSwapChatContent
   | SimpleMessageChatContent
+  | LoaderMessageChatContent
+  | InProgressChatContent
   | UserAudioChatContent
   | TransactionChatContent
   | TokenDataChatContent
@@ -54,11 +56,27 @@ export interface UserAudioChatContent extends BaseChatContent {
 }
 
 /**
- * Note: Thiss chat content is not stored in the database and is only used in the chat
+ * Note: This chat content is not stored in the database and is only used in the chat
  */
 export interface AgentSwapChatContent extends BaseChatContent {
   type: 'agent_swap';
   original_request: string;
+}
+
+/**
+ * Note: This chat content is not stored in the database and is only used in the chat
+ */
+export interface LoaderMessageChatContent extends BaseChatContent {
+  type: 'loader_message';
+  text: string;
+}
+
+/**
+ * Note: This chat content is not stored in the database and is only used in the chat
+ */
+export interface InProgressChatContent extends BaseChatContent {
+  type: 'in_progress_message';
+  text: string;
 }
 
 export interface TransactionChatContent extends BaseChatContent {

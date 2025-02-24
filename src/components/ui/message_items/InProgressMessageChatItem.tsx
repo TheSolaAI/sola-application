@@ -1,13 +1,13 @@
 import { FC } from 'react';
-import { SimpleMessageChatContent } from '../../../types/chatItem.ts';
 import BaseChatItem from './general/BaseChatItem.tsx';
 import MarkDownRenderer from './general/MarkDownRenderer.tsx';
+import { InProgressChatContent } from '../../../types/chatItem.ts';
 
-interface SimpleMessageChatItemProps {
-  props: SimpleMessageChatContent;
+interface InProgressMessageChatItemProps {
+  props: InProgressChatContent;
 }
 
-export const SimpleMessageChatItem: FC<SimpleMessageChatItemProps> = ({
+export const InProgressMessageChatItem: FC<InProgressMessageChatItemProps> = ({
   props,
 }) => {
   return (

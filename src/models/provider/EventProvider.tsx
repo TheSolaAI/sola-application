@@ -4,7 +4,6 @@ import {
   createChatItemFromTool,
   useChatMessageHandler,
 } from '../ChatMessageHandler.ts';
-import { SimpleMessageChatContent } from '../../types/chatItem.ts';
 import { useAgentHandler } from '../AgentHandler.ts';
 import { useWalletHandler } from '../WalletHandler.ts';
 import { useCreditHandler } from '../CreditHandler.ts';
@@ -50,10 +49,11 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
             // this is a new message so create a new one
             useChatMessageHandler.getState().setCurrentChatItem({
               content: {
-                type: 'simple_message',
+                type: 'in_progress_message',
                 response_id: eventData.response_id,
                 text: eventData.delta,
-              } as SimpleMessageChatContent,
+                sender: 'assistant',
+              },
               id: eventData.response_id,
               createdAt: new Date().toISOString(),
             });

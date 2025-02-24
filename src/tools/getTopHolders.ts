@@ -39,7 +39,7 @@ export async function getTopHoldersFunction(args: {
 }> {
   useChatMessageHandler.getState().setCurrentChatItem({
     content: {
-      type: 'simple_message',
+      type: 'loader_message',
       text: `Analyzing ${args.tokenInput} for top holders...`,
       response_id: 'temp',
       sender: 'system',

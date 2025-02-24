@@ -38,7 +38,7 @@ export async function getRugCheckFunction(args: { token: string }): Promise<{
 }> {
   useChatMessageHandler.getState().setCurrentChatItem({
     content: {
-      type: 'simple_message',
+      type: 'loader_message',
       text: `Checking if ${args.token} is a rug...`,
       response_id: 'temp',
       sender: 'system',

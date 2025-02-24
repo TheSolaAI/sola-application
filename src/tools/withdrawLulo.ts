@@ -60,7 +60,7 @@ export async function withdrawLuloFunction(args: {
 }> {
   useChatMessageHandler.getState().setCurrentChatItem({
     content: {
-      type: 'simple_message',
+      type: 'loader_message',
       response_id: 'temp',
       text: 'Creating a withdrawal transaction...',
     } as SimpleMessageChatContent,
