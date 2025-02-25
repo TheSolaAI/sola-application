@@ -14,7 +14,6 @@ import {
   getLuloAssets,
   getNFTPrice,
   getTokenData,
-  // getTopHolders,
   getTrendingNFTs,
   limitOrder,
   swapLST,
