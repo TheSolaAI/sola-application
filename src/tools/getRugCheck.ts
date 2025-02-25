@@ -32,21 +32,9 @@ export const getRugCheck: Tool = {
 };
 
 export async function getRugCheckFunction(args: { token: string }): Promise<{
-  status: 'success' | 'error';
-  response: string;
   props?: RugCheckChatContent;
 }> {
-  useChatMessageHandler.getState().setCurrentChatItem({
-    content: {
-      type: 'loader_message',
-      text: `Checking if ${args.token} is a rug...`,
-      response_id: 'temp',
-      sender: 'system',
-    },
-    id: 0,
-    createdAt: new Date().toISOString(),
-  });
-  console.log(args);
+  
   let token = args.token;
   let final_token = '';
   if (token.length > 35 || token.startsWith('$')) {
@@ -63,12 +51,7 @@ export async function getRugCheckFunction(args: { token: string }): Promise<{
   if (ApiClient.isApiResponse<RugCheckCard>(response)) {
     console.log(response.data);
     return {
-      status: 'success',
-      response: 'Rug check successful.',
       props: {
-        type: 'rug_check',
-        sender: 'system',
-        response_id: 'temp',
         data: {
           score: response.data.score,
           message: response.data.message,
@@ -76,9 +59,6 @@ export async function getRugCheckFunction(args: { token: string }): Promise<{
       },
     };
   } else {
-    return {
-      status: 'error',
-      response: 'An error occurred while checking rug check.',
-    };
+    return {}
   }
 }
