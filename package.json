@@ -49,7 +49,7 @@
     "rollup-plugin-visualizer": "^5.14.0",
     "sonner": "^1.7.2",
     "tailwind-merge": "^2.6.0",
-    "tailwind-scrollbar": "^4.0.0",
+    "tailwind-scrollbar": "^4.0.1",
     "tailwindcss-animate": "^1.0.7",
     "toml": "^3.0.0",
     "toml-json": "^1.1.4",
