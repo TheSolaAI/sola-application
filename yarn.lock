@@ -940,20 +940,20 @@
   dependencies:
     "@jridgewell/trace-mapping" "0.3.9"
 
-"@dialectlabs/blinks-core@0.16.5":
-  version "0.16.5"
-  resolved "https://registry.yarnpkg.com/@dialectlabs/blinks-core/-/blinks-core-0.16.5.tgz#0ee6b018cfee81cd1114f99c1b229dbcbc6c61d8"
-  integrity sha512-US1oQ5API5wHen4e7W7GyPH+D4i0nB55KKyK8+AGU8QCKrJOvzSOAJR5pC67eAkr1j4D66kwY3CP43qBXvNH8w==
+"@dialectlabs/blinks-core@^0.20.5":
+  version "0.20.6"
+  resolved "https://registry.yarnpkg.com/@dialectlabs/blinks-core/-/blinks-core-0.20.6.tgz#a6e3d2a9a31d274f2a4600a4cd9ffbcef6d9b824"
+  integrity sha512-epp3G6ME50oRDOzr/7w4UIAWiQGdAEOoeyllrUjhOfyF8/4pegxbiF1iTmnpu/D5hAcsdj2sieFnd5Zk26ebeA==
   dependencies:
-    "@solana/web3.js" "^1.95.1"
-    nanoid "^5.0.7"
+    nanoid "^5.0.9"
 
-"@dialectlabs/blinks@0.18.3":
-  version "0.18.3"
-  resolved "https://registry.yarnpkg.com/@dialectlabs/blinks/-/blinks-0.18.3.tgz#622decb3c2c7da53b93a03766d641ebc44d94c7b"
-  integrity sha512-5hU5X785QQP/shehDyC4tiMA5Db2uFYQlNuhca/SFI80/BlDvv0SXZ7NthVbGr+2BfvnqIjivD9SWdEd8NtIxA==
+"@dialectlabs/blinks@0.22.4":
+  version "0.22.4"
+  resolved "https://registry.yarnpkg.com/@dialectlabs/blinks/-/blinks-0.22.4.tgz#0f7dd8870a3231164189f86157381b32ac4e679b"
+  integrity sha512-XSjk5smvoFGhpw2IAvCIJ+5Q2FpXPXyu4NX6Oulnfi279PqEuf7qz6/DNICvUY12/kHqrEVhX283u6tdedlzIQ==
   dependencies:
-    "@dialectlabs/blinks-core" "0.16.5"
+    "@dialectlabs/blinks-core" "^0.20.5"
+    bs58 "^6.0.0"
     clsx "^2.1.1"
     markdown-to-jsx "^7.5.0"
 
@@ -2749,7 +2749,7 @@
     "@wallet-standard/app" "^1.1.0"
     "@wallet-standard/base" "^1.1.0"
 
-"@solana/web3.js@^1.32.0", "@solana/web3.js@^1.95.1", "@solana/web3.js@^1.98.0":
+"@solana/web3.js@^1.32.0", "@solana/web3.js@^1.98.0":
   version "1.98.0"
   resolved "https://registry.yarnpkg.com/@solana/web3.js/-/web3.js-1.98.0.tgz#21ecfe8198c10831df6f0cfde7f68370d0405917"
   integrity sha512-nz3Q5OeyGFpFCR+erX2f6JPt3sKhzhYcSycBCSPkWjzSVDh/Rr1FqTVMRe58FKO16/ivTUcuJjeS5MyBvpkbzA==
@@ -7819,10 +7819,10 @@ nanoid@^3.3.7, nanoid@^3.3.8:
   resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.3.8.tgz#b1be3030bee36aaff18bacb375e5cce521684baf"
   integrity sha512-WNLf5Sd8oZxOm+TzppcYk8gVOgP+l58xNy58D0nbUnOxOWRWvlcCV4kUF7ltmI6PsrLl/BgKEyS4mqsGChFN0w==
 
-nanoid@^5.0.7:
-  version "5.0.9"
-  resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-5.0.9.tgz#977dcbaac055430ce7b1e19cf0130cea91a20e50"
-  integrity sha512-Aooyr6MXU6HpvvWXKoVoXwKMs/KyVakWwg7xQfv5/S/RIgJMy0Ifa45H9qqYy7pTCszrHzP21Uk4PZq2HpEM8Q==
+nanoid@^5.0.9:
+  version "5.1.2"
+  resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-5.1.2.tgz#b87c6cb6941d127a23b24dffc4659bba48b219d7"
+  integrity sha512-b+CiXQCNMUGe0Ri64S9SXFcP9hogjAJ2Rd6GdVxhPLRm7mhGaM7VgOvCAJ1ZshfHbqVDI3uqTI5C8/GaKuLI7g==
 
 napi-build-utils@^2.0.0:
   version "2.0.0"
