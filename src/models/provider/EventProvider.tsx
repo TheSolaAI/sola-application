@@ -42,7 +42,6 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
           eventData.type ===
           'conversation.item.input_audio_transcription.completed'
         ) {
-          console.log(eventData)
           useChatMessageHandler.getState().addMessage({
             id: eventData.response_id,
             content: {
