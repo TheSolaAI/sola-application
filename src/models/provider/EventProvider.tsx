@@ -34,10 +34,24 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
       if (dataStream === null) return;
       dataStream.onmessage = async (event) => {
         const eventData = JSON.parse(event.data);
-        console.log(eventData, null, 2);
+        // console.log(eventData, null, 2);
         if (eventData.type === 'session.created') {
           // update the session with our latest tools, voice and emotion
           updateSession();
+        } else if (
+          eventData.type ===
+          'conversation.item.input_audio_transcription.completed'
+        ) {
+          useChatMessageHandler.getState().addMessage({
+            id: eventData.response_id,
+            content: {
+              type: 'user_audio_chat',
+              response_id: eventData.event_id,
+              sender: 'user',
+              text: eventData.transcript,
+            },
+            createdAt: new Date().toISOString(),
+          });
         } else if (eventData.type === 'response.audio_transcript.delta') {
           // a part of the audio response transcript has been received
           if (useChatMessageHandler.getState().currentChatItem !== null) {

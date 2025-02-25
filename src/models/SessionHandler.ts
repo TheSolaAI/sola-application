@@ -62,6 +62,12 @@ interface SessionHandler {
    * Use this function to send an user typed message to the AI
    */
   sendTextMessage: (message: string) => Promise<void>;
+
+  /**
+   * Use this function to send an system generated message to the AI
+   */
+  sendTextMessageAsSystem: (message: string) => Promise<void>;
+
   /**
    * Use this function to send a response to a function call
    * @param message
@@ -139,6 +145,9 @@ export const useSessionHandler = create<SessionHandler>((set, get) => {
           modalities: ['text', 'audio'],
           instructions: getPrimeDirective(get().aiEmotion),
           voice: get().aiVoice.toLowerCase(),
+          input_audio_transcription: {
+            model: 'whisper-1',
+          },
           tools,
           tool_choice: 'auto',
           temperature: 0.6,
@@ -194,6 +203,37 @@ export const useSessionHandler = create<SessionHandler>((set, get) => {
           item: {
             type: 'message',
             role: 'user',
+            content: [
+              {
+                type: 'input_text',
+                text: message,
+              },
+            ],
+          },
+        };
+        get().dataStream?.send(JSON.stringify(textMessage));
+        get().dataStream?.send(JSON.stringify({ type: 'response.create' }));
+      } else {
+        toast.error('Failed to send message. Reload the page');
+      }
+    },
+    sendTextMessageAsSystem: async (message: string): Promise<void> => {
+      const currentRoomId = useChatRoomHandler.getState().currentChatRoom?.id;
+      if (!currentRoomId) {
+        // We have not selected a chat room so first create one
+        const newRoom = await useChatRoomHandler.getState().createChatRoom({
+          name: message.substring(0, 20),
+        });
+        if (newRoom) {
+          await useChatRoomHandler.getState().setCurrentChatRoom(newRoom);
+        }
+      }
+      if (get().dataStream && get().dataStream?.readyState === 'open') {
+        const textMessage = {
+          type: 'conversation.item.create',
+          item: {
+            type: 'message',
+            role: 'system',
             content: [
               {
                 type: 'input_text',

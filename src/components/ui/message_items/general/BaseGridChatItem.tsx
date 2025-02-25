@@ -1,6 +1,4 @@
 import { ReactNode, useRef, useState, useEffect } from 'react';
-import useThemeManager from '../../../../models/ThemeManager.ts';
-import { Bot } from 'lucide-react';
 
 interface BaseGridChatItemProps {
   col: number;
@@ -11,7 +9,6 @@ export default function BaseGridChatItem({
   col,
   children,
 }: BaseGridChatItemProps) {
-  const { theme } = useThemeManager();
   const containerRef = useRef<HTMLDivElement>(null);
   const [dynamicCols, setDynamicCols] = useState(col);
 
@@ -37,11 +34,8 @@ export default function BaseGridChatItem({
   return (
     <div
       ref={containerRef}
-      className="flex gap-2 my-1 md:gap-4 justify-start max-w-[90%] md:max-w-[80%] transition-opacity duration-500"
+      className="flex my-1 justify-start max-w-[100%] md:max-w-[80%] transition-opacity duration-500"
     >
-      <div className="opacity-0">
-        <Bot color={theme.secText} />
-      </div>
       <div
         className={`grid grid-cols-${dynamicCols} gap-4 p-2 w-full rounded-lg break-words whitespace-normal`}
       >

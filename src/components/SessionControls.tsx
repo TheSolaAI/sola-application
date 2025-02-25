@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Mic, MicOff, Send } from 'lucide-react';
 import { useSessionHandler } from '../models/SessionHandler.ts';
-import { useLayoutContext } from '../layout/LayoutProvider.tsx';
 
 const LOADING_QUOTES = [
   'Connecting SOLA...',
@@ -15,7 +14,6 @@ export const SessionControls = () => {
    * Global States
    */
   const { muted, setMuted, state, sendTextMessage } = useSessionHandler();
-  const { vadInstance } = useLayoutContext();
 
   /**
    * Local States
@@ -93,11 +91,6 @@ export const SessionControls = () => {
         <button
           onClick={() => {
             setMuted(!muted);
-            if (muted) {
-              vadInstance.start();
-            } else {
-              vadInstance.pause();
-            }
           }}
           className="
             rounded-full flex justify-center items-center

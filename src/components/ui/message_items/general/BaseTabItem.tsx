@@ -25,6 +25,5 @@ export interface TerminalTabsProps {
   customTabContent?: (tab: Tab) => React.ReactNode;
   className?: string;
   tabClassName?: string;
-  activeTabClassName?: string;
   contentClassName?: string;
 }

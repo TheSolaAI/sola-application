@@ -43,10 +43,10 @@ const cardVariants = {
 export const BasicMetricCard = ({ label, value }: BasicMetricCardProps) => (
   <motion.div
     variants={cardVariants}
-    className="flex-auto basis-[calc(25%-0.75rem)] min-w-[180px] flex flex-col gap-2 bg-baseBackground rounded-lg p-3"
+    className="flex-auto basis-[calc(25%-0.75rem)] min-w-[180px] flex flex-col gap-2 bg-black dark:bg-white text-textColorContrast rounded-lg p-3 shadow-md"
   >
-    <h3 className="text-lg text-secText truncate">{label}</h3>
-    <div className="flex justify-between items-center text-textColor">
+    <h3 className="text-lg font-medium truncate">{label}</h3>
+    <div className="flex justify-between items-center">
       <span className="truncate">{value}</span>
     </div>
   </motion.div>
@@ -55,10 +55,10 @@ export const BasicMetricCard = ({ label, value }: BasicMetricCardProps) => (
 export const MetricCard = ({ label, value, delta }: MetricCardProps) => (
   <motion.div
     variants={cardVariants}
-    className="flex-auto basis-[calc(25%-0.75rem)] min-w-[180px] flex flex-col gap-2 bg-baseBackground rounded-lg p-3"
+    className="flex-auto basis-[calc(25%-0.75rem)] min-w-[180px] flex flex-col gap-2 bg-black dark:bg-white text-textColorContrast rounded-lg p-3 shadow-md"
   >
-    <h3 className="text-lg text-secText truncate">{label}</h3>
-    <div className="flex justify-between items-center text-textColor">
+    <h3 className="text-lg font-medium truncate">{label}</h3>
+    <div className="flex justify-between items-center">
       <span className="truncate">{value}</span>
       <span
         className={`text-sm font-semibold p-1 rounded-lg text-subtext ml-2 whitespace-nowrap ${
