@@ -18,7 +18,7 @@
     "@bonfida/spl-name-service": "^3.0.7",
     "@dialectlabs/blinks": "0.18.3",
     "@microsoft/clarity": "^1.0.0",
-    "@privy-io/react-auth": "^2.2.1",
+    "@privy-io/react-auth": "^2.4.5",
     "@sentry/react": "^8.47.0",
     "@sentry/vite-plugin": "^2.22.7",
     "@solana/actions-spec": "^2.4.2",
