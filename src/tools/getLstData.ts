@@ -5,7 +5,7 @@ import { Tool } from '../types/tool.ts';
 import { ShowLSTDataChatItem } from '../components/ui/message_items/LSTCardItem.tsx';
 
 const functionDescription =
-  'Call this function when the user wants to know the highest apy in LST (Liquid Staking Token). General questions would be what is the best lst to stake? etc';
+  'Retrieve current data on Liquid Staking Tokens (LSTs) in the Solana ecosystem, including APY rates, prices, and other relevant metrics. Call this function when users ask about staking options, best LST yields, LST comparisons, or want to see current LST performance data.';
 
 export const getLstData: Tool = {
   implementation: getLstDataFunction,
@@ -32,7 +32,7 @@ export async function getLstDataFunction(): Promise<{
   useChatMessageHandler.getState().setCurrentChatItem({
     content: {
       type: 'loader_message',
-      text: `Fetching LST data...`,
+      text: `Token Analyst agent: Fetching LST data...`,
       response_id: 'temp',
       sender: 'system',
     },
@@ -49,7 +49,7 @@ export async function getLstDataFunction(): Promise<{
 
   return {
     status: 'success',
-    response: 'LST data fetched successfully',
+    response: `LST data fetched successfully, ${response.map((value) => `${value.symbol}: ${value.apy}%`).join(', ')}`,
     props: {
       response_id: 'temp',
       sender: 'system',

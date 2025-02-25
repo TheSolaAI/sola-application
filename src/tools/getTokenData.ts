@@ -5,7 +5,7 @@ import { TokenDataResponse } from '../types/response.ts';
 import { TokenDataMessageItem } from '../components/ui/message_items/TokenDataMessageItem.tsx';
 import { TokenDataChatContent } from '../types/chatItem.ts';
 
-const functionDescription = `Use this function to get the details like Market Cap or volume or price of a token for a given token symbol or address.`;
+const functionDescription = `Get the current price of any token in Solana Blockchain, including detailed information like buy/sell prices, Market Cap, Top Holders, Bubblemaps and Token Analysis.`;
 
 export const getTokenData: Tool = {
   implementation: getTokenDataFunction,
@@ -22,10 +22,11 @@ export const getTokenData: Tool = {
       properties: {
         token_address: {
           type: 'string',
-          description: 'The token address or token symbol.',
+          description:
+            'The exact token contract address, symbol, or name. For symbols or names, provide ONLY the raw text (e.g., "SOL", "JUP", "BONK") without any additions like "address", "token", or other modifiers.',
         },
       },
-      required: ['token'],
+      required: ['token_address'],
     },
   },
 };
@@ -42,7 +43,7 @@ async function getTokenDataFunction(
   useChatMessageHandler.getState().setCurrentChatItem({
     content: {
       type: 'loader_message',
-      text: 'Fetching token data...',
+      text: 'Token Analyst agent: Fetching token data...',
       response_id: 'temp',
       sender: 'system',
     },

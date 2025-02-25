@@ -36,17 +36,17 @@ export async function getRugCheckFunction(args: { token: string }): Promise<{
   response: string;
   props?: RugCheckChatContent;
 }> {
-  useChatMessageHandler.getState().setCurrentChatItem({
-    content: {
-      type: 'loader_message',
-      text: `Checking if ${args.token} is a rug...`,
-      response_id: 'temp',
-      sender: 'system',
-    },
-    id: 0,
-    createdAt: new Date().toISOString(),
-  });
-  console.log(args);
+  // useChatMessageHandler.getState().setCurrentChatItem({
+  //   content: {
+  //     type: 'loader_message',
+  //     text: `Checking if ${args.token} is a rug...`,
+  //     response_id: 'temp',
+  //     sender: 'system',
+  //   },
+  //   id: 0,
+  //   createdAt: new Date().toISOString(),
+  // });
+  // console.log(args);
   let token = args.token;
   let final_token = '';
   if (token.length > 35 || token.startsWith('$')) {
@@ -59,7 +59,6 @@ export async function getRugCheckFunction(args: { token: string }): Promise<{
     undefined,
     'data',
   );
-  console.log('im sending the ressponse');
   if (ApiClient.isApiResponse<RugCheckCard>(response)) {
     console.log(response.data);
     return {
