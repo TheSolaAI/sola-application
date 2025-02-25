@@ -150,7 +150,6 @@ const TerminalTabs: React.FC<TerminalTabsProps> = ({
     }
 
     if (tab.name === 'Token Analytics') {
-      console.log(tab.content);
       const message = tab.content.rows[0]['message'] || 'Failed to load';
       const score = Number(tab.content.rows[0]['score']) || 0;
       const scoreColor =
