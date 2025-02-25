@@ -12,7 +12,7 @@ import { TransactionDataMessageItem } from '../components/ui/message_items/Trans
 const rpc = import.meta.env.VITE_SOLANA_RPC;
 
 const functionDescription =
-  'Creates a limit order to buy or sell a token at a specified price.';
+  'Creates a limit order to buy or sell a specified token at a user-defined price in USD.';
 
 export const limitOrder: Tool = {
   implementation: createLimitOrder,
@@ -39,6 +39,7 @@ export const limitOrder: Tool = {
         },
         token: {
           type: 'string',
+          enum: ['SOL', 'SOLA', 'USDC', 'BONK', 'USDT', 'JUP', 'WIF'],
           description: 'The token that the user wants to buy or sell',
         },
         limitPrice: {

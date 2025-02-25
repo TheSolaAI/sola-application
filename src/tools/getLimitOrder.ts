@@ -5,8 +5,7 @@ import { getLimitOrderHandler } from '../lib/solana/limitOrderTx.ts';
 import { ShowLimitOrdersChatContent } from '../types/chatItem.ts';
 import { ShowLimitOrdersChatItem } from '../components/ui/message_items/ShowLimitOrderChatItem.tsx';
 
-const functionDescription =
-  'Call this function when the user wants view their open limit orders.';
+const functionDescription = 'Get the active limit orders of the user.';
 
 export const getLimitOrders: Tool = {
   implementation: getLimitOrderFunction,
@@ -36,7 +35,7 @@ async function getLimitOrderFunction(args: {
   if (!wallet) {
     return {
       status: 'error',
-      response: 'No wallet connected',
+      response: 'No wallet connected, connect wallet to get the limit orders.',
     };
   }
   let params: ShowLimitOrderParams = {
@@ -58,7 +57,7 @@ async function getLimitOrderFunction(args: {
 
   return {
     status: 'success',
-    response: 'Success',
+    response: `Limit orders are: ${resp.orders}`,
     props: data,
   };
 }
