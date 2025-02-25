@@ -4,6 +4,7 @@ import { ShowLimitOrderParams } from '../types/jupiter.ts';
 import { getLimitOrderHandler } from '../lib/solana/limitOrderTx.ts';
 import { ShowLimitOrdersChatContent } from '../types/chatItem.ts';
 import { ShowLimitOrdersChatItem } from '../components/ui/message_items/ShowLimitOrderChatItem.tsx';
+import { useChatMessageHandler } from '../models/ChatMessageHandler.ts';
 
 const functionDescription = 'Get the active limit orders of the user.';
 
@@ -31,6 +32,17 @@ async function getLimitOrderFunction(args: {
   response: string;
   props?: ShowLimitOrdersChatContent;
 }> {
+  useChatMessageHandler.getState().setCurrentChatItem({
+    content: {
+      type: 'loader_message',
+      text: 'Token Analyst agent: Fetching active limit orders...',
+      response_id: 'temp',
+      sender: 'system',
+    },
+    id: 0,
+    createdAt: new Date().toISOString(),
+  });
+
   let wallet = args.currentWallet;
   if (!wallet) {
     return {

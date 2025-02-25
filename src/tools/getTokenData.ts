@@ -39,7 +39,6 @@ async function getTokenDataFunction(
   response: string;
   props?: TokenDataChatContent;
 }> {
-  // Add temporary message
   useChatMessageHandler.getState().setCurrentChatItem({
     content: {
       type: 'loader_message',
