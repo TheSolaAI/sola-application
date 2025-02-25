@@ -3,7 +3,6 @@ import { useDashboardHandler } from '../../models/DashboardHandler.ts';
 import { toast } from 'sonner';
 import { formatNumber } from '../../utils/formatNumber.ts';
 import { BasicMetricCard, MetricCard } from '../ui/DashboardMetrics.tsx';
-import { FiExternalLink } from 'react-icons/fi';
 import { motion } from 'framer-motion';
 import { IoIosArrowForward } from 'react-icons/io';
 import { TokenDataChatContent } from '../../types/chatItem.ts';
@@ -15,6 +14,8 @@ import { getTopHoldersHandler } from '../../lib/solana/topHolders.ts';
 import { getRugCheckFunction } from '../../tools/getRugCheck.ts';
 import useThemeManager from '../../models/ThemeManager.ts';
 import { RugCheck } from '../../types/data_types.ts';
+import { BorderGlowButton } from '../ui/buttons/BorderGlow.tsx';
+import { useSessionHandler } from '../../models/SessionHandler.ts';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -46,8 +47,13 @@ type TimeframeData = {
 type TimeframeKey = keyof TimeframeData;
 
 export const TokenDataDashboard = () => {
-  const [activeTabId, setActiveTabId] = useState(1);
+  /*
+   * Global States
+   */
+  const { sendTextMessage } = useSessionHandler();
   const { id, closeDashboard, tokenData } = useDashboardHandler();
+
+  const [activeTabId, setActiveTabId] = useState(1);
   const [agentDetails, setAgentDetails] = useState<TokenDataChatContent | null>(
     null,
   );
@@ -261,21 +267,29 @@ export const TokenDataDashboard = () => {
         initial={{ x: -20, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         transition={{ duration: 0.5 }}
-        className="flex gap-4 text-2xl items-center font-bold text-textColorContrast p-2"
+        className="flex gap-4 text-2xl items-center font-bold text-textColorContrast p-2  "
       >
-        Ticker: ${agentDetails?.data?.symbol?.toUpperCase()}{' '}
-        <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-          <FiExternalLink
-            onClick={(e) => {
-              e.preventDefault();
-              window.open(
-                `https://dexscreener.com/solana/${agentDetails?.data?.address}`,
-                '_blank',
-              );
-            }}
-            className="font-thin text-sm self-center cursor-pointer"
-          />
-        </motion.div>
+        <span
+          className="cursor-pointer hover:text-primaryDark"
+          onClick={(e) => {
+            e.preventDefault();
+            window.open(
+              `https://dexscreener.com/solana/${agentDetails?.data?.address}`,
+              '_blank',
+            );
+          }}
+        >
+          Ticker: ${agentDetails?.data?.symbol?.toUpperCase()}
+        </span>
+        <span
+          onClick={() =>
+            sendTextMessage(
+              `Just Tell the user that, the token ${agentDetails?.data?.name} as risk level of ${tokenAnalysis?.score} (higher the score, better) and risk analysis ${tokenAnalysis?.message} and this analysis is powered by ANTI-RUG. Dont perform any function calls.`,
+            )
+          }
+        >
+          <BorderGlowButton text={'Anti-Rug Analysis'} />
+        </span>
       </motion.p>
       <motion.div
         initial={{ y: 10, opacity: 0 }}

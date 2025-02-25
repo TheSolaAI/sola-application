@@ -168,7 +168,7 @@ const TerminalTabs: React.FC<TerminalTabsProps> = ({
             Risk Level: {score}
           </span>
           <span className={`font-semibold p-2`}>
-            Risk Level: {String(message)}
+            Risk Analysis: {String(message)}
           </span>
           <span className={`font-light p-2 self-end `}>
             POWERED BY ANTI-RUG
