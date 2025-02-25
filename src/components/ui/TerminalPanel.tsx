@@ -14,7 +14,6 @@ const TerminalTabs: React.FC<TerminalTabsProps> = ({
   customTabContent,
   className = '',
   tabClassName = '',
-  activeTabClassName = '',
   contentClassName = '',
 }) => {
   const { theme } = useThemeManager();
@@ -68,7 +67,7 @@ const TerminalTabs: React.FC<TerminalTabsProps> = ({
           <div className="flex justify-between text-sm ">
             <div className="flex items-center gap-2">
               <span className="text-gray-400">BUYS</span>
-              <span>
+              <span className="text-textColorContrast">
                 {row.Category === 'VOLUME'
                   ? `$ ${formatNumber(Number(row.buys))}`
                   : formatNumber(Number(row.buys))}
@@ -76,7 +75,7 @@ const TerminalTabs: React.FC<TerminalTabsProps> = ({
             </div>
             <div className="flex items-center gap-2">
               <span className="text-gray-400">SELLS</span>
-              <span>
+              <span className="text-textColorContrast">
                 {row.Category === 'VOLUME'
                   ? `$ ${formatNumber(Number(row.sells))}`
                   : formatNumber(Number(row.sells))}
@@ -111,7 +110,7 @@ const TerminalTabs: React.FC<TerminalTabsProps> = ({
 
       return (
         <div className="w-full p-2">
-          <div className="grid grid-cols-2 gap-x-6 py-2 font-semibold text-left uppercase tracking-wider border-b border-backgroundContrast">
+          <div className="grid grid-cols-2 gap-x-6 py-2 text-textColorContrast font-semibold text-left uppercase tracking-wider border-b border-background">
             <span>Owner</span>
             <span className="text-right">Balance</span>
           </div>
@@ -120,7 +119,7 @@ const TerminalTabs: React.FC<TerminalTabsProps> = ({
             {agentDetails.data.topHolders.map((value, index) => (
               <div
                 key={index}
-                className="grid grid-cols-2 gap-x-6 py-2 items-center"
+                className="grid grid-cols-2 gap-x-8 py-2 items-center text-textColorContrast"
               >
                 <div className="flex items-center gap-2">
                   <span className="truncate">
@@ -134,9 +133,9 @@ const TerminalTabs: React.FC<TerminalTabsProps> = ({
                         '_blank',
                       )
                     }
-                    className="text-xs font-medium rounded-lg hover:scale-105 hover:shadow-lg transition-all"
+                    className="hover:scale-105 hover:shadow-lg transition-all"
                   >
-                    <ExternalLink className="h-4 w-4" />
+                    <ExternalLink className="h-3 w-3" />
                   </button>
                 </div>
 
@@ -164,14 +163,14 @@ const TerminalTabs: React.FC<TerminalTabsProps> = ({
               : 'text-red-500';
 
       return (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2 text-textColorContrast">
           <span className={`${scoreColor} font-semibold p-2`}>
             Risk Level: {score}
           </span>
           <span className={`font-semibold p-2`}>
             Risk Level: {String(message)}
           </span>
-          <span className={`font-light p-2 self-end text-secText`}>
+          <span className={`font-light p-2 self-end `}>
             POWERED BY ANTI-RUG
           </span>
         </div>
@@ -221,26 +220,22 @@ const TerminalTabs: React.FC<TerminalTabsProps> = ({
 
   return (
     <div
-      className={`w-full rounded-lg overflow-hidden ${className}`}
+      className={`w-full rounded-lg overflow-hidden border bg-black dark:bg-white shadow-lg ${className}`}
       style={{
-        background: theme.baseBackground,
         color: theme.textColor,
       }}
     >
       <div>
-        <div className="flex-1 flex overflow-x-auto scrollbar-thin scrollbar-thumb-primary scrollbar-track-baseBackground">
+        <div className="flex-1 flex overflow-x-auto scrollbar-thin scrollbar-thumb-primary scrollbar-track-backgroundContrast">
           {tabs.map((tab) => (
             <div
               key={tab.id}
               onClick={() => switchTab(tab.id)}
-              className={`flex w-full items-center justify-center gap-2 p-2 border-b cursor-pointer transition-colors ${
+              className={`flex w-full items-center justify-center gap-2 p-2 border-r border-b cursor-pointer transition-colors ${
                 tabClassName
-              } ${tab.id === activeTabId ? activeTabClassName : ''}`}
+              } ${tab.id === activeTabId ? 'bg-background' : 'bg-black dark:bg-white text-textColorContrast'}`}
               style={{
-                borderColor: theme.backgroundContrast,
-                background:
-                  tab.id === activeTabId ? theme.primaryDark : theme.primary,
-                color: theme.textColor,
+                borderColor: theme.background,
               }}
             >
               <tab.icon className="w-4 h-4" />
