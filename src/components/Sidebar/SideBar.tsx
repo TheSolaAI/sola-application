@@ -1,4 +1,4 @@
-import { ChevronLeft, Edit, Edit2, Menu, User } from 'lucide-react';
+import { ChevronLeft, Edit, Ellipsis, Menu, User } from 'lucide-react';
 import React, { FC, useEffect, useRef, useState } from 'react';
 import useThemeManager from '../../models/ThemeManager.ts';
 import { useLocation } from 'react-router-dom';
@@ -164,7 +164,7 @@ export const Sidebar: FC<SidebarProps> = ({
 
         {/*  ChatRooms List */}
         <div className="mt-[10px] flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-primary scrollbar-track-sec_background ">
-          <div className="flex flex-col items-start space-y-2">
+          <div className="flex flex-col items-start gap-y-1">
             {rooms.map((room) => {
               const isEditing = editingRoom === room.id;
               if (!room.id) return null;
@@ -176,7 +176,7 @@ export const Sidebar: FC<SidebarProps> = ({
                       setCurrentChatRoom(room);
                     }}
                     ref={(el) => el && (editButtonRefs.current[room.id!] = el)}
-                    className={`group font-small flex w-full justify-between items-center rounded-xl p-[10px] transition-color duration-300 ease-in-out hover:bg-primaryDark
+                    className={`group font-small text-sm flex w-full justify-between items-center rounded-lg p-[10px] transition-color duration-300 ease-in-out hover:bg-primaryDark
               ${pathname === `/c/${room.id}` || pathname.startsWith(`/c/${room.id}/`) ? 'bg-primaryDark' : ''}`}
                   >
                     <h1 className="text-textColor font-normal">{room.name}</h1>
@@ -186,7 +186,7 @@ export const Sidebar: FC<SidebarProps> = ({
                       className={`transition-opacity duration-300 group-hover:opacity-100 
                 ${pathname === `/c/${room.id}` || pathname.startsWith(`/c/${room.id}/`) ? 'lg:opacity-100' : 'lg:opacity-0'}`}
                     >
-                      <Edit2 size={16} color={theme.textColor} />
+                      <Ellipsis size={16} color={theme.textColor} />
                     </button>
                   </button>
 

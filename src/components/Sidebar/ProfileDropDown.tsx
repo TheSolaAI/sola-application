@@ -20,14 +20,12 @@ export const ProfileDropDown: FC<ProfileDropDownProps> = ({
    * State Management
    */
   const { logout } = usePrivy();
-  const { setMediaStream, setDataStream, setPeerConnection, setMuted } =
-    useSessionHandler();
+  const { setMediaStream, setPeerConnection, setMuted } = useSessionHandler();
   const navigation = useNavigate();
 
   const logoutHandler = () => {
     // TODO: Close the session and datastream to OpenAI
     setMediaStream(null);
-    setDataStream(null);
     setPeerConnection(null);
     setMuted(true);
     logout();
@@ -42,10 +40,10 @@ export const ProfileDropDown: FC<ProfileDropDownProps> = ({
       direction="up"
       width="auto"
     >
-      <div className="w-full ">
+      <div className="w-full p-2">
         {/*Settings*/}
         <button
-          className="w-full hover:bg-primary/85 flex-row flex gap-4 items-center justify-around p-3 rounded-xl"
+          className="w-full hover:bg-primary/85 flex-row flex gap-4 items-center justify-between p-3 rounded-xl"
           onClick={() => {
             //   Navigate to settings page
             navigation('/settings/configuration');
