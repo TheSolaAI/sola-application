@@ -139,6 +139,9 @@ export const useSessionHandler = create<SessionHandler>((set, get) => {
           modalities: ['text', 'audio'],
           instructions: getPrimeDirective(get().aiEmotion),
           voice: get().aiVoice.toLowerCase(),
+          input_audio_transcription: {
+            model: 'whisper-1',
+          },
           tools,
           tool_choice: 'auto',
           temperature: 0.6,
