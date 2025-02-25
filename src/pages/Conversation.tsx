@@ -181,31 +181,41 @@ const Conversation = () => {
       )}
 
       {messages.length === 0 && !currentChatItem && state !== 'loading' && (
-        <div className="absolute inset-0 flex flex-col gap-4 items-center justify-center p-4 z-20">
-          {/* Title */}
-          <span className="font-semibold text-lg md:text-title-xl text-secText animate-in fade-in duration-700">
-            Ask Sola AI
-          </span>
+       <div className="absolute inset-0 flex flex-col items-center justify-center p-4 z-20">
+       {/* Logo and Title */}
+       <div className="flex flex-col items-center mb-8">
+         <h1 className="font-semibold text-lg md:text-title-xl text-secText animate-in fade-in duration-700">
+           ASK SOLA
+         </h1>
+         
+         {/* Subtitle */}
+         <p className="font-semibold text-lg md:text-title-xs text-secText animate-in fade-in duration-700">
+           Perform Voice Powered Solana Intents
+         </p>
+       </div>
 
-          {/* Example Prompts */}
-          <div className="flex flex-col gap-3 bg-sec_background rounded-lg p-4 md:w-[40%] mt-3 md:mt-5">
-            {suggestions.map((prompt) => (
-              <button
-                key={prompt}
-                onClick={() => {
-                  sendTextMessage(prompt);
-                }}
-                className={'w-full '}
-              >
-                <p className="px-2 py-1 text-md md:text-md font-medium text-secText text-start">
-                  {prompt}
-                </p>
-              </button>
-            ))}
-          </div>
+       {/* Category tiles */}
+       <div className="grid grid-cols-2 gap-6 w-full max-w-xl mt-6">
+         {/* Category Tile Component */}
+         {[
+           { text: "Token Report", subtext: "Get token report for a token", action: "Token Report of Token SOLA" },
+           { text: "Liquid Stake", subtext: "Stake SOL into LSTs", action: "Show me the best LSTs to buy" },
+           { text: "Trade", subtext: "Swap 0.1 SOL to USDC on Jupiter", action: "Swap 0.1 SOL to USDC using Jupiter" },
+           { text: "Ai Mindshare", subtext: "Get market mindshare for AI projects", action: "Show me AI projects categorized under 'DeFi'" },
+         ].map((item, index) => (
+           <div 
+             key={index} 
+             className="border border-gray-300 bg-sec_background rounded-2xl p-5 hover:bg-sec_hover transition cursor-pointer shadow-sm"
+             onClick={() => sendTextMessage(item.action)}
+           >
+             <h2 className="text-lg md:text-title-m text-secText animate-in fade-in duration-700 font-semibold text-lg">{item.text}</h2>
+             <p className="text-lg md:text-title-m text-secText animate-in fade-in duration-700 text-sm mt-1">{item.subtext}</p>
+           </div>
+         ))}
+       </div>
 
           {/* Available Agents */}
-          <div className="flex flex-wrap gap-2 p-2 w-full justify-center">
+          <div className="flex flex-wrap gap-2 p-2 w-full justify-center mt-3">
             {agents.map((agent) => {
               const Icon = agent.logo;
               return (

@@ -1,11 +1,18 @@
-import { ApiClient } from '../../api/ApiClient';
+import { apiClient, ApiClient } from '../../api/ApiClient';
 import { RugCheck } from '../../types/data_types';
 
-const data_service_url = import.meta.env.VITE_DATA_SERVICE_URL;
 
-export async function getRugCheck(token: string): Promise<RugCheck | null> {
-  const resp = await ApiClient.get<RugCheck>(
-    data_service_url + 'data/token/rug_check?token=' + token,
+export async function getRugCheckHandler(
+  token: string,
+): Promise<RugCheck | null> {
+  const resp = await apiClient.get<RugCheck>(
+    '/data/token/rug_check?token_address=' + token,
+    undefined,
+    'data',
   );
-  return resp;
+  if (ApiClient.isApiError(resp)) {
+    console.error('Error during getTopHoldersHandler:', resp.errors);
+    return null;
+  }
+  return resp.data;
 }

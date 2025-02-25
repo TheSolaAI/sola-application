@@ -11,7 +11,7 @@ import { Activity, Terminal } from 'lucide-react';
 import TerminalTabs from '../ui/TerminalPanel.tsx';
 import { TopHolder } from '../../types/messageCard.ts';
 import { getTopHoldersHandler } from '../../lib/solana/topHolders.ts';
-import { getRugCheckFunction } from '../../tools/getRugCheck.ts';
+import { getRugCheckHandler } from '../../lib/solana/rugCheck.ts';
 import useThemeManager from '../../models/ThemeManager.ts';
 import { RugCheck } from '../../types/data_types.ts';
 import { BorderGlowButton } from '../ui/buttons/BorderGlow.tsx';
@@ -93,9 +93,9 @@ export const TokenDataDashboard = () => {
 
       // Fetch token analysis
       if (tokenData.data?.address) {
-        getRugCheckFunction({ token: tokenData.data.address })
+        getRugCheckHandler(tokenData.data.address)
           .then((analysis) => {
-            setTokenAnalysis(analysis.props?.data);
+            setTokenAnalysis(analysis??undefined);
           })
           .catch(() => {
             toast.error('Error getting token analysis');
