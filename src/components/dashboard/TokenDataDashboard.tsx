@@ -2,8 +2,7 @@ import { useEffect, useState } from 'react';
 import { useDashboardHandler } from '../../models/DashboardHandler.ts';
 import { toast } from 'sonner';
 import { formatNumber } from '../../utils/formatNumber.ts';
-import { BasicMetricCard, MetricCard } from '../ui/GoatIndexMetrics.tsx';
-import { FiExternalLink } from 'react-icons/fi';
+import { BasicMetricCard, MetricCard } from '../ui/DashboardMetrics.tsx';
 import { motion } from 'framer-motion';
 import { IoIosArrowForward } from 'react-icons/io';
 import { TokenDataChatContent } from '../../types/chatItem.ts';
@@ -15,6 +14,8 @@ import { getTopHoldersHandler } from '../../lib/solana/topHolders.ts';
 import { getRugCheckFunction } from '../../tools/getRugCheck.ts';
 import useThemeManager from '../../models/ThemeManager.ts';
 import { RugCheck } from '../../types/data_types.ts';
+import { BorderGlowButton } from '../ui/buttons/BorderGlow.tsx';
+import { useSessionHandler } from '../../models/SessionHandler.ts';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -46,8 +47,13 @@ type TimeframeData = {
 type TimeframeKey = keyof TimeframeData;
 
 export const TokenDataDashboard = () => {
-  const [activeTabId, setActiveTabId] = useState(1);
+  /*
+   * Global States
+   */
+  const { sendTextMessageAsSystem } = useSessionHandler();
   const { id, closeDashboard, tokenData } = useDashboardHandler();
+
+  const [activeTabId, setActiveTabId] = useState(1);
   const [agentDetails, setAgentDetails] = useState<TokenDataChatContent | null>(
     null,
   );
@@ -252,30 +258,38 @@ export const TokenDataDashboard = () => {
   ] as const;
 
   return (
-    <div className="h-full w-full flex flex-col gap-3 bg-background p-4 rounded-lg shadow-2xl">
+    <div className="h-full w-full flex flex-col gap-3 bg-backgroundContrast p-4 rounded-lg shadow-2xl">
       <IoIosArrowForward
-        className="rounded-2xl cursor-pointer text-textColor min-w-8 min-h-8 hover:text-primary"
+        className="rounded-2xl cursor-pointer text-textColorContrast min-w-8 min-h-8 hover:text-primary"
         onClick={closeDashboard}
       />
       <motion.p
         initial={{ x: -20, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         transition={{ duration: 0.5 }}
-        className="flex gap-4 text-2xl items-center font-bold text-secText p-2"
+        className="flex gap-4 text-2xl items-center font-bold text-textColorContrast p-2  "
       >
-        Ticker: ${agentDetails?.data?.symbol?.toUpperCase()}{' '}
-        <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-          <FiExternalLink
-            onClick={(e) => {
-              e.preventDefault();
-              window.open(
-                `https://dexscreener.com/solana/${agentDetails?.data?.address}`,
-                '_blank',
-              );
-            }}
-            className="font-thin text-sm self-center cursor-pointer"
-          />
-        </motion.div>
+        <span
+          className="cursor-pointer hover:text-primaryDark"
+          onClick={(e) => {
+            e.preventDefault();
+            window.open(
+              `https://dexscreener.com/solana/${agentDetails?.data?.address}`,
+              '_blank',
+            );
+          }}
+        >
+          Ticker: ${agentDetails?.data?.symbol?.toUpperCase()}
+        </span>
+        <span
+          onClick={() =>
+            sendTextMessageAsSystem(
+              `Just Tell the user that, the token ${agentDetails?.data?.name} as risk level of ${tokenAnalysis?.score} (higher the score, better) and risk analysis ${tokenAnalysis?.message} and this analysis is powered by ANTI-RUG. Dont perform any function calls.`,
+            )
+          }
+        >
+          <BorderGlowButton text={'Anti-Rug Analysis'} />
+        </span>
       </motion.p>
       <motion.div
         initial={{ y: 10, opacity: 0 }}
@@ -287,7 +301,7 @@ export const TokenDataDashboard = () => {
           <embed
             src={`https://www.gmgn.cc/kline/sol/${agentDetails?.data?.address}`}
             width="100%"
-            color={useThemeManager().theme.background}
+            color={useThemeManager().theme.surface}
             height="350px"
           />
         </div>
@@ -295,7 +309,7 @@ export const TokenDataDashboard = () => {
 
       <motion.div
         variants={containerVariants}
-        className="flex flex-wrap gap-2 items-start overflow-y-auto scrollbar-thin scrollbar-thumb-primary scrollbar-track-background"
+        className="flex flex-wrap gap-2 px-2 items-start overflow-y-auto scrollbar-thin scrollbar-thumb-primary scrollbar-track-backgroundContrast"
       >
         <MetricCard
           label="Price"
@@ -318,12 +332,12 @@ export const TokenDataDashboard = () => {
           value={`$${formatNumber(Number(agentDetails?.data?.liquidity || 0))}`}
         />
 
-        <div className="flex gap-2 w-full justify-end my-4">
+        <div className="flex gap-2 w-full justify-end my-4 px-1">
           {timeframeButtons.map((tf) => (
             <button
               key={tf}
               onClick={() => setTimeframe(tf)}
-              className={`w-16 p-2 rounded-full ${timeframe === tf ? 'bg-primaryDark' : 'bg-primary'}`}
+              className={`w-16 p-2 rounded-full shadow-md hover:text-secText ${timeframe === tf ? 'bg-background text-textColor' : 'bg-black dark:bg-white text-textColorContrast'}`}
             >
               {tf}
             </button>
@@ -337,7 +351,6 @@ export const TokenDataDashboard = () => {
           onTabChange={setActiveTabId}
           className="my-tabs"
           tabClassName="my-tab"
-          activeTabClassName="my-active-tab"
           contentClassName="my-content"
         />
       </motion.div>

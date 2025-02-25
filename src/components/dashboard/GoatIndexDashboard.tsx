@@ -36,7 +36,7 @@ import {
   LargeMetricCard,
   MetricCard,
   TweetCard,
-} from '../ui/GoatIndexMetrics.tsx';
+} from '../ui/DashboardMetrics.tsx';
 import { FiExternalLink } from 'react-icons/fi';
 import { motion } from 'framer-motion';
 import { IoIosArrowForward } from 'react-icons/io';
