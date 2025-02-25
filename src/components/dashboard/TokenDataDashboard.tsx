@@ -50,7 +50,7 @@ export const TokenDataDashboard = () => {
   /*
    * Global States
    */
-  const { sendTextMessage } = useSessionHandler();
+  const { sendTextMessageAsSystem } = useSessionHandler();
   const { id, closeDashboard, tokenData } = useDashboardHandler();
 
   const [activeTabId, setActiveTabId] = useState(1);
@@ -283,7 +283,7 @@ export const TokenDataDashboard = () => {
         </span>
         <span
           onClick={() =>
-            sendTextMessage(
+            sendTextMessageAsSystem(
               `Just Tell the user that, the token ${agentDetails?.data?.name} as risk level of ${tokenAnalysis?.score} (higher the score, better) and risk analysis ${tokenAnalysis?.message} and this analysis is powered by ANTI-RUG. Dont perform any function calls.`,
             )
           }
