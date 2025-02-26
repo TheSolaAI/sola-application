@@ -22,7 +22,8 @@
  */
 import { FC } from 'react';
 import { NFTCollectionChatContent } from '../../../types/chatItem.ts';
-import BaseMonoGridChatItem from './general/BaseMonoGridChatItem.tsx';
+import BaseGridChatItem from './general/BaseGridChatItem.tsx';
+import { formatNumber } from '../../../utils/formatNumber.ts';
 
 interface NFTCollectionChatItemProps {
   props: NFTCollectionChatContent;
@@ -32,22 +33,35 @@ export const NFTCollectionMessageItem: FC<NFTCollectionChatItemProps> = ({
   props,
 }) => {
   return (
-    <BaseMonoGridChatItem>
-      <img
-        src={props.data.image}
-        alt={props.data.symbol}
-        className="h-16 w-16 rounded-lg"
-      />
-      <p className={`mt-1 text-small`}>Floor: ◎ {props.data.floor_price}</p>
-      <p className="text-sm">
-        Listed: {props.data.listed_count || 'Unknown'}
-      </p>
-      <p className="text-sm font-thin">
-        Sales (24hr): {props.data.avg_price_24hr || 'Unknown'}
-      </p>
-      <p className="text-sm font-thin">
-        Total Vol: {(props.data.volume_all / 10 ** 9).toFixed(2) || 'Unknown'}
-      </p>
-    </BaseMonoGridChatItem>
+    <BaseGridChatItem col={2}>
+      <div
+        key={props.data.symbol}
+        className="group relative overflow-hidden block rounded-xl text-secText bg-sec_background p-3 w-full transition-all duration-300 ease-in-out hover:bg-surface hover:shadow-lg"
+      >
+        <div className="flex items-center gap-4">
+          <img
+            src={props.data.image}
+            alt={props.data.symbol}
+            className="h-16 w-16 object-cover rounded-lg"
+          />
+          <div>
+            <p className="text-base font-medium">{props.data.symbol}</p>
+            <p className="text-base font-medium">
+              Floor: {props.data.floor_price}
+            </p>
+            <p className="text-sm font-small">
+              Listed: {props.data.listed_count}
+            </p>
+            <p className="text-sm font-small">
+              Avg Floor (24hr):
+              {formatNumber(props.data.avg_price_24hr / 10 ** 9)}
+            </p>
+            <p className="text-sm font-small">
+              Total Volume: {formatNumber(props.data.volume_all / 10 ** 9)}
+            </p>
+          </div>
+        </div>
+      </div>
+    </BaseGridChatItem>
   );
 };
