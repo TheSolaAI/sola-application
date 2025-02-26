@@ -47,7 +47,7 @@ function getAgentSwapperFunction(
         .getState()
         .agents.find((agent) => agent.slug === args.agent) ?? null,
     );
-  useSessionHandler.getState().updateSession();
+  useSessionHandler.getState().updateSession('tools');
   return Promise.resolve({
     status: 'success',
     response: `Switched to ${args.agent} agent`,
