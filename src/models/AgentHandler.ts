@@ -20,7 +20,7 @@ import {
   swapTokens,
   transferSolTx,
   transferSpl,
-  walletActions,
+  // walletActions,
   withdrawLulo,
 } from '../tools';
 
@@ -32,7 +32,6 @@ interface AgentHandler {
 }
 
 export const useAgentHandler = create<AgentHandler>((_setState, getState) => ({
-
   agents: [
     {
       name: 'Token Analyst',
@@ -71,11 +70,9 @@ export const useAgentHandler = create<AgentHandler>((_setState, getState) => ({
       logo: Atom,
       tools: [
         getAgentSwapper,
-        walletActions,
+        // walletActions,
         getNFTPrice,
         getTrendingNFTs,
-        // getNFTLaunchpad,
-        // getMarketData,
         getBlinks,
       ],
     },
@@ -103,6 +100,5 @@ export const useAgentHandler = create<AgentHandler>((_setState, getState) => ({
 
   setCurrentActiveAgent: (agent: Agent | null) => {
     getState().currentActiveAgent = agent;
-
   },
 }));

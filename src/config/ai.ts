@@ -18,7 +18,10 @@ Agents:
     1. Get Top AI projects, Projects with/without tokens on Solana Blockchain.
     2. Get Mindshare/Graph Analytics for the Top AI projects.
     
-- NFT Analyst: Agent to analyze NFT projects and trends.
+- nft-analyst:
+    1. Get floor price, volume, and marketplace, trading activity data for NFT collections on Solana.
+    2. Get Trending NFT collections on Solana Blockchain.
+ 
 - DeFi Analyst: Agent to analyze DeFi projects and trends.
 
 Key Guidelines:
