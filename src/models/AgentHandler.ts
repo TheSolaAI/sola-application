@@ -32,6 +32,7 @@ interface AgentHandler {
 }
 
 export const useAgentHandler = create<AgentHandler>((_setState, getState) => ({
+
   agents: [
     {
       name: 'Token Analyst',
@@ -43,7 +44,6 @@ export const useAgentHandler = create<AgentHandler>((_setState, getState) => ({
         // walletActions,
         getTokenData,
         getLstData,
-        swapLST,
         // getMarketData,
         // getBlinks,
         limitOrder,
@@ -83,19 +83,17 @@ export const useAgentHandler = create<AgentHandler>((_setState, getState) => ({
       name: 'DAM',
       slug: 'dam',
       description:
-        'DeFi Asset Manager - for Lulo operations and LST management.',
+        'DeFi Asset Manager - for Lulo operations and LST operations.',
       logo: Wallet,
       tools: [
         getAgentSwapper,
         // walletActions,
-        swapTokens,
         transferSolTx,
         transferSpl,
         // getMarketData,
         getLuloAssets,
         depositLulo,
         withdrawLulo,
-        getLstData,
         swapLST,
         // getBlinks,
       ],
@@ -105,5 +103,6 @@ export const useAgentHandler = create<AgentHandler>((_setState, getState) => ({
 
   setCurrentActiveAgent: (agent: Agent | null) => {
     getState().currentActiveAgent = agent;
+
   },
 }));

@@ -25,7 +25,6 @@ import { NFTCollectionMessageItem } from '../components/ui/message_items/NFTColl
 import { TrendingNFTMessageItem } from '../components/ui/message_items/TrendingNFTMessageItem.tsx';
 import { AiProjects } from '../components/ui/message_items/AiProjects.tsx';
 import { useAgentHandler } from '../models/AgentHandler.ts';
-import quick_prompts from '../config/quick_prompts.json';
 import { useSessionHandler } from '../models/SessionHandler.ts';
 import { ScaleLoader } from 'react-spinners';
 import { LoaderMessageItem } from '../components/ui/message_items/LoaderMessageItem.tsx';
@@ -49,7 +48,7 @@ const Conversation = () => {
    */
   const primaryRGB = hexToRgb(theme.primary);
   const primaryDarkRGB = hexToRgb(theme.primaryDark);
-  const [suggestions, setSuggestions] = useState<string[]>([]);
+
 
   /**
    * Current Route
@@ -77,18 +76,6 @@ const Conversation = () => {
     }
   }, [chatRoomId, allRoomsLoaded]);
 
-  /**
-   * Load some random suggestions
-   */
-  useEffect(() => {
-    const promptsCopy = [...quick_prompts];
-    for (let i = promptsCopy.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [promptsCopy[i], promptsCopy[j]] = [promptsCopy[j], promptsCopy[i]];
-    }
-
-    setSuggestions(promptsCopy.slice(0, 6));
-  }, []);
   /**
    * The primary render function. If provided a chatItem, it returns the React component that should be rendered
    */

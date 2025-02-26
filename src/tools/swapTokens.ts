@@ -1,14 +1,13 @@
 import { ConnectedSolanaWallet } from '@privy-io/react-auth';
 import { Connection } from '@solana/web3.js';
 import { SwapParams } from '../types/jupiter';
-import { tokenList } from '../config/tokens/tokenMapping';
 import { swapTx } from '../lib/solana/swapTx';
 import { Tool } from '../types/tool';
 import { SwapChatContent } from '../types/chatItem';
 import { SwapChatItem } from '../components/ui/message_items/SwapMessageItem.tsx';
 
 const functionDescription =
-  'Call this function when the user wants to swap tokens. The swap can be based on a specific amount of tokenA (interpreted as a dollar amount or token quantity), or to receive a specified amount of tokenB.';
+  'Use this function when the user wants to swap one token for another at market price. The user may specify the amount of tokenA (in tokens or USD) or the amount of tokenB to receive. Do NOT use this for limit orders.';
 
 export const swapTokens: Tool = {
   implementation: swapTokensFunction,
@@ -36,12 +35,10 @@ export const swapTokens: Tool = {
         },
         tokenA: {
           type: 'string',
-          enum: ['SOL', 'SOLA', 'USDC', 'JUP', 'USDT', 'BONK'],
           description: 'The token that the user wants to swap.',
         },
         tokenB: {
           type: 'string',
-          enum: ['SOL', 'SOLA', 'USDC', 'JUP', 'USDT', 'BONK'],
           description: 'The token that the user wants to receive.',
         },
       },
@@ -53,8 +50,8 @@ export const swapTokens: Tool = {
 export async function swapTokensFunction(args: {
   swapType: 'EXACT_IN' | 'EXACT_OUT' | 'EXACT_DOLLAR';
   quantity: number;
-  tokenA: 'SOL' | 'SOLA' | 'USDC' | 'JUP' | 'USDT' | 'BONK';
-  tokenB: 'SOL' | 'SOLA' | 'USDC' | 'JUP' | 'USDT' | 'BONK';
+  tokenA: string;
+  tokenB: string;
   currentWallet: ConnectedSolanaWallet | null;
 }): Promise<{
   status: 'success' | 'error';
@@ -77,13 +74,25 @@ export async function swapTokensFunction(args: {
   let wallet = args.currentWallet;
   let connection = new Connection(rpc);
 
+
+  const input_mint = args.tokenA.length > 35
+  ? args.tokenA
+    : `$${args.tokenA}`;
+  
+  const output_mint = args.tokenB.length>35
+  ? args.tokenB
+ : `$${args.tokenB}`;
+  
+
   let params: SwapParams = {
     swap_mode: args.swapType,
     amount: args.quantity,
-    input_mint: tokenList[args.tokenA].MINT,
-    output_mint: tokenList[args.tokenB].MINT,
+    input_mint: input_mint,
+    output_mint: output_mint,
     public_key: wallet.address,
+    priority_fee_needed: false,
   };
+  console.log(params);
 
   let swap_txn = await swapTx(params);
   if (!swap_txn) {
@@ -107,9 +116,10 @@ export async function swapTokensFunction(args: {
     data: {
       swap_mode: args.swapType,
       amount: args.quantity,
-      input_mint: tokenList[args.tokenA].MINT,
-      output_mint: tokenList[args.tokenB].MINT,
+      input_mint: input_mint,
+      output_mint: output_mint,
       public_key: wallet.address,
+      priority_fee_needed: false,
     },
     txn: txid,
   };

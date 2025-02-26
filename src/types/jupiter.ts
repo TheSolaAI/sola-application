@@ -4,6 +4,7 @@ export type SwapParams = {
   public_key: string;
   amount: number;
   swap_mode: string;
+  priority_fee_needed: boolean;
 };
 
 export type SwapResponse = {

@@ -12,7 +12,7 @@ import { TransactionDataMessageItem } from '../components/ui/message_items/Trans
 const rpc = import.meta.env.VITE_SOLANA_RPC;
 
 const functionDescription =
-  'Creates a limit order to buy or sell a specified token at a user-defined price in USD.';
+  'Creates a limit order to buy or sell a specified token at a user-defined price in USD. Do not use this for instant token swaps or market orders. Only use when the user explicitly requests a limit order.';
 
 export const limitOrder: Tool = {
   implementation: createLimitOrder,
@@ -39,7 +39,6 @@ export const limitOrder: Tool = {
         },
         token: {
           type: 'string',
-          enum: ['SOL', 'SOLA', 'USDC', 'BONK', 'USDT', 'JUP', 'WIF'],
           description: 'The token that the user wants to buy or sell',
         },
         limitPrice: {
@@ -55,7 +54,7 @@ export const limitOrder: Tool = {
 
 export async function createLimitOrder(args: {
   amount: number;
-  token: 'SOL' | 'SOLA' | 'USDC' | 'BONK' | 'USDT' | 'JUP' | 'WIF';
+  token: string;
   action: 'BUY' | 'SELL';
   limitPrice: number;
   currentWallet: ConnectedSolanaWallet | null;
@@ -88,10 +87,13 @@ export async function createLimitOrder(args: {
       response: 'Please set your SOLANA_RPC environment variable.',
     };
   }
-
+  const input_mint = args.token.length > 35
+  ? args.token
+    : `$${args.token}`;
+  
   const params: LimitOrderParams = {
-    token_mint_a: tokenList[args.token].MINT,
-    token_mint_b: tokenList['USDC'].MINT,
+    token_mint_a: input_mint,
+    token_mint_b: '$USDC',
     public_key: `${currentWallet.address}`,
     amount: args.amount,
     limit_price: args.limitPrice,

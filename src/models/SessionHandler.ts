@@ -187,9 +187,9 @@ export const useSessionHandler = create<SessionHandler>((set, get) => {
     },
 
     sendTextMessage: async (message: string): Promise<void> => {
+      console.log('Sending message:', message);
       const currentRoomId = useChatRoomHandler.getState().currentChatRoom?.id;
       if (!currentRoomId) {
-        // We have not selected a chat room so first create one
         const newRoom = await useChatRoomHandler.getState().createChatRoom({
           name: message.substring(0, 20),
         });
