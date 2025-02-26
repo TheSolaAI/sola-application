@@ -13,6 +13,7 @@ import useThemeManager from '../../models/ThemeManager.ts';
 import { X } from 'lucide-react';
 import { useLayoutContext } from '../../layout/LayoutProvider.tsx';
 import { WalletNFTAssets } from './WalletNFTAssets.tsx';
+import useIsMobile from '../../utils/isMobile.tsx';
 
 interface WalletLensSidebarProps {
   visible: boolean;
@@ -41,6 +42,7 @@ export const WalletLensSideBar: React.FC<WalletLensSidebarProps> = ({
   const [activeTab, setActiveTab] = useState(0);
   const [walletLogo, setWalletLogo] = useState<string>('');
   const tabs = ['Tokens', 'NFTs', 'Transactions'];
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     if (SUPPORTED_WALLETS.includes(currentWallet?.walletClientType)) {
@@ -52,9 +54,10 @@ export const WalletLensSideBar: React.FC<WalletLensSidebarProps> = ({
 
   return (
     <div
-      className={`h-full bg-sec_background sm:rounded-2xl transition-all duration-300 overflow-hidden overflow-y-auto flex
-    ${visible ? 'sm:w-[30%] opacity-100 p-2 sm:ml-2 min-w-[25rem]' : 'w-0 opacity-100 p-0'}
-  `}
+      className={`h-full bg-sec_background sm:rounded-2xl transition-all duration-500 overflow-y-auto flex
+      ${visible ? 'opacity-100 sm:ml-2 w-[35rem] p-2' : 'w-0 opacity-100'}
+      ${isMobile && visible && 'min-w-[100%]'}
+    `}
     >
       <div className={`w-full ${!visible && 'hidden'}`}>
         {/* Header - Container */}
