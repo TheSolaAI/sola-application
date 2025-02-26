@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Mic, MicOff, Send } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Mic, MicOff, Send, RefreshCw } from 'lucide-react';
 import { useSessionHandler } from '../models/SessionHandler.ts';
 
 const LOADING_QUOTES = [
@@ -18,14 +18,32 @@ export const SessionControls = () => {
   /**
    * Local States
    */
-  const [loadingQuote] = useState(
-    LOADING_QUOTES[Math.floor(Math.random() * LOADING_QUOTES.length)],
+  const [loadingQuoteIndex, setLoadingQuoteIndex] = useState(
+    Math.floor(Math.random() * LOADING_QUOTES.length),
+  );
+  const [currentQuote, setCurrentQuote] = useState(
+    LOADING_QUOTES[loadingQuoteIndex],
   );
 
   /**
    * Refs
    */
   const inputRef = React.useRef<HTMLInputElement>(null);
+
+  // Cycle through loading quotes
+  useEffect(() => {
+    if (state === 'loading') {
+      const interval = setInterval(() => {
+        setLoadingQuoteIndex((prevIndex) => {
+          const newIndex = (prevIndex + 1) % LOADING_QUOTES.length;
+          setCurrentQuote(LOADING_QUOTES[newIndex]);
+          return newIndex;
+        });
+      }, 2000);
+
+      return () => clearInterval(interval);
+    }
+  }, [state]);
 
   const sendMessageToAI = () => {
     if (inputRef.current?.value === '') return;
@@ -34,26 +52,26 @@ export const SessionControls = () => {
   };
 
   return (
-    <div className="relative flex items-center justify-center w-full h-full">
+    <div className="relative flex items-center justify-center w-full h-full mb-10">
       {/* Loading Pill */}
       <div
         className={`
           absolute flex items-center justify-center w-full h-full
           transition-all duration-500 ease-in-out
-          ${state === 'idle' ? 'opacity-0 pointer-events-none' : 'opacity-100'}
+          ${state === 'loading' ? 'opacity-100' : 'opacity-0 pointer-events-none'}
         `}
       >
         <div className="flex items-center gap-2 bg-sec_background py-4 px-6 rounded-full text-base text-textColor">
-          {loadingQuote}
+          {currentQuote}
         </div>
       </div>
 
-      {/* Controls */}
+      {/* Input Controls */}
       <div
         className={`
-          flex items-center justify-center w-full h-full gap-2 px-2
+          absolute flex items-center justify-center w-full h-full gap-2 px-2
           transition-all duration-500 ease-in-out
-          ${state === 'idle' ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}
+          ${state === 'open' ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}
         `}
       >
         <div className="relative flex-1 max-w-full sm:max-w-[600px]">
@@ -73,7 +91,6 @@ export const SessionControls = () => {
               }
             }}
           />
-
           <button
             onClick={() => {
               sendMessageToAI();
@@ -87,7 +104,6 @@ export const SessionControls = () => {
             <Send height={16} />
           </button>
         </div>
-
         <button
           onClick={() => {
             setMuted(!muted);
@@ -98,6 +114,26 @@ export const SessionControls = () => {
           "
         >
           {muted ? <MicOff height={16} /> : <Mic height={16} />}
+        </button>
+      </div>
+
+      {/* Reconnect Button */}
+      <div
+        className={`
+          absolute flex items-center justify-center w-full h-full
+          transition-all duration-500 ease-in-out
+          ${state === 'idle' ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}
+        `}
+      >
+        <button
+          className="
+            flex items-center gap-2 bg-primaryDark text-textColorContrast
+            py-4 px-6 rounded-full text-base
+            hover:bg-primary transition-colors duration-200
+          "
+        >
+          <RefreshCw size={16} />
+          Reconnect Session
         </button>
       </div>
     </div>

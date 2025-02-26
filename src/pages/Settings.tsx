@@ -76,7 +76,7 @@ const Settings: React.FC = () => {
               onClick={() => {
                 if (traits.length <= MAX_CHARS) {
                   setAiEmotion(traits);
-                  updateSession();
+                  updateSession('emotion');
                   updateSettings();
                 } else {
                   toast.warning('Character Limit Exceeded!');
