@@ -1,28 +1,3 @@
-/**
- * This component displays the Goat Index dashboard for a selected agent.
- * It fetches agent details and visualizes key metrics using a chart.
- *
- * Features:
- * - Fetches agent details from the Goat Index API.
- * - Displays a chart with mindshare and price trends.
- * - Shows metrics like price, market cap, mindshare, and holders.
- * - Lists top tweets related to the agent.
- *
- * State:
- * - `agentDetails`: Stores fetched agent data.
- * - `chartData`: Stores formatted mindshare and price data for the chart.
- *
- * Hooks:
- * - `useDashboardHandler`: Retrieves the selected agent ID.
- * - `useThemeManager`: Provides theme settings for styling.
- *
- * API Calls:
- * - Fetches agent details using `apiClient.get()`.
- *
- * UI Components:
- * - `MetricCard`, `LargeMetricCard`, and `TweetCard` for displaying agent insights.
- * - `AgCharts` for data visualization.
- */
 import { useEffect, useState } from 'react';
 import { AgCharts } from 'ag-charts-react';
 import { AgCartesianChartOptions } from 'ag-charts-community';
@@ -102,10 +77,6 @@ export const GoatIndexDashboard = () => {
     background: {
       fill: theme.baseBackground,
     },
-    animation: {
-      enabled: true,
-      duration: 3000,
-    },
     data: chartData,
     axes: [
       {
@@ -170,13 +141,14 @@ export const GoatIndexDashboard = () => {
         initial={{ y: 10, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5, delay: 0.4 }}
-        className="h-full w-full flex flex-col gap-3 bg-background p-4 rounded-lg shadow-2xl"
+        className="h-full w-full flex flex-col gap-3 bg-backgroundContrast p-4 rounded-lg shadow-2xl"
       >
+        {/* Dashboard header with back button */}
         <IoIosArrowForward
-          className="rounded-2xl cursor-pointer text-textColor w-12 h-12 hover:text-primary"
+          className="rounded-2xl cursor-pointer text-textColorContrast min-w-8 min-h-8 hover:text-primary"
           onClick={closeDashboard}
         />
-        <p className="flex gap-4 text-2xl items-center font-bold text-secText p-2">
+        <p className="flex gap-4 text-2xl items-center font-bold text-textColorContrast p-2">
           Project:{' '}
           {agentDetails?.data.agentDetail.tokenDetail.name.toUpperCase()}{' '}
           <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
@@ -192,91 +164,100 @@ export const GoatIndexDashboard = () => {
             />
           </motion.div>
         </p>
+
+        {/* Chart container */}
         <motion.div className="rounded-2xl min-h-fit shadow-lg overflow-hidden">
           <AgCharts options={chartOptions} />
         </motion.div>
+
+        {/* Scrollable content container - KEY CHANGES HERE */}
         <motion.div
           initial={{ y: 10, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.35 }}
-          className="flex flex-wrap gap-1 items-start overflow-y-auto p-1 rounded-xl scrollbar-thin scrollbar-thumb-primary scrollbar-track-background"
+          className="flex-1 max-h-64 overflow-y-auto p-1 rounded-xl scrollbar-thin scrollbar-thumb-primary scrollbar-track-backgroundContrast"
         >
-          <MetricCard
-            label="Price"
-            value={agentDetails?.data.agentDetail.metrics.price || 0}
-            delta={
-              agentDetails?.data.agentDetail.deltaMetrics.delta.priceDelta || 0
-            }
-          />
-          <MetricCard
-            label="MC"
-            value={formatNumber(
-              agentDetails?.data.agentDetail.metrics.marketCap || 0,
-            )}
-            delta={
-              agentDetails?.data.agentDetail.deltaMetrics.delta
-                .marketCapDelta || 0
-            }
-          />
-          <MetricCard
-            label="Mindshare"
-            value={formatNumber(
-              agentDetails?.data.agentDetail.metrics.mindShare || 0,
-            )}
-            delta={
-              agentDetails?.data.agentDetail.deltaMetrics.delta
-                .mindShareDelta || 0
-            }
-          />
-          <MetricCard
-            label="Holders"
-            value={formatNumber(
-              agentDetails?.data.agentDetail.metrics.holders || 0,
-            )}
-            delta={
-              agentDetails?.data.agentDetail.deltaMetrics.delta.holdersDelta ||
-              0
-            }
-          />
-          <LargeMetricCard
-            label="Impressions"
-            value={agentDetails?.data.agentDetail.metrics.avgImpressions || 0}
-          />
-          <LargeMetricCard
-            label="Engagement"
-            value={agentDetails?.data.agentDetail.metrics.avgEngagement || 0}
-          />
-          <LargeMetricCard
-            label="Followers"
-            value={agentDetails?.data.agentDetail.metrics.followers || 0}
-          />
-          <LargeMetricCard
-            label="Token?"
-            value={
-              agentDetails?.data.agentDetail.tokenDetail.status === 'HAS_TOKEN'
-                ? 'YES'
-                : 'NO'
-            }
-          />
-          <div className="w-full">
-            <p className="font-semibold text-base text-secText p-2">
-              Top Tweets
-            </p>
-            <div className="flex flex-wrap gap-1 items-start w-full">
-              {agentDetails?.data.agentDetail.topTweets
-                .slice(0, 6)
-                .map((tweet, index) => {
-                  if (!tweet) return null;
-                  return (
-                    <TweetCard
-                      key={index}
-                      label={tweet.senderName}
-                      views={tweet.views}
-                      impression={tweet.engagement}
-                      url={tweet.url}
-                    />
-                  );
-                })}
+          {/* Content wrapper that allows flex-wrap to work properly within the scrollable container */}
+          <div className="flex flex-wrap gap-1 items-start">
+            <MetricCard
+              label="Price"
+              value={agentDetails?.data.agentDetail.metrics.price || 0}
+              delta={
+                agentDetails?.data.agentDetail.deltaMetrics.delta.priceDelta ||
+                0
+              }
+            />
+            <MetricCard
+              label="MC"
+              value={formatNumber(
+                agentDetails?.data.agentDetail.metrics.marketCap || 0,
+              )}
+              delta={
+                agentDetails?.data.agentDetail.deltaMetrics.delta
+                  .marketCapDelta || 0
+              }
+            />
+            <MetricCard
+              label="Mindshare"
+              value={formatNumber(
+                agentDetails?.data.agentDetail.metrics.mindShare || 0,
+              )}
+              delta={
+                agentDetails?.data.agentDetail.deltaMetrics.delta
+                  .mindShareDelta || 0
+              }
+            />
+            <MetricCard
+              label="Holders"
+              value={formatNumber(
+                agentDetails?.data.agentDetail.metrics.holders || 0,
+              )}
+              delta={
+                agentDetails?.data.agentDetail.deltaMetrics.delta
+                  .holdersDelta || 0
+              }
+            />
+            <LargeMetricCard
+              label="Impressions"
+              value={agentDetails?.data.agentDetail.metrics.avgImpressions || 0}
+            />
+            <LargeMetricCard
+              label="Engagement"
+              value={agentDetails?.data.agentDetail.metrics.avgEngagement || 0}
+            />
+            <LargeMetricCard
+              label="Followers"
+              value={agentDetails?.data.agentDetail.metrics.followers || 0}
+            />
+            <LargeMetricCard
+              label="Token?"
+              value={
+                agentDetails?.data.agentDetail.tokenDetail.status ===
+                'HAS_TOKEN'
+                  ? 'YES'
+                  : 'NO'
+              }
+            />
+            <div className="w-full h-fit">
+              <p className="font-semibold text-textColorContrast text-secText p-2">
+                Top Tweets
+              </p>
+              <div className="flex flex-wrap gap-1 items-start w-full">
+                {agentDetails?.data.agentDetail.topTweets
+                  .slice(0, 6)
+                  .map((tweet, index) => {
+                    if (!tweet) return null;
+                    return (
+                      <TweetCard
+                        key={index}
+                        label={tweet.senderName}
+                        views={tweet.views}
+                        impression={tweet.engagement}
+                        url={tweet.url}
+                      />
+                    );
+                  })}
+              </div>
             </div>
           </div>
         </motion.div>

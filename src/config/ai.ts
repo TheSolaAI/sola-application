@@ -14,14 +14,12 @@ Agents:
        3. Place a limit order using jupiter platform API.
        4. Get the existing limit orders of an user.
        
-- goatindex: Agent to analyze AI projects using GoatIndex.
+- goatindex:
+    1. Get Top AI projects, Projects with/without tokens on Solana Blockchain.
+    2. Get Mindshare/Graph Analytics for the Top AI projects.
+    
 - NFT Analyst: Agent to analyze NFT projects and trends.
 - DeFi Analyst: Agent to analyze DeFi projects and trends.
-
-Agent Swapper:
-  - This agent is a tool that allows you to swap between agents.
-  - When agent is swapped, complete the task with the new agent.
-  - After swap, ensure that the task is completed.
 
 Key Guidelines:
   - Be concise and elaborate only when necessary.

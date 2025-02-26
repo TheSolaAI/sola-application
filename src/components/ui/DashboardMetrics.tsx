@@ -74,10 +74,10 @@ export const MetricCard = ({ label, value, delta }: MetricCardProps) => (
 export const LargeMetricCard = ({ label, value }: LargeMetricCardProps) => (
   <motion.div
     variants={cardVariants}
-    className="flex-auto basis-[calc(25%-0.75rem)] min-w-[180px] flex flex-col gap-2 bg-sec_background rounded-lg p-3"
+    className="flex-auto basis-[calc(25%-0.75rem)] min-w-[180px] flex flex-col gap-2 bg-black dark:bg-white text-textColorContrast rounded-lg p-3 shadow-md"
   >
-    <h3 className="text-lg text-secText truncate">{label}</h3>
-    <span className="text-textColor truncate">{value}</span>
+    <h3 className="text-lg font-medium truncate">{label}</h3>
+    <span className="truncate">{value}</span>
   </motion.div>
 );
 
@@ -93,10 +93,10 @@ export const TweetCard = ({
       e.preventDefault();
       window.open(url, '_blank');
     }}
-    className="flex-auto basis-[calc(25%-0.8rem)] min-w-[100px] max-w-[25%] flex flex-col gap-2 bg-sec_background rounded-lg p-3 cursor-pointer hover:bg-primary/20"
+    className="flex-auto basis-[calc(25%-0.8rem)] min-w-[100px] max-w-[25%] flex flex-col gap-2 bg-black dark:bg-white text-textColorContrast shadow-md rounded-lg p-3 cursor-pointer hover:shadow-xl hover:bg-backgroundContrast"
   >
-    <h3 className="text-lg text-secText truncate">{label}</h3>
-    <div className="flex justify-between items-center text-textColor">
+    <h3 className="text-base font-medium uppercase truncate">{label}</h3>
+    <div className="flex justify-between items-center">
       <span className="truncate">
         <FaEye className="text-blue-400" /> {views}
       </span>
