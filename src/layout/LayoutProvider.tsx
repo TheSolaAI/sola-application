@@ -12,6 +12,8 @@ interface LayoutContextType {
   setAudioIntensity: React.Dispatch<React.SetStateAction<number>>;
   audioEl: HTMLAudioElement;
   handleWalletLensOpen: (state: boolean) => void;
+  settingsIsOpen: boolean;
+  setSettingsIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const LayoutContext = createContext<LayoutContextType | undefined>(undefined);
@@ -23,6 +25,7 @@ export const LayoutProvider: React.FC<{ children: ReactNode }> = ({
   const [walletLensOpen, setWalletLensOpen] = useState(false);
   const [canAutoClose, setCanAutoClose] = useState(false);
   const [audioIntensity, setAudioIntensity] = useState(0);
+  const [settingsIsOpen, setSettingsIsOpen] = useState(false);
 
   /**
    * Audio element to stream the incoming audio from webRTC
@@ -57,6 +60,8 @@ export const LayoutProvider: React.FC<{ children: ReactNode }> = ({
         setAudioIntensity,
         audioEl,
         handleWalletLensOpen,
+        settingsIsOpen,
+        setSettingsIsOpen,
       }}
     >
       {children}
@@ -71,3 +76,4 @@ export const useLayoutContext = (): LayoutContextType => {
   }
   return context;
 };
+

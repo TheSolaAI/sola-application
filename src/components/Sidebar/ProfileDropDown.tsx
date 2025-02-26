@@ -2,8 +2,8 @@ import { FC } from 'react';
 import { Dropdown } from '../general/DropDown.tsx';
 import { LogOut, Settings } from 'lucide-react';
 import { usePrivy } from '@privy-io/react-auth';
-import { useNavigate } from 'react-router-dom';
 import { useSessionHandler } from '../../models/SessionHandler.ts';
+import { useLayoutContext } from '../../layout/LayoutProvider.tsx';
 
 interface ProfileDropDownProps {
   isOpen: boolean;
@@ -17,11 +17,15 @@ export const ProfileDropDown: FC<ProfileDropDownProps> = ({
   onClose,
 }) => {
   /**
+   * Global State
+   */
+  const { setMediaStream, setPeerConnection, setMuted } = useSessionHandler();
+  const { settingsIsOpen, setSettingsIsOpen } = useLayoutContext();
+
+  /**
    * State Management
    */
   const { logout } = usePrivy();
-  const { setMediaStream, setPeerConnection, setMuted } = useSessionHandler();
-  const navigation = useNavigate();
 
   const logoutHandler = () => {
     // TODO: Close the session and datastream to OpenAI
@@ -45,8 +49,7 @@ export const ProfileDropDown: FC<ProfileDropDownProps> = ({
         <button
           className="w-full hover:bg-primary/85 flex-row flex gap-4 items-center justify-between p-3 rounded-xl"
           onClick={() => {
-            //   Navigate to settings page
-            navigation('/settings/configuration');
+            setSettingsIsOpen(!settingsIsOpen);
             onClose();
           }}
         >

@@ -10,7 +10,6 @@ import MasterLayout from '../layout/MasterLayout';
 import PageTitle from '../components/PageTitle';
 import Conversation from '../pages/Conversation';
 import Onboarding from '../pages/Onbording';
-import Settings from '../pages/Settings';
 import OnRamp from '../pages/OnRamp';
 import Pricing from '../pages/Pricing';
 import { SessionProvider } from '../models/provider/SessionProvider.tsx';
@@ -40,15 +39,6 @@ const AppRoutes = () => {
               <>
                 <PageTitle title="Home" />
                 <Conversation />
-              </>
-            }
-          />
-          <Route
-            path="/settings/configuration"
-            element={
-              <>
-                <PageTitle title="Settings" />
-                <Settings />
               </>
             }
           />
