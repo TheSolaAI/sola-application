@@ -39,7 +39,6 @@ export const useAgentHandler = create<AgentHandler>((_setState, getState) => ({
       description: 'Designed for deep token analysis and trading experience.',
       logo: ChartNetwork,
       tools: [
-        getAgentSwapper,
         // walletActions,
         getTokenData,
         getLstData,
@@ -47,6 +46,7 @@ export const useAgentHandler = create<AgentHandler>((_setState, getState) => ({
         // getBlinks,
         limitOrder,
         getLimitOrders,
+        getAgentSwapper,
       ],
     },
     {
@@ -55,12 +55,11 @@ export const useAgentHandler = create<AgentHandler>((_setState, getState) => ({
       description: 'Agent to analyse AI projects using GoatIndex',
       logo: GiGoat,
       tools: [
-        getAgentSwapper,
         // walletActions,
-        swapTokens,
         getAiProjectsByClassification,
         getAiProjectsByToken,
         getAiProjectsMindshare,
+        getAgentSwapper,
       ],
     },
     {
@@ -69,11 +68,11 @@ export const useAgentHandler = create<AgentHandler>((_setState, getState) => ({
       description: 'Designed for NFT-related tasks and price queries.',
       logo: Atom,
       tools: [
-        getAgentSwapper,
         // walletActions,
         getNFTPrice,
         getTrendingNFTs,
         getBlinks,
+        getAgentSwapper,
       ],
     },
     {
@@ -82,28 +81,26 @@ export const useAgentHandler = create<AgentHandler>((_setState, getState) => ({
       description: 'Perform operation on Lulo platform',
       logo: FolderKanban,
       tools: [
-        getAgentSwapper,
         // walletActions,
         getLuloAssets,
         depositLulo,
         withdrawLulo,
+        getAgentSwapper,
       ],
     },
     {
-      name: 'DAM',
-      slug: 'dam',
+      name: 'OnChain Handler',
+      slug: 'onchain-handler',
       description:
-        'DeFi Asset Manager - for Lulo operations and LST operations.',
+        'Agent to perform token swapping and token transfers (Send Tokens).',
       logo: Wallet,
       tools: [
-        getAgentSwapper,
         // walletActions,
+        swapTokens,
         transferSolTx,
         transferSpl,
-        getLuloAssets,
-        depositLulo,
-        withdrawLulo,
         swapLST,
+        getAgentSwapper,
       ],
     },
   ],

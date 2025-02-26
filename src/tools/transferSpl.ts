@@ -15,9 +15,10 @@ import bs58 from 'bs58';
 import { Tool } from '../types/tool';
 import { TransactionChatContent } from '../types/chatItem';
 import { TransferChatItem } from '../components/ui/message_items/TransferMessageItem.tsx';
+import { useChatMessageHandler } from '../models/ChatMessageHandler.ts';
 
 const functionDescription =
-  'Call this function when the user wants to send tokens that are not SOLANA or SOL using address or .sol domain. the .sol domains are random and doesnt need to make sense in meaining, so dont autocorrect anything from .sol domains.';
+  'Call this function when the user wants to send SPL tokens (non-SOL) to an address or a .sol domain. Do not autocorrect or modify .sol domains, as they are arbitrary and may not have meaningful words.';
 
 export const transferSpl: Tool = {
   implementation: transferSplTx,
@@ -34,19 +35,18 @@ export const transferSpl: Tool = {
       properties: {
         amount: {
           type: 'number',
-          description: 'Quantity of tokenA to swap.',
+          description: 'Amount of the token to send.',
         },
         token: {
           type: 'string',
-          enum: ['SOLA', 'USDC', 'JUP', 'USDT', 'BONK'],
           description: 'The token that the user wants to send.',
         },
         address: {
           type: 'string',
-          description: 'Recipient address or his .sol domain.',
+          description: 'Recipient wallet address or .sol domain.',
         },
       },
-      required: ['quantity', 'token', 'address'],
+      required: ['amount', 'token', 'address'],
     },
   },
 };
@@ -76,15 +76,27 @@ export async function transferSplTx(args: {
   if (!rpc) {
     return {
       status: 'error',
-      response: 'RPC not found',
+      response: 'RPC not found. Ask user to contact admin.',
     };
   }
   if (!sola_ata_keypair) {
     return {
       status: 'error',
-      response: 'SOLANA_ATA_KEYPAIR not found',
+      response: 'Error during verification . Ask user to contact admin.',
     };
   }
+
+  useChatMessageHandler.getState().setCurrentChatItem({
+    content: {
+      type: 'loader_message',
+      text: `OnChain Handler: Transferring SPL...`,
+      response_id: 'temp',
+      sender: 'system',
+    },
+    id: 0,
+    createdAt: new Date().toISOString(),
+  });
+
   let b = bs58.decode(sola_ata_keypair);
   let j = new Uint8Array(
     b.buffer,
@@ -93,18 +105,18 @@ export async function transferSplTx(args: {
   );
   let sola_payer = Keypair.fromSecretKey(j);
   const connection = new Connection(rpc);
+
   let sourceAccount = await getAssociatedTokenAddress(
     new PublicKey(token),
     new PublicKey(senderAddress),
   );
-  console.log(sola_payer.publicKey.toBase58());
+
   let destinationAccount = await getOrCreateAssociatedTokenAccount(
     connection,
     sola_payer,
     new PublicKey(token),
     new PublicKey(recipientAddress),
   );
-  console.log(destinationAccount.address);
 
   const numberDecimals = await getNumberDecimals(token);
 
@@ -137,7 +149,7 @@ export async function transferSplTx(args: {
 
   return {
     status: 'success',
-    response: 'Transaction sent',
+    response: 'Transaction sent to blockchain.',
     props: data,
   };
 }
