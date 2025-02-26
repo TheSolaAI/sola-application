@@ -32,7 +32,6 @@ interface AgentHandler {
 }
 
 export const useAgentHandler = create<AgentHandler>((_setState, getState) => ({
-
   agents: [
     {
       name: 'Token Analyst',
@@ -40,7 +39,6 @@ export const useAgentHandler = create<AgentHandler>((_setState, getState) => ({
       description: 'Designed for deep token analysis and trading experience.',
       logo: ChartNetwork,
       tools: [
-        getAgentSwapper,
         // walletActions,
         getTokenData,
         getLstData,
@@ -48,6 +46,7 @@ export const useAgentHandler = create<AgentHandler>((_setState, getState) => ({
         // getBlinks,
         limitOrder,
         getLimitOrders,
+        getAgentSwapper,
       ],
     },
     {
@@ -56,12 +55,12 @@ export const useAgentHandler = create<AgentHandler>((_setState, getState) => ({
       description: 'Agent to analyse AI projects using GoatIndex',
       logo: GiGoat,
       tools: [
-        getAgentSwapper,
         // walletActions,
         swapTokens,
         getAiProjectsByClassification,
         getAiProjectsByToken,
         getAiProjectsMindshare,
+        getAgentSwapper,
       ],
     },
     {
@@ -70,13 +69,13 @@ export const useAgentHandler = create<AgentHandler>((_setState, getState) => ({
       description: 'Designed for NFT-related tasks and price queries.',
       logo: Atom,
       tools: [
-        getAgentSwapper,
         walletActions,
         getNFTPrice,
         getTrendingNFTs,
         // getNFTLaunchpad,
         // getMarketData,
         getBlinks,
+        getAgentSwapper,
       ],
     },
     {
@@ -86,7 +85,6 @@ export const useAgentHandler = create<AgentHandler>((_setState, getState) => ({
         'DeFi Asset Manager - for Lulo operations and LST operations.',
       logo: Wallet,
       tools: [
-        getAgentSwapper,
         // walletActions,
         transferSolTx,
         transferSpl,
@@ -96,6 +94,7 @@ export const useAgentHandler = create<AgentHandler>((_setState, getState) => ({
         withdrawLulo,
         swapLST,
         // getBlinks,
+        getAgentSwapper,
       ],
     },
   ],
@@ -103,6 +102,5 @@ export const useAgentHandler = create<AgentHandler>((_setState, getState) => ({
 
   setCurrentActiveAgent: (agent: Agent | null) => {
     getState().currentActiveAgent = agent;
-
   },
 }));

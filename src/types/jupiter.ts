@@ -21,7 +21,7 @@ export type LimitOrderParams = {
 };
 
 export type LimitOrderResponse = {
-  order: string;
+  order_id: string;
   tx: string;
 };
 

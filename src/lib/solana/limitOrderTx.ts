@@ -19,6 +19,7 @@ export async function limitOrderTx(
     console.error('Error during getAssetsLulo:', resp.errors);
     return null;
   }
+  console.log(resp)
   return resp.data;
 }
 

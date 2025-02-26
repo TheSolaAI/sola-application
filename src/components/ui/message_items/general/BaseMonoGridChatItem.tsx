@@ -12,11 +12,11 @@ export default function BaseMonoGridChatItem({
   return (
     <div className="flex my-1 justify-start max-w-[100%] md:max-w-[80%] transition-opacity duration-500 overflow-y-auto">
       <div
-        className={`grid grid-cols-1 md:grid-cols-3 gap-4 p-2 w-full rounded-lg break-words whitespace-normal`}
+        className={`grid grid-cols-1 md:grid-cols-3 gap-4 p-2 w-full rounded-lg truncate break-words whitespace-normal`}
       >
-        <div className="flex gap-4 items-center p-4 rounded-lg bg-sec_background text-secText ">
+        <div className="flex gap-4 items-center w-full p-4 rounded-lg bg-sec_background text-secText ">
           <div className="h-fit w-fit">{img}</div>
-          <div className="flex flex-col">
+          <div className="flex flex-col w-full">
             {div1}
             {div2}
             {div3}

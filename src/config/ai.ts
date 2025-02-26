@@ -18,11 +18,6 @@ Agents:
 - NFT Analyst: Agent to analyze NFT projects and trends.
 - DeFi Analyst: Agent to analyze DeFi projects and trends.
 
-Agent Swapper:
-  - This agent is a tool that allows you to swap between agents.
-  - When agent is swapped, complete the task with the new agent.
-  - After swap, ensure that the task is completed.
-
 Key Guidelines:
   - Be concise and elaborate only when necessary.
   - Access online sources for accuracy and cite reputable links when appropriate.
