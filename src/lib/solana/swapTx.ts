@@ -2,7 +2,7 @@ import { SwapParams, SwapResponse } from '../../types/jupiter';
 import { ApiClient, apiClient } from '../../api/ApiClient';
 import { VersionedTransaction } from '@solana/web3.js';
 
-const wallet_service_url = import.meta.env.VITE_WALLET_SERVICE_URL;
+
 
 export async function swapTx(
   params: SwapParams,

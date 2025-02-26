@@ -93,11 +93,23 @@ export const TokenDataDashboard = () => {
 
       // Fetch token analysis
       if (tokenData.data?.address) {
+        console.log('Fetching token analysis for', tokenData.data.address);
         getRugCheckHandler(tokenData.data.address)
           .then((analysis) => {
-            setTokenAnalysis(analysis??undefined);
+            console.log('Token analysis:', analysis);
+            if (analysis && (analysis.score !== undefined || analysis.message !== undefined)) {
+              setTokenAnalysis({
+                score: analysis.score,
+                message: analysis.message,
+              });
+            } 
           })
-          .catch(() => {
+          .catch((error) => {
+            console.error('Error getting token analysis:', error);
+            setTokenAnalysis({
+              score: 0,
+              message: 'Analysis failed',
+            });
             toast.error('Error getting token analysis');
           });
       }
@@ -284,7 +296,7 @@ export const TokenDataDashboard = () => {
         <span
           onClick={() =>
             sendTextMessageAsSystem(
-              `Just Tell the user that, the token ${agentDetails?.data?.name} as risk level of ${tokenAnalysis?.score} (higher the score, better) and risk analysis ${tokenAnalysis?.message} and this analysis is powered by ANTI-RUG. Dont perform any function calls.`,
+              `Just Tell the user that, the token ${agentDetails?.data?.name} has a risk assessment of ${tokenAnalysis?.score} (higher the score, better) and risk analysis ${tokenAnalysis?.message} and the source for this is ANTI-RUG,source url:https://www.antirugagent.com/ca/${agentDetails?.data.address} . Dont perform any function calls.`,
             )
           }
         >

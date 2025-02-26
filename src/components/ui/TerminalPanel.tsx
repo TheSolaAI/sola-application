@@ -152,19 +152,26 @@ const TerminalTabs: React.FC<TerminalTabsProps> = ({
     if (tab.name === 'Token Analytics') {
       const message = tab.content.rows[0]['message'] || 'Failed to load';
       const score = Number(tab.content.rows[0]['score']) || 0;
+      const numericScore = typeof score === 'number' ? score : 0;
+
       const scoreColor =
-        score >= 85
-          ? 'text-dark-green-500'
-          : score >= 70
-            ? 'text-light-green-500'
-            : score >= 40
+        numericScore >= 85
+          ? 'text-green-500 !important'
+          : numericScore >= 70
+            ? 'text-lime-500'
+            : numericScore >= 40
               ? 'text-orange-500'
               : 'text-red-500';
 
+      console.log('Score:', numericScore, 'Color class:', scoreColor);
+
       return (
         <div className="flex flex-col gap-2 text-textColorContrast">
+          <span className={`font-semibold p-2`}>
+            Token Score:
           <span className={`${scoreColor} font-semibold p-2`}>
-            Risk Level: {score}
+            {score}
+          </span>
           </span>
           <span className={`font-semibold p-2`}>
             Risk Analysis: {String(message)}

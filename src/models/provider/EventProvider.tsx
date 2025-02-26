@@ -89,6 +89,7 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
             for (const output of eventData.response.output) {
               // check if the output is a function call. If it is a message call then ignore
               if (output.type === 'function_call') {
+                console.log(output);
                 // Check the tools this agent has access to
                 const tool =
                   output.name === 'getAgentSwapper'
