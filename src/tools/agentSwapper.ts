@@ -20,7 +20,13 @@ export const getAgentSwapper: Tool = {
         agent: {
           type: 'string',
           description: 'The agent you want to switch to.',
-          enum: ['token-analyst', 'goatindex', 'nft-analyst', 'dam'],
+          enum: [
+            'token-analyst',
+            'goatindex',
+            'nft-analyst',
+            'lulo-agent',
+            'dam',
+          ],
         },
         original_request: {
           type: 'string',

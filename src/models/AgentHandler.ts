@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { Agent } from '../types/agent.ts';
-import { Atom, ChartNetwork, Wallet } from 'lucide-react';
+import { Atom, ChartNetwork, Wallet, FolderKanban } from 'lucide-react';
 import { GiGoat } from 'react-icons/gi';
 import {
   depositLulo,
@@ -77,6 +77,19 @@ export const useAgentHandler = create<AgentHandler>((_setState, getState) => ({
       ],
     },
     {
+      name: 'Lulo Agent',
+      slug: 'lulo-agent',
+      description: 'Perform operation on Lulo platform',
+      logo: FolderKanban,
+      tools: [
+        getAgentSwapper,
+        // walletActions,
+        getLuloAssets,
+        depositLulo,
+        withdrawLulo,
+      ],
+    },
+    {
       name: 'DAM',
       slug: 'dam',
       description:
@@ -87,12 +100,10 @@ export const useAgentHandler = create<AgentHandler>((_setState, getState) => ({
         // walletActions,
         transferSolTx,
         transferSpl,
-        // getMarketData,
         getLuloAssets,
         depositLulo,
         withdrawLulo,
         swapLST,
-        // getBlinks,
       ],
     },
   ],
