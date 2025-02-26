@@ -9,5 +9,4 @@ export const API_URLS = {
   SESSION: 'data/session/create',
 };
 
-export const GOAT_INDEX_API_URL =
-  'http://ecs-alb-goatindex-1007884834.us-east-1.elb.amazonaws.com/';
+export const GOAT_INDEX_API_URL = 'https://loadbalance.goatindex.ai/';

@@ -30,7 +30,7 @@ export async function handleGetAiProjectsByClassification(): Promise<{
   useChatMessageHandler.getState().setCurrentChatItem({
     content: {
       type: 'loader_message',
-      text: `Fetching AI projects...`,
+      text: `GoatIndex agent: Fetching AI projects...`,
       response_id: 'temp',
       sender: 'system',
     },
@@ -55,10 +55,7 @@ export async function handleGetAiProjectsByClassification(): Promise<{
 
     return {
       status: 'success',
-      response: `Successfully fetched top agent details. ${response.data.data.topTokensOrderByMindShareDeltaIn6h
-        .slice(0, 6)
-        .map((project) => project.name)
-        .join(', ')}`,
+      response: `Top AI projects , ${response.data.data.topTokensOrderByMindShareIn6h.map((project) => project.name).join(', ')}`,
       props: {
         response_id: 'topAiProjects',
         sender: 'system',

@@ -31,7 +31,7 @@ export async function handleGetAiProjectsMindshare(): Promise<{
   useChatMessageHandler.getState().setCurrentChatItem({
     content: {
       type: 'loader_message',
-      text: `Fetching AI projects...`,
+      text: `GoatIndex agent: Fetching AI Mindshare...`,
       response_id: 'temp',
       sender: 'system',
     },
@@ -50,13 +50,13 @@ export async function handleGetAiProjectsMindshare(): Promise<{
       console.error(response);
       return {
         status: 'error',
-        response: 'Error getting AI projects.',
+        response: 'Error getting mindshare.',
       };
     }
 
     return {
       status: 'success',
-      response: `Successfully fetched top agent details.`,
+      response: `Successfully fetched mindshare of AI projects.`,
       props: {
         response_id: 'topAiProjects',
         sender: 'system',
@@ -69,7 +69,7 @@ export async function handleGetAiProjectsMindshare(): Promise<{
     toast.error('Error getting AI projects.');
     return {
       status: 'error',
-      response: 'Error getting AI projects.',
+      response: 'Error getting mindshare of AI projects.',
     };
   }
 }
