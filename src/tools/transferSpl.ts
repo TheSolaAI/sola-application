@@ -21,6 +21,7 @@ const functionDescription =
   'Call this function when the user wants to send SPL tokens (non-SOL) to an address or a .sol domain. Do not autocorrect or modify .sol domains, as they are arbitrary and may not have meaningful words.';
 
 export const transferSpl: Tool = {
+  cost: 0.00005,
   implementation: transferSplTx,
   representation: {
     props_type: 'transfer_spl',

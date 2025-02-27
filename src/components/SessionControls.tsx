@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Mic, MicOff, Send, RefreshCw } from 'lucide-react';
 import { useSessionHandler } from '../models/SessionHandler.ts';
+import { useCreditHandler } from '../models/CreditHandler.ts';
+import { toast } from 'sonner';
 
 const LOADING_QUOTES = [
   'Connecting SOLA...',
@@ -14,6 +16,7 @@ export const SessionControls = () => {
    * Global States
    */
   const { muted, setMuted, state, sendTextMessage } = useSessionHandler();
+  const { credits } = useCreditHandler();
 
   /**
    * Local States
@@ -47,6 +50,10 @@ export const SessionControls = () => {
 
   const sendMessageToAI = () => {
     if (inputRef.current?.value === '') return;
+    // if (credits <= 0) {
+    //   toast.warning('Refuel your credits to keep going!');
+    //   return;
+    // }
     sendTextMessage(inputRef.current?.value || '');
     inputRef.current!.value = '';
   };
@@ -106,6 +113,10 @@ export const SessionControls = () => {
         </div>
         <button
           onClick={() => {
+            // if (credits <= 0 && muted) {
+            //   toast.warning('Refuel your credits to keep going!');
+            //   return;
+            // }
             setMuted(!muted);
           }}
           className="

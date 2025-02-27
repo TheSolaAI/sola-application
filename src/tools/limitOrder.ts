@@ -13,6 +13,7 @@ const functionDescription =
   'Creates a limit order to buy or sell a specified token at a user-defined price in USD. Do not use this for instant token swaps or market orders. Only use when the user explicitly requests a limit order. eg command: buy/sell 10 "token-name" when price is at "x" usd';
 
 export const limitOrder: Tool = {
+  cost: 0.00005,
   implementation: createLimitOrder,
   representation: {
     props_type: 'transaction_message',

@@ -14,6 +14,7 @@ const functionDescription =
   'Call this function when the user wants to send SOL (Solana) to a recipient using either a wallet address or a .sol domain. Do not modify or autocorrect .sol domains, as they are arbitrary and may not have meaningful words.';
 
 export const transferSolTx: Tool = {
+  cost: 0.00005,
   implementation: transferSolTxFunction,
   representation: {
     props_type: 'transfer_sol',

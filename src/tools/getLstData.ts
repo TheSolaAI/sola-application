@@ -8,6 +8,7 @@ const functionDescription =
   'Retrieve current data on Liquid Staking Tokens (LSTs) in the Solana ecosystem, including APY rates, prices, and other relevant metrics. Call this function when users ask about staking options, best LST yields, LST comparisons, or want to see current LST performance data.';
 
 export const getLstData: Tool = {
+  cost: 0.00001,
   implementation: getLstDataFunction,
   representation: {
     props_type: 'get_lst_data',

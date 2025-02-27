@@ -11,6 +11,7 @@ const functionDescription =
   'Use this function when the user wants to swap one token for another at market price. The user may specify the amount of tokenA (in tokens or USD) or the amount of tokenB to receive. Do NOT use this for limit orders.';
 
 export const swapTokens: Tool = {
+  cost: 0.00005,
   implementation: swapTokensFunction,
   representation: {
     props_type: 'swap',

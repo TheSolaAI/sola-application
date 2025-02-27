@@ -8,6 +8,7 @@ import { TokenDataChatContent } from '../types/chatItem.ts';
 const functionDescription = `Get the current price of any token in Solana Blockchain, including detailed information like buy/sell prices, Market Cap, Top Holders, Bubblemaps and Token Analysis.`;
 
 export const getTokenData: Tool = {
+  cost: 0.00001,
   implementation: getTokenDataFunction,
   representation: {
     props_type: 'token_data',

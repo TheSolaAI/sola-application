@@ -9,6 +9,7 @@ import { useChatMessageHandler } from '../models/ChatMessageHandler.ts';
 const functionDescription = 'Get the active limit orders of the user.';
 
 export const getLimitOrders: Tool = {
+  cost: 0.00001,
   implementation: getLimitOrderFunction,
   representation: {
     props_type: 'show_limit_orders',

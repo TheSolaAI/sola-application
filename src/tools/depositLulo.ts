@@ -13,6 +13,7 @@ const functionDescription =
   'Call this function ONLY when the user explicitly requests to deposit stable coins into Lulo Finance. Ensure the user specifies the correct stable coin (USDC, USDS, or USDT) and an amount. DO NOT make assumptions about the coin or the amount if unclear. These are DISTINCT coins—choose appropriately. This function is NOT for withdrawals or any other operation.';
 
 export const depositLulo: Tool = {
+  cost: 0.00005,
   implementation: handleDepositLulo,
   representation: {
     props_type: 'transaction_message',
@@ -39,7 +40,6 @@ export const depositLulo: Tool = {
       required: ['amount', 'token'],
     },
   },
-  cost: 10,
 };
 
 export async function handleDepositLulo(args: {
