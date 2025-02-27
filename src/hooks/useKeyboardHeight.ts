@@ -14,11 +14,11 @@ function useKeyboardHeight(): {
       //In the case when the browser doesn't support
       return;
     }
+    
 
     const handleResize = (): void => {
       // Calculate keyboard height by comparing viewport heights
       const keyboardHeight = window.innerHeight - window.visualViewport.height;
-      window.window.
       setKeyboardHeight(keyboardHeight > 0 ? keyboardHeight : 0);
       setVisibleHeight(window.visualViewport.height);
     };

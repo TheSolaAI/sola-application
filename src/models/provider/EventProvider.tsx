@@ -34,7 +34,6 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
       if (dataStream === null) return;
       dataStream.onmessage = async (event) => {
         const eventData = JSON.parse(event.data);
-        console.log(eventData, null, 2);
         if (eventData.type === 'session.created') {
           // update the session with our latest tools, voice and emotion
           updateSession('all');
@@ -97,7 +96,6 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
             for (const output of eventData.response.output) {
               // check if the output is a function call. If it is a message call then ignore
               if (output.type === 'function_call') {
-                // Check the tools this agent has access to
                 const tool =
                   output.name === 'getAgentSwapper'
                     ? getAgentSwapper

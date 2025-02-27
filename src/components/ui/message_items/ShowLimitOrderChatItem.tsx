@@ -62,8 +62,8 @@ export const ShowLimitOrdersChatItem: FC<ShowLimitOrdersChatItemProps> = ({
               className="mt-4 bg-primary text-white rounded-lg px-4 py-2 font-medium"
               onClick={async () => {
                 const resp = await cancelLimitOrderHandler({
-                  public_key: wallet.currentWallet?.address,
-                  order_id: order.order_id,
+                  public_key: wallet.currentWallet,
+                  order_id: [order.order_id],
                 });
                 if (resp) {
                   props.data.orders.splice(lIndex, 1);
