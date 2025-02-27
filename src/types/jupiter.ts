@@ -41,3 +41,12 @@ export interface ShowLimitOrder {
 export type ShowLimitOrderParams = {
   public_key: string;
 };
+
+export type CancelLimitOrderParams = {
+  order_id: string;
+  public_key: string;
+};
+
+export type CancelLimitOrderResponse = {
+  tx: string;
+};

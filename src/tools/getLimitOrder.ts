@@ -67,9 +67,14 @@ async function getLimitOrderFunction(args: {
     data: resp,
   };
 
+  let order_id:String[] = [];
+  resp.orders.forEach(element => {
+    order_id.push(element.order_id);
+  });
+
   return {
     status: 'success',
-    response: `Limit orders are: ${resp.orders}`,
+    response: `Notify the user about successful fetch. Do not add own content.When tells u to cancel a order using its position, take the id from ${order_id} and then send it to cancel limit order function call.`,
     props: data,
   };
 }
