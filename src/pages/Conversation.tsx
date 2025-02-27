@@ -1,6 +1,6 @@
 import { SessionControls } from '../components/SessionControls.tsx';
 import { useChatRoomHandler } from '../models/ChatRoomHandler.ts';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { ChatRoom } from '../types/chatRoom.ts';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
@@ -29,6 +29,7 @@ import { useSessionHandler } from '../models/SessionHandler.ts';
 import { ScaleLoader } from 'react-spinners';
 import { LoaderMessageItem } from '../components/ui/message_items/LoaderMessageItem.tsx';
 import { InProgressMessageChatItem } from '../components/ui/message_items/InProgressMessageChatItem.tsx';
+import useKeyboardHeight from '../hooks/useKeyboardHeight.ts';
 
 const Conversation = () => {
   const navigate = useNavigate();
@@ -42,6 +43,7 @@ const Conversation = () => {
   const { agents } = useAgentHandler();
   const { theme } = useThemeManager();
   const { audioIntensity } = useLayoutContext();
+  const { keyboardHeight } = useKeyboardHeight();
 
   /**
    * Local State
@@ -210,10 +212,10 @@ const Conversation = () => {
                 className="border border-border bg-sec_background rounded-2xl p-5 hover:bg-sec_hover transition cursor-pointer shadow-sm"
                 onClick={() => sendTextMessage(item.action)}
               >
-                <h2 className="text-lg md:text-title-m text-secText animate-in fade-in duration-700 font-semibold text-lg">
+                <h2 className="text-lg md:text-title-m text-secText animate-in fade-in duration-700 font-semibold">
                   {item.text}
                 </h2>
-                <p className="text-lg md:text-title-m text-secText animate-in fade-in duration-700 text-sm mt-1">
+                <p className="md:text-title-m text-secText animate-in fade-in duration-700 text-sm mt-1">
                   {item.subtext}
                 </p>
               </div>
@@ -278,7 +280,7 @@ const Conversation = () => {
 
       {/* Session Controls (Fixed at Bottom) */}
       <div
-        className="absolute bottom-0 left-0 right-0 z-20 p-4 pb-8"
+        className={`absolute left-0 right-0 z-20 p-4 pb-8 ${keyboardHeight > 0 ? 'bottom-[' + keyboardHeight + 'px]' : 'bottom-0'}`}
         style={{
           background: `linear-gradient(to top, 
             rgba(${primaryDarkRGB.r}, ${primaryDarkRGB.g}, ${primaryDarkRGB.b}, ${audioIntensity * 1.2}),
