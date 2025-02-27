@@ -41,7 +41,7 @@ export const useAgentHandler = create<AgentHandler>((_setState, getState) => ({
       tools: [
         // walletActions,
         getTokenData,
-        getLstData,
+        getLstData, 
         // getMarketData,
         // getBlinks,
         limitOrder,
@@ -68,7 +68,7 @@ export const useAgentHandler = create<AgentHandler>((_setState, getState) => ({
       description: 'Designed for NFT-related tasks and price queries.',
       logo: Atom,
       tools: [
-        // walletActions,
+        //walletActions,
         getNFTPrice,
         getTrendingNFTs,
         getBlinks,
@@ -100,6 +100,7 @@ export const useAgentHandler = create<AgentHandler>((_setState, getState) => ({
         transferSolTx,
         transferSpl,
         swapLST,
+        // getBlinks,
         getAgentSwapper,
       ],
     },

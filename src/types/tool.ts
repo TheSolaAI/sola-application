@@ -124,7 +124,7 @@ export interface UserAssetsLuloTool extends BaseTool {
 export interface CreateLimitOrderTool extends BaseTool {
   implementation: (
     args: {
-      token: 'SOL' | 'SOLA' | 'USDC' | 'BONK' | 'USDT' | 'JUP' | 'WIF';
+      token: string;
       amount: number;
       limitPrice: number;
       action: 'BUY' | 'SELL';
@@ -356,6 +356,10 @@ export interface AiProjectByToken extends BaseTool {
   };
 }
 
+
+
+
+
 export type Tool =
   | AgentSwapTool
   | TokenDataTool
@@ -375,3 +379,4 @@ export type Tool =
   | NFTPriceTool
   | AiProjectByClassificationTool
   | AiProjectByToken;
+

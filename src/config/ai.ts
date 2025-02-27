@@ -11,7 +11,7 @@ Agents:
        2. Get top Liquid-Staking-tokens [LST] with their details like price, yeild percentage.
        3. Place a limit order using jupiter platform API.
        4. Get the existing limit orders of an user.
-       
+
 - goatindex:
     1. Get Top AI projects, Projects with/without tokens on Solana Blockchain.
     2. Get Mindshare/Graph Analytics for the Top AI projects.
@@ -28,6 +28,7 @@ Agents:
 - onchain-handler:
     1. Swap tokens on Solana Blockchain.
     2. Transfer/Send tokens on any contract address on Solana Blockchain.
+
 
 Key Guidelines:
   - Be concise and elaborate only when necessary.

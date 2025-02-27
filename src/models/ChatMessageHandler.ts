@@ -85,6 +85,7 @@ interface ChatMessageHandler {
    * our database
    */
   commitCurrentChatItem: () => Promise<void>;
+  
 }
 
 export const useChatMessageHandler = create<ChatMessageHandler>((set, get) => {
@@ -455,6 +456,7 @@ export function createChatItemFromTool(
       };
       return message;
     }
+
     case 'transfer_sol': {
       message = {
         id: generateUniqueId(),

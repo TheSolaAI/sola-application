@@ -1,7 +1,6 @@
 import { Connection, VersionedTransaction } from '@solana/web3.js';
-import { ApiClient } from '../api/ApiClient.ts';
 import { useChatMessageHandler } from '../models/ChatMessageHandler.ts';
-import { LimitOrderParams, LimitOrderResponse } from '../types/jupiter.ts';
+import { LimitOrderParams} from '../types/jupiter.ts';
 import { Tool } from '../types/tool.ts';
 import { ConnectedSolanaWallet } from '@privy-io/react-auth';
 import { limitOrderTx } from '../lib/solana/limitOrderTx.ts';
@@ -11,7 +10,7 @@ import { TransactionDataMessageItem } from '../components/ui/message_items/Trans
 const rpc = import.meta.env.VITE_SOLANA_RPC;
 
 const functionDescription =
-  'Creates a limit order to buy or sell a specified token at a user-defined price in USD. Do not use this for instant token swaps or market orders. Only use when the user explicitly requests a limit order.';
+  'Creates a limit order to buy or sell a specified token at a user-defined price in USD. Do not use this for instant token swaps or market orders. Only use when the user explicitly requests a limit order. eg command: buy/sell 10 "token-name" when price is at "x" usd';
 
 export const limitOrder: Tool = {
   cost: 0.00005,
@@ -101,15 +100,15 @@ export async function createLimitOrder(args: {
   const connection = new Connection(rpc);
   try {
     const resp = await limitOrderTx(params);
-    if (ApiClient.isApiResponse<LimitOrderResponse>(resp)) {
-      const transaction = resp.data.tx;
+    if (resp) {
+      const transaction = resp.tx;
+
       if (!transaction) {
         return {
           status: 'error',
-          response: 'error during transaction',
+          response: 'unable to place limit order.',
         };
       }
-
       const transactionBuffer = Buffer.from(transaction, 'base64');
       const final_tx = VersionedTransaction.deserialize(transactionBuffer);
       const signedTransaction = await currentWallet.signTransaction(final_tx);
@@ -128,23 +127,24 @@ export async function createLimitOrder(args: {
           sender: 'system',
           type: 'transaction_message',
           data: {
-            title: resp.data.order,
+            title: 'Limit Order',
             status: 'success',
-            link: txid,
+            link: `https://solscan.io/tx/${txid}`,
           },
         },
       };
     } else {
       return {
         status: 'error',
-        response: 'error during transaction',
+        response:
+          'unable to place limit order. make sure you order is worth more than $5 and you have enough balance',
       };
     }
   } catch (error) {
     console.error('Error creating limit order:', error);
     return {
       status: 'error',
-      response: 'error during transaction',
+      response: 'unable to place limit order. Do not add this limit order into completed.',
     };
   }
 }

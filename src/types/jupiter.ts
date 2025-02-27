@@ -1,3 +1,5 @@
+import { ConnectedSolanaWallet } from "@privy-io/react-auth";
+
 export type SwapParams = {
   input_mint: string;
   output_mint: string;
@@ -21,7 +23,7 @@ export type LimitOrderParams = {
 };
 
 export type LimitOrderResponse = {
-  order: string;
+  order_id: string;
   tx: string;
 };
 
@@ -40,4 +42,13 @@ export interface ShowLimitOrder {
 
 export type ShowLimitOrderParams = {
   public_key: string;
+};
+
+export type CancelLimitOrderParams = {
+  order_id: String[];
+  public_key: ConnectedSolanaWallet | null
+};
+
+export type CancelLimitOrderResponse = {
+  transaction: String[];
 };

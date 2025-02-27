@@ -13,6 +13,7 @@ import {
 } from './messageCard';
 import { AIProjectRankingResult, GoatIndexTokenData } from './goatIndex.ts';
 
+
 export interface ChatItem<T extends BaseChatContent> {
   // Make ChatItem generic
   id: number;
@@ -103,6 +104,7 @@ export interface ShowLimitOrdersChatContent extends BaseChatContent {
   type: 'get_limit_order';
   data: ShowLimitOrderResponse;
 }
+
 
 export interface ShowLSTDataChatContent extends BaseChatContent {
   type: 'get_lst_data';
