@@ -3,28 +3,25 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { IoIosSunny, IoMdClose } from 'react-icons/io';
 import { IoMoonOutline } from 'react-icons/io5';
 import { FaWallet } from 'react-icons/fa';
-import { RiRobot2Line, RiLockLine } from 'react-icons/ri';
+import { RiRobot2Line } from 'react-icons/ri';
 import useThemeManager from '../../models/ThemeManager.ts';
-import { useSettingsHandler } from '../../models/SettingsHandler.ts';
-import { usePrivy } from '@privy-io/react-auth';
-import { toast } from 'sonner';
 import { AIConfigSettings, AIConfigSettingsRef } from './AiConfigSettings.tsx';
+import { User } from 'lucide-react';
+import { UserSettings, UserSettingsRef } from './UserSettings.tsx';
 
 export const SettingsModal: FC<{ isOpen: boolean; onClose: () => void }> = ({
   isOpen,
   onClose,
 }) => {
   // Global State Management
-  const { theme, setTheme } = useThemeManager();
-  const { updateSettings } = useSettingsHandler();
-  const { linkEmail, unlinkEmail, user } = usePrivy();
+  const { theme } = useThemeManager();
 
   // Local state
-  const [localTheme, setLocalTheme] = useState<string>(theme.name);
   const [activeSection, setActiveSection] = useState<string>('ai');
 
   // refs
   const aiConfigRef = useRef<AIConfigSettingsRef>(null);
+  const userSettingsRef = useRef<UserSettingsRef>(null);
 
   // Effect to handle body scroll lock when modal is open
   useEffect(() => {
@@ -118,18 +115,6 @@ export const SettingsModal: FC<{ isOpen: boolean; onClose: () => void }> = ({
                     </button>
 
                     <button
-                      onClick={() => handleSectionChange('privacy')}
-                      className={`flex items-center gap-3 px-4 py-3 transition-colors ${
-                        activeSection === 'privacy'
-                          ? 'bg-primary/10 text-primary border-r-4 border-primary'
-                          : 'text-textColor hover:bg-background/50'
-                      }`}
-                    >
-                      <RiLockLine size={18} />
-                      <span>Privacy Settings</span>
-                    </button>
-
-                    <button
                       onClick={() => handleSectionChange('theme')}
                       className={`flex items-center gap-3 px-4 py-3 transition-colors ${
                         activeSection === 'theme'
@@ -143,6 +128,18 @@ export const SettingsModal: FC<{ isOpen: boolean; onClose: () => void }> = ({
                         <IoMoonOutline size={18} />
                       )}
                       <span>Theme Settings</span>
+                    </button>
+
+                    <button
+                      onClick={() => handleSectionChange('user')}
+                      className={`flex items-center gap-3 px-4 py-3 transition-colors ${
+                        activeSection === 'user'
+                          ? 'bg-primary/10 text-primary border-r-4 border-primary'
+                          : 'text-textColor hover:bg-background/50'
+                      }`}
+                    >
+                      <User size={18} />
+                      <span>User Settings</span>
                     </button>
                   </div>
                 </div>
@@ -164,21 +161,23 @@ export const SettingsModal: FC<{ isOpen: boolean; onClose: () => void }> = ({
                   {/* Content Body */}
                   <div className="flex-1 overflow-y-auto p-6">
                     {/* AI Configuration Section */}
-                    {activeSection === 'ai' && <AIConfigSettings />}
+                    {activeSection === 'ai' && (
+                      <AIConfigSettings ref={aiConfigRef} />
+                    )}
 
                     {/* Wallet Settings Section */}
                     {activeSection === 'wallet' && (
                       <div className="space-y-6"></div>
                     )}
 
-                    {/* Privacy Settings Section */}
-                    {activeSection === 'privacy' && (
-                      <div className="space-y-6"></div>
-                    )}
-
                     {/* Theme Settings Section */}
                     {activeSection === 'theme' && (
                       <div className="space-y-6"></div>
+                    )}
+
+                    {/* User Settings Section */}
+                    {activeSection === 'user' && (
+                      <UserSettings ref={userSettingsRef} />
                     )}
                   </div>
 
