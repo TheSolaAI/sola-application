@@ -16,6 +16,7 @@ function useKeyboardHeight(): {
       //In the case when the browser doesn't support
       return;
     }
+    
 
     if (
       window.matchMedia('(display-mode: standalone)').matches || 

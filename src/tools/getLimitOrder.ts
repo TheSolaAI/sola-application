@@ -35,7 +35,7 @@ async function getLimitOrderFunction(args: {
   useChatMessageHandler.getState().setCurrentChatItem({
     content: {
       type: 'loader_message',
-      text: 'Token Analyst agent: Fetching active limit orders...',
+      text: 'Fetching active limit orders...',
       response_id: 'temp',
       sender: 'system',
     },
