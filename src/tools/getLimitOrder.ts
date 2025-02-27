@@ -32,6 +32,7 @@ async function getLimitOrderFunction(args: {
   response: string;
   props?: ShowLimitOrdersChatContent;
 }> {
+  console.log("farrah")
   useChatMessageHandler.getState().setCurrentChatItem({
     content: {
       type: 'loader_message',
@@ -66,15 +67,15 @@ async function getLimitOrderFunction(args: {
     type: 'get_limit_order',
     data: resp,
   };
-
+ 
   let order_id:String[] = [];
   resp.orders.forEach(element => {
     order_id.push(element.order_id);
   });
-
+  console.log(order_id)
   return {
     status: 'success',
-    response: `Notify the user about successful fetch. Do not add own content.When tells u to cancel a order using its position, take the id from ${order_id} and then send it to cancel limit order function call.`,
+    response: `tell them they have ${resp.orders.length} active limit orders.`,
     props: data,
   };
 }

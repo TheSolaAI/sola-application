@@ -357,20 +357,6 @@ export interface AiProjectByToken extends BaseTool {
 }
 
 
-export interface CancelLimitOrder extends BaseTool {
-  implementation: (args: {
-    index:number
-    currentWallet: ConnectedSolanaWallet|null
-  }) => Promise<{
-    status: 'success' | 'error';
-    response: string;
-    props?: TransactionChatContent;
-  }>;
-  representation?: {
-    props_type: 'transaction_message';
-    component: FC<{ props: TransactionChatContent }>;
-  };
-}
 
 
 
@@ -393,6 +379,5 @@ export type Tool =
   | GetTrendingNFTSTool
   | NFTPriceTool
   | AiProjectByClassificationTool
-  | AiProjectByToken
-  | CancelLimitOrder;
+  | AiProjectByToken;
 

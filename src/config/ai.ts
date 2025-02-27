@@ -11,11 +11,7 @@ Agents:
        2. Get top Liquid-Staking-tokens [LST] with their details like price, yeild percentage.
        3. Place a limit order using jupiter platform API.
        4. Get the existing limit orders of an user.
-       
-- goatindex: Agent to analyze AI projects using GoatIndex.
-- NFT Analyst: Agent to analyze NFT projects and trends.
-- DeFi Analyst: Agent to analyze DeFi projects and trends.
-=======
+
 - goatindex:
     1. Get Top AI projects, Projects with/without tokens on Solana Blockchain.
     2. Get Mindshare/Graph Analytics for the Top AI projects.
