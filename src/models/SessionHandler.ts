@@ -8,7 +8,6 @@ import { useChatRoomHandler } from './ChatRoomHandler.ts';
 import { useAgentHandler } from './AgentHandler.ts';
 import { getAgentSwapper } from '../tools';
 import { BaseToolAbstraction } from '../types/tool.ts';
-import { useCreditHandler } from './CreditHandler.ts';
 
 interface SessionHandler {
   state: 'idle' | 'loading' | 'open' | 'error'; // the state of the session handler
@@ -126,10 +125,6 @@ export const useSessionHandler = create<SessionHandler>((set, get) => {
     },
 
     setMuted: (muted: boolean): void => {
-      if (useCreditHandler.getState().credits < 0 && muted) {
-        toast.warning('Refuel your credit.');
-        return;
-      }
       set({ muted });
     },
 
