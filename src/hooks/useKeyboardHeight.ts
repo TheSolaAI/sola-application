@@ -3,16 +3,26 @@ import { useEffect, useState } from 'react';
 function useKeyboardHeight(): {
   keyboardHeight: number;
   visibleHeight: number;
+  isPWA: boolean;
 } {
   const [keyboardHeight, setKeyboardHeight] = useState<number>(0);
   const [visibleHeight, setVisibleHeight] = useState<number>(
     window.innerHeight,
   );
+  const [isPWA, setIsPWA] = useState(false);
 
   useEffect(() => {
     if (!window.visualViewport || !window.visualViewport.height) {
       //In the case when the browser doesn't support
       return;
+    }
+
+    if (
+      window.matchMedia('(display-mode: standalone)').matches || 
+      window.matchMedia('(display-mode: minimal-ui)').matches || 
+      window.matchMedia('(display-mode: fullscreen)').matches
+    ) {
+      setIsPWA(true);
     }
 
     const handleResize = (): void => {
@@ -27,7 +37,7 @@ function useKeyboardHeight(): {
       window.visualViewport.removeEventListener('resize', handleResize);
   }, []);
 
-  return { keyboardHeight, visibleHeight };
+  return { keyboardHeight, visibleHeight , isPWA};
 }
 
 export default useKeyboardHeight;
