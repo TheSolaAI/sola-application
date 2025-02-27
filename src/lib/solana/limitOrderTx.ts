@@ -75,6 +75,7 @@ export async function cancelLimitOrderHandler(
     order_id: params.order_id,
     public_key: params.public_key?.address,
   };
+  console.log(final_params)
 
   let resp = await apiClient.post<CancelLimitOrderResponse>(
     'api/wallet/jup/limit-order/cancel',
@@ -87,16 +88,12 @@ export async function cancelLimitOrderHandler(
     return null;
   }
   const connection = new Connection(rpc);
-  let transaction = resp.data.tx[0];
+  let transaction = resp.data.transaction[0];
   const transactionBuffer = Buffer.from(transaction, 'base64');
   const final_tx = VersionedTransaction.deserialize(transactionBuffer);
   const signedTransaction = await wallet.signTransaction(final_tx);
   const rawTransaction = signedTransaction.serialize();
-
-  const txid = await connection.sendRawTransaction(rawTransaction, {
-    skipPreflight: true,
-    maxRetries: 10,
-  });
+  const txid = await connection.sendRawTransaction(rawTransaction);
 
   let msg: ChatItem<TransactionChatContent> = {
     id: 0,

@@ -50,5 +50,5 @@ export type CancelLimitOrderParams = {
 };
 
 export type CancelLimitOrderResponse = {
-  tx: String[];
+  transaction: String[];
 };
