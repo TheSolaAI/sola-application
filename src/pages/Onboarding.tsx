@@ -120,7 +120,7 @@ function Onboarding() {
           </div>
           <div className="flex flex-col sm:flex-row justify-center gap-y-4 gap-x-6 mt-10 items-center">
             <AwesomeButton
-              onReleased={() => login({ loginMethods: ['email', 'wallet'] })}
+              onReleased={() => login()}
               disabled={disableLogin}
               type="secondary"
             >
@@ -200,3 +200,4 @@ function Onboarding() {
 }
 
 export default Onboarding;
+

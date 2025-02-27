@@ -1,4 +1,4 @@
-import { useState, useEffect, FC, useRef } from 'react';
+import { useState, FC, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { IoIosSunny, IoMdClose } from 'react-icons/io';
 import { IoMoonOutline } from 'react-icons/io5';
@@ -8,6 +8,7 @@ import useThemeManager from '../../models/ThemeManager.ts';
 import { AIConfigSettings, AIConfigSettingsRef } from './AiConfigSettings.tsx';
 import { User } from 'lucide-react';
 import { UserSettings, UserSettingsRef } from './UserSettings.tsx';
+import { ThemeSettings, ThemeSettingsRef } from './ThemeSettings.tsx';
 
 export const SettingsModal: FC<{ isOpen: boolean; onClose: () => void }> = ({
   isOpen,
@@ -22,19 +23,7 @@ export const SettingsModal: FC<{ isOpen: boolean; onClose: () => void }> = ({
   // refs
   const aiConfigRef = useRef<AIConfigSettingsRef>(null);
   const userSettingsRef = useRef<UserSettingsRef>(null);
-
-  // Effect to handle body scroll lock when modal is open
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'auto';
-    }
-
-    return () => {
-      document.body.style.overflow = 'auto';
-    };
-  }, [isOpen]);
+  const themeSettingsRef = useRef<ThemeSettingsRef>(null);
 
   // Handle section change
   const handleSectionChange = (section: string) => {
@@ -145,7 +134,7 @@ export const SettingsModal: FC<{ isOpen: boolean; onClose: () => void }> = ({
                 </div>
 
                 {/* Content Area */}
-                <div className="flex flex-col flex-1 overflow-hidden">
+                <div className="flex flex-col flex-1">
                   {/* Content Header (for non-mobile) */}
                   {!isMobile && (
                     <div className="flex items-center justify-end p-4 border-b border-border">
@@ -158,35 +147,27 @@ export const SettingsModal: FC<{ isOpen: boolean; onClose: () => void }> = ({
                     </div>
                   )}
 
-                  {/* Content Body */}
-                  <div className="flex-1 overflow-y-auto p-6">
-                    {/* AI Configuration Section */}
+                  {/* Scrollable Content */}
+                  <div className="flex-1 overflow-y-auto p-6 max-h-[calc(85vh-80px-60px)]">
                     {activeSection === 'ai' && (
                       <AIConfigSettings ref={aiConfigRef} />
                     )}
-
-                    {/* Wallet Settings Section */}
                     {activeSection === 'wallet' && (
                       <div className="space-y-6"></div>
                     )}
-
-                    {/* Theme Settings Section */}
                     {activeSection === 'theme' && (
-                      <div className="space-y-6"></div>
+                      <ThemeSettings ref={themeSettingsRef} />
                     )}
-
-                    {/* User Settings Section */}
                     {activeSection === 'user' && (
                       <UserSettings ref={userSettingsRef} />
                     )}
                   </div>
 
-                  {/* Footer */}
-                  <div className="p-4 border-t border-border flex justify-end">
+                  {/* Footer (Always Visible) */}
+                  <div className="p-4 border-t border-border justify-end flex">
                     <button
                       onClick={onClose}
-                      className="px-4 py-2 bg-primary text-textColor rounded-lg
-                      hover:bg-primaryDark transition-colors"
+                      className="px-4 py-2 bg-primary text-textColor rounded-lg hover:bg-primaryDark transition-colors"
                     >
                       Done
                     </button>

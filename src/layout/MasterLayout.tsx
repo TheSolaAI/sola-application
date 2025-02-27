@@ -9,7 +9,7 @@ import WalletLensButton from '../components/wallet/WalletLensButton.tsx';
 import { GoatIndexDashboard } from '../components/dashboard/GoatIndexDashboard.tsx';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TokenDataDashboard } from '../components/dashboard/TokenDataDashboard.tsx';
-import { SettingsModal } from '../components/settings/SettingsPopup.tsx';
+import { SettingsModal } from '../components/Settings/SettingsPopup.tsx';
 
 const slideRight = {
   initial: { x: '100%', opacity: 0 },

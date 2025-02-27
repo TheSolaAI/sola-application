@@ -2,6 +2,7 @@ import { ChangeEvent, useState, forwardRef, useImperativeHandle } from 'react';
 import { AI_VOICES } from '../../config/ai';
 import { useSessionHandler } from '../../models/SessionHandler';
 import { toast } from 'sonner';
+import { useSettingsHandler } from '../../models/SettingsHandler';
 
 interface AIConfigSettingsProps {}
 
@@ -19,6 +20,8 @@ export const AIConfigSettings = forwardRef<
   const { aiEmotion, aiVoice, setAiEmotion, setAiVoice, updateSession } =
     useSessionHandler();
 
+  const { updateSettings } = useSettingsHandler();
+
   /**
    * Local State
    */
@@ -28,6 +31,7 @@ export const AIConfigSettings = forwardRef<
     const newVoice = e.target.value as (typeof AI_VOICES)[number];
     setAiVoice(newVoice);
     updateSession('voice');
+    updateSettings('voice');
     toast.success(
       `AI Voice changed to ${newVoice.charAt(0).toUpperCase() + newVoice.slice(1)}`,
     );
@@ -37,6 +41,7 @@ export const AIConfigSettings = forwardRef<
     if (aiEmotionLocal.length <= 200 && aiEmotionLocal !== aiEmotion) {
       setAiEmotion(aiEmotionLocal);
       updateSession('emotion');
+      updateSettings('emotion');
       toast.success('AI Emotion updated');
     }
   };

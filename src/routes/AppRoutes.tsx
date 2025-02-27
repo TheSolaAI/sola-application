@@ -9,8 +9,8 @@ import { Route, Routes } from 'react-router-dom';
 import MasterLayout from '../layout/MasterLayout';
 import PageTitle from '../components/PageTitle';
 import Conversation from '../pages/Conversation';
-import Onboarding from '../pages/Onbording';
-import OnRamp from '../pages/OnRamp';
+import Onboarding from '../pages/Onboarding.tsx';
+// import OnRamp from '../pages/OnRamp';
 import Pricing from '../pages/Pricing';
 import { SessionProvider } from '../models/provider/SessionProvider.tsx';
 
@@ -42,7 +42,7 @@ const AppRoutes = () => {
               </>
             }
           />
-          <Route
+          {/* <Route
             path="/onramp"
             element={
               <>
@@ -50,7 +50,7 @@ const AppRoutes = () => {
                 <OnRamp />
               </>
             }
-          />
+          /> */}
           <Route
             path="/pricing"
             element={

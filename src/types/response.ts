@@ -8,6 +8,7 @@ export interface UserSettingsResponse {
   emotion_choice: AIEmotion;
   credits_remaining: number;
   tiers: string;
+  custom_themes: Theme[];
 }
 
 export interface ChatRoomResponse {

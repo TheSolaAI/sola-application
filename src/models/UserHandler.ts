@@ -35,7 +35,6 @@ interface UserHandler {
 
 export const useUserHandler = create<UserHandler>((set) => {
   return {
-    currentUser: null,
     authToken: null,
     ready: false,
 

@@ -13,12 +13,14 @@ interface SettingsHandler {
 
   /**
    * Gets all settings from their respective handles and updates the server with the new settings.
-   * Returns a boolean indicating if the update was successful.
+   * Returns a boolean indicating if the update was successful. Optionally specify the specific setting that is required to be updated.
    */
-  updateSettings: () => Promise<boolean>;
+  updateSettings: (
+    setting: 'all' | 'voice' | 'emotion' | 'theme' | 'custom_themes',
+  ) => Promise<boolean>;
 
   /**
-   * This function only updates the credits in the user settings. Due to it being called often it is separted
+   * This function only updates the credits in the user settings. Due to it being called often it is separated
    * from the updateSettings function.
    */
   updateCredits: () => Promise<void>;
@@ -36,9 +38,16 @@ export const useSettingsHandler = create<SettingsHandler>(() => {
         undefined,
         'auth',
       );
-      if (ApiClient.isApiResponse(response)) {
+      if (ApiClient.isApiResponse<UserSettingsResponse>(response)) {
         // set all the settings in their respective handlers
-        useThemeManager.getState().setTheme(response.data.theme);
+        useThemeManager
+          .getState()
+          .initThemeManager(response.data.custom_themes);
+        useThemeManager
+          .getState()
+          .setTheme(
+            useThemeManager.getState().availableThemes[response.data.theme],
+          );
         useSessionHandler.getState().setAiEmotion(response.data.emotion_choice);
         useSessionHandler.getState().setAiVoice(response.data.voice_preference);
         useCreditHandler
@@ -49,14 +58,27 @@ export const useSettingsHandler = create<SettingsHandler>(() => {
       }
     },
 
-    updateSettings: async (): Promise<boolean> => {
+    updateSettings: async (
+      setting: 'all' | 'voice' | 'emotion' | 'theme' | 'custom_themes',
+    ): Promise<boolean> => {
+      const data: UpdateUserSettingsRequest = {};
+      if (setting === 'all' || setting === 'theme') {
+        data['theme'] = useThemeManager.getState().theme.name;
+      }
+      if (setting === 'all' || setting === 'emotion') {
+        data['emotion_choice'] = useSessionHandler.getState().aiEmotion;
+      }
+      if (setting === 'all' || setting === 'voice') {
+        data['voice_preference'] = useSessionHandler.getState().aiVoice;
+      }
+      if (setting === 'all' || setting === 'custom_themes') {
+        // in this case we set both the new custom theme that was added as well as setting the current users theme
+        data['custom_themes'] = useThemeManager.getState().getCustomThemes();
+        data['theme'] = useThemeManager.getState().theme.name;
+      }
       const response = await apiClient.patch(
         API_URLS.AUTH.SETTINGS.UPDATE,
-        {
-          theme: useThemeManager.getState().theme.name,
-          emotion_choice: useSessionHandler.getState().aiEmotion,
-          voice_preference: useSessionHandler.getState().aiVoice,
-        } as UpdateUserSettingsRequest,
+        data,
         'auth',
       );
       if (ApiClient.isApiResponse(response)) {
