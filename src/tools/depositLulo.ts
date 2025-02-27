@@ -5,15 +5,12 @@ import { Connection } from '@solana/web3.js';
 import { tokenList } from '../config/tokens/tokenMapping.ts';
 import { depositLuloTx } from '../lib/solana/lulo.ts';
 import { useChatMessageHandler } from '../models/ChatMessageHandler.ts';
-import {
-  SimpleMessageChatContent,
-  TransactionChatContent,
-} from '../types/chatItem.ts';
+import { TransactionChatContent } from '../types/chatItem.ts';
 import { TransactionCard } from '../types/messageCard.ts';
 import { TransactionDataMessageItem } from '../components/ui/message_items/TransactionCard.tsx';
 
 const functionDescription =
-  'Call this function ONLY when the user explicitly requests to deposit stable coins into Lulo. Ensure the user specifies the correct stable coin (USDS or USDC) and an amount. DO NOT make assumptions about the coin or the amount if unclear. USDS and USDC are DISTINCT coins—choose appropriately. This function is NOT for withdrawals or any other operation. Confirm the user’s intent before proceeding if you are unsure about it.';
+  'Call this function ONLY when the user explicitly requests to deposit stable coins into Lulo Finance. Ensure the user specifies the correct stable coin (USDC, USDS, or USDT) and an amount. DO NOT make assumptions about the coin or the amount if unclear. These are DISTINCT coins—choose appropriately. This function is NOT for withdrawals or any other operation.';
 
 export const depositLulo: Tool = {
   implementation: handleDepositLulo,
@@ -30,12 +27,13 @@ export const depositLulo: Tool = {
       properties: {
         amount: {
           type: 'number',
-          description: 'Amount of stable coin that the user wants to deoposit.',
+          description: 'Amount of stable coin that the user wants to deposit.',
         },
         token: {
           type: 'string',
           enum: ['USDT', 'USDS', 'USDC'],
-          description: 'The symbol/name of the coin user wants to deposit.',
+          description:
+            'The symbol/name of the stable coin user wants to deposit (USDC, USDS, or USDT).',
         },
       },
       required: ['amount', 'token'],
@@ -56,9 +54,10 @@ export async function handleDepositLulo(args: {
   useChatMessageHandler.getState().setCurrentChatItem({
     content: {
       type: 'loader_message',
+      text: `Lulo agent: Depositing assets...`,
       response_id: 'temp',
-      text: 'creating a deposit transaction...',
-    } as SimpleMessageChatContent,
+      sender: 'system',
+    },
     id: 0,
     createdAt: new Date().toISOString(),
   });
@@ -67,13 +66,13 @@ export async function handleDepositLulo(args: {
   if (!args.currentWallet) {
     return {
       status: 'error',
-      response: 'Please connect your wallet first.',
+      response: 'Ask user to connect wallet first, Before trying to deposit.',
     };
   }
   if (!rpc) {
     return {
       status: 'error',
-      response: 'RPC endpoint not found',
+      response: 'RPC endpoint not found. Ask user to contact administrator.',
     };
   }
 
@@ -90,7 +89,7 @@ export async function handleDepositLulo(args: {
     if (!resp) {
       return {
         status: 'error',
-        response: 'Deposit failed. Please try again later.',
+        response: 'Deposit failed. Ask user to try again later.',
       };
     }
 
@@ -131,7 +130,7 @@ export async function handleDepositLulo(args: {
     console.error('Error during deposit:', error);
     return {
       status: 'error',
-      response: 'Deposit failed. Please try again later.',
+      response: 'Deposit failed. Ask user to try again later.',
     };
   }
 }

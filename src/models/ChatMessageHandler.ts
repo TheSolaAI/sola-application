@@ -455,14 +455,6 @@ export function createChatItemFromTool(
       };
       return message;
     }
-    case 'top_holders': {
-      message = {
-        id: generateUniqueId(),
-        content: data as TopHoldersChatContent,
-        createdAt: new Date().toISOString(),
-      };
-      return message;
-    }
     case 'transfer_sol': {
       message = {
         id: generateUniqueId(),
