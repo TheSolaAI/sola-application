@@ -2,6 +2,8 @@ import { FC } from 'react';
 import { ShowLimitOrdersChatContent } from '../../../types/chatItem.ts';
 import BaseGridChatItem from './general/BaseGridChatItem.tsx';
 import { tokenList } from '../../../config/tokens/tokenMapping.ts';
+import { cancelLimitOrderHandler } from '../../../lib/solana/limitOrderTx.ts';
+import { useWalletHandler } from '../../../models/WalletHandler.ts';
 
 interface ShowLimitOrdersChatItemProps {
   props: ShowLimitOrdersChatContent;
@@ -10,6 +12,7 @@ interface ShowLimitOrdersChatItemProps {
 export const ShowLimitOrdersChatItem: FC<ShowLimitOrdersChatItemProps> = ({
   props,
 }) => {
+  const wallet = useWalletHandler();
   return (
     <BaseGridChatItem col={3}>
       {props.data.orders.map((order, lIndex) => {
@@ -55,6 +58,20 @@ export const ShowLimitOrdersChatItem: FC<ShowLimitOrdersChatItemProps> = ({
                 {order.output_mint.slice(-3)}
               </p>
             </div>
+            <button
+              className="mt-4 bg-primary text-white rounded-lg px-4 py-2 font-medium"
+              onClick={async () => {
+                const resp = await cancelLimitOrderHandler({
+                  public_key: wallet.currentWallet?.address,
+                  order_id: order.order_id,
+                });
+                if (resp) {
+                  props.data.orders.splice(lIndex, 1);
+                }
+              }}
+            >
+              Cancel Order
+              </button>
           </div>
         );
       })}

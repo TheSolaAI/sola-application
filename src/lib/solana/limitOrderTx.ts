@@ -1,4 +1,6 @@
 import {
+  CancelLimitOrderParams,
+  CancelLimitOrderResponse,
   LimitOrderParams,
   LimitOrderResponse,
   ShowLimitOrderParams,
@@ -29,6 +31,21 @@ export async function getLimitOrderHandler(
     wallet_service_url +
       'api/wallet/jup/limit-order/show?address=' +
       params.public_key,
+  );
+  if (ApiClient.isApiError(resp)) {
+    console.error('Error during getAssetsLulo:', resp.errors);
+    return null;
+  }
+  return resp.data;
+}
+
+export async function cancelLimitOrderHandler(
+  params: CancelLimitOrderParams,
+): Promise<CancelLimitOrderResponse | null> {
+  let resp = await apiClient.post<CancelLimitOrderResponse>(
+    wallet_service_url + 'api/wallet/jup/limit-order/cancel',
+    params,
+    'wallet'
   );
   if (ApiClient.isApiError(resp)) {
     console.error('Error during getAssetsLulo:', resp.errors);

@@ -87,6 +87,7 @@ export async function createLimitOrder(args: {
       response: 'Please set your SOLANA_RPC environment variable.',
     };
   }
+  console.log("jere we go")
   const input_mint = args.token.length > 35
   ? args.token
     : `$${args.token}`;
@@ -102,6 +103,7 @@ export async function createLimitOrder(args: {
 
   const connection = new Connection(rpc);
   try {
+    console.log(params)
     const resp = await limitOrderTx(params);
     if (ApiClient.isApiResponse<LimitOrderResponse>(resp)) {
       const transaction = resp.data.tx;
