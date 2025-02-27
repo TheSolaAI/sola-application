@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Trash2, Upload } from 'lucide-react';
+import { Save, Trash2, Upload } from 'lucide-react';
 import { Dropdown } from '../general/DropDown.tsx';
 import { useChatRoomHandler } from '../../models/ChatRoomHandler.ts';
 
@@ -45,7 +45,7 @@ const EditRoomContent: React.FC<EditRoomContentProps> = ({
       deleteChatRoom(roodID);
       if (roodID === currentChatRoom?.id) {
         console.log('creating new room');
-        createChatRoom({ name: 'New Chat', agentId: 1 }).then((room) => {
+        createChatRoom({ name: 'New Chat' }).then((room) => {
           if (room) setCurrentChatRoom(room);
         });
       }
@@ -65,19 +65,19 @@ const EditRoomContent: React.FC<EditRoomContentProps> = ({
           value={name}
           onChange={(e) => setName(e.target.value)}
           className="w-full px-3 py-2 rounded-lg border border-border bg-surface text-textColor focus:outline-none focus:ring-2 focus:ring-primary"
-          placeholder="Enter chat name"
+          placeholder="Enter New Chat Name"
         />
         <button
           onClick={handleNameSubmit}
           className={`w-full px-4 py-2 rounded-lg flex items-center justify-center gap-2 transition-colors bg-primary/90 hover:bg-primary`}
         >
-          <Upload className="w-4 h-4" />
-          Edit Name
+          <Save className="w-4 h-4" />
+          Save
         </button>
       </div>
 
       {/* Delete Section */}
-      <div className="pt-4 border-t border-border">
+      <div className="pt-4 border-t border-border pb-4">
         <button
           onClick={handleDelete}
           className={`w-full px-4 py-2 rounded-lg flex items-center justify-center gap-2 transition-colors ${

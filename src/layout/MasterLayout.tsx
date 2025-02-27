@@ -51,7 +51,7 @@ const MasterLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
 
         {(!isMobile || !walletLensOpen) && (
           <Panel id="leftormiddle" minSize={40} defaultSize={45} order={1}>
-            <main className="w-full sm:rounded-2xl bg-background overflow-hidden">
+            <main className="w-full sm:rounded-2xl bg-background overflow-hidden h-full">
               {children}
             </main>
           </Panel>

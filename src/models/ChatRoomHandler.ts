@@ -44,7 +44,7 @@ export const useChatRoomHandler = create<ChatRoomHandler>((set, get) => {
     setCurrentChatRoom: async (room: ChatRoom | null): Promise<void> => {
       set({ currentChatRoom: room });
       // update the session with the tools that are available for this agent
-      useSessionHandler.getState().updateSession();
+      useSessionHandler.getState().updateSession("tools");
       if (room) {
         // now fetch that chat room's messages
         await useChatMessageHandler.getState().initChatMessageHandler();
