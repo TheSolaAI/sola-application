@@ -5,6 +5,7 @@ import { swapTx } from '../lib/solana/swapTx';
 import { Tool } from '../types/tool';
 import { SwapChatContent } from '../types/chatItem';
 import { SwapChatItem } from '../components/ui/message_items/SwapMessageItem.tsx';
+import { useChatMessageHandler } from '../models/ChatMessageHandler.ts';
 
 const functionDescription =
   'Use this function when the user wants to swap one token for another at market price. The user may specify the amount of tokenA (in tokens or USD) or the amount of tokenB to receive. Do NOT use this for limit orders.';
@@ -26,23 +27,23 @@ export const swapTokens: Tool = {
           type: 'string',
           enum: ['EXACT_IN', 'EXACT_OUT', 'EXACT_DOLLAR'],
           description:
-            'The type of swap: EXACT_IN specifies the number of token a to be swapped, EXACT_OUT specifies the number of token b to be received, and EXACT_DOLLAR specifies the dollar amount to be swapped.',
+            'The type of swap: EXACT_IN specifies the amount of tokenA being swapped, EXACT_OUT specifies the amount of tokenB to receive, and EXACT_DOLLAR specifies the dollar amount to be swapped.',
         },
         quantity: {
           type: 'number',
           description:
-            'The amount for the swap. This can represent a token quantity (if swapType is TOKEN_TO_TOKEN or TOKEN_TO_DOLLAR) or a dollar amount (if swapType is DOLLAR_TO_TOKEN).',
+            'The amount for the swap. If swapType is EXACT_IN, this is the amount of tokenA. If swapType is EXACT_OUT, this is the amount of tokenB. If swapType is EXACT_DOLLAR, this is the dollar amount to swap.',
         },
         tokenA: {
           type: 'string',
-          description: 'The token that the user wants to swap.',
+          description: 'The token that the user wants to swap from.',
         },
         tokenB: {
           type: 'string',
           description: 'The token that the user wants to receive.',
         },
       },
-      required: ['swapType', 'amount', 'tokenA', 'tokenB'],
+      required: ['swapType', 'quantity', 'tokenA', 'tokenB'],
     },
   },
 };
@@ -62,27 +63,34 @@ export async function swapTokensFunction(args: {
   if (!rpc) {
     return {
       status: 'error',
-      response: 'No RPC URL found',
+      response: 'No RPC URL found. Ask the user to contact admin.',
     };
   }
+
+  useChatMessageHandler.getState().setCurrentChatItem({
+    content: {
+      type: 'loader_message',
+      text: `OnChain Handler: Performing Token Swap...`,
+      response_id: 'temp',
+      sender: 'system',
+    },
+    id: 0,
+    createdAt: new Date().toISOString(),
+  });
+
   if (args.currentWallet === null) {
     return {
       status: 'error',
-      response: 'No wallet connected',
+      response:
+        'No wallet connected. Ask the user to connect wallet before performing swap.',
     };
   }
   let wallet = args.currentWallet;
   let connection = new Connection(rpc);
 
+  const input_mint = args.tokenA.length > 35 ? args.tokenA : `$${args.tokenA}`;
 
-  const input_mint = args.tokenA.length > 35
-  ? args.tokenA
-    : `$${args.tokenA}`;
-  
-  const output_mint = args.tokenB.length>35
-  ? args.tokenB
- : `$${args.tokenB}`;
-  
+  const output_mint = args.tokenB.length > 35 ? args.tokenB : `$${args.tokenB}`;
 
   let params: SwapParams = {
     swap_mode: args.swapType,
@@ -92,7 +100,6 @@ export async function swapTokensFunction(args: {
     public_key: wallet.address,
     priority_fee_needed: false,
   };
-  console.log(params);
 
   let swap_txn = await swapTx(params);
   if (!swap_txn) {
@@ -125,7 +132,7 @@ export async function swapTokensFunction(args: {
   };
   return {
     status: 'success',
-    response: `Your swap for ${args.quantity} ${args.tokenA} to ${args.tokenB} has been submitted.`,
+    response: `Swap for ${args.quantity} ${args.tokenA} to ${args.tokenB} has been submitted.`,
     props: data,
   };
 }

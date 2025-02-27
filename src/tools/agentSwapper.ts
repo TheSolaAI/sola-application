@@ -20,7 +20,13 @@ export const getAgentSwapper: Tool = {
         agent: {
           type: 'string',
           description: 'The agent you want to switch to.',
-          enum: ['token-analyst', 'goatindex', 'nft-analyst', 'dam'],
+          enum: [
+            'token-analyst',
+            'goatindex',
+            'nft-analyst',
+            'lulo-agent',
+            'dam',
+          ],
         },
         original_request: {
           type: 'string',
@@ -47,7 +53,7 @@ function getAgentSwapperFunction(
         .getState()
         .agents.find((agent) => agent.slug === args.agent) ?? null,
     );
-  useSessionHandler.getState().updateSession();
+  useSessionHandler.getState().updateSession('tools');
   return Promise.resolve({
     status: 'success',
     response: `Switched to ${args.agent} agent`,

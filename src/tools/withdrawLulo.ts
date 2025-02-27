@@ -1,10 +1,7 @@
 import { ConnectedSolanaWallet } from '@privy-io/react-auth';
 import { Tool } from '../types/tool';
 import { useChatMessageHandler } from '../models/ChatMessageHandler';
-import {
-  SimpleMessageChatContent,
-  TransactionChatContent,
-} from '../types/chatItem';
+import { TransactionChatContent } from '../types/chatItem';
 import { WithdrawParams } from '../types/lulo';
 import { tokenList } from '../config/tokens/tokenMapping';
 import { withdrawLuloTx } from '../lib/solana/lulo';
@@ -61,9 +58,10 @@ export async function withdrawLuloFunction(args: {
   useChatMessageHandler.getState().setCurrentChatItem({
     content: {
       type: 'loader_message',
+      text: `Lulo agent: Withdrawing assets...`,
       response_id: 'temp',
-      text: 'Creating a withdrawal transaction...',
-    } as SimpleMessageChatContent,
+      sender: 'system',
+    },
     id: 0,
     createdAt: new Date().toISOString(),
   });
@@ -73,13 +71,13 @@ export async function withdrawLuloFunction(args: {
   if (!args.currentWallet) {
     return {
       status: 'error',
-      response: 'Please connect your wallet first.',
+      response: 'Ask user to connect wallet first, Before trying to withdraw.',
     };
   }
   if (!rpc) {
     return {
       status: 'error',
-      response: 'RPC endpoint not found.',
+      response: 'RPC endpoint not found. Ask user to contact administrator.',
     };
   }
 
@@ -96,7 +94,7 @@ export async function withdrawLuloFunction(args: {
     if (!resp) {
       return {
         status: 'error',
-        response: 'Withdrawal failed. Please try again later.',
+        response: 'Withdrawal failed. Tell user to try again later.',
       };
     }
 
@@ -126,7 +124,7 @@ export async function withdrawLuloFunction(args: {
 
       return {
         status: 'success',
-        response: 'Withdrawal successful.',
+        response: `Withdrawal successful.}`,
         props: uiProps,
       };
     }
@@ -139,7 +137,7 @@ export async function withdrawLuloFunction(args: {
     console.error('Error during withdrawal:', error);
     return {
       status: 'error',
-      response: 'Withdrawal failed. Please try again later.',
+      response: 'Withdrawal failed. Ask user to try again later.',
     };
   }
 }

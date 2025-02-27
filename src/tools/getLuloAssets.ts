@@ -4,9 +4,10 @@ import { AssetsParams } from '../types/lulo';
 import { LuloChatContent } from '../types/chatItem';
 import { Tool } from '../types/tool';
 import { LuloChatItem } from '../components/ui/message_items/LuloMessageItem.tsx';
+import { useChatMessageHandler } from '../models/ChatMessageHandler.ts';
 
 const functionDescription =
-  'Call this function when the user wants view their Lulo assets.';
+  'Call this function when the user wants view their assets, Earnings, Deposit, stats in Lulo platform.';
 
 export const getLuloAssets: Tool = {
   implementation: getLuloAssetsFunction,
@@ -36,12 +37,24 @@ export async function getLuloAssetsFunction(args: {
   if (!wallet) {
     return {
       status: 'error',
-      response: 'no wallet connected',
+      response:
+        'Ask user to connect wallet first, Before trying to get the assets.',
     };
   }
   const params: AssetsParams = {
     owner: `${wallet.address}`,
   };
+  useChatMessageHandler.getState().setCurrentChatItem({
+    content: {
+      type: 'loader_message',
+      text: `Lulo agent: Fetching assets...`,
+      response_id: 'temp',
+      sender: 'system',
+    },
+    id: 0,
+    createdAt: new Date().toISOString(),
+  });
+
   const response = await getAssetsLulo(params);
   if (!response) {
     return {
@@ -58,7 +71,7 @@ export async function getLuloAssetsFunction(args: {
   };
   return {
     status: 'success',
-    response: 'success',
+    response: `User Lulo Stats, Deposit Value: ${response.depositValue}, Interest Earned: ${response.interestEarned} `,
     props: data,
   };
 }

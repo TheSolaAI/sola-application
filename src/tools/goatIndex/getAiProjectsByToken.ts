@@ -41,7 +41,7 @@ export async function handleGetAiProjectsByToken(args: {
   useChatMessageHandler.getState().setCurrentChatItem({
     content: {
       type: 'loader_message',
-      text: `Fetching AI projects...`,
+      text: `GoatIndex agent: Fetching AI projects...`,
       response_id: 'temp',
       sender: 'system',
     },
@@ -74,11 +74,9 @@ export async function handleGetAiProjectsByToken(args: {
       };
     }
 
-    console.log(response.data.data.data);
-
     return {
       status: 'success',
-      response: `Successfully fetched top agent details.`,
+      response: `Top AI projects , ${response.data.data.data.map((project) => project.tokenDetail.name).join(', ')}`,
       props: {
         response_id: 'topAiProjects',
         sender: 'system',

@@ -8,9 +8,10 @@ import {
 import { Tool } from '../types/tool';
 import { TransactionChatContent } from '../types/chatItem';
 import { TransferChatItem } from '../components/ui/message_items/TransferMessageItem.tsx';
+import { useChatMessageHandler } from '../models/ChatMessageHandler.ts';
 
 const functionDescription =
-  'Call this function when the user wants to send SOLANA or SOL using address or .sol domain. the .sol domains are random and doesnt need to make sense in meaining, so dont autocorrect anything from .sol domains.';
+  'Call this function when the user wants to send SOL (Solana) to a recipient using either a wallet address or a .sol domain. Do not modify or autocorrect .sol domains, as they are arbitrary and may not have meaningful words.';
 
 export const transferSolTx: Tool = {
   implementation: transferSolTxFunction,
@@ -27,11 +28,12 @@ export const transferSolTx: Tool = {
       properties: {
         quantity: {
           type: 'number',
-          description: 'Amount of Solana or SOL to transfer.',
+          description:
+            'Amount of SOL (Solana) to transfer. This value should be in SOL, not lamports.',
         },
         address: {
           type: 'string',
-          description: 'Recipient address or his .sol domain.',
+          description: 'Recipient wallet address or a .sol domain.',
         },
       },
       required: ['quantity', 'address'],
@@ -51,16 +53,29 @@ export async function transferSolTxFunction(args: {
   if (args.currentWallet === null) {
     return {
       status: 'error',
-      response: 'No wallet connected',
+      response:
+        'No wallet connected. Ask the user to connect wallet before trying to transfer.',
     };
   }
   const rpc = import.meta.env.VITE_SOLANA_RPC;
   if (rpc === undefined) {
     return {
       status: 'error',
-      response: 'RPC URL not found',
+      response: 'RPC URL not found. Ask the user to contact admin.',
     };
   }
+
+  useChatMessageHandler.getState().setCurrentChatItem({
+    content: {
+      type: 'loader_message',
+      text: `OnChain Handler: Transferring SOL...`,
+      response_id: 'temp',
+      sender: 'system',
+    },
+    id: 0,
+    createdAt: new Date().toISOString(),
+  });
+
   const senderAddress = args.currentWallet.address;
   const recipientAddress = args.recipientAddress;
   const amount = args.amount;
@@ -94,7 +109,7 @@ export async function transferSolTxFunction(args: {
 
   return {
     status: 'success',
-    response: 'Transaction sent',
+    response: 'Transaction sent to the blockcahin.',
     props: data,
   };
 }

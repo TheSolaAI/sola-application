@@ -56,7 +56,7 @@ const MarkdownRenderer = ({ content }: { content: string }) => {
                 language={match[1]}
                 style={theme.baseTheme === 'dark' ? a11yDark : oneDark}
                 PreTag="div"
-                className="rounded-md"
+                className="rounded-md overflow-auto"
               >
                 {String(children).replace(/\n$/, '')}
               </SyntaxHighlighter>

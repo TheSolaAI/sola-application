@@ -48,7 +48,7 @@ export const WalletPicker: FC<WalletPickerProps> = ({
       direction="down"
       width="component"
     >
-      <div className="flex gap-y-3 flex-col">
+      <div className="flex gap-y-3 flex-col px-2 pb-2">
         {wallets.map((wallet) => (
           <button
             key={wallet.walletClientType}

@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { Agent } from '../types/agent.ts';
-import { Atom, ChartNetwork, Wallet } from 'lucide-react';
+import { Atom, ChartNetwork, Wallet, FolderKanban } from 'lucide-react';
 import { GiGoat } from 'react-icons/gi';
 import {
   depositLulo,
@@ -20,7 +20,7 @@ import {
   swapTokens,
   transferSolTx,
   transferSpl,
-  walletActions,
+  // walletActions,
   withdrawLulo,
 } from '../tools';
 
@@ -56,7 +56,6 @@ export const useAgentHandler = create<AgentHandler>((_setState, getState) => ({
       logo: GiGoat,
       tools: [
         // walletActions,
-        swapTokens,
         getAiProjectsByClassification,
         getAiProjectsByToken,
         getAiProjectsMindshare,
@@ -72,26 +71,34 @@ export const useAgentHandler = create<AgentHandler>((_setState, getState) => ({
         walletActions,
         getNFTPrice,
         getTrendingNFTs,
-        // getNFTLaunchpad,
-        // getMarketData,
         getBlinks,
         getAgentSwapper,
       ],
     },
     {
-      name: 'DAM',
-      slug: 'dam',
-      description:
-        'DeFi Asset Manager - for Lulo operations and LST operations.',
-      logo: Wallet,
+      name: 'Lulo Agent',
+      slug: 'lulo-agent',
+      description: 'Perform operation on Lulo platform',
+      logo: FolderKanban,
       tools: [
         // walletActions,
-        transferSolTx,
-        transferSpl,
-        // getMarketData,
         getLuloAssets,
         depositLulo,
         withdrawLulo,
+        getAgentSwapper,
+      ],
+    },
+    {
+      name: 'OnChain Handler',
+      slug: 'onchain-handler',
+      description:
+        'Agent to perform token swapping and token transfers (Send Tokens).',
+      logo: Wallet,
+      tools: [
+        // walletActions,
+        swapTokens,
+        transferSolTx,
+        transferSpl,
         swapLST,
         // getBlinks,
         getAgentSwapper,

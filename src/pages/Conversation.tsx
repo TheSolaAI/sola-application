@@ -1,6 +1,6 @@
 import { SessionControls } from '../components/SessionControls.tsx';
 import { useChatRoomHandler } from '../models/ChatRoomHandler.ts';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { ChatRoom } from '../types/chatRoom.ts';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
@@ -29,6 +29,7 @@ import { useSessionHandler } from '../models/SessionHandler.ts';
 import { ScaleLoader } from 'react-spinners';
 import { LoaderMessageItem } from '../components/ui/message_items/LoaderMessageItem.tsx';
 import { InProgressMessageChatItem } from '../components/ui/message_items/InProgressMessageChatItem.tsx';
+import useKeyboardHeight from '../hooks/useKeyboardHeight.ts';
 
 const Conversation = () => {
   const navigate = useNavigate();
@@ -42,13 +43,14 @@ const Conversation = () => {
   const { agents } = useAgentHandler();
   const { theme } = useThemeManager();
   const { audioIntensity } = useLayoutContext();
+  const { keyboardHeight } = useKeyboardHeight();
+  const { isPWA } = useKeyboardHeight();
 
   /**
    * Local State
    */
   const primaryRGB = hexToRgb(theme.primary);
   const primaryDarkRGB = hexToRgb(theme.primaryDark);
-
 
   /**
    * Current Route
@@ -155,7 +157,7 @@ const Conversation = () => {
   };
 
   return (
-    <div className="relative flex flex-col w-full h-screen overflow-hidden">
+    <div className="relative flex flex-col w-full h-screen overflow-hidden p-4">
       {/* Empty state message */}
       {state === 'loading' && (
         <div
@@ -168,38 +170,58 @@ const Conversation = () => {
       )}
 
       {messages.length === 0 && !currentChatItem && state !== 'loading' && (
-       <div className="absolute inset-0 flex flex-col items-center justify-center p-4 z-20">
-       {/* Logo and Title */}
-       <div className="flex flex-col items-center mb-8">
-         <h1 className="font-semibold text-lg md:text-title-xl text-secText animate-in fade-in duration-700">
-           ASK SOLA
-         </h1>
-         
-         {/* Subtitle */}
-         <p className="font-semibold text-lg md:text-title-xs text-secText animate-in fade-in duration-700">
-           Perform Voice Powered Solana Intents
-         </p>
-       </div>
+        <div className="absolute inset-0 flex flex-col items-center justify-center p-4 z-10">
+          {/* Logo and Title */}
+          <div className="flex flex-col items-center mb-8">
+            <h1 className="font-semibold text-lg md:text-title-xl text-secText animate-in fade-in duration-700">
+              ASK SOLA
+            </h1>
 
-       {/* Category tiles */}
-       <div className="grid grid-cols-2 gap-6 w-full max-w-xl mt-6">
-         {/* Category Tile Component */}
-         {[
-           { text: "Token Report", subtext: "Get token report for a token", action: "Token Report of Token SOLA" },
-           { text: "Liquid Stake", subtext: "Stake SOL into LSTs", action: "Show me the best LSTs to buy" },
-           { text: "Trade", subtext: "Swap 0.1 SOL to USDC on Jupiter", action: "Swap 0.1 SOL to USDC using Jupiter" },
-           { text: "Ai Mindshare", subtext: "Get market mindshare for AI projects", action: "Show me AI projects categorized under 'DeFi'" },
-         ].map((item, index) => (
-           <div 
-             key={index} 
-             className="border border-gray-300 bg-sec_background rounded-2xl p-5 hover:bg-sec_hover transition cursor-pointer shadow-sm"
-             onClick={() => sendTextMessage(item.action)}
-           >
-             <h2 className="text-lg md:text-title-m text-secText animate-in fade-in duration-700 font-semibold text-lg">{item.text}</h2>
-             <p className="text-lg md:text-title-m text-secText animate-in fade-in duration-700 text-sm mt-1">{item.subtext}</p>
-           </div>
-         ))}
-       </div>
+            {/* Subtitle */}
+            <p className="font-medium text-lg md:text-title-xs text-secText animate-in fade-in duration-700">
+              Perform Voice Powered Solana Intents
+            </p>
+          </div>
+
+          {/* Category tiles */}
+          <div className="grid grid-cols-2 gap-6 w-full max-w-xl">
+            {/* Category Tile Component */}
+            {[
+              {
+                text: 'Token Report',
+                subtext: 'Get token report for a token',
+                action: 'Token Report of Token SOLA',
+              },
+              {
+                text: 'Liquid Stake',
+                subtext: 'Stake SOL into LSTs',
+                action: 'Show me the best LSTs to buy',
+              },
+              {
+                text: 'Trade',
+                subtext: 'Swap 0.1 SOL to USDC on Jupiter',
+                action: 'Swap 0.1 SOL to USDC using Jupiter',
+              },
+              {
+                text: 'Ai Mindshare',
+                subtext: 'Get market mindshare for AI projects',
+                action: "Show me AI projects categorized under 'DeFi'",
+              },
+            ].map((item, index) => (
+              <div
+                key={index}
+                className="border border-border bg-sec_background rounded-2xl p-5 hover:bg-sec_hover transition cursor-pointer shadow-sm"
+                onClick={() => sendTextMessage(item.action)}
+              >
+                <h2 className="text-lg md:text-title-m text-secText animate-in fade-in duration-700 font-semibold">
+                  {item.text}
+                </h2>
+                <p className="md:text-title-m text-secText animate-in fade-in duration-700 text-sm mt-1">
+                  {item.subtext}
+                </p>
+              </div>
+            ))}
+          </div>
 
           {/* Available Agents */}
           <div className="flex flex-wrap gap-2 p-2 w-full justify-center mt-3">
@@ -258,17 +280,31 @@ const Conversation = () => {
       </div>
 
       {/* Session Controls (Fixed at Bottom) */}
-      <div
-        className="absolute bottom-0 left-0 right-0 z-20 p-4 pb-8"
-        style={{
-          background: `linear-gradient(to top, 
-            rgba(${primaryDarkRGB.r}, ${primaryDarkRGB.g}, ${primaryDarkRGB.b}, ${audioIntensity * 1.2}),
-            transparent 80%)`,
-          transition: 'background 0.1s linear',
-        }}
-      >
-        <SessionControls />
-      </div>
+      {isPWA ? (
+        <div
+          className={`absolute left-0 right-0 z-20 p-4 pb-8 ${keyboardHeight > 0 ? 'bottom-[' + keyboardHeight + 'px]' : 'bottom-0'}`}
+          style={{
+            background: `linear-gradient(to top, 
+              rgba(${primaryDarkRGB.r}, ${primaryDarkRGB.g}, ${primaryDarkRGB.b}, ${audioIntensity * 1.2}),
+              transparent 80%)`,
+            transition: 'background 0.1s linear',
+          }}
+        >
+          <SessionControls />
+        </div>
+      ) : (
+        <div
+          className="absolute left-0 right-0 bottom-0 z-20 p-4 pb-8"
+          style={{
+            background: `linear-gradient(to top, 
+              rgba(${primaryDarkRGB.r}, ${primaryDarkRGB.g}, ${primaryDarkRGB.b}, ${audioIntensity * 1.2}),
+              transparent 80%)`,
+            transition: 'background 0.1s linear',
+          }}
+        >
+          <SessionControls />
+        </div>
+      )}
     </div>
   );
 };

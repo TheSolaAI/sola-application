@@ -10,7 +10,7 @@ import { getAgentSwapper } from '../tools';
 import { BaseToolAbstraction } from '../types/tool.ts';
 
 interface SessionHandler {
-  state: 'idle' | 'loading' | 'error'; // the state of the session handler
+  state: 'idle' | 'loading' | 'open' | 'error'; // the state of the session handler
 
   peerConnection: RTCPeerConnection | null; // the peer connection for the webrtc session
   dataStream: RTCDataChannel | null; // the data stream for the webrtc session
@@ -34,7 +34,7 @@ interface SessionHandler {
   setAiVoice: (aiVoice: AIVoice) => void; // sets the voice of the AI
   setAiEmotion: (aiEmotion: string) => void; // sets the emotion of the AI
 
-  updateSession: () => void; // Updates the session with the latest tools, voice and emotion
+  updateSession: (update_type: 'all' | 'tools' | 'voice' | 'emotion') => void; // Updates the session with the latest tools, voice and emotion
 
   /**
    * Sets the mute state of the user. This means the user's audio will not be collected. However the
@@ -128,20 +128,30 @@ export const useSessionHandler = create<SessionHandler>((set, get) => {
       set({ muted });
     },
 
-    updateSession: async (): Promise<void> => {
-      // extract only the abstraction from each tool and pass to OpenAI
+    updateSession: async (
+      update_type: 'all' | 'tools' | 'voice' | 'emotion',
+    ): Promise<void> => {
+      // extract only the abstraction from each tool and pass to OpenAI if required
       let tools: BaseToolAbstraction[] = [];
-      if (useAgentHandler.getState().currentActiveAgent) {
-        useAgentHandler.getState().currentActiveAgent?.tools.forEach((tool) => {
-          tools.push(tool.abstraction);
-        });
-      } else {
-        tools = [getAgentSwapper.abstraction];
+      if (update_type === 'all' || update_type === 'tools') {
+        if (useAgentHandler.getState().currentActiveAgent) {
+          useAgentHandler
+            .getState()
+            .currentActiveAgent?.tools.forEach((tool) => {
+              tools.push(tool.abstraction);
+            });
+        } else {
+          tools = [getAgentSwapper.abstraction];
+        }
       }
 
-      const updateParams = {
+      const updateParams: any = {
         type: 'session.update',
-        session: {
+        session: {},
+      };
+
+      if (update_type === 'all') {
+        updateParams.session = {
           modalities: ['text', 'audio'],
           instructions: getPrimeDirective(get().aiEmotion),
           voice: get().aiVoice.toLowerCase(),
@@ -151,11 +161,24 @@ export const useSessionHandler = create<SessionHandler>((set, get) => {
           tools,
           tool_choice: 'auto',
           temperature: 0.6,
-        },
-      };
+        };
+      } else if (update_type === 'tools') {
+        updateParams.session = {
+          tools,
+          tool_choice: 'auto',
+        };
+      } else if (update_type === 'voice') {
+        updateParams.session = {
+          voice: get().aiVoice.toLowerCase(),
+        };
+      } else if (update_type === 'emotion') {
+        updateParams.session = {
+          instructions: getPrimeDirective(get().aiEmotion),
+        };
+      }
+
       // send the event across the data stream
       get().dataStream?.send(JSON.stringify(updateParams));
-      set({ state: 'idle' }); // we now have a working session and we are ready to receive messages
     },
 
     getResponse: ({
@@ -187,7 +210,6 @@ export const useSessionHandler = create<SessionHandler>((set, get) => {
     },
 
     sendTextMessage: async (message: string): Promise<void> => {
-      console.log('Sending message:', message);
       const currentRoomId = useChatRoomHandler.getState().currentChatRoom?.id;
       if (!currentRoomId) {
         const newRoom = await useChatRoomHandler.getState().createChatRoom({
@@ -217,6 +239,7 @@ export const useSessionHandler = create<SessionHandler>((set, get) => {
         toast.error('Failed to send message. Reload the page');
       }
     },
+
     sendTextMessageAsSystem: async (message: string): Promise<void> => {
       const currentRoomId = useChatRoomHandler.getState().currentChatRoom?.id;
       if (!currentRoomId) {
@@ -248,6 +271,7 @@ export const useSessionHandler = create<SessionHandler>((set, get) => {
         toast.error('Failed to send message. Reload the page');
       }
     },
+
     sendFunctionCallResponseMessage: (
       message: string,
       call_id: string,

@@ -34,10 +34,18 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
       if (dataStream === null) return;
       dataStream.onmessage = async (event) => {
         const eventData = JSON.parse(event.data);
-        // console.log(eventData, null, 2);
+        console.log(eventData, null, 2);
         if (eventData.type === 'session.created') {
           // update the session with our latest tools, voice and emotion
-          updateSession();
+          updateSession('all');
+          // set that the session is now open to receive messages
+          useSessionHandler.getState().state = 'open';
+        } else if (
+          eventData.type === 'error' &&
+          eventData.error.type === 'session_expired'
+        ) {
+          // our session has expired so we set the state of the session to idle
+          useSessionHandler.getState().state = 'idle';
         } else if (
           eventData.type ===
           'conversation.item.input_audio_transcription.completed'
@@ -89,7 +97,6 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
             for (const output of eventData.response.output) {
               // check if the output is a function call. If it is a message call then ignore
               if (output.type === 'function_call') {
-                console.log(output);
                 // Check the tools this agent has access to
                 const tool =
                   output.name === 'getAgentSwapper'
@@ -113,6 +120,10 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
                     if (tool_result.props?.type === 'agent_swap') {
                       // we have switched agents so we do not want to render the message
                       // we will just re prompt the AI with the original request
+                      sendFunctionCallResponseMessage(
+                        tool_result.response,
+                        output.call_id,
+                      );
                       useChatMessageHandler.getState().setCurrentChatItem(null);
                       useSessionHandler
                         .getState()
