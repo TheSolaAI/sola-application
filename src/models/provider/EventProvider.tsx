@@ -21,7 +21,7 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
     useSessionHandler();
   const { currentWallet } = useWalletHandler();
   const { addMessage } = useChatMessageHandler();
-  const {} = useCreditHandler();
+  const { calculateCreditUsage } = useCreditHandler();
 
   /**
    * The direct api access is used in all these classes to prevent asynchronous
@@ -34,7 +34,7 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
       if (dataStream === null) return;
       dataStream.onmessage = async (event) => {
         const eventData = JSON.parse(event.data);
-        console.log(eventData, null, 2);
+        // console.log(eventData, null, 2);
         if (eventData.type === 'session.created') {
           // update the session with our latest tools, voice and emotion
           updateSession('all');
@@ -92,6 +92,37 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
             useChatMessageHandler.getState().commitCurrentChatItem();
           }
         } else if (eventData.type === 'response.done') {
+          // handle credit calculation
+          if (eventData.response.usage) {
+            let cachedTokens,
+              textInputTokens,
+              audioInputTokens,
+              outputTextTokens,
+              outputAudioTokens = 0;
+            if (eventData.response.usage.input_token_details) {
+              cachedTokens =
+                eventData.response.usage.input_token_details.cached_tokens;
+              textInputTokens =
+                eventData.response.usage.input_token_details.text_tokens;
+              audioInputTokens =
+                eventData.response.usage.input_token_details.audio_tokens;
+            }
+            if (eventData.response.usage.output_token_details) {
+              outputTextTokens =
+                eventData.response.usage.output_token_details.text_tokens;
+              outputAudioTokens =
+                eventData.response.usage.output_token_details.audio_tokens;
+            }
+
+            calculateCreditUsage(
+              textInputTokens,
+              audioInputTokens,
+              cachedTokens,
+              outputTextTokens,
+              outputAudioTokens,
+            );
+          }
+
           // handle the function calls
           if (eventData.response.output) {
             for (const output of eventData.response.output) {

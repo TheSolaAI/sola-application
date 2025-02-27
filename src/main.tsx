@@ -45,7 +45,7 @@ const RootApp = () => {
         <PrivyProvider
           appId={import.meta.env.VITE_PRIVY_APP_ID}
           config={{
-            loginMethods: ['email', 'wallet'],
+            loginMethods: ['email', 'wallet', 'twitter', 'discord'],
             externalWallets: {
               solana: {
                 connectors: solanaConnectors,

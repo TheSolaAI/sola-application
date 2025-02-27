@@ -366,7 +366,6 @@ export type Tool =
   | GetLSTDataTool
   | ShowLimitOrdersTool
   | RugCheckTool
-  // | TopHoldersTool
   | BubbleMapTool
   | SwapTool
   | MarketDataTool

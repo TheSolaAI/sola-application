@@ -3,7 +3,6 @@ import { ApiClient } from '../api/ApiClient.ts';
 import { useChatMessageHandler } from '../models/ChatMessageHandler.ts';
 import { LimitOrderParams, LimitOrderResponse } from '../types/jupiter.ts';
 import { Tool } from '../types/tool.ts';
-import { tokenList } from '../config/tokens/tokenMapping.ts';
 import { ConnectedSolanaWallet } from '@privy-io/react-auth';
 import { limitOrderTx } from '../lib/solana/limitOrderTx.ts';
 import { TransactionChatContent } from '../types/chatItem.ts';
@@ -15,6 +14,7 @@ const functionDescription =
   'Creates a limit order to buy or sell a specified token at a user-defined price in USD. Do not use this for instant token swaps or market orders. Only use when the user explicitly requests a limit order.';
 
 export const limitOrder: Tool = {
+  cost: 0.00005,
   implementation: createLimitOrder,
   representation: {
     props_type: 'transaction_message',
@@ -87,10 +87,8 @@ export async function createLimitOrder(args: {
       response: 'Please set your SOLANA_RPC environment variable.',
     };
   }
-  const input_mint = args.token.length > 35
-  ? args.token
-    : `$${args.token}`;
-  
+  const input_mint = args.token.length > 35 ? args.token : `$${args.token}`;
+
   const params: LimitOrderParams = {
     token_mint_a: input_mint,
     token_mint_b: '$USDC',

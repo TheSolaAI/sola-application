@@ -10,6 +10,7 @@ const functionDescription =
   'Call this function when the user wants view their assets, Earnings, Deposit, stats in Lulo platform.';
 
 export const getLuloAssets: Tool = {
+  cost: 0.00001,
   implementation: getLuloAssetsFunction,
   representation: {
     props_type: 'user_assets_lulo',

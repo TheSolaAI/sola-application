@@ -9,6 +9,7 @@ import { AIProjectRankingApiResponse } from '../../types/goatIndex.ts';
 const functionDescription = 'To get the AI projects by token status';
 
 export const getAiProjectsByToken: Tool = {
+  cost: 0.00001,
   implementation: handleGetAiProjectsByToken,
   representation: {
     props_type: 'ai_projects_classification',

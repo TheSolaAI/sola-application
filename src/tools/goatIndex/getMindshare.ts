@@ -10,6 +10,7 @@ const functionDescription =
   'To get the mindshare of AI projects or to get the graph analysis of AI projects';
 
 export const getAiProjectsMindshare: Tool = {
+  cost: 0.00001,
   implementation: handleGetAiProjectsMindshare,
   representation: {
     props_type: 'ai_projects_classification',

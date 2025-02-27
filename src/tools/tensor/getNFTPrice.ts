@@ -9,6 +9,7 @@ const functionDescription =
   'Get floor price, volume, and marketplace data for NFT collections on Solana. Use this function when users ask about NFT prices, collection stats, floor prices, or trading activity for any Solana NFT collection.';
 
 export const getNFTPrice: Tool = {
+  cost: 0.00001,
   implementation: getNFTPriceFunction,
   representation: {
     props_type: 'nft_collection_data',

@@ -13,6 +13,7 @@ const functionDescription =
   'Call this function ONLY when the user explicitly requests to withdraw stable coins from Lulo. Ensure the user specifies the correct stable coin (USDS or USDC) and an amount. DO NOT assume or attach any arbitrary number if unclear. USDS and USDC are DISTINCT coins—select appropriately. This function is NOT for deposits or any other operation. Confirm the user’s intent before proceeding if you are unsure of the intent.';
 
 export const withdrawLulo: Tool = {
+  cost: 0.00005,
   implementation: withdrawLuloFunction,
   representation: {
     props_type: 'withdraw_lulo',
