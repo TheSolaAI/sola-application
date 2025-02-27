@@ -44,6 +44,7 @@ const Conversation = () => {
   const { theme } = useThemeManager();
   const { audioIntensity } = useLayoutContext();
   const { keyboardHeight } = useKeyboardHeight();
+  const { isPWA } = useKeyboardHeight();
 
   /**
    * Local State
@@ -279,17 +280,31 @@ const Conversation = () => {
       </div>
 
       {/* Session Controls (Fixed at Bottom) */}
-      <div
-        className={`absolute left-0 right-0 z-20 p-4 pb-8 ${keyboardHeight > 0 ? 'bottom-[' + keyboardHeight + 'px]' : 'bottom-0'}`}
-        style={{
-          background: `linear-gradient(to top, 
-            rgba(${primaryDarkRGB.r}, ${primaryDarkRGB.g}, ${primaryDarkRGB.b}, ${audioIntensity * 1.2}),
-            transparent 80%)`,
-          transition: 'background 0.1s linear',
-        }}
-      >
-        <SessionControls />
-      </div>
+      {isPWA ? (
+        <div
+          className={`absolute left-0 right-0 z-20 p-4 pb-8 ${keyboardHeight > 0 ? 'bottom-[' + keyboardHeight + 'px]' : 'bottom-0'}`}
+          style={{
+            background: `linear-gradient(to top, 
+              rgba(${primaryDarkRGB.r}, ${primaryDarkRGB.g}, ${primaryDarkRGB.b}, ${audioIntensity * 1.2}),
+              transparent 80%)`,
+            transition: 'background 0.1s linear',
+          }}
+        >
+          <SessionControls />
+        </div>
+      ) : (
+        <div
+          className="absolute left-0 right-0 bottom-0 z-20 p-4 pb-8"
+          style={{
+            background: `linear-gradient(to top, 
+              rgba(${primaryDarkRGB.r}, ${primaryDarkRGB.g}, ${primaryDarkRGB.b}, ${audioIntensity * 1.2}),
+              transparent 80%)`,
+            transition: 'background 0.1s linear',
+          }}
+        >
+          <SessionControls />
+        </div>
+      )}
     </div>
   );
 };
