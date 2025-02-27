@@ -9,6 +9,7 @@ import { GoatIndexTopAiProjectsApiResponse } from '../../types/goatIndex.ts';
 const functionDescription = 'To get the top AI projects';
 
 export const getAiProjectsByClassification: Tool = {
+  cost: 0.00001,
   implementation: handleGetAiProjectsByClassification,
   representation: {
     props_type: 'ai_projects_classification',

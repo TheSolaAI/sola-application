@@ -239,6 +239,10 @@ module.exports = {
         2: '0px 1px 4px rgba(0, 0, 0, 0.12)',
       },
       keyframes: {
+        textColorPulse: {
+          '0%, 100%': { color: 'var(--color-primary)' },
+          '50%': { color: 'var(--color-primary-dark)' },
+        },
         waveEffect: {
           '0%': { opacity: '0.8' },
           '50%': { opacity: '1.2' },
@@ -265,6 +269,7 @@ module.exports = {
         },
       },
       animation: {
+        textColorPulse: 'textColorPulse 3s infinite',
         wave: 'waveEffect 3s infinite ease-in-out',
         'ping-once': 'ping 5s cubic-bezier(0, 0, 0.2, 1)',
         rotating: 'rotating 30s linear infinite',

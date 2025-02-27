@@ -32,17 +32,6 @@ export const LoaderMessageItem: FC<LoaderMessageItemProps> = ({ props }) => {
           </span>
         ))}
       </div>
-      <style jsx>{`
-        @keyframes textColorPulse {
-          0%,
-          100% {
-            color: ${theme.primary};
-          }
-          50% {
-            color: ${theme.primaryDark};
-          }
-        }
-      `}</style>
     </div>
   );
 };

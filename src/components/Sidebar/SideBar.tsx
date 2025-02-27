@@ -8,6 +8,7 @@ import useIsMobile from '../../utils/isMobile.tsx';
 import { VscPinned } from 'react-icons/vsc';
 import { useLayoutContext } from '../../layout/LayoutProvider.tsx';
 import { useChatRoomHandler } from '../../models/ChatRoomHandler.ts';
+import { useCreditHandler } from '../../models/CreditHandler.ts';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -37,6 +38,7 @@ export const Sidebar: FC<SidebarProps> = ({
   const { rooms, setCurrentChatRoom, createChatRoom } = useChatRoomHandler();
   const { pathname } = useLocation();
   const { walletLensOpen } = useLayoutContext();
+  const { credits } = useCreditHandler();
 
   /**
    * Local State
@@ -179,15 +181,17 @@ export const Sidebar: FC<SidebarProps> = ({
                     className={`group font-small text-sm flex w-full justify-between items-center rounded-lg p-[10px] transition-color duration-300 ease-in-out hover:bg-primaryDark
               ${pathname === `/c/${room.id}` || pathname.startsWith(`/c/${room.id}/`) ? 'bg-primaryDark' : ''}`}
                   >
-                    <h1 className="text-textColor font-normal">{room.name}</h1>
+                    <h1 className="text-textColor font-normal">
+                      {room.name.charAt(0).toUpperCase() + room.name.slice(1)}
+                    </h1>
 
-                    <button
+                    <div
                       onClick={(e) => handleEditClick(e, room.id!)}
                       className={`transition-opacity duration-300 group-hover:opacity-100 
                 ${pathname === `/c/${room.id}` || pathname.startsWith(`/c/${room.id}/`) ? 'lg:opacity-100' : 'lg:opacity-0'}`}
                     >
                       <Ellipsis size={16} color={theme.textColor} />
-                    </button>
+                    </div>
                   </button>
 
                   {isEditing && room.id && (
@@ -207,11 +211,14 @@ export const Sidebar: FC<SidebarProps> = ({
         {/* Bottom Section */}
         <div className="mt-4 w-full">
           <div
-            className="flex flex-row justify-center items-center gap-5 bg-gradient-to-r from-primaryDark to-primary p-[10px] rounded-xl mb-10 shadow-primaryDark cursor-pointer"
+            className="flex flex-row justify-center items-center gap-5 bg-gradient-to-r from-primaryDark to-primary p-[10px] rounded-xl mb-10 shadow-primaryDark cursor-pointer truncate"
             // onClick={() => navigate('/pricing')}
           >
-            <h1 className="font-semibold text-textColor">$SOLA :</h1>
-            <h1 className={'font-bold text-textColor text-2xl'}> ∞</h1>
+            <h1 className="font-semibold text-textColor">CREDITS:</h1>
+            <h1 className={'font-bold text-textColor text-sm'}>
+              {'0.00'}
+              {/*{credits.toFixed(2)}{' '}*/}
+            </h1>
           </div>
           <div className="flex flex-row items-center justify-between">
             <button
