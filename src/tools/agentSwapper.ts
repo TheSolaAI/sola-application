@@ -4,7 +4,7 @@ import { useSessionHandler } from '../models/SessionHandler.ts';
 import { AgentSwapChatContent } from '../types/chatItem.ts';
 
 const functionDescription =
-  "Use this function when the current user request cannot be fulfilled by the current agent tools that you have. Only call this function if the user's request falls within the context of the agents you support. Do not call this function if the user request falls outside of the agent contexts you possess.";
+  "Use this function when the current user request cannot be fulfilled by the current agent tools that you have. Only call this function if the user's request falls within the context of the agents you support.";
 
 export const getAgentSwapper: Tool = {
   cost: 0, // the agent swapper is free
