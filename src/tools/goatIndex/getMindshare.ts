@@ -57,7 +57,7 @@ export async function handleGetAiProjectsMindshare(): Promise<{
 
     return {
       status: 'success',
-      response: `Successfully fetched mindshare of AI projects.`,
+      response: `Notify the successful fetch of top AI projects. Do not add any custom data`,
       props: {
         response_id: 'topAiProjects',
         sender: 'system',

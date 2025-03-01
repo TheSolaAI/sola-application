@@ -77,7 +77,7 @@ export async function handleGetAiProjectsByToken(args: {
 
     return {
       status: 'success',
-      response: `Top AI projects , ${response.data.data.data.map((project) => project.tokenDetail.name).join(', ')}`,
+      response: `Notify the successful fetch of top AI projects. Do not add any custom data`,
       props: {
         response_id: 'topAiProjects',
         sender: 'system',

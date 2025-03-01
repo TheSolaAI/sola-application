@@ -15,7 +15,9 @@ import {
 import { FiExternalLink } from 'react-icons/fi';
 import { motion } from 'framer-motion';
 import { IoIosArrowForward } from 'react-icons/io';
+import { ChartBarIcon } from 'lucide-react';
 import { MaskedRevealLoader } from '../general/MaskedRevealLoader.tsx';
+import { BorderGlowButton } from '../ui/buttons/BorderGlow.tsx';
 
 export const GoatIndexDashboard = () => {
   const { id, closeDashboard } = useDashboardHandler();
@@ -26,8 +28,9 @@ export const GoatIndexDashboard = () => {
   const [agentDetails, setAgentDetails] =
     useState<GoatIndexAgentResponse | null>(null);
   const [chartData, setChartData] = useState<
-    { date: string; mindshare: number; price: number }[]
-  >([]);
+    { date: string; mindshare: number;}[]
+    >([]);
+  const [chart,setChart] = useState<0|1>(1);
 
   useEffect(() => {
     // Actively fetch the ai project details on global state change
@@ -35,7 +38,7 @@ export const GoatIndexDashboard = () => {
       setIsLoading(true);
       try {
         const response = await apiClient.get<GoatIndexAgentResponse>(
-          `/api/agent/detail/SOLANA/${id}/HOUR_6`,
+          `/api/agent/detail/SOLANA/${id}/DAY_7`,
           undefined,
           'goatIndex',
         );
@@ -49,16 +52,13 @@ export const GoatIndexDashboard = () => {
         const agentData = response.data.data;
         setAgentDetails(response.data);
         const mindshareData = agentData?.agentDetail.mindshareGraphs || [];
-        const priceData = agentData?.agentDetail.priceGraphs || [];
 
-        // Combine data by timestamp
         const formattedData = mindshareData.map((entry, index) => ({
           date: new Date(Number(entry.date)).toLocaleDateString('en-US', {
             month: '2-digit',
             day: '2-digit',
           }),
           mindshare: entry.value * 100,
-          price: priceData[index]?.value || 0,
         }));
 
         setChartData(formattedData);
@@ -91,13 +91,6 @@ export const GoatIndexDashboard = () => {
         label: { color: theme.primary },
         gridLine: { enabled: false },
       },
-      {
-        type: 'number',
-        position: 'right',
-        keys: ['price'],
-        label: { color: theme.secText },
-        gridLine: { enabled: false },
-      },
     ],
     series: [
       {
@@ -111,18 +104,6 @@ export const GoatIndexDashboard = () => {
         marker: { enabled: false },
         interpolation: { type: 'smooth' },
       },
-      {
-        type: 'line',
-        xKey: 'date',
-        yKey: 'price',
-        yName: 'Price',
-        stroke: theme.secText,
-        strokeWidth: 2,
-        marker: {
-          enabled: false,
-        },
-        interpolation: { type: 'smooth', tension: 0 },
-      },
     ],
     legend: {
       position: 'bottom',
@@ -134,6 +115,11 @@ export const GoatIndexDashboard = () => {
       },
     },
   };
+
+  const toggleChart = () => {
+    setChart(chart === 0 ? 1 : 0);
+  };
+  let chartColor = useThemeManager().theme.surface
 
   return (
     <MaskedRevealLoader isLoading={isLoading}>
@@ -163,12 +149,39 @@ export const GoatIndexDashboard = () => {
               className="font-thin text-sm self-center cursor-pointer"
             />
           </motion.div>
+          <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+          <span onClick={toggleChart}>
+              <BorderGlowButton 
+                text={chart === 0 ? "Show Price" : "Show Mindshare"}
+                icon={(props) => <ChartBarIcon {...props} />}
+              />
+            </span>
+          </motion.div>
         </p>
 
-        {/* Chart container */}
-        <motion.div className="rounded-2xl min-h-fit shadow-lg overflow-hidden">
-          <AgCharts options={chartOptions} />
-        </motion.div>
+        <div style={{ display: chart === 0 ? 'block' : 'none' }}>
+      <motion.div className="rounded-2xl min-h-fit shadow-lg overflow-hidden">
+        <AgCharts options={chartOptions} />
+      </motion.div>
+    </div>
+    
+    <div style={{ display: chart === 1 ? 'block' : 'none' }}>
+      <motion.div
+        initial={{ y: 10, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+        className="rounded-xl min-h-fit overflow-hidden"
+      >
+        <div>
+          <embed
+            src={`https://www.gmgn.cc/kline/sol/${agentDetails?.data?.agentDetail.tokenDetail.contractAddress}`}
+            width="100%"
+            color={theme.surface}
+            height="350px"
+          />
+        </div>
+      </motion.div>
+    </div>
 
         {/* Scrollable content container - KEY CHANGES HERE */}
         <motion.div
