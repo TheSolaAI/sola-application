@@ -52,6 +52,7 @@ export const TokenDataDashboard = () => {
    */
   const { sendTextMessageAsSystem } = useSessionHandler();
   const { id, closeDashboard, tokenData } = useDashboardHandler();
+  const { theme } = useThemeManager();
 
   const [activeTabId, setActiveTabId] = useState(1);
   const [agentDetails, setAgentDetails] = useState<TokenDataChatContent | null>(
@@ -97,12 +98,15 @@ export const TokenDataDashboard = () => {
         getRugCheckHandler(tokenData.data.address)
           .then((analysis) => {
             console.log('Token analysis:', analysis);
-            if (analysis && (analysis.score !== undefined || analysis.message !== undefined)) {
+            if (
+              analysis &&
+              (analysis.score !== undefined || analysis.message !== undefined)
+            ) {
               setTokenAnalysis({
                 score: analysis.score,
                 message: analysis.message,
               });
-            } 
+            }
           })
           .catch((error) => {
             console.error('Error getting token analysis:', error);
@@ -311,9 +315,9 @@ export const TokenDataDashboard = () => {
       >
         <div>
           <embed
-            src={`https://www.gmgn.cc/kline/sol/${agentDetails?.data?.address}`}
+            src={`https://www.birdeye.so/tv-widget/${agentDetails?.data?.address}?chain=solana`}
             width="100%"
-            color={useThemeManager().theme.surface}
+            color={theme.surface}
             height="350px"
           />
         </div>

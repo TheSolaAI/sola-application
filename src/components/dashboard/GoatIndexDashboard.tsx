@@ -28,9 +28,9 @@ export const GoatIndexDashboard = () => {
   const [agentDetails, setAgentDetails] =
     useState<GoatIndexAgentResponse | null>(null);
   const [chartData, setChartData] = useState<
-    { date: string; mindshare: number;}[]
-    >([]);
-  const [chart,setChart] = useState<0|1>(1);
+    { date: string; mindshare: number }[]
+  >([]);
+  const [chart, setChart] = useState<0 | 1>(1);
 
   useEffect(() => {
     // Actively fetch the ai project details on global state change
@@ -119,7 +119,6 @@ export const GoatIndexDashboard = () => {
   const toggleChart = () => {
     setChart(chart === 0 ? 1 : 0);
   };
-  let chartColor = useThemeManager().theme.surface
 
   return (
     <MaskedRevealLoader isLoading={isLoading}>
@@ -150,9 +149,9 @@ export const GoatIndexDashboard = () => {
             />
           </motion.div>
           <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-          <span onClick={toggleChart}>
-              <BorderGlowButton 
-                text={chart === 0 ? "Show Price" : "Show Mindshare"}
+            <span onClick={toggleChart}>
+              <BorderGlowButton
+                text={chart === 0 ? 'Show Price' : 'Show Mindshare'}
                 icon={(props) => <ChartBarIcon {...props} />}
               />
             </span>
@@ -160,28 +159,28 @@ export const GoatIndexDashboard = () => {
         </p>
 
         <div style={{ display: chart === 0 ? 'block' : 'none' }}>
-      <motion.div className="rounded-2xl min-h-fit shadow-lg overflow-hidden">
-        <AgCharts options={chartOptions} />
-      </motion.div>
-    </div>
-    
-    <div style={{ display: chart === 1 ? 'block' : 'none' }}>
-      <motion.div
-        initial={{ y: 10, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.5, delay: 0.2 }}
-        className="rounded-xl min-h-fit overflow-hidden"
-      >
-        <div>
-          <embed
-            src={`https://www.birdeye.so/tv-widget/${agentDetails?.data?.agentDetail.tokenDetail.contractAddress}?chain=solana`}
-            width="100%"
-            color={theme.surface}
-            height="350px"
-          />
+          <motion.div className="rounded-2xl min-h-fit shadow-lg overflow-hidden">
+            <AgCharts options={chartOptions} />
+          </motion.div>
         </div>
-      </motion.div>
-    </div>
+
+        <div style={{ display: chart === 1 ? 'block' : 'none' }}>
+          <motion.div
+            initial={{ y: 10, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="rounded-xl min-h-fit overflow-hidden"
+          >
+            <div>
+              <embed
+                src={`https://www.birdeye.so/tv-widget/${agentDetails?.data?.agentDetail.tokenDetail.contractAddress}?chain=solana`}
+                width="100%"
+                color={theme.surface}
+                height="350px"
+              />
+            </div>
+          </motion.div>
+        </div>
 
         {/* Scrollable content container - KEY CHANGES HERE */}
         <motion.div
