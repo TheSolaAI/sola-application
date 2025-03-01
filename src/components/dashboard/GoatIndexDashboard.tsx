@@ -174,7 +174,7 @@ export const GoatIndexDashboard = () => {
       >
         <div>
           <embed
-            src={`https://www.gmgn.cc/kline/sol/${agentDetails?.data?.agentDetail.tokenDetail.contractAddress}`}
+            src={`https://www.birdeye.so/tv-widget/${agentDetails?.data?.agentDetail.tokenDetail.contractAddress}?chain=solana`}
             width="100%"
             color={theme.surface}
             height="350px"
