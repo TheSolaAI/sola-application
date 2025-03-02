@@ -1,13 +1,15 @@
-import { AIEmotion, AIVoice } from '../config/ai.ts';
+import { AIVoice } from '../config/ai.ts';
+import { Theme } from '../models/ThemeManager.ts';
 
 export interface UserSettingsResponse {
   id: number;
   user_id: number;
   theme: string;
   voice_preference: AIVoice;
-  emotion_choice: AIEmotion;
+  emotion_choice: string;
   credits_remaining: number;
   tiers: string;
+  custom_themes: Theme[];
 }
 
 export interface ChatRoomResponse {

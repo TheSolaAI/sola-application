@@ -1,12 +1,12 @@
 import { useEffect } from 'react';
 import { usePrivy } from '@privy-io/react-auth';
 import AppRoutes from './routes/AppRoutes.tsx';
-import useThemeManager from './models/ThemeManager.ts';
 import { WalletProvider } from './models/provider/WalletProvider.tsx';
 import { LayoutProvider } from './layout/LayoutProvider.tsx';
 import { useUserHandler } from './models/UserHandler.ts';
 import { useChatRoomHandler } from './models/ChatRoomHandler.ts';
 import { useNavigate } from 'react-router-dom';
+import useThemeManager from './models/ThemeManager.ts';
 
 function App() {
   const navigate = useNavigate();
@@ -14,9 +14,9 @@ function App() {
    * Global State Management
    */
   const { authenticated, ready } = usePrivy();
-  const { initThemeManager } = useThemeManager();
   const { login } = useUserHandler();
   const { initRoomHandler, currentChatRoom } = useChatRoomHandler();
+  const { initThemeManager } = useThemeManager();
 
   /**
    * Add any code here that needs to run when the user has completed authentication

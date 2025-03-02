@@ -11,7 +11,8 @@
     "secText": "#252627",
     "border": "#bdbfc1",
     "primary": "#c5b3fe",
-    "primaryDark": "#9f81fe"
+    "primaryDark": "#9f81fe",
+    "dashboardBackground": "#000000"
   },
   "dark": {
     "baseTheme": "dark",
@@ -25,6 +26,67 @@
     "secText": "#A0AEC0",
     "border": "#484848",
     "primary": "#9278b2",
-    "primaryDark": "#7C3AED"
+    "primaryDark": "#7C3AED",
+    "dashboardBackground": "#FFFFFF"
+  },
+  "softPastel": {
+    "baseTheme": "light",
+    "baseBackground": "#F9FAFB",
+    "background": "#E5E7EB",
+    "backgroundContrast": "#374151",
+    "sec_background": "#EDF2F7",
+    "surface": "#FFFFFF",
+    "textColor": "#1F2937",
+    "textColorContrast": "#FFFFFF",
+    "secText": "#4B5563",
+    "border": "#D1D5DB",
+    "primary": "#A7F3D0",
+    "primaryDark": "#6EE7B7",
+    "dashboardBackground": "#000000"
+  },
+  "warmSunrise": {
+    "baseTheme": "light",
+    "baseBackground": "#FFF7ED",
+    "background": "#FEEBC8",
+    "backgroundContrast": "#4C1D95",
+    "sec_background": "#FEF3C7",
+    "surface": "#FFFFFF",
+    "textColor": "#431407",
+    "textColorContrast": "#FFFFFF",
+    "secText": "#92400E",
+    "border": "#F4D03F",
+    "primary": "#FBBF24",
+    "primaryDark": "#F59E0B",
+    "dashboardBackground": "#000000"
+  },
+  "midnightBlue": {
+    "baseTheme": "dark",
+    "baseBackground": "#0F172A",
+    "background": "#1E293B",
+    "backgroundContrast": "#E2E8F0",
+    "sec_background": "#334155",
+    "surface": "#475569",
+    "textColor": "#F1F5F9",
+    "textColorContrast": "#0F172A",
+    "secText": "#94A3B8",
+    "border": "#64748B",
+    "primary": "#60A5FA",
+    "primaryDark": "#3B82F6",
+    "dashboardBackground": "#000000"
+  },
+  "emeraldNight": {
+    "baseTheme": "dark",
+    "baseBackground": "#111827",
+    "background": "#1F2A44",
+    "backgroundContrast": "#D1FAE5",
+    "sec_background": "#374151",
+    "surface": "#4B5563",
+    "textColor": "#F3F4F6",
+    "textColorContrast": "#111827",
+    "secText": "#9CA3AF",
+    "border": "#6B7280",
+    "primary": "#34D399",
+    "primaryDark": "#10B981",
+    "dashboardBackground": "#000000"
   }
 }

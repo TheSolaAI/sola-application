@@ -353,7 +353,7 @@ export const TokenDataDashboard = () => {
             <button
               key={tf}
               onClick={() => setTimeframe(tf)}
-              className={`w-16 p-2 rounded-full shadow-md hover:text-secText ${timeframe === tf ? 'bg-background text-textColor' : 'bg-black dark:bg-white text-textColorContrast'}`}
+              className={`w-16 p-2 rounded-full shadow-md hover:text-secText ${timeframe === tf ? 'bg-background text-textColor' : 'bg-dashboardBackground text-textColorContrast'}`}
             >
               {tf}
             </button>
