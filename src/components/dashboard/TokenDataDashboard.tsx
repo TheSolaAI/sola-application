@@ -290,7 +290,7 @@ export const TokenDataDashboard = () => {
           onClick={(e) => {
             e.preventDefault();
             window.open(
-              `https://dexscreener.com/solana/${agentDetails?.data?.address}`,
+              `https://www.birdeye.so/tv-widget/${agentDetails?.data?.address}?chain=solana`,
               '_blank',
             );
           }}
