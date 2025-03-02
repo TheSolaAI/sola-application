@@ -220,7 +220,7 @@ const Conversation = () => {
         </div>
       )}
 
-      {messages.length === 0 && !currentChatItem && state !== 'loading' && (
+      {!chatRoomId && messages.length === 0 && (
         <div className="absolute inset-0 flex flex-col items-center justify-center p-4 z-10">
           {/* Logo and Title */}
           <div className="flex flex-col items-center mb-8">
@@ -241,12 +241,12 @@ const Conversation = () => {
               {
                 text: 'Token Report',
                 subtext: 'Get token report for a token',
-                action: 'Token Report of Token SOLA',
+                action: 'Token Report of Token $SOLA',
               },
               {
-                text: 'Liquid Stake',
-                subtext: 'Stake SOL into LSTs',
-                action: 'Show me the best LSTs to buy',
+                text: 'Lulo',
+                subtext: 'Show Lulo Dashboard',
+                action: 'Get my lulo assets',
               },
               {
                 text: 'Trade',
@@ -261,13 +261,13 @@ const Conversation = () => {
             ].map((item, index) => (
               <div
                 key={index}
-                className="border border-border bg-sec_background rounded-2xl p-5 hover:bg-sec_hover transition cursor-pointer shadow-sm"
+                className="border border-border bg-sec_background rounded-2xl p-5 text-secText hover:bg-primaryDark hover:text-textColorContrast transition cursor-pointer shadow-sm"
                 onClick={() => sendTextMessage(item.action)}
               >
-                <h2 className="text-lg md:text-title-m text-secText animate-in fade-in duration-700 font-semibold">
+                <h2 className="text-lg md:text-title-m animate-in fade-in duration-300 font-semibold">
                   {item.text}
                 </h2>
-                <p className="md:text-title-m text-secText animate-in fade-in duration-700 text-sm mt-1">
+                <p className="md:text-title-m animate-in fade-in duration-300 text-sm mt-1">
                   {item.subtext}
                 </p>
               </div>
