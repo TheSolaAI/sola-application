@@ -266,7 +266,14 @@ export const useSessionHandler = create<SessionHandler>((set, get) => {
           },
         };
         get().dataStream?.send(JSON.stringify(textMessage));
-        get().dataStream?.send(JSON.stringify({ type: 'response.create' }));
+        get().dataStream?.send(
+          JSON.stringify({
+            type: 'response.create',
+            response: {
+              modalities: ['text'],
+            },
+          }),
+        );
       } else {
         toast.error('Failed to send message. Reload the page');
       }

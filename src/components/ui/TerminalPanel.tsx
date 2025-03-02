@@ -226,7 +226,7 @@ const TerminalTabs: React.FC<TerminalTabsProps> = ({
 
   return (
     <div
-      className={`w-full rounded-lg overflow-hidden border bg-black dark:bg-white shadow-lg ${className}`}
+      className={`w-full rounded-lg overflow-hidden border bg-dashboardBackground shadow-lg ${className}`}
       style={{
         color: theme.textColor,
       }}
@@ -239,7 +239,7 @@ const TerminalTabs: React.FC<TerminalTabsProps> = ({
               onClick={() => switchTab(tab.id)}
               className={`flex w-full items-center justify-center gap-2 p-2 border-r border-b cursor-pointer transition-colors ${
                 tabClassName
-              } ${tab.id === activeTabId ? 'bg-background' : 'bg-black dark:bg-white text-textColorContrast'}`}
+              } ${tab.id === activeTabId ? 'bg-background' : 'bg-dashboardBackground text-textColorContrast'}`}
               style={{
                 borderColor: theme.background,
               }}

@@ -33,14 +33,14 @@ export const AiProjects = ({ props }: AiProjectsChatItemProps) => {
                 />
                 <div>
                   <p className="text-base font-semibold">{token.name}</p>
-                  <p className="text-sm font-thin">${token.symbol}</p>
-                  <p className="text-base font-thin">
+                  <p className="text-sm font-medium">${token.symbol}</p>
+                  <p className="text-base font-normal">
                     Mindshare: {Number(token.mindShare).toFixed(3)}
                   </p>
                 </div>
               </div>
-              <p className="text-sm flex items-center gap-2 font-thin">
-                Follow:{' '}
+              <p className="text-sm flex items-center gap-2 font-normal">
+                Follow:
                 <FaSquareXTwitter
                   className="h-4 w-4 hover:opacity-90"
                   onClick={(e) => {

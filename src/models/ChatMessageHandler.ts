@@ -85,7 +85,6 @@ interface ChatMessageHandler {
    * our database
    */
   commitCurrentChatItem: () => Promise<void>;
-  
 }
 
 export const useChatMessageHandler = create<ChatMessageHandler>((set, get) => {
@@ -97,7 +96,11 @@ export const useChatMessageHandler = create<ChatMessageHandler>((set, get) => {
 
     initChatMessageHandler: async () => {
       const currentRoomID = useChatRoomHandler.getState().currentChatRoom?.id;
-      if (!currentRoomID) toast.error('No Chat Room Selected');
+      if (!currentRoomID) {
+        toast.success('New Chat Created');
+        set({ messages: [], currentChatItem: null });
+        return;
+      }
       set({ state: 'loading', messages: [], currentChatItem: null });
       // fetch only the first 40 messages and we will fetch the rest as we scroll
       const response = await apiClient.get<ChatMessagesResponse>(
@@ -193,8 +196,6 @@ export const useChatMessageHandler = create<ChatMessageHandler>((set, get) => {
           // add the message to our local state
 
           set({ messages: [...messages, chatItem] });
-
-
         }
       } else {
         const response = await apiClient.post(

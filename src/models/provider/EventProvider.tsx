@@ -160,7 +160,7 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
                   );
                   // calculate the cost of this function call and the input and output tokens used by it
                   // add the message to our local array and also our database history
-                  if (tool_result.status === 'success')
+                  if (tool_result.status === 'success') {
                     if (tool_result.props?.type === 'agent_swap') {
                       // we have switched agents so we do not want to render the message
                       // we will just re prompt the AI with the original request
@@ -183,6 +183,12 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
                         output.call_id,
                       );
                     }
+                  } else {
+                    sendFunctionCallResponseMessage(
+                      tool_result.response,
+                      output.call_id,
+                    );
+                  }
                   useChatMessageHandler.getState().setCurrentChatItem(null);
                 } else {
                   // we do not have this tool and somehow the auto agent swapper was not called

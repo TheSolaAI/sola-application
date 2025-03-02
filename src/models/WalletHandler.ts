@@ -176,7 +176,7 @@ export const useWalletHandler = create<WalletHandler>((set, get) => {
         if (wallet) {
           set({ currentWallet: wallet });
         } else {
-          toast.error(
+          toast.message(
             "Your Default Wallet doesn't exist anymore, please select a new one.",
           );
           localStorage.setItem('defaultWallet', '');

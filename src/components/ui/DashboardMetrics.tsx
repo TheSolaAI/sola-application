@@ -43,7 +43,7 @@ const cardVariants = {
 export const BasicMetricCard = ({ label, value }: BasicMetricCardProps) => (
   <motion.div
     variants={cardVariants}
-    className="flex-auto basis-[calc(25%-0.75rem)] min-w-[180px] flex flex-col gap-2 bg-black dark:bg-white text-textColorContrast rounded-lg p-3 shadow-md"
+    className="flex-auto basis-[calc(25%-0.75rem)] min-w-[180px] flex flex-col gap-2 bg-dashboardBackground text-textColorContrast rounded-lg p-3 shadow-md"
   >
     <h3 className="text-lg font-medium truncate">{label}</h3>
     <div className="flex justify-between items-center">
@@ -55,7 +55,7 @@ export const BasicMetricCard = ({ label, value }: BasicMetricCardProps) => (
 export const MetricCard = ({ label, value, delta }: MetricCardProps) => (
   <motion.div
     variants={cardVariants}
-    className="flex-auto basis-[calc(25%-0.75rem)] min-w-[180px] flex flex-col gap-2 bg-black dark:bg-white text-textColorContrast rounded-lg p-3 shadow-md"
+    className="flex-auto basis-[calc(25%-0.75rem)] min-w-[180px] flex flex-col gap-2 bg-dashboardBackground text-textColorContrast rounded-lg p-3 shadow-md"
   >
     <h3 className="text-lg font-medium truncate">{label}</h3>
     <div className="flex justify-between items-center">
@@ -74,7 +74,7 @@ export const MetricCard = ({ label, value, delta }: MetricCardProps) => (
 export const LargeMetricCard = ({ label, value }: LargeMetricCardProps) => (
   <motion.div
     variants={cardVariants}
-    className="flex-auto basis-[calc(25%-0.75rem)] min-w-[180px] flex flex-col gap-2 bg-black dark:bg-white text-textColorContrast rounded-lg p-3 shadow-md"
+    className="flex-auto basis-[calc(25%-0.75rem)] min-w-[180px] flex flex-col gap-2 bg-dashboardBackground text-textColorContrast rounded-lg p-3 shadow-md"
   >
     <h3 className="text-lg font-medium truncate">{label}</h3>
     <span className="truncate">{value}</span>
@@ -93,7 +93,7 @@ export const TweetCard = ({
       e.preventDefault();
       window.open(url, '_blank');
     }}
-    className="flex-auto basis-[calc(25%-0.8rem)] min-w-[100px] max-w-[25%] flex flex-col gap-2 bg-black dark:bg-white text-textColorContrast shadow-md rounded-lg p-3 cursor-pointer hover:shadow-xl hover:bg-backgroundContrast"
+    className="flex-auto basis-[calc(25%-0.8rem)] min-w-[100px] max-w-[25%] flex flex-col gap-2 bg-dashboardBackground text-textColorContrast shadow-md rounded-lg p-3 cursor-pointer hover:shadow-xl hover:bg-backgroundContrast"
   >
     <h3 className="text-base font-medium uppercase truncate">{label}</h3>
     <div className="flex justify-between items-center">

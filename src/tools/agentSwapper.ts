@@ -2,6 +2,7 @@ import { Tool } from '../types/tool.ts';
 import { useAgentHandler } from '../models/AgentHandler.ts';
 import { useSessionHandler } from '../models/SessionHandler.ts';
 import { AgentSwapChatContent } from '../types/chatItem.ts';
+import { useChatMessageHandler } from '../models/ChatMessageHandler.ts';
 
 const functionDescription =
   'Use this function when the current user request cannot be fulfilled by the current agent that you have but can be fulfilled by other agent.';
@@ -46,9 +47,17 @@ function getAgentSwapperFunction(
   response: string;
   props?: AgentSwapChatContent;
 }> {
-  console.log(
-    'ass;ldafkjkjladfsjklkjladsfkj;lsdafk;ljadsklfjkadsfkjdsj;flkjldsaf',
-  );
+  useChatMessageHandler.getState().setCurrentChatItem({
+    content: {
+      type: 'loader_message',
+      text: `Finding the suitable agent...`,
+      response_id: 'temp',
+      sender: 'system',
+    },
+    id: 0,
+    createdAt: new Date().toISOString(),
+  });
+
   useAgentHandler
     .getState()
     .setCurrentActiveAgent(

@@ -1,7 +1,3 @@
-const colors = require('tailwindcss/colors');
-const { createThemes } = require('tw-colors');
-import * as dynamicThemes from './src/config/themes.json';
-
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
@@ -12,58 +8,20 @@ module.exports = {
     },
     extend: {
       colors: {
-        white: '#FFFFFF',
-        red: {
-          ...colors.red,
-          DEFAULT: '#FB5454',
-        },
-        body: '#1D1D1F',
-        darkalign: '#373737',
-        darkalign2: '#292929',
-        bodydark: '#AEB7C0',
-        bodydark1: '#1D1D1F',
-        bodydark2: '#87878A',
-        secondary: '#80CAEE',
-        stroke: '#E2E8F0',
-        gray: {
-          ...colors.gray,
-          DEFAULT: '#EFF4FB',
-          2: '#F7F9FC',
-          3: '#FAFAFA',
-        },
-        graydark: '#F2F2F3',
-        whiten: '#FFFFFF',
-        whiter: '#F5F7FD',
-        boxdark: '#24303F',
-        'boxdark-2': '#1A222C',
-        strokedark: '#2E3A47',
-        'form-strokedark': '#3d4d60',
-        'form-input': '#1d2a39',
-        meta: {
-          1: '#DC3545',
-          2: '#EFF2F7',
-          3: '#10B981',
-          4: '#313D4A',
-          5: '#259AE6',
-          6: '#FFBA00',
-          7: '#FF6766',
-          8: '#F0950C',
-          9: '#E5E7EB',
-          10: '#0FADCF',
-        },
-        success: '#219653',
-        danger: '#D34053',
-        warning: '#FFA70B',
-      },
-      fontSize: {
-        'title-xxl': ['44px', '55px'],
-        'title-xl': ['36px', '45px'],
-        'title-xl2': ['33px', '45px'],
-        'title-lg': ['28px', '35px'],
-        'title-md': ['24px', '30px'],
-        'title-md2': ['26px', '30px'],
-        'title-sm': ['20px', '26px'],
-        'title-xsm': ['18px', '24px'],
+        baseBackground: 'rgb(var(--color-baseBackground) / <alpha-value>)',
+        background: 'rgb(var(--color-background) / <alpha-value>)',
+        backgroundContrast:
+          'rgb(var(--color-backgroundContrast) / <alpha-value>)',
+        sec_background: 'rgb(var(--color-sec_background) / <alpha-value>)',
+        surface: 'rgb(var(--color-surface) / <alpha-value>)',
+        textColor: 'rgb(var(--color-textColor) / <alpha-value>)',
+        textColorContrast:
+          'rgb(var(--color-textColorContrast) / <alpha-value>)',
+        secText: 'rgb(var(--color-secText) / <alpha-value>)',
+        border: 'rgb(var(--color-border) / <alpha-value>)',
+        primary: 'rgb(var(--color-primary) / <alpha-value>)',
+        primaryDark: 'rgb(var(--color-primaryDark) / <alpha-value>)',
+        dashboardBackground: 'rgb(var(--color-dashboardBackground) / <alpha-value>)',
       },
       spacing: {
         4.5: '1.125rem',
@@ -196,53 +154,7 @@ module.exports = {
         47.5: '11.875rem',
         75: '18.75rem',
       },
-      zIndex: {
-        999999: '999999',
-        99999: '99999',
-        9999: '9999',
-        999: '999',
-        99: '99',
-        9: '9',
-        1: '1',
-      },
-      opacity: {
-        65: '.65',
-      },
-      backgroundImage: {
-        video: "url('../images/video/video.png')",
-      },
-      content: {
-        'icon-copy': 'url("../images/icon/icon-copy-alt.svg")',
-      },
-      transitionProperty: { width: 'width', stroke: 'stroke' },
-      borderWidth: {
-        6: '6px',
-      },
-      boxShadow: {
-        default: '0px 8px 13px -3px rgba(0, 0, 0, 0.07)',
-        card: '0px 1px 3px rgba(0, 0, 0, 0.12)',
-        'card-2': '0px 1px 2px rgba(0, 0, 0, 0.05)',
-        switcher:
-          '0px 2px 4px rgba(0, 0, 0, 0.2), inset 0px 2px 2px #FFFFFF, inset 0px -1px 1px rgba(0, 0, 0, 0.1)',
-        'switch-1': '0px 0px 5px rgba(0, 0, 0, 0.15)',
-        1: '0px 1px 3px rgba(0, 0, 0, 0.08)',
-        2: '0px 1px 4px rgba(0, 0, 0, 0.12)',
-        3: '0px 1px 5px rgba(0, 0, 0, 0.14)',
-        4: '0px 4px 10px rgba(0, 0, 0, 0.12)',
-        5: '0px 1px 1px rgba(0, 0, 0, 0.15)',
-        6: '0px 3px 15px rgba(0, 0, 0, 0.1)',
-        7: '-5px 0 0 #313D4A, 5px 0 0 #313D4A',
-        8: '1px 0 0 #313D4A, -1px 0 0 #313D4A, 0 1px 0 #313D4A, 0 -1px 0 #313D4A, 0 3px 13px rgb(0 0 0 / 8%)',
-      },
-      dropShadow: {
-        1: '0px 1px 0px #E2E8F0',
-        2: '0px 1px 4px rgba(0, 0, 0, 0.12)',
-      },
       keyframes: {
-        textColorPulse: {
-          '0%, 100%': { color: 'var(--color-primary)' },
-          '50%': { color: 'var(--color-primary-dark)' },
-        },
         waveEffect: {
           '0%': { opacity: '0.8' },
           '50%': { opacity: '1.2' },
@@ -269,7 +181,6 @@ module.exports = {
         },
       },
       animation: {
-        textColorPulse: 'textColorPulse 3s infinite',
         wave: 'waveEffect 3s infinite ease-in-out',
         'ping-once': 'ping 5s cubic-bezier(0, 0, 0.2, 1)',
         rotating: 'rotating 30s linear infinite',
@@ -283,6 +194,5 @@ module.exports = {
   plugins: [
     require('tailwindcss-animate'),
     require('tailwind-scrollbar'),
-    createThemes(dynamicThemes),
   ],
 };
