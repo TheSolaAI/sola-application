@@ -56,7 +56,7 @@ export async function handleGetAiProjectsByClassification(): Promise<{
 
     return {
       status: 'success',
-      response: `Top AI projects , ${response.data.data.topTokensOrderByMindShareIn6h.map((project) => project.name).join(', ')}`,
+      response: `Notify the successful fetch of top AI projects. Do not add any custom data`,
       props: {
         response_id: 'topAiProjects',
         sender: 'system',

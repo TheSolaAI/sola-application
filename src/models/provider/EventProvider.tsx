@@ -13,6 +13,13 @@ interface EventProviderProps {
   children: ReactNode;
 }
 
+const handleSendMessage = async (message: string) => {
+  if (!message) return;
+  // wait 500ms before sending message to ensue the session is updated properly
+  await new Promise((resolve) => setTimeout(resolve, 500));
+  useSessionHandler.getState().sendTextMessage(message);
+};
+
 export const EventProvider: FC<EventProviderProps> = ({ children }) => {
   /**
    * Global State
@@ -34,7 +41,7 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
       if (dataStream === null) return;
       dataStream.onmessage = async (event) => {
         const eventData = JSON.parse(event.data);
-        // console.log(eventData, null, 2);
+        console.log(eventData, null, 2);
         if (eventData.type === 'session.created') {
           // update the session with our latest tools, voice and emotion
           updateSession('all');
@@ -60,7 +67,10 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
             },
             createdAt: new Date().toISOString(),
           });
-        } else if (eventData.type === 'response.audio_transcript.delta') {
+        } else if (
+          eventData.type === 'response.audio_transcript.delta' ||
+          eventData.type === 'response.text.delta'
+        ) {
           // a part of the audio response transcript has been received
           if (useChatMessageHandler.getState().currentChatItem !== null) {
             // We are still receiving delta events for the current message so we keep appending to it
@@ -80,7 +90,10 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
               createdAt: new Date().toISOString(),
             });
           }
-        } else if (eventData.type === 'response.audio_transcript.done') {
+        } else if (
+          eventData.type === 'response.audio_transcript.done' ||
+          eventData.type === 'response.text.done'
+        ) {
           // check if the current message matches with this response
           if (
             useChatMessageHandler.getState().currentChatItem === null ||
@@ -156,9 +169,9 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
                         output.call_id,
                       );
                       useChatMessageHandler.getState().setCurrentChatItem(null);
-                      useSessionHandler
-                        .getState()
-                        .sendTextMessage(tool_result.props.original_request);
+                      await handleSendMessage(
+                        tool_result.props.original_request,
+                      );
                       return;
                     } else {
                       addMessage(

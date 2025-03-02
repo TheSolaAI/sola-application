@@ -169,27 +169,34 @@ export const useChatMessageHandler = create<ChatMessageHandler>((set, get) => {
     addMessage: async (chatItem: ChatItem<ChatContentType>) => {
       // TODO: Add Check for the amount of credits the user has here.
       const currentRoomID = useChatRoomHandler.getState().currentChatRoom?.id;
+
       if (currentRoomID === undefined) {
         // no chat room has been selected so we create a new one with our default agent and navigate the user to that room
         const newRoom = await useChatRoomHandler.getState().createChatRoom({
           name: 'New Chat',
         });
+
         if (newRoom) {
           useChatRoomHandler.getState().setCurrentChatRoom(newRoom);
+          let messages = get().messages;
+
           // we then add this message to the new room on our server
           const response = apiClient.post(
             API_URLS.CHAT_ROOMS + newRoom.id + '/messages/',
             { message: JSON.stringify(chatItem.content) },
             'auth',
           );
+
           if (ApiClient.isApiError(response)) {
             toast.error('Failed to Save Message, Reload the Page');
           }
           // add the message to our local state
-          set({ messages: [...get().messages, chatItem] });
+
+          set({ messages: [...messages, chatItem] });
+
+
         }
       } else {
-        // this means a chat room has already been selected so we just add the message to that room
         const response = await apiClient.post(
           API_URLS.CHAT_ROOMS + currentRoomID + '/messages/',
           { message: JSON.stringify(chatItem.content) },
@@ -198,7 +205,6 @@ export const useChatMessageHandler = create<ChatMessageHandler>((set, get) => {
         if (ApiClient.isApiError(response)) {
           toast.error('Failed to Save Message, Reload the Page');
         }
-        // add the message to our local state
         set({ messages: [...get().messages, chatItem] });
       }
     },

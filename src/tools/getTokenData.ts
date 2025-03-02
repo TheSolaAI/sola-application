@@ -74,7 +74,7 @@ async function getTokenDataFunction(
       };
 
       // Construct response message
-      const responseMessage = `The token ${response.data.name} has a price of $${response.data.price} and a market cap of $${response.data.marketCap} at this moment. The price has changed by ${response.data.priceChange24hPercent}% in the last 24 hours.`;
+      const responseMessage = `${response.data.name} (${response.data.symbol}): $${response.data.price.toFixed(6)}, MC: $${response.data.marketCap.toLocaleString()}, FDV: $${response.data.fdv.toLocaleString()}, Liq: $${response.data.liquidity.toLocaleString()}, 24h: ${response.data.priceChange24hPercent.toFixed(2)}%, 4h: ${response.data.priceChange4hPercent.toFixed(2)}%, 1h: ${response.data.priceChange1hPercent.toFixed(2)}%, Buy 24h: $${response.data.vBuy24hUSD.toLocaleString()}, Sell 24h: $${response.data.vSell24hUSD.toLocaleString()}, Wallets: ${response.data.uniqueWallet24h.toLocaleString()}, Holders: ${response.data.holder.toLocaleString()}, Addr: ${response.data.address}`;
 
       return {
         status: 'success',

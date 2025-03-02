@@ -1,6 +1,6 @@
 import { SessionControls } from '../components/SessionControls.tsx';
 import { useChatRoomHandler } from '../models/ChatRoomHandler.ts';
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ChatRoom } from '../types/chatRoom.ts';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
@@ -33,6 +33,9 @@ import useKeyboardHeight from '../hooks/useKeyboardHeight.ts';
 
 const Conversation = () => {
   const navigate = useNavigate();
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const scrollableContainerRef = useRef<HTMLDivElement>(null);
+  const isAutoScrollEnabled = useRef(true);
 
   /**
    * Global state
@@ -57,6 +60,54 @@ const Conversation = () => {
    */
   const pathParts = window.location.pathname.split('/');
   const chatRoomId = pathParts[pathParts.length - 1];
+
+  // Handle scrolling to bottom on new messages
+  useEffect(() => {
+    if (isAutoScrollEnabled.current) {
+      scrollToBottom();
+    }
+  }, [messages, currentChatItem]);
+
+  // Function to handle smooth scrolling to bottom
+  const scrollToBottom = () => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'end',
+      });
+    }
+  };
+
+  // Function to detect when user manually scrolls up (to disable auto-scroll)
+  const handleScroll = () => {
+    if (scrollableContainerRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } =
+        scrollableContainerRef.current;
+      const isAtBottom = scrollHeight - scrollTop - clientHeight < 100; // Within 100px of bottom
+
+      // Only update if the value changes to avoid unnecessary re-renders
+      isAutoScrollEnabled.current = isAtBottom;
+
+      // If user scrolls back to bottom, re-enable auto-scroll
+      if (isAtBottom) {
+        isAutoScrollEnabled.current = true;
+      }
+    }
+  };
+
+  // Detect new message and show a "scroll to bottom" button when user is scrolled up
+  const [showScrollButton, setShowScrollButton] = useState(false);
+
+  useEffect(() => {
+    if (
+      !isAutoScrollEnabled.current &&
+      (messages.length > 0 || currentChatItem)
+    ) {
+      setShowScrollButton(true);
+    } else {
+      setShowScrollButton(false);
+    }
+  }, [messages, currentChatItem]);
 
   useEffect(() => {
     if (chatRoomId && allRoomsLoaded) {
@@ -257,13 +308,19 @@ const Conversation = () => {
           />
 
           {/* Scrollable content */}
-          <div className="absolute inset-0 overflow-y-auto no-scrollbar">
+          <div
+            ref={scrollableContainerRef}
+            className="absolute inset-0 overflow-y-auto no-scrollbar"
+            onScroll={handleScroll}
+          >
             <div className="w-full sm:w-[60%] mx-auto pb-32 mt-10">
               {messages.map((chatItem, index) =>
                 renderMessageItem(chatItem, index),
               )}
               {currentChatItem && renderMessageItem(currentChatItem, -1)}
             </div>
+            {/* This empty div is used as a reference for scrolling to the bottom */}
+            <div ref={messagesEndRef} />
           </div>
 
           {/* Bottom fade gradient (above the controls) */}
