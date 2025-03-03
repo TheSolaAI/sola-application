@@ -108,28 +108,36 @@ export const AiProjects = ({ props }: AiProjectsChatItemProps) => {
                   Mindshare by Projects
                 </h2>
                 <ResponsiveContainer width="100%" height={400}>
-                  <Treemap
+                <Treemap
                     data={treemapData}
                     dataKey="size"
-                    stroke={theme.textColor}
-                    fill={theme.primaryDark}
-                    animationEasing={'ease-in-out'}
-                    animationDuration={1000}
+                    stroke={theme?.textColor || "#ffffff"}
+                    fill={theme?.primaryDark || "#1e3a8a"}
+                    animationEasing="ease-in-out"
+                    animationDuration={1200}
                     isAnimationActive={true}
                   >
                     <Tooltip
-                      content={({ payload }) => {
-                        if (!payload || !payload.length) return null;
-                        const { name, size } = payload[0].payload;
-                        return (
-                          <div className="bg-white text-black p-2 rounded shadow">
-                            <strong className="truncate">{name}</strong>
-                            <br />
-                            Mind Share: {size}%
-                          </div>
-                        );
-                      }}
-                    />
+                        content={({ payload }) => {
+                          if (!payload || !payload.length) return null;
+                          const { name, size, tokenCa } = payload[0].payload;
+                          return (
+                            <div className="bg-gray-900 text-white p-3 rounded-md shadow-xl border border-gray-700">
+                              <div className="font-bold mb-1 text-blue-400">{name.length > 15 ? `${name.substring(0, 15)}...` : name}</div>
+                              <div className="flex items-center space-x-2">
+                                <span className="text-gray-300">Mind Share:</span>
+                                <span className="font-mono text-green-400">{Number(Number(size).toFixed(3))}%</span>
+                              </div>
+                              {tokenCa && (
+                                <div className="text-xs text-gray-400 mt-1 font-mono truncate max-w-xs">
+                                  {`${tokenCa.substring(0, 8)}...${tokenCa.substring(tokenCa.length - 6)}`}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        }}
+                      />
+                      
                   </Treemap>
                 </ResponsiveContainer>
               </div>

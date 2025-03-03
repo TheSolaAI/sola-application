@@ -54,10 +54,10 @@ export async function handleGetAiProjectsMindshare(): Promise<{
         response: 'Error getting mindshare.',
       };
     }
-
+    console.log("ogga booga")
     return {
       status: 'success',
-      response: `Notify the successful fetch of top AI projects. Do not add any custom data`,
+      response: `Notify the successful fetch. Do add any custom information and refrain from responding anythingo ther than successfully fetched data`,
       props: {
         response_id: 'topAiProjects',
         sender: 'system',
@@ -67,6 +67,8 @@ export async function handleGetAiProjectsMindshare(): Promise<{
       },
     };
   } catch (e) {
+    console.log("ogga booga")
+    console.log("ooga error")
     toast.error('Error getting AI projects.');
     return {
       status: 'error',
