@@ -29,7 +29,7 @@ export class ApiClient {
       throw new Error('WALLET_SERVICE_URL environment variable is not defined');
     }
 
-    // Create Axios instances for both services
+    // Create Axios instances for all services
     this.authClient = this.createClient(authServiceUrl);
     this.dataClient = this.createClient(dataServiceUrl);
     this.walletClient = this.createClient(walletServiceUrl);

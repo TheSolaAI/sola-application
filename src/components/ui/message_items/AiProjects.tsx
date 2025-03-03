@@ -1,17 +1,23 @@
 import { AiProjectsChatContent } from '../../../types/chatItem.ts';
 import BaseGridChatItem from './general/BaseGridChatItem.tsx';
 import { FaSquareXTwitter } from 'react-icons/fa6';
-import { useDashboardHandler } from '../../../models/DashboardHandler.ts';
 import { Treemap, Tooltip, ResponsiveContainer } from 'recharts';
 import BaseChatItem from './general/BaseChatItem.tsx';
 import useThemeManager from '../../../models/ThemeManager.ts';
+import { useLayoutContext } from '../../../layout/LayoutProvider.tsx';
+import { GoatIndexDashboard } from '../../dashboard/GoatIndexDashboard.tsx';
 
 interface AiProjectsChatItemProps {
   props: AiProjectsChatContent;
 }
 
 export const AiProjects = ({ props }: AiProjectsChatItemProps) => {
-  const { openDashboard } = useDashboardHandler();
+  /**
+   * Global State
+   */
+  const { handleDashboardOpen, dashboardOpen, setDashboardLayoutContent } =
+    useLayoutContext();
+
   const { theme } = useThemeManager();
   return (
     <>
@@ -22,7 +28,12 @@ export const AiProjects = ({ props }: AiProjectsChatItemProps) => {
               key={index}
               className="group relative overflow-hidden block rounded-xl text-secText bg-sec_background p-3 shadow-sm w-full transition-all duration-300 ease-in-out hover:bg-surface cursor-pointer hover:shadow-lg"
               onClick={() => {
-                openDashboard('goatIndex', token.contractAddress);
+                setDashboardLayoutContent(
+                  <GoatIndexDashboard
+                    contract_address={token.contractAddress}
+                  />,
+                );
+                if (!dashboardOpen) handleDashboardOpen(true);
               }}
             >
               <div className="flex items-center gap-4">
@@ -58,7 +69,12 @@ export const AiProjects = ({ props }: AiProjectsChatItemProps) => {
               key={index}
               className="group relative overflow-hidden block rounded-xl text-secText bg-sec_background shadow-sm p-3 w-full transition-all duration-300 ease-in-out hover:bg-surface cursor-pointer hover:shadow-lg"
               onClick={() => {
-                openDashboard('goatIndex', token.tokenDetail.contractAddress);
+                setDashboardLayoutContent(
+                  <GoatIndexDashboard
+                    contract_address={token.tokenDetail.contractAddress}
+                  />,
+                );
+                if (!dashboardOpen) handleDashboardOpen(true);
               }}
             >
               <div className="flex items-center gap-4">

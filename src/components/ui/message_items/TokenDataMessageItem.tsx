@@ -11,19 +11,32 @@ import {
 import BaseGridChatItem from './general/BaseGridChatItem.tsx';
 import { ExternalLink } from 'lucide-react';
 import { formatNumber } from '../../../utils/formatNumber.ts';
-import { useDashboardHandler } from '../../../models/DashboardHandler.ts';
+import { useLayoutContext } from '../../../layout/LayoutProvider.tsx';
+import { TokenDataDashboard } from '../../dashboard/TokenDataDashboard.tsx';
 
 export const TokenDataMessageItem: FC<ChatItemProps<TokenDataChatContent>> = ({
   props,
 }) => {
-  const { openDashboard } = useDashboardHandler();
   const { data } = props;
+
+  /**
+   * Global State
+   */
+  const {
+    setDashboardLayoutContent: setCanvasContent,
+    dashboardOpen: canvasOpen,
+    handleDashboardContent: handleCanvasOpen,
+  } = useLayoutContext();
 
   return (
     <BaseGridChatItem col={2}>
       <div
         className="relative inline-flex overflow-hidden rounded-lg p-[1px]"
-        onClick={() => openDashboard('tokenData', data.address, props)}
+        // On click set the dashboard content and open the dashboard
+        onClick={() => {
+          setCanvasContent(<TokenDataDashboard tokenData={props} />);
+          if (!canvasOpen) handleCanvasOpen(true);
+        }}
       >
         {/* Animated border */}
         <span className="absolute inset-[-1000%] animate-[spin_3s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#E2CBFF_0%,#393BB2_50%,#E2CBFF_100%)]" />

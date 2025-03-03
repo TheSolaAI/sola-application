@@ -4,7 +4,7 @@ import { WalletLensSideBar } from '../components/wallet/WalletLensSideBar.tsx';
 import { useLayoutContext } from './LayoutProvider.tsx';
 import useIsMobile from '../utils/isMobile.tsx';
 import { SettingsModal } from '../components/Settings/SettingsPopup.tsx';
-
+import { DashBoardContainer } from '../components/dashboard/DashboardContainer.tsx';
 
 const MasterLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
   const {
@@ -14,9 +14,13 @@ const MasterLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
     setCanAutoClose,
     walletLensOpen,
     handleWalletLensOpen,
+    dashboardOpen,
+    handleDashboardOpen,
+    dashboardLayoutContent,
     settingsIsOpen,
     setSettingsIsOpen,
   } = useLayoutContext();
+
   const isMobile = useIsMobile();
 
   return (
@@ -28,18 +32,32 @@ const MasterLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
           canAutoClose={canAutoClose}
           setCanAutoClose={setCanAutoClose}
         />
-        {!isMobile || !walletLensOpen ? (
-          <main className="w-full sm:rounded-2xl bg-background overflow-hidden">
+
+        {(!isMobile || (!walletLensOpen && !dashboardOpen)) && (
+          <main
+            className={`
+              transition-all duration-500
+              ${dashboardOpen ? 'w-[25%]' : 'w-full'} 
+              sm:rounded-2xl bg-background overflow-hidden
+            `}
+          >
             {children}
           </main>
-        ) : (
-          <></>
         )}
+
+        <DashBoardContainer
+          visible={dashboardOpen}
+          setVisible={handleDashboardOpen}
+        >
+          {dashboardLayoutContent}
+        </DashBoardContainer>
+
         <WalletLensSideBar
           setVisible={handleWalletLensOpen}
           visible={walletLensOpen}
         />
       </div>
+
       <SettingsModal
         isOpen={settingsIsOpen}
         onClose={() => setSettingsIsOpen(false)}

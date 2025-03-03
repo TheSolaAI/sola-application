@@ -1,5 +1,4 @@
-import { useEffect, useState } from 'react';
-import { useDashboardHandler } from '../../models/DashboardHandler.ts';
+import { FC, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { formatNumber } from '../../utils/formatNumber.ts';
 import { BasicMetricCard, MetricCard } from '../ui/DashboardMetrics.tsx';
@@ -16,6 +15,7 @@ import useThemeManager from '../../models/ThemeManager.ts';
 import { RugCheck } from '../../types/data_types.ts';
 import { BorderGlowButton } from '../ui/buttons/BorderGlow.tsx';
 import { useSessionHandler } from '../../models/SessionHandler.ts';
+import { useLayoutContext } from '../../layout/LayoutProvider.tsx';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -46,14 +46,23 @@ type TimeframeData = {
 
 type TimeframeKey = keyof TimeframeData;
 
-export const TokenDataDashboard = () => {
-  /*
+interface TokenDataDashboardProps {
+  tokenData: TokenDataChatContent;
+}
+
+export const TokenDataDashboard: FC<TokenDataDashboardProps> = ({
+  tokenData,
+}) => {
+  /**
    * Global States
    */
   const { sendTextMessageAsSystem } = useSessionHandler();
-  const { id, closeDashboard, tokenData } = useDashboardHandler();
   const { theme } = useThemeManager();
+  const { handleDashboardOpen } = useLayoutContext();
 
+  /**
+   * Local State
+   */
   const [activeTabId, setActiveTabId] = useState(1);
   const [agentDetails, setAgentDetails] = useState<TokenDataChatContent | null>(
     null,
@@ -120,7 +129,7 @@ export const TokenDataDashboard = () => {
     } else {
       toast.error('No data available');
     }
-  }, [id, tokenData]);
+  }, [tokenData]);
 
   // Get timeframe metrics from agent details
   const getTimeframeData = (): TimeframeMetrics | null => {
@@ -277,7 +286,7 @@ export const TokenDataDashboard = () => {
     <div className="h-full w-full flex flex-col gap-3 bg-backgroundContrast p-4 rounded-lg shadow-2xl">
       <IoIosArrowForward
         className="rounded-2xl cursor-pointer text-textColorContrast min-w-8 min-h-8 hover:text-primary"
-        onClick={closeDashboard}
+        onClick={() => handleDashboardOpen(false)}
       />
       <motion.p
         initial={{ x: -20, opacity: 0 }}
