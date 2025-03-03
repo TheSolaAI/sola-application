@@ -22,11 +22,8 @@ export const TokenDataMessageItem: FC<ChatItemProps<TokenDataChatContent>> = ({
   /**
    * Global State
    */
-  const {
-    setDashboardLayoutContent: setCanvasContent,
-    dashboardOpen: canvasOpen,
-    handleDashboardContent: handleCanvasOpen,
-  } = useLayoutContext();
+  const { setDashboardLayoutContent, dashboardOpen, handleDashboardOpen } =
+    useLayoutContext();
 
   return (
     <BaseGridChatItem col={2}>
@@ -34,8 +31,8 @@ export const TokenDataMessageItem: FC<ChatItemProps<TokenDataChatContent>> = ({
         className="relative inline-flex overflow-hidden rounded-lg p-[1px]"
         // On click set the dashboard content and open the dashboard
         onClick={() => {
-          setCanvasContent(<TokenDataDashboard tokenData={props} />);
-          if (!canvasOpen) handleCanvasOpen(true);
+          setDashboardLayoutContent(<TokenDataDashboard tokenData={props} />);
+          if (!dashboardOpen) handleDashboardOpen(true);
         }}
       >
         {/* Animated border */}
