@@ -4,7 +4,8 @@ import { useWalletHandler } from '../../models/WalletHandler.ts';
 import { titleCase } from '../../utils/titleCase.ts';
 import { FiCopy } from 'react-icons/fi';
 import { toast } from 'sonner';
-import SUPPORTED_WALLETS from '../../config/wallets/supportedWallets.ts'; // Import copy icon from react-icons
+import { Link } from 'lucide-react';
+import { usePrivy } from '@privy-io/react-auth';
 
 interface WalletPickerProps {
   isOpen: boolean;
@@ -22,21 +23,12 @@ export const WalletPicker: FC<WalletPickerProps> = ({
    */
   const { wallets, currentWallet, setCurrentWallet } = useWalletHandler();
 
-  /**
-   * Fetches the wallet logo if we support it or else the default logo
-   */
-  const getWalletLogo = (walletClientType: string) => {
-    if (SUPPORTED_WALLETS.includes(walletClientType)) {
-      return `/wallets/${walletClientType}.svg`;
-    } else {
-      return '/wallets/default.svg';
-    }
-  };
-
   /** Function to copy the wallet address */
   const copyToClipboard = (address: string) => {
     navigator.clipboard.writeText(address);
   };
+
+  const { connectWallet } = usePrivy();
 
   return (
     <Dropdown
@@ -66,18 +58,26 @@ export const WalletPicker: FC<WalletPickerProps> = ({
               className="focus:outline-none"
               onClick={(e) => e.stopPropagation()}
             >
-              <img
-                src={getWalletLogo(wallet.walletClientType)}
-                alt="wallet logo"
-                className="w-14 h-14 rounded-xl"
-                onClick={(e) => {
-                  e.stopPropagation(); // Stop event from selecting the wallet
-                  window.open(
-                    `https://solscan.io/account/${wallet.address}`,
-                    '_blank',
-                  );
-                }}
-              />
+              {wallet.meta.icon ? (
+                <img
+                  src={wallet.meta.icon}
+                  alt="wallet logo"
+                  className="w-14 h-14 rounded-xl"
+                  onClick={(e) => {
+                    e.stopPropagation(); // Stop event from selecting the wallet
+                    window.open(
+                      `https://solscan.io/account/${wallet.address}`,
+                      '_blank',
+                    );
+                  }}
+                />
+              ) : (
+                <img
+                  src="default_wallet.svg"
+                  alt="wallet logo"
+                  className="w-14 h-14 rounded-xl"
+                />
+              )}
             </button>
 
             {/* Wallet Info */}
@@ -104,6 +104,20 @@ export const WalletPicker: FC<WalletPickerProps> = ({
             </div>
           </button>
         ))}
+        {/* Link a new Wallet */}
+        <button
+          className={
+            'flex items-center justify-center w-full p-4 bg-surface rounded-xl gap-x-2 border-[2px] border-border'
+          }
+          onClick={() => {
+            connectWallet();
+          }}
+        >
+          <Link size={24} className="text-textColor text-md" />
+          <h1 className="text-textColor font-normal text-md">
+            Link Another Wallet
+          </h1>
+        </button>
       </div>
     </Dropdown>
   );
