@@ -2,6 +2,8 @@ import { forwardRef, useImperativeHandle, useState, useEffect } from 'react';
 import useThemeManager, { Theme } from '../../models/ThemeManager';
 import { toast } from 'sonner';
 import { useSettingsHandler } from '../../models/SettingsHandler';
+import ThemeSelector from './ThemeSelector';
+
 interface ThemeSettingsProps {}
 
 export interface ThemeSettingsRef {
@@ -13,61 +15,209 @@ export const ThemeSettings = forwardRef<ThemeSettingsRef, ThemeSettingsProps>(
     /**
      * Global State
      */
-    const { theme, availableThemes, setTheme, addCustomTheme } =
-      useThemeManager();
+    const {
+      theme,
+      availableThemes,
+      setTheme,
+      addCustomTheme,
+      getCustomThemes,
+      deleteCustomTheme,
+    } = useThemeManager();
     const { updateSettings } = useSettingsHandler();
 
     /**
      * Local State
      */
-    const [isCreatingTheme, setIsCreatingTheme] = useState<boolean>(false);
+    const [isCreatingTheme, setIsCreatingTheme] = useState(false);
+    const [isEditingTheme, setIsEditingTheme] = useState(false);
     const [activeTheme, setActiveTheme] = useState<Theme>(theme);
+    const [originalTheme, setOriginalTheme] = useState<Theme>(theme);
+    const [customThemes, setCustomThemes] = useState<Theme[]>([]);
 
-    /**
-     * If the theme changes anywhere else in the application we update the active theme
-     */
+    // Update local state when theme changes elsewhere in the app
     useEffect(() => {
       setActiveTheme(theme);
-    }, [theme]);
+      setCustomThemes(getCustomThemes());
+    }, [availableThemes]);
 
-    /**
-     * Initialize a new theme with the current theme settings
-     */
+    // Initialize a new theme with the current theme settings
     const initNewThemeFromCurrent = () => {
       setActiveTheme({
         ...theme,
         name: `Custom${Object.keys(availableThemes).length + 1}`,
       });
       setIsCreatingTheme(true);
+      setIsEditingTheme(false);
     };
 
+    // Handle switching between themes
     const handleThemeChange = (themeName: string) => {
       setActiveTheme(availableThemes[themeName]);
       setTheme(availableThemes[themeName]);
       toast.success(`Theme changed to ${themeName}`);
     };
 
+    // Handle creating a new theme
     const handleCreateTheme = () => {
-      toast.success(`New theme "${activeTheme.name}" created (demo only)`);
       addCustomTheme(activeTheme);
       setTheme(activeTheme);
       updateSettings('custom_themes');
       setIsCreatingTheme(false);
+      setCustomThemes(getCustomThemes());
+      toast.success(`New theme "${activeTheme.name}" created`);
     };
 
+    // Handle editing an existing custom theme
+    const handleEditTheme = (theme: Theme) => {
+      setActiveTheme(theme);
+      setOriginalTheme(theme);
+      setIsEditingTheme(true);
+      setIsCreatingTheme(false);
+    };
+
+    // Save edited theme changes
+    const handleSaveEditedTheme = () => {
+      // First remove the original theme if name changed
+      if (originalTheme.name !== activeTheme.name) {
+        deleteCustomTheme(originalTheme);
+      }
+
+      // Add the updated theme
+      addCustomTheme(activeTheme);
+      setTheme(activeTheme);
+      setIsEditingTheme(false);
+      setCustomThemes(getCustomThemes());
+      toast.success(`Theme "${activeTheme.name}" updated`);
+    };
+
+    // Handle deleting a custom theme
+    const handleDeleteTheme = (theme: Theme) => {
+      // Don't delete if it's the active theme
+      if (theme.name === activeTheme.name) {
+        toast.error("Can't delete the currently active theme");
+        return;
+      }
+
+      deleteCustomTheme(theme);
+      updateSettings('custom_themes');
+      setCustomThemes(getCustomThemes());
+      toast.success(`Theme "${theme.name}" deleted`);
+    };
+
+    // Cancel theme creation/editing
+    const handleCancelThemeEdit = () => {
+      setIsCreatingTheme(false);
+      setIsEditingTheme(false);
+      setActiveTheme(theme);
+    };
+
+    // Export the current theme to a JSON file
+    const exportTheme = () => {
+      const themeData = JSON.stringify(activeTheme, null, 2);
+      const blob = new Blob([themeData], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${activeTheme.name.replace(/\s+/g, '-').toLowerCase()}-theme.json`;
+      document.body.appendChild(link);
+      link.click();
+
+      // Clean up
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      toast.success(`Theme "${activeTheme.name}" exported successfully`);
+    };
+
+    // Import a theme JSON file
+    const importTheme = (file: File) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const themeData = JSON.parse(e.target?.result as string);
+
+          // Check for all required theme properties
+          const requiredProps = [
+            'name',
+            'baseTheme',
+            'primary',
+            'primaryDark',
+            'baseBackground',
+            'background',
+            'sec_background',
+            'backgroundContrast',
+            'textColor',
+            'secText',
+            'border',
+          ];
+
+          const missingProps = requiredProps.filter((prop) => !themeData[prop]);
+
+          if (missingProps.length === 0) {
+            addCustomTheme(themeData);
+            setCustomThemes(getCustomThemes());
+            updateSettings('custom_themes');
+            toast.success(`Theme "${themeData.name}" imported successfully`);
+          } else {
+            toast.error(
+              `Invalid theme file: missing ${missingProps.join(', ')}`,
+            );
+          }
+        } catch (error) {
+          toast.error('Invalid theme file format');
+        }
+      };
+      reader.readAsText(file);
+    };
+
+    // Handle form submission
     const handleSubmit = () => {
-      // This function could be used to save all theme settings
-      return;
+      setTheme(activeTheme);
+      toast.success('Theme settings updated');
     };
 
     useImperativeHandle(ref, () => ({
       onSubmit: handleSubmit,
     }));
 
+    // Render color input field
+    const renderColorField = (label: string, property: keyof Theme) => (
+      <div>
+        <label className="block text-sm font-medium text-textColor mb-1">
+          {label}
+        </label>
+        <div className="flex gap-2">
+          <input
+            type="color"
+            className="h-10 w-10 border border-border rounded"
+            value={activeTheme[property] as string}
+            onChange={(e) =>
+              setActiveTheme({
+                ...activeTheme,
+                [property]: e.target.value,
+              })
+            }
+          />
+          <input
+            type="text"
+            className="border border-border rounded-md p-2 bg-sec_background w-full text-textColor"
+            value={activeTheme[property] as string}
+            onChange={(e) =>
+              setActiveTheme({
+                ...activeTheme,
+                [property]: e.target.value,
+              })
+            }
+          />
+        </div>
+      </div>
+    );
+
     return (
       <div className="flex flex-col items-start justify-center gap-y-8">
         {/* Theme Preview */}
-        <div className="w-full p-4 hidden md:flex md:flex-col items-center overflow-x-auto ">
+        <div className="w-full p-4 hidden md:flex md:flex-col items-center overflow-x-auto">
           <h1 className="font-semibold text-textColor mb-4">Theme Preview</h1>
           <div
             className="w-full max-w-3xl h-64 rounded-lg border border-border overflow-hidden"
@@ -163,7 +313,7 @@ export const ThemeSettings = forwardRef<ThemeSettingsRef, ThemeSettingsProps>(
                 </div>
               </div>
 
-              {/* Right sidebar - Wallet Lens */}
+              {/* Right sidebar */}
               <div
                 className="w-[25%] h-full ml-1 rounded-md overflow-hidden"
                 style={{
@@ -227,65 +377,26 @@ export const ThemeSettings = forwardRef<ThemeSettingsRef, ThemeSettingsProps>(
           <p className="font-regular text-secText">
             Choose from available themes or create your own
           </p>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-3 mt-3 truncate">
-            {Object.entries(availableThemes).map(([name, themeObj]) => (
-              <div
-                key={name}
-                className={`p-3 rounded-md cursor-pointer transition-all ${
-                  activeTheme.name === name
-                    ? 'ring-2 ring-primary'
-                    : 'border border-border hover:scale-105'
-                }`}
-                onClick={() => handleThemeChange(name)}
-              >
-                <div className="flex items-center gap-x-2 mb-2">
-                  <div
-                    className="w-4 h-4 rounded-full"
-                    style={{ backgroundColor: themeObj.primary }}
-                  ></div>
-                  <span className="font-medium text-textColor">{name}</span>
-                </div>
-                <div className="flex gap-1 h-6">
-                  <div
-                    className="w-1/4 rounded"
-                    style={{ backgroundColor: themeObj.background }}
-                  ></div>
-                  <div
-                    className="w-1/4 rounded"
-                    style={{ backgroundColor: themeObj.sec_background }}
-                  ></div>
-                  <div
-                    className="w-1/4 rounded"
-                    style={{ backgroundColor: themeObj.baseBackground }}
-                  ></div>
-                  <div
-                    className="w-1/4 rounded"
-                    style={{ backgroundColor: themeObj.primary }}
-                  ></div>
-                </div>
-              </div>
-            ))}
-
-            {/* Create new theme button */}
-            <div
-              className="p-3 rounded-md cursor-pointer border border-dashed border-border hover:border-primary flex flex-col items-center justify-center"
-              onClick={initNewThemeFromCurrent}
-            >
-              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-1">
-                +
-              </div>
-              <span className="text-sm text-secText">Create Custom Theme</span>
-            </div>
-          </div>
+          <ThemeSelector
+            activeTheme={activeTheme}
+            availableThemes={availableThemes}
+            customThemes={customThemes}
+            handleDeleteTheme={handleDeleteTheme}
+            handleEditTheme={handleEditTheme}
+            handleThemeChange={handleThemeChange}
+            initNewThemeFromCurrent={initNewThemeFromCurrent}
+          />
         </div>
 
-        {/* Create New Theme Form */}
-        {isCreatingTheme && (
+        {/* Create/Edit Theme Form */}
+        {(isCreatingTheme || isEditingTheme) && (
           <div className="w-full border border-border rounded-lg p-4">
-            <h1 className="font-semibold text-textColor">Create New Theme</h1>
+            <h1 className="font-semibold text-textColor">
+              {isCreatingTheme ? 'Create New Theme' : 'Edit Theme'}
+            </h1>
             <p className="font-regular text-secText mb-4">
-              Customize colors to create your own theme
+              Customize colors to{' '}
+              {isCreatingTheme ? 'create your own theme' : 'update this theme'}
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -325,335 +436,36 @@ export const ThemeSettings = forwardRef<ThemeSettingsRef, ThemeSettingsProps>(
                 </select>
               </div>
 
-              {/* Colors */}
-              {/* Primary Color */}
-              <div>
-                <label className="block text-sm font-medium text-textColor mb-1">
-                  Primary Color
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    type="color"
-                    className="h-10 w-10 border border-border rounded"
-                    value={activeTheme.primary}
-                    onChange={(e) =>
-                      setActiveTheme({
-                        ...activeTheme,
-                        primary: e.target.value as `#${string}`,
-                      })
-                    }
-                  />
-                  <input
-                    type="text"
-                    className="border border-border rounded-md p-2 bg-sec_background w-full text-textColor"
-                    value={activeTheme.primary}
-                    onChange={(e) =>
-                      setActiveTheme({
-                        ...activeTheme,
-                        primary: e.target.value as `#${string}`,
-                      })
-                    }
-                  />
-                </div>
-              </div>
-
-              {/* Primary Dark Color */}
-              <div>
-                <label className="block text-sm font-medium text-textColor mb-1">
-                  Primary Dark
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    type="color"
-                    className="h-10 w-10 border border-border rounded"
-                    value={activeTheme.primaryDark}
-                    onChange={(e) =>
-                      setActiveTheme({
-                        ...activeTheme,
-                        primaryDark: e.target.value as `#${string}`,
-                      })
-                    }
-                  />
-                  <input
-                    type="text"
-                    className="border border-border rounded-md p-2 bg-sec_background w-full text-textColor"
-                    value={activeTheme.primaryDark}
-                    onChange={(e) =>
-                      setActiveTheme({
-                        ...activeTheme,
-                        primaryDark: e.target.value as `#${string}`,
-                      })
-                    }
-                  />
-                </div>
-              </div>
-
-              {/* Base Background */}
-              <div>
-                <label className="block text-sm font-medium text-textColor mb-1">
-                  Base Background
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    type="color"
-                    className="h-10 w-10 border border-border rounded"
-                    value={activeTheme.baseBackground}
-                    onChange={(e) =>
-                      setActiveTheme({
-                        ...activeTheme,
-                        baseBackground: e.target.value as `#${string}`,
-                      })
-                    }
-                  />
-                  <input
-                    type="text"
-                    className="border border-border rounded-md p-2 bg-sec_background w-full text-textColor"
-                    value={activeTheme.baseBackground}
-                    onChange={(e) =>
-                      setActiveTheme({
-                        ...activeTheme,
-                        baseBackground: e.target.value as `#${string}`,
-                      })
-                    }
-                  />
-                </div>
-              </div>
-
-              {/* Background Color */}
-              <div>
-                <label className="block text-sm font-medium text-textColor mb-1">
-                  Background
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    type="color"
-                    className="h-10 w-10 border border-border rounded"
-                    value={activeTheme.background}
-                    onChange={(e) =>
-                      setActiveTheme({
-                        ...activeTheme,
-                        background: e.target.value as `#${string}`,
-                      })
-                    }
-                  />
-                  <input
-                    type="text"
-                    className="border border-border rounded-md p-2 bg-sec_background w-full text-textColor"
-                    value={activeTheme.background}
-                    onChange={(e) =>
-                      setActiveTheme({
-                        ...activeTheme,
-                        background: e.target.value as `#${string}`,
-                      })
-                    }
-                  />
-                </div>
-              </div>
-
-              {/* Secondary Background */}
-              <div>
-                <label className="block text-sm font-medium text-textColor mb-1">
-                  Secondary Background
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    type="color"
-                    className="h-10 w-10 border border-border rounded"
-                    value={activeTheme.sec_background}
-                    onChange={(e) =>
-                      setActiveTheme({
-                        ...activeTheme,
-                        sec_background: e.target.value as `#${string}`,
-                      })
-                    }
-                  />
-                  <input
-                    type="text"
-                    className="border border-border rounded-md p-2 bg-sec_background w-full text-textColor"
-                    value={activeTheme.sec_background}
-                    onChange={(e) =>
-                      setActiveTheme({
-                        ...activeTheme,
-                        sec_background: e.target.value as `#${string}`,
-                      })
-                    }
-                  />
-                </div>
-              </div>
-
-              {/* Background Contrast */}
-              <div>
-                <label className="block text-sm font-medium text-textColor mb-1">
-                  Background Contrast
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    type="color"
-                    className="h-10 w-10 border border-border rounded"
-                    value={activeTheme.backgroundContrast}
-                    onChange={(e) =>
-                      setActiveTheme({
-                        ...activeTheme,
-                        backgroundContrast: e.target.value as `#${string}`,
-                      })
-                    }
-                  />
-                  <input
-                    type="text"
-                    className="border border-border rounded-md p-2 bg-sec_background w-full text-textColor"
-                    value={activeTheme.backgroundContrast}
-                    onChange={(e) =>
-                      setActiveTheme({
-                        ...activeTheme,
-                        backgroundContrast: e.target.value as `#${string}`,
-                      })
-                    }
-                  />
-                </div>
-              </div>
-
-              {/* Text Color */}
-              <div>
-                <label className="block text-sm font-medium text-textColor mb-1">
-                  Text Color
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    type="color"
-                    className="h-10 w-10 border border-border rounded"
-                    value={activeTheme.textColor}
-                    onChange={(e) =>
-                      setActiveTheme({
-                        ...activeTheme,
-                        textColor: e.target.value as `#${string}`,
-                      })
-                    }
-                  />
-                  <input
-                    type="text"
-                    className="border border-border rounded-md p-2 bg-sec_background w-full text-textColor"
-                    value={activeTheme.textColor}
-                    onChange={(e) =>
-                      setActiveTheme({
-                        ...activeTheme,
-                        textColor: e.target.value as `#${string}`,
-                      })
-                    }
-                  />
-                </div>
-              </div>
-
-              {/* Secondary Text Color */}
-              <div>
-                <label className="block text-sm font-medium text-textColor mb-1">
-                  Secondary Text
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    type="color"
-                    className="h-10 w-10 border border-border rounded"
-                    value={activeTheme.secText}
-                    onChange={(e) =>
-                      setActiveTheme({
-                        ...activeTheme,
-                        secText: e.target.value as `#${string}`,
-                      })
-                    }
-                  />
-                  <input
-                    type="text"
-                    className="border border-border rounded-md p-2 bg-sec_background w-full text-textColor"
-                    value={activeTheme.secText}
-                    onChange={(e) =>
-                      setActiveTheme({
-                        ...activeTheme,
-                        secText: e.target.value as `#${string}`,
-                      })
-                    }
-                  />
-                </div>
-              </div>
-
-              {/* Border Color */}
-              <div>
-                <label className="block text-sm font-medium text-textColor mb-1">
-                  Border Color
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    type="color"
-                    className="h-10 w-10 border border-border rounded"
-                    value={activeTheme.border}
-                    onChange={(e) =>
-                      setActiveTheme({
-                        ...activeTheme,
-                        border: e.target.value as `#${string}`,
-                      })
-                    }
-                  />
-                  <input
-                    type="text"
-                    className="border border-border rounded-md p-2 bg-sec_background w-full text-textColor"
-                    value={activeTheme.border}
-                    onChange={(e) =>
-                      setActiveTheme({
-                        ...activeTheme,
-                        border: e.target.value as `#${string}`,
-                      })
-                    }
-                  />
-                </div>
-              </div>
+              {/* Color fields using the helper function */}
+              {renderColorField('Primary Color', 'primary')}
+              {renderColorField('Primary Dark', 'primaryDark')}
+              {renderColorField('Base Background', 'baseBackground')}
+              {renderColorField('Background', 'background')}
+              {renderColorField('Secondary Background', 'sec_background')}
+              {renderColorField('Background Contrast', 'backgroundContrast')}
+              {renderColorField('Text Color', 'textColor')}
+              {renderColorField('Secondary Text', 'secText')}
+              {renderColorField('Border Color', 'border')}
             </div>
 
             <div className="flex justify-end gap-2 mt-6">
               <button
                 className="px-4 py-2 border border-border rounded-md text-secText hover:bg-backgroundContrast"
-                onClick={() => setIsCreatingTheme(false)}
+                onClick={handleCancelThemeEdit}
               >
                 Cancel
               </button>
               <button
                 className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primaryDark"
-                onClick={handleCreateTheme}
+                onClick={
+                  isCreatingTheme ? handleCreateTheme : handleSaveEditedTheme
+                }
               >
-                Create Theme
+                {isCreatingTheme ? 'Create Theme' : 'Save Changes'}
               </button>
             </div>
           </div>
         )}
-
-        {/* Theme and System Preferences
-        <div className="w-full">
-          <h1 className="font-semibold text-textColor">System Preferences</h1>
-          <p className="font-regular text-secText mb-3">
-            Manage how the application handles theme selection
-          </p>
-
-          <div className="bg-sec_background border border-border rounded-md p-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="font-medium text-textColor">Use System Theme</h2>
-                <p className="text-sm text-secText">
-                  Automatically switch between light and dark based on system
-                  settings
-                </p>
-              </div>
-              <button
-                className={`w-12 h-6 rounded-full relative transition-colors ${
-                  activeTheme.name === 'system' ? 'bg-primary' : 'bg-secText/30'
-                }`}
-                onClick={() => handleThemeChange('system')}
-              >
-                <span
-                  className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${
-                    activeTheme.name === 'system' ? 'left-7' : 'left-1'
-                  }`}
-                ></span>
-              </button>
-            </div>
-          </div>
-        </div> */}
 
         {/* Export/Import Themes */}
         <div className="w-full">
@@ -665,18 +477,23 @@ export const ThemeSettings = forwardRef<ThemeSettingsRef, ThemeSettingsProps>(
           <div className="flex gap-2">
             <button
               className="px-4 py-2 border border-border rounded-md text-textColor hover:bg-backgroundContrast"
-              onClick={() => {
-                // Demo - in reality, would generate a JSON file
-                navigator.clipboard.writeText(JSON.stringify(theme));
-                toast.success('Theme copied to clipboard');
-              }}
+              onClick={exportTheme}
             >
               Export Current Theme
             </button>
             <button
               className="px-4 py-2 border border-border rounded-md text-textColor hover:bg-backgroundContrast"
               onClick={() => {
-                toast.info('Theme import feature is a demo only');
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = '.json';
+                input.onchange = (e) => {
+                  const file = (e.target as HTMLInputElement).files?.[0];
+                  if (file) {
+                    importTheme(file);
+                  }
+                };
+                input.click();
               }}
             >
               Import Theme
@@ -689,4 +506,3 @@ export const ThemeSettings = forwardRef<ThemeSettingsRef, ThemeSettingsProps>(
 );
 
 ThemeSettings.displayName = 'ThemeSettings';
-

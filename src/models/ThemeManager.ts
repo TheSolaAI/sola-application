@@ -29,6 +29,7 @@ interface ThemeStore {
   setTheme: (theme: Theme) => void; // Sets and applies a theme
   addCustomTheme: (theme: Theme) => void; // Adds a new custom theme
   getCustomThemes: () => Theme[]; // Returns only custom themes
+  deleteCustomTheme: (theme: Theme) => void; // Deletes a custom theme
 }
 
 // Helper to convert hex to RGB for CSS variables
@@ -81,11 +82,9 @@ const ThemeHandler: StateCreator<ThemeStore> = (set, get) => {
   );
 
   return {
-    // Initial state: Default to light, will be overridden by initThemeManager
     theme: defaultThemes['light'],
     availableThemes: defaultThemes,
 
-    // Initialize theme manager
     initThemeManager: () => {
       // 1. Load theme from local storage immediately
       const storedThemeName = localStorage.getItem('theme');
@@ -99,15 +98,15 @@ const ThemeHandler: StateCreator<ThemeStore> = (set, get) => {
           initialTheme = storedTheme;
           applyTheme(initialTheme);
         }
+      } else {
+        // Apply the initial theme (in case it wasn’t from storage)
+        applyTheme(initialTheme);
       }
-      // 2. Set default themes from themes.json
+      console.log('initialTheme', initialTheme);
       set({
         theme: initialTheme,
         availableThemes: { ...defaultThemes },
       });
-
-      // Apply the initial theme (in case it wasn’t from storage)
-      applyTheme(initialTheme);
     },
 
     // Populate custom themes from server
@@ -116,7 +115,6 @@ const ThemeHandler: StateCreator<ThemeStore> = (set, get) => {
         ...get().availableThemes,
         ...Object.fromEntries(customThemes.map((theme) => [theme.name, theme])),
       };
-
       set({ availableThemes: updatedThemes });
 
       // 3. Check if current theme exists, revert to light if not
@@ -132,33 +130,48 @@ const ThemeHandler: StateCreator<ThemeStore> = (set, get) => {
       }
     },
 
-    // Set and apply a theme
     setTheme: (theme: Theme) => {
       set({ theme });
       applyTheme(theme);
       // Persist to local storage
       localStorage.setItem('theme', theme.name);
       localStorage.setItem(`${theme.name}-data`, JSON.stringify(theme));
-      // update server settings of custom theme
-      // TODO: Update as soon as server is patched
       useSettingsHandler.getState().updateSettings('theme');
     },
 
-    // Add a custom theme
     addCustomTheme: (theme: Theme) => {
       const updatedThemes = {
         ...get().availableThemes,
         [theme.name]: theme,
       };
       set({ availableThemes: updatedThemes });
+      // update server with theme
+      useSettingsHandler.getState().updateSettings('custom_themes');
     },
 
-    // Get only custom themes
     getCustomThemes: () => {
       const allThemes = get().availableThemes;
       return Object.values(allThemes).filter(
         (theme) => !Object.keys(themeJSON).includes(theme.name),
       );
+    },
+
+    deleteCustomTheme: (theme: Theme) => {
+      const updatedThemes = { ...get().availableThemes };
+      delete updatedThemes[theme.name];
+      set({ availableThemes: updatedThemes });
+      // update server with theme
+      useSettingsHandler.getState().updateSettings('custom_themes');
+    },
+
+    updateCustomTheme: (theme: Theme) => {
+      const updatedThemes = {
+        ...get().availableThemes,
+        [theme.name]: theme,
+      };
+      set({ availableThemes: updatedThemes });
+      // update server with theme
+      useSettingsHandler.getState().updateSettings('custom_themes');
     },
   };
 };
