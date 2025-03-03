@@ -39,10 +39,9 @@ export const useSettingsHandler = create<SettingsHandler>(() => {
         'auth',
       );
       if (ApiClient.isApiResponse<UserSettingsResponse>(response)) {
-        // set all the settings in their respective handlers
         useThemeManager
           .getState()
-          .initThemeManager(response.data.custom_themes);
+          .populateCustomThemes(response.data.custom_themes);
         useThemeManager
           .getState()
           .setTheme(
