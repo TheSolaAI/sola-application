@@ -3,20 +3,8 @@ import { Sidebar } from '../components/Sidebar/SideBar.tsx';
 import { WalletLensSideBar } from '../components/wallet/WalletLensSideBar.tsx';
 import { useLayoutContext } from './LayoutProvider.tsx';
 import useIsMobile from '../utils/isMobile.tsx';
-import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
-import { useDashboardHandler } from '../models/DashboardHandler.ts';
-import WalletLensButton from '../components/wallet/WalletLensButton.tsx';
-import { GoatIndexDashboard } from '../components/dashboard/GoatIndexDashboard.tsx';
-import { motion, AnimatePresence } from 'framer-motion';
-import { TokenDataDashboard } from '../components/dashboard/TokenDataDashboard.tsx';
 import { SettingsModal } from '../components/Settings/SettingsPopup.tsx';
-
-const slideRight = {
-  initial: { x: '100%', opacity: 0 },
-  animate: { x: 0, opacity: 1 },
-  exit: { x: '100%', opacity: 0 },
-  transition: { type: 'spring', stiffness: 200, damping: 30 },
-};
+import { DashBoardContainer } from '../components/dashboard/DashboardContainer.tsx';
 
 const MasterLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
   const {
@@ -26,15 +14,18 @@ const MasterLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
     setCanAutoClose,
     walletLensOpen,
     handleWalletLensOpen,
+    dashboardOpen,
+    handleDashboardOpen,
+    dashboardLayoutContent,
     settingsIsOpen,
     setSettingsIsOpen,
   } = useLayoutContext();
-  const { isOpen, dashboardType } = useDashboardHandler();
+
   const isMobile = useIsMobile();
 
   return (
     <>
-      <div className="flex h-screen bg-baseBackground overflow-hidden sm:p-2">
+      <div className={`flex h-screen bg-baseBackground overflow-hidden sm:p-2`}>
         <Sidebar
           isOpen={sidebarOpen}
           setIsOpen={setSidebarOpen}
@@ -42,48 +33,31 @@ const MasterLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
           setCanAutoClose={setCanAutoClose}
         />
 
-        <PanelGroup
-          className="relative"
-          autoSaveId="conditional"
-          direction="horizontal"
+        {(!isMobile || (!walletLensOpen && !dashboardOpen)) && (
+          <main
+            className={`
+              transition-all duration-500
+              ${dashboardOpen ? 'w-[25%]' : 'w-full'} 
+              sm:rounded-2xl bg-background overflow-hidden
+            `}
+          >
+            {children}
+          </main>
+        )}
+
+        <DashBoardContainer
+          visible={dashboardOpen}
+          setVisible={handleDashboardOpen}
         >
-          <div className="absolute t-3 right-2 z-20">
-            <WalletLensButton
-              onClick={() => handleWalletLensOpen(!walletLensOpen)}
-            />
-          </div>
-
-          {(!isMobile || !walletLensOpen) && (
-            <Panel id="leftormiddle" minSize={40} defaultSize={45} order={1}>
-              <main className="w-full sm:rounded-2xl bg-background overflow-hidden h-full">
-                {children}
-              </main>
-            </Panel>
-          )}
-
-          <AnimatePresence>
-            {isOpen && !isMobile && (
-              <>
-                <PanelResizeHandle className="w-1" />
-                <Panel id="right" order={2} minSize={30}>
-                  <motion.main
-                    className="w-full h-full sm:rounded-2xl bg-background overflow-hidden"
-                    {...slideRight}
-                  >
-                    {dashboardType === 'goatIndex' && <GoatIndexDashboard />}
-                    {dashboardType === 'tokenData' && <TokenDataDashboard />}
-                  </motion.main>
-                </Panel>
-              </>
-            )}
-          </AnimatePresence>
-        </PanelGroup>
+          {dashboardLayoutContent}
+        </DashBoardContainer>
 
         <WalletLensSideBar
           setVisible={handleWalletLensOpen}
           visible={walletLensOpen}
         />
       </div>
+
       <SettingsModal
         isOpen={settingsIsOpen}
         onClose={() => setSettingsIsOpen(false)}

@@ -14,6 +14,13 @@ interface LayoutContextType {
   handleWalletLensOpen: (state: boolean) => void;
   settingsIsOpen: boolean;
   setSettingsIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  // Canvas-related properties
+  dashboardOpen: boolean;
+  dashboardLayoutContent: ReactNode | null;
+  setDashboardLayoutContent: React.Dispatch<
+    React.SetStateAction<ReactNode | null>
+  >;
+  handleDashboardOpen: (state: boolean) => void;
 }
 
 const LayoutContext = createContext<LayoutContextType | undefined>(undefined);
@@ -26,6 +33,10 @@ export const LayoutProvider: React.FC<{ children: ReactNode }> = ({
   const [canAutoClose, setCanAutoClose] = useState(false);
   const [audioIntensity, setAudioIntensity] = useState(0);
   const [settingsIsOpen, setSettingsIsOpen] = useState(false);
+  // Canvas-related state
+  const [dashboardOpen, setDashbordOpen] = useState(false);
+  const [dashboardLayoutContent, setDashboardLayoutContent] =
+    useState<ReactNode | null>(null);
 
   /**
    * Audio element to stream the incoming audio from webRTC
@@ -39,11 +50,32 @@ export const LayoutProvider: React.FC<{ children: ReactNode }> = ({
       setSidebarOpen(false);
       setWalletLensOpen(true);
       setCanAutoClose(true);
+      // Close Canvas if it's open
+      if (dashboardOpen) {
+        handleDashboardOpen(false);
+      }
     } else {
       if (!canAutoClose) {
         setSidebarOpen(true);
       }
       setWalletLensOpen(false);
+    }
+  };
+
+  /**
+   * Handler for opening and closing the Canvas component
+   */
+  const handleDashboardOpen = (state: boolean) => {
+    if (state) {
+      // Close wallet lens and collapse the side bar
+      if (walletLensOpen) {
+        setWalletLensOpen(false);
+      }
+      setSidebarOpen(false);
+      setCanAutoClose(true);
+      setDashbordOpen(true);
+    } else {
+      setDashbordOpen(false);
     }
   };
 
@@ -62,6 +94,11 @@ export const LayoutProvider: React.FC<{ children: ReactNode }> = ({
         handleWalletLensOpen,
         settingsIsOpen,
         setSettingsIsOpen,
+        // Canvas-related properties
+        dashboardOpen,
+        dashboardLayoutContent,
+        setDashboardLayoutContent,
+        handleDashboardOpen,
       }}
     >
       {children}
@@ -76,4 +113,3 @@ export const useLayoutContext = (): LayoutContextType => {
   }
   return context;
 };
-

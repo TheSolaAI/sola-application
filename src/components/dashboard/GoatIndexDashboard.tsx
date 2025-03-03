@@ -1,7 +1,6 @@
-import { useEffect, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { AgCharts } from 'ag-charts-react';
 import { AgCartesianChartOptions } from 'ag-charts-community';
-import { useDashboardHandler } from '../../models/DashboardHandler.ts';
 import { apiClient, ApiClient } from '../../api/ApiClient.ts';
 import { GoatIndexAgentResponse } from '../../types/goatIndex.ts';
 import { toast } from 'sonner';
@@ -18,13 +17,25 @@ import { IoIosArrowForward } from 'react-icons/io';
 import { ChartBarIcon } from 'lucide-react';
 import { MaskedRevealLoader } from '../general/MaskedRevealLoader.tsx';
 import { BorderGlowButton } from '../ui/buttons/BorderGlow.tsx';
+import { useLayoutContext } from '../../layout/LayoutProvider.tsx';
 
-export const GoatIndexDashboard = () => {
-  const { id, closeDashboard } = useDashboardHandler();
+interface GoatIndexDashboardProps {
+  contract_address: string;
+}
+
+export const GoatIndexDashboard: FC<GoatIndexDashboardProps> = ({
+  contract_address,
+}) => {
+  /**
+   * Global State
+   */
   const { theme } = useThemeManager();
+  const { handleDashboardOpen: handleCanvasOpen } = useLayoutContext();
 
+  /**
+   * Local State
+   */
   const [isLoading, setIsLoading] = useState(false);
-
   const [agentDetails, setAgentDetails] =
     useState<GoatIndexAgentResponse | null>(null);
   const [chartData, setChartData] = useState<
@@ -38,7 +49,7 @@ export const GoatIndexDashboard = () => {
       setIsLoading(true);
       try {
         const response = await apiClient.get<GoatIndexAgentResponse>(
-          `/api/agent/detail/SOLANA/${id}/DAY_7`,
+          `/api/agent/detail/SOLANA/${contract_address}/DAY_7`,
           undefined,
           'goatIndex',
         );
@@ -69,7 +80,7 @@ export const GoatIndexDashboard = () => {
     }
 
     fetchAgentDetails();
-  }, [id]);
+  }, []);
 
   // The chart config
   const chartOptions: AgCartesianChartOptions = {
@@ -131,7 +142,7 @@ export const GoatIndexDashboard = () => {
         {/* Dashboard header with back button */}
         <IoIosArrowForward
           className="rounded-2xl cursor-pointer text-textColorContrast min-w-8 min-h-8 hover:text-primary"
-          onClick={closeDashboard}
+          onClick={() => handleCanvasOpen(false)}
         />
         <p className="flex gap-4 text-2xl items-center font-bold text-textColorContrast p-2">
           Project:{' '}

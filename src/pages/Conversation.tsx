@@ -30,6 +30,7 @@ import { ScaleLoader } from 'react-spinners';
 import { LoaderMessageItem } from '../components/ui/message_items/LoaderMessageItem.tsx';
 import { InProgressMessageChatItem } from '../components/ui/message_items/InProgressMessageChatItem.tsx';
 import useKeyboardHeight from '../hooks/useKeyboardHeight.ts';
+import WalletLensButton from '../components/wallet/WalletLensButton.tsx';
 
 const Conversation = () => {
   const navigate = useNavigate();
@@ -48,6 +49,7 @@ const Conversation = () => {
   const { audioIntensity } = useLayoutContext();
   const { keyboardHeight } = useKeyboardHeight();
   const { isPWA } = useKeyboardHeight();
+  const { handleWalletLensOpen, walletLensOpen } = useLayoutContext();
 
   /**
    * Local State
@@ -209,6 +211,13 @@ const Conversation = () => {
 
   return (
     <div className="relative flex flex-col w-full h-screen overflow-hidden p-4">
+      {/* Wallet Lens Button */}
+      <div className="absolute top-4 right-4 z-20">
+        <WalletLensButton
+          onClick={() => handleWalletLensOpen(!walletLensOpen)}
+        />
+      </div>
+
       {/* Empty state message */}
       {state === 'loading' && (
         <div
