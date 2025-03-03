@@ -9,6 +9,8 @@ import { VscPinned } from 'react-icons/vsc';
 import { useLayoutContext } from '../../layout/LayoutProvider.tsx';
 import { useChatRoomHandler } from '../../models/ChatRoomHandler.ts';
 import { useCreditHandler } from '../../models/CreditHandler.ts';
+import { useNavigate } from 'react-router-dom';
+import { useChatMessageHandler } from '../../models/ChatMessageHandler.ts';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -35,10 +37,12 @@ export const Sidebar: FC<SidebarProps> = ({
    * Global State
    */
   const { theme } = useThemeManager();
-  const { rooms, setCurrentChatRoom, createChatRoom } = useChatRoomHandler();
+  const { rooms, setCurrentChatRoom } = useChatRoomHandler();
   const { pathname } = useLocation();
   const { walletLensOpen } = useLayoutContext();
   const { credits } = useCreditHandler();
+  const { messages, set } = useChatMessageHandler();
+  const navigate = useNavigate();
 
   /**
    * Local State
@@ -152,11 +156,12 @@ export const Sidebar: FC<SidebarProps> = ({
         <button
           ref={agentSelectRef}
           className="group mt-8 mb-4 flex items-center justify-center rounded-xl bg-background bg-gradient-to-r from-primary to-primaryDark p-[2px] transition-all duration-300 hover:shadow-primaryDark"
-          onClick={() =>
-            createChatRoom({ name: 'New Chat' }).then((room) => {
-              if (room) setCurrentChatRoom(room);
-            })
-          }
+          onClick={() => {
+            setCurrentChatRoom(null);
+            useChatMessageHandler.getState().messages = [];
+            navigate('/');
+
+          }}
         >
           <div className="flex h-full w-full flex-row items-center justify-center gap-4 rounded-xl bg-background p-2">
             <h1 className="text-textColor">New Chat</h1>
