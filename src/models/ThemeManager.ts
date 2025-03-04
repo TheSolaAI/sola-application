@@ -131,6 +131,10 @@ const ThemeHandler: StateCreator<ThemeStore> = (set, get) => {
     },
 
     setTheme: (theme: Theme) => {
+      // check if the theme exists just in case or default to the light theme
+      if (!get().availableThemes[theme.name]) {
+        theme = get().availableThemes['light'];
+      }
       set({ theme });
       applyTheme(theme);
       // Persist to local storage
