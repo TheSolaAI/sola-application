@@ -111,6 +111,8 @@ const ThemeHandler: StateCreator<ThemeStore> = (set, get) => {
 
     // Populate custom themes from server
     populateCustomThemes: (customThemes: Theme[]) => {
+      if (!customThemes) return;
+      if (customThemes.length === 0) return;
       const updatedThemes = {
         ...get().availableThemes,
         ...Object.fromEntries(customThemes.map((theme) => [theme.name, theme])),
@@ -131,6 +133,10 @@ const ThemeHandler: StateCreator<ThemeStore> = (set, get) => {
     },
 
     setTheme: (theme: Theme) => {
+      // check if the theme exists just in case or default to the light theme
+      if (!get().availableThemes[theme.name]) {
+        theme = get().availableThemes['light'];
+      }
       set({ theme });
       applyTheme(theme);
       // Persist to local storage
