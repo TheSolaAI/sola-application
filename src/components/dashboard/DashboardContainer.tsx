@@ -50,7 +50,7 @@ export const DashBoardContainer: FC<DashBoardContainerProps> = ({
           {/* Close Button */}
           <button
             onClick={() => setVisible(false)}
-            className="flex justify-center items-center p-2 rounded-full hover:bg-opacity-10 hover:bg-white"
+            className="flex justify-center text-textColor items-center p-2 rounded-full hover:bg-opacity-10 hover:bg-white"
           >
             <svg
               width="24"

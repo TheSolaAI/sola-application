@@ -4,17 +4,19 @@ import { ApiClient, apiClient } from '../api/ApiClient.ts';
 import { ChatRoomResponse } from '../types/response.ts';
 import { API_URLS } from '../config/api_urls.ts';
 import { toast } from 'sonner';
-import { useChatMessageHandler } from './ChatMessageHandler.ts';
-import { useSessionHandler } from './SessionHandler.ts';
 
 interface ChatRoomHandler {
   state: 'idle' | 'loading' | 'error'; // the state of the chat room handler
+  isCreatingRoom: boolean;
+  setIsCreatingRoom: (isCreatingRoom: boolean) => void;
+  isNewRoomCreated: boolean;
+
   rooms: ChatRoom[]; // stores an array of all the chat rooms. Is managed entirely by this model
   /**
-   * The Current Chat room selected by the user. READ ONLY
+   * The Current and Previous Chat room selected by the user. READ ONLY
    */
   currentChatRoom: ChatRoom | null;
-
+  previousChatRoom: ChatRoom | null;
   /**
    * A Boolean property on whether all the rooms have been loaded
    */
@@ -35,20 +37,24 @@ interface ChatRoomHandler {
 export const useChatRoomHandler = create<ChatRoomHandler>((set, get) => {
   return {
     state: 'idle',
+    isCreatingRoom: false,
+    setIsCreatingRoom: (isCreatingRoom: boolean) =>
+      set({ isCreatingRoom: isCreatingRoom }),
+    isNewRoomCreated: false,
+
     rooms: [],
     currentChatRoom: null,
+    previousChatRoom: null,
     allRoomsLoaded: false,
 
     setState: (state: 'idle' | 'loading' | 'error'): void => set({ state }),
 
     setCurrentChatRoom: async (room: ChatRoom | null): Promise<void> => {
-      set({ currentChatRoom: room });
-      // update the session with the tools that are available for this agent
-      useSessionHandler.getState().updateSession("tools");
-      if (room) {
-        // now fetch that chat room's messages
-        await useChatMessageHandler.getState().initChatMessageHandler();
-      }
+      set({
+        previousChatRoom: get().currentChatRoom,
+        currentChatRoom: room,
+        isNewRoomCreated: false,
+      });
     },
 
     initRoomHandler: async () => {
@@ -133,15 +139,15 @@ export const useChatRoomHandler = create<ChatRoomHandler>((set, get) => {
       );
 
       if (ApiClient.isApiResponse<ChatRoomResponse>(response)) {
+        const chatRoom = {
+          id: response.data.id,
+          name: response.data.name,
+        };
         set({
-          rooms: [
-            {
-              id: response.data.id,
-              name: response.data.name,
-            },
-            ...get().rooms,
-          ],
+          rooms: [chatRoom, ...get().rooms],
           state: 'idle',
+          isNewRoomCreated: true,
+          currentChatRoom: chatRoom,
         });
         return {
           id: response.data.id,
@@ -149,7 +155,7 @@ export const useChatRoomHandler = create<ChatRoomHandler>((set, get) => {
         };
       } else {
         toast.error('Failed to create room');
-        set({ state: 'error' });
+        set({ state: 'error', isCreatingRoom: false });
         return null;
       }
     },

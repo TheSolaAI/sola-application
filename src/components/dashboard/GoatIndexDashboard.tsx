@@ -13,11 +13,9 @@ import {
 } from '../ui/DashboardMetrics.tsx';
 import { FiExternalLink } from 'react-icons/fi';
 import { motion } from 'framer-motion';
-import { IoIosArrowForward } from 'react-icons/io';
 import { ChartBarIcon } from 'lucide-react';
 import { MaskedRevealLoader } from '../general/MaskedRevealLoader.tsx';
 import { BorderGlowButton } from '../ui/buttons/BorderGlow.tsx';
-import { useLayoutContext } from '../../layout/LayoutProvider.tsx';
 
 interface GoatIndexDashboardProps {
   contract_address: string;
@@ -30,7 +28,6 @@ export const GoatIndexDashboard: FC<GoatIndexDashboardProps> = ({
    * Global State
    */
   const { theme } = useThemeManager();
-  const { handleDashboardOpen: handleCanvasOpen } = useLayoutContext();
 
   /**
    * Local State
@@ -145,11 +142,6 @@ export const GoatIndexDashboard: FC<GoatIndexDashboardProps> = ({
         transition={{ duration: 0.5, delay: 0.4 }}
         className="h-full w-full flex flex-col gap-3 bg-backgroundContrast p-4 rounded-lg shadow-2xl"
       >
-        {/* Dashboard header with back button */}
-        <IoIosArrowForward
-          className="rounded-2xl cursor-pointer text-textColorContrast min-w-8 min-h-8 hover:text-primary"
-          onClick={() => handleCanvasOpen(false)}
-        />
         <p className="flex gap-4 text-2xl items-center font-bold text-textColorContrast p-2">
           Project:{' '}
           {agentDetails?.data.agentDetail.tokenDetail.name.toUpperCase()}{' '}

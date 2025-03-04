@@ -323,10 +323,13 @@ const Conversation = () => {
             onScroll={handleScroll}
           >
             <div className="w-full sm:w-[60%] mx-auto pb-32 mt-10">
-              {messages.map((chatItem, index) =>
-                renderMessageItem(chatItem, index),
-              )}
-              {currentChatItem && renderMessageItem(currentChatItem, -1)}
+              {chatRoomId &&
+                messages.map((chatItem, index) =>
+                  renderMessageItem(chatItem, index),
+                )}
+              {chatRoomId &&
+                currentChatItem &&
+                renderMessageItem(currentChatItem, -1)}
             </div>
             {/* This empty div is used as a reference for scrolling to the bottom */}
             <div ref={messagesEndRef} />
@@ -346,31 +349,24 @@ const Conversation = () => {
       </div>
 
       {/* Session Controls (Fixed at Bottom) */}
-      {isPWA ? (
-        <div
-          className={`absolute left-0 right-0 z-20 p-4 pb-8 ${keyboardHeight > 0 ? 'bottom-[' + keyboardHeight + 'px]' : 'bottom-0'}`}
-          style={{
-            background: `linear-gradient(to top, 
-              rgba(${primaryDarkRGB.r}, ${primaryDarkRGB.g}, ${primaryDarkRGB.b}, ${audioIntensity * 1.2}),
-              transparent 80%)`,
-            transition: 'background 0.1s linear',
-          }}
-        >
-          <SessionControls />
-        </div>
-      ) : (
-        <div
-          className="absolute left-0 right-0 bottom-0 z-20 p-4 pb-8"
-          style={{
-            background: `linear-gradient(to top, 
-              rgba(${primaryDarkRGB.r}, ${primaryDarkRGB.g}, ${primaryDarkRGB.b}, ${audioIntensity * 1.2}),
-              transparent 80%)`,
-            transition: 'background 0.1s linear',
-          }}
-        >
-          <SessionControls />
-        </div>
-      )}
+      <div
+        className={`absolute left-0 right-0 z-20 p-4 pb-8 ${
+          isPWA
+            ? keyboardHeight > 0
+              ? `bottom-[${keyboardHeight}px]`
+              : 'bottom-0'
+            : 'bottom-0'
+        }`}
+        style={{
+          backgroundImage: `
+            linear-gradient(to top, 
+            rgba(${primaryDarkRGB.r}, ${primaryDarkRGB.g}, ${primaryDarkRGB.b}, ${audioIntensity * 1.2}),
+            transparent 80%)`,
+          transition: 'background 0.1s linear',
+        }}
+      >
+        <SessionControls />
+      </div>
     </div>
   );
 };

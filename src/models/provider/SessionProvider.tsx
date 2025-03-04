@@ -16,7 +16,8 @@ export const SessionProvider: FC<SessionProviderProps> = ({ children }) => {
    * Global State Management
    */
   const { ready } = useUserHandler();
-  const { currentChatRoom } = useChatRoomHandler();
+  const { currentChatRoom, previousChatRoom, isNewRoomCreated } =
+    useChatRoomHandler();
   const { initChatMessageHandler } = useChatMessageHandler();
   const {
     initSessionHandler,
@@ -130,7 +131,8 @@ export const SessionProvider: FC<SessionProviderProps> = ({ children }) => {
    * Runs every time the current chat room changes and loads the chat messages of the room
    */
   useEffect(() => {
-    if (!currentChatRoom) return; // ignore the case that the chat room is set to null at the start of the app
+    // don't fetch when a new chat room is created or when the user is in dummy room
+    if (!currentChatRoom || (!previousChatRoom && isNewRoomCreated)) return;
     // load the messages of the room asynchronously
     initChatMessageHandler();
   }, [currentChatRoom]);
