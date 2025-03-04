@@ -3,7 +3,7 @@ import { create } from 'zustand';
 import { ApiClient, apiClient } from '../api/ApiClient.ts';
 import { API_URLS } from '../config/api_urls.ts';
 import { UserSettingsResponse } from '../types/response.ts';
-import useThemeManager from './ThemeManager.ts';
+import useThemeManager, { Theme } from './ThemeManager.ts';
 import { UpdateUserSettingsRequest } from '../types/request.ts';
 import { useSessionHandler } from './SessionHandler.ts';
 import { useCreditHandler } from './CreditHandler.ts';
@@ -38,10 +38,12 @@ export const useSettingsHandler = create<SettingsHandler>(() => {
         undefined,
         'auth',
       );
+
       if (ApiClient.isApiResponse<UserSettingsResponse>(response)) {
-        useThemeManager
-          .getState()
-          .populateCustomThemes(response.data.custom_themes);
+        const customThemes: Theme[] = Array.isArray(response.data.custom_themes)
+          ? response.data.custom_themes
+          : [];
+        useThemeManager.getState().populateCustomThemes(customThemes);
         useThemeManager
           .getState()
           .setTheme(
