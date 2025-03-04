@@ -239,7 +239,7 @@ const TerminalTabs: React.FC<TerminalTabsProps> = ({
               onClick={() => switchTab(tab.id)}
               className={`flex w-full items-center justify-center gap-2 p-2 border-r border-b cursor-pointer transition-colors ${
                 tabClassName
-              } ${tab.id === activeTabId ? 'bg-background' : 'bg-dashboardBackground text-textColorContrast'}`}
+              } ${tab.id === activeTabId ? 'bg-background text-textColor' : 'bg-dashboardBackground text-textColorContrast'}`}
               style={{
                 borderColor: theme.background,
               }}

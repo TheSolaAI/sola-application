@@ -30,12 +30,13 @@ import {
 } from '../types/chatItem.ts';
 import { Tool } from '../types/tool.ts';
 import { generateUniqueId } from '../utils/randomID.ts';
+import { MessageQueue, SerializedQueue } from '../utils/MessageQueue.ts';
 
 interface ChatMessageHandler {
   state: 'idle' | 'loading' | 'error'; // the state of the chat message handler
 
   messages: ChatItem<ChatContentType>[]; // stores an array of all the chat messages. Is managed entirely by this model
-
+  messageQueueData: SerializedQueue<ChatItem<ChatContentType>>; // stores an array of messages that are yet to be sent to server.
   /**
    * The current message that is being generated. This currently only supports Simple Messages
    * // TODO: Add support for other loader message types.
@@ -85,14 +86,65 @@ interface ChatMessageHandler {
    * our database
    */
   commitCurrentChatItem: () => Promise<void>;
+
+  // Helpers to work with the queue
+  enqueueMessage: (message: ChatItem<ChatContentType>) => void;
+  dequeueMessage: () => ChatItem<ChatContentType> | undefined;
+  getQueueSize: () => number;
+  clearQueue: () => void;
 }
 
 export const useChatMessageHandler = create<ChatMessageHandler>((set, get) => {
+  // Creating an empty queue to store the temporary messages that are formed during new chat creation.
+  const emptyQueue = MessageQueue.createEmpty<ChatItem<ChatContentType>>();
+
   return {
     state: 'idle',
     next: null,
     messages: [],
+    messageQueueData: emptyQueue,
     currentChatItem: null,
+
+    // Helper methods to work with the message queue
+    enqueueMessage: (message: ChatItem<ChatContentType>): void => {
+      try {
+        const queue = MessageQueue.fromSerialized<ChatItem<ChatContentType>>(
+          get().messageQueueData,
+        );
+        queue.enqueue(message);
+        set({ messageQueueData: queue.serialize() });
+      } catch (error) {
+        console.error('Error enqueuing message:', error);
+        // Create a new queue if there's an error
+        const newQueue = new MessageQueue<ChatItem<ChatContentType>>();
+        newQueue.enqueue(message);
+        set({ messageQueueData: newQueue.serialize() });
+      }
+    },
+
+    dequeueMessage: (): ChatItem<ChatContentType> | undefined => {
+      const queue = MessageQueue.fromSerialized<ChatItem<ChatContentType>>(
+        get().messageQueueData,
+      );
+      const message = queue.dequeue();
+      set({ messageQueueData: queue.serialize() });
+      return message;
+    },
+
+    getQueueSize: (): number => {
+      const queue = MessageQueue.fromSerialized<ChatItem<ChatContentType>>(
+        get().messageQueueData,
+      );
+      return queue.size();
+    },
+
+    clearQueue: (): void => {
+      const queue = MessageQueue.fromSerialized<ChatItem<ChatContentType>>(
+        get().messageQueueData,
+      );
+      queue.clear();
+      set({ messageQueueData: queue.serialize() });
+    },
 
     initChatMessageHandler: async () => {
       const currentRoomID = useChatRoomHandler.getState().currentChatRoom?.id;
@@ -170,32 +222,41 @@ export const useChatMessageHandler = create<ChatMessageHandler>((set, get) => {
     },
 
     addMessage: async (chatItem: ChatItem<ChatContentType>) => {
-      // TODO: Add Check for the amount of credits the user has here.
+      if (useChatRoomHandler.getState().isCreatingRoom) {
+        // store the messages in the queue, since we have to wait for the new chat to get created.
+        get().enqueueMessage(chatItem);
+        return;
+      }
+
       const currentRoomID = useChatRoomHandler.getState().currentChatRoom?.id;
 
       if (currentRoomID === undefined) {
-        // no chat room has been selected so we create a new one with our default agent and navigate the user to that room
-        const newRoom = await useChatRoomHandler.getState().createChatRoom({
-          name: 'New Chat',
-        });
+        useChatRoomHandler.getState().setIsCreatingRoom(true);
+        try {
+          // no chat room has been selected so we create a new one with our default agent and navigate the user to that room
+          const newRoom = await useChatRoomHandler.getState().createChatRoom({
+            name: 'New Chat',
+          });
 
-        if (newRoom) {
-          useChatRoomHandler.getState().setCurrentChatRoom(newRoom);
-          let messages = get().messages;
+          if (newRoom) {
+            // we then add this message to the new room on our server
+            const response = await apiClient.post(
+              API_URLS.CHAT_ROOMS + newRoom.id + '/messages/',
+              { message: JSON.stringify(chatItem.content) },
+              'auth',
+            );
 
-          // we then add this message to the new room on our server
-          const response = apiClient.post(
-            API_URLS.CHAT_ROOMS + newRoom.id + '/messages/',
-            { message: JSON.stringify(chatItem.content) },
-            'auth',
-          );
-
-          if (ApiClient.isApiError(response)) {
-            toast.error('Failed to Save Message, Reload the Page');
+            if (ApiClient.isApiError(response)) {
+              toast.error('Failed to Save Message, Reload the Page');
+            }
+            // add the message to our local state
+            set({ messages: [chatItem] });
           }
-          // add the message to our local state
-
-          set({ messages: [...messages, chatItem] });
+        } catch (error) {
+          console.error('Error creating chat room:', error);
+          toast.error('Failed to create chat room');
+        } finally {
+          useChatRoomHandler.getState().setIsCreatingRoom(false);
         }
       } else {
         const response = await apiClient.post(
@@ -207,6 +268,40 @@ export const useChatMessageHandler = create<ChatMessageHandler>((set, get) => {
           toast.error('Failed to Save Message, Reload the Page');
         }
         set({ messages: [...get().messages, chatItem] });
+      }
+
+      try {
+        // Process all queued messages and upload them to the server
+        const queue = MessageQueue.fromSerialized<ChatItem<ChatContentType>>(
+          get().messageQueueData,
+        );
+        if (!queue.isEmpty()) {
+          // Get messages before clearing
+          const queueMessages = queue.toArray();
+
+          // Clear the queue to prevent reprocessing
+          get().clearQueue();
+
+          // Process all messages in the queue
+          for (const message of queueMessages) {
+            console.log('Processing queued message:', message);
+            try {
+              const response = await apiClient.post(
+                API_URLS.CHAT_ROOMS + currentRoomID + '/messages/',
+                { message: JSON.stringify(message.content) },
+                'auth',
+              );
+              if (ApiClient.isApiError(response)) {
+                toast.error('Failed to save queued message');
+              }
+              set({ messages: [...get().messages, message] });
+            } catch (error) {
+              console.error('Error processing queued message:', error);
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error processing message queue:', error);
       }
     },
 

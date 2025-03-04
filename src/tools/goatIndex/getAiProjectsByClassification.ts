@@ -56,7 +56,7 @@ export async function handleGetAiProjectsByClassification(): Promise<{
 
     return {
       status: 'success',
-      response: `Notify the successful fetch. Do add any custom information and refrain from responding anythingo ther than successfully fetched data`,
+      response: `Notify the successful fetch. Do add any custom information and refrain from responding anything other than successfully fetched data`,
       props: {
         response_id: 'topAiProjects',
         sender: 'system',

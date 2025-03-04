@@ -14,7 +14,7 @@ export const LoaderMessageItem: FC<LoaderMessageItemProps> = ({ props }) => {
 
   return (
     <div className="flex flex-row gap-2 items-center">
-      <div className="text-lg">
+      <div className="text-base">
         {props.text.split('').map((char, index) => (
           <span
             key={index}

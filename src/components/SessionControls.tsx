@@ -3,6 +3,7 @@ import { Mic, MicOff, Send, RefreshCw } from 'lucide-react';
 import { useSessionHandler } from '../models/SessionHandler.ts';
 import { useCreditHandler } from '../models/CreditHandler.ts';
 import { toast } from 'sonner';
+import { useChatMessageHandler } from '../models/ChatMessageHandler.ts';
 
 const LOADING_QUOTES = [
   'Connecting SOLA...',
@@ -16,6 +17,7 @@ export const SessionControls = () => {
    * Global States
    */
   const { muted, setMuted, state, sendTextMessage } = useSessionHandler();
+  const { addMessage } = useChatMessageHandler();
   const { credits } = useCreditHandler();
 
   /**
@@ -54,6 +56,17 @@ export const SessionControls = () => {
     //   toast.warning('Refuel your credits to keep going!');
     //   return;
     // }
+
+    addMessage({
+      id: 0,
+      content: {
+        type: 'user_audio_chat',
+        response_id: 'Text-Input-0',
+        sender: 'user',
+        text: inputRef.current?.value || '',
+      },
+      createdAt: new Date().toISOString(),
+    });
     sendTextMessage(inputRef.current?.value || '');
     inputRef.current!.value = '';
   };

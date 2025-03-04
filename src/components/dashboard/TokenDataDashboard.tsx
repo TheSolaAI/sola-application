@@ -3,7 +3,6 @@ import { toast } from 'sonner';
 import { formatNumber } from '../../utils/formatNumber.ts';
 import { BasicMetricCard, MetricCard } from '../ui/DashboardMetrics.tsx';
 import { motion } from 'framer-motion';
-import { IoIosArrowForward } from 'react-icons/io';
 import { TokenDataChatContent } from '../../types/chatItem.ts';
 import { Tab } from '../ui/message_items/general/BaseTabItem.tsx';
 import { Activity, Terminal } from 'lucide-react';
@@ -15,7 +14,6 @@ import useThemeManager from '../../models/ThemeManager.ts';
 import { RugCheck } from '../../types/data_types.ts';
 import { BorderGlowButton } from '../ui/buttons/BorderGlow.tsx';
 import { useSessionHandler } from '../../models/SessionHandler.ts';
-import { useLayoutContext } from '../../layout/LayoutProvider.tsx';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -58,7 +56,6 @@ export const TokenDataDashboard: FC<TokenDataDashboardProps> = ({
    */
   const { sendTextMessageAsSystem } = useSessionHandler();
   const { theme } = useThemeManager();
-  const { handleDashboardOpen } = useLayoutContext();
 
   /**
    * Local State
@@ -284,10 +281,6 @@ export const TokenDataDashboard: FC<TokenDataDashboardProps> = ({
 
   return (
     <div className="h-full w-full flex flex-col gap-3 bg-backgroundContrast p-4 rounded-lg shadow-2xl">
-      <IoIosArrowForward
-        className="rounded-2xl cursor-pointer text-textColorContrast min-w-8 min-h-8 hover:text-primary"
-        onClick={() => handleDashboardOpen(false)}
-      />
       <motion.p
         initial={{ x: -20, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}

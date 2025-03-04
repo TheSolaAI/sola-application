@@ -8,6 +8,7 @@ import { useAgentHandler } from '../AgentHandler.ts';
 import { useWalletHandler } from '../WalletHandler.ts';
 import { useCreditHandler } from '../CreditHandler.ts';
 import { getAgentSwapper } from '../../tools';
+import { useChatRoomHandler } from '../ChatRoomHandler.ts';
 
 interface EventProviderProps {
   children: ReactNode;
@@ -28,6 +29,7 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
     useSessionHandler();
   const { currentWallet } = useWalletHandler();
   const { addMessage } = useChatMessageHandler();
+  const { currentChatRoom, createChatRoom, state } = useChatRoomHandler();
   const { calculateCreditUsage } = useCreditHandler();
 
   /**
@@ -41,7 +43,7 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
       if (dataStream === null) return;
       dataStream.onmessage = async (event) => {
         const eventData = JSON.parse(event.data);
-        console.log(eventData, null, 2);
+        // console.log(eventData, null, 2);
         if (eventData.type === 'session.created') {
           // update the session with our latest tools, voice and emotion
           updateSession('all');
@@ -53,6 +55,12 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
         ) {
           // our session has expired so we set the state of the session to idle
           useSessionHandler.getState().state = 'idle';
+        } else if (eventData.type === 'input_audio_buffer.speech_started') {
+          useSessionHandler.getState().setIsUserSpeaking(true);
+          if (!currentChatRoom && state === 'idle')
+            createChatRoom({ name: 'New Chat' });
+        } else if (eventData.type === 'input_audio_buffer.speech_stopped') {
+          useSessionHandler.getState().setIsUserSpeaking(false);
         } else if (
           eventData.type ===
           'conversation.item.input_audio_transcription.completed'
@@ -62,7 +70,7 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
             content: {
               type: 'user_audio_chat',
               response_id: eventData.event_id,
-              sender: 'user',
+              sender: 'assistant',
               text: eventData.transcript,
             },
             createdAt: new Date().toISOString(),

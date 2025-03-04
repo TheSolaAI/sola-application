@@ -22,6 +22,12 @@ interface SessionHandler {
   muted: boolean; // the mute state of the user
 
   /**
+   * State to track if the user is speaking or not
+   */
+  isUserSpeaking: boolean;
+  setIsUserSpeaking: (isUserSpeaking: boolean) => void;
+
+  /**
    * Starts the webrtc session with OpenAI real time api and initialize the loading of the available tools.
    * Returns the ephemeral token for the session.
    */
@@ -84,7 +90,12 @@ export const useSessionHandler = create<SessionHandler>((set, get) => {
     aiVoice: 'sage',
     aiEmotion: 'highly energetic and cheerfully enthusiastic',
     muted: true,
+    isUserSpeaking: false,
     mediaStream: null,
+
+    setIsUserSpeaking: (isUserSpeaking: boolean) => {
+      set({ isUserSpeaking: isUserSpeaking });
+    },
 
     initSessionHandler: async (): Promise<string | null> => {
       set({ state: 'loading' });
