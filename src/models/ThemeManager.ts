@@ -111,6 +111,8 @@ const ThemeHandler: StateCreator<ThemeStore> = (set, get) => {
 
     // Populate custom themes from server
     populateCustomThemes: (customThemes: Theme[]) => {
+      if (!customThemes) return;
+      if (customThemes.length === 0) return;
       const updatedThemes = {
         ...get().availableThemes,
         ...Object.fromEntries(customThemes.map((theme) => [theme.name, theme])),
