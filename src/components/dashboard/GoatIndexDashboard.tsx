@@ -44,9 +44,13 @@ export const GoatIndexDashboard: FC<GoatIndexDashboardProps> = ({
   const [chart, setChart] = useState<0 | 1>(1);
 
   useEffect(() => {
-    // Actively fetch the ai project details on global state change
+    // Reset states when contract_address changes
+    setIsLoading(true);
+    setAgentDetails(null);
+    setChartData([]);
+
+    // Actively fetch the ai project details on contract_address change
     async function fetchAgentDetails() {
-      setIsLoading(true);
       try {
         const response = await apiClient.get<GoatIndexAgentResponse>(
           `/api/agent/detail/SOLANA/${contract_address}/DAY_7`,
@@ -57,6 +61,7 @@ export const GoatIndexDashboard: FC<GoatIndexDashboardProps> = ({
         if (ApiClient.isApiError(response)) {
           console.error(response);
           toast.error('Error getting agent details');
+          setIsLoading(false);
           return;
         }
 
@@ -76,11 +81,12 @@ export const GoatIndexDashboard: FC<GoatIndexDashboardProps> = ({
         setIsLoading(false);
       } catch (e) {
         toast.error('Error getting agent details');
+        setIsLoading(false);
       }
     }
 
     fetchAgentDetails();
-  }, []);
+  }, [contract_address]);
 
   // The chart config
   const chartOptions: AgCartesianChartOptions = {
