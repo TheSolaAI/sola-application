@@ -85,7 +85,7 @@ export const WalletLensSideBar: React.FC<WalletLensSidebarProps> = ({
                 />
               ) : (
                 <img
-                  src="default_wallet.svg"
+                  src="/default_wallet.svg"
                   alt="wallet logo"
                   className="w-10 h-10 rounded-xl"
                 />

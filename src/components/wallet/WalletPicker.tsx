@@ -73,7 +73,7 @@ export const WalletPicker: FC<WalletPickerProps> = ({
                 />
               ) : (
                 <img
-                  src="default_wallet.svg"
+                  src="/default_wallet.svg"
                   alt="wallet logo"
                   className="w-14 h-14 rounded-xl"
                 />

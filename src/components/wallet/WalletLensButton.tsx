@@ -33,7 +33,7 @@ function WalletLensButton({ onClick }: WalletLensButtonProps) {
           />
         ) : (
           <img
-            src="default_wallet.svg"
+            src="/default_wallet.svg"
             alt="wallet logo"
             className="w-8 h-8 rounded-xl"
           />
