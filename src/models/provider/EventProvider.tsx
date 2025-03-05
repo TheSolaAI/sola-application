@@ -43,7 +43,7 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
       if (dataStream === null) return;
       dataStream.onmessage = async (event) => {
         const eventData = JSON.parse(event.data);
-        // console.log(eventData, null, 2);
+        console.log(eventData, null, 2);
         if (eventData.type === 'session.created') {
           // update the session with our latest tools, voice and emotion
           updateSession('all');
@@ -58,9 +58,10 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
         } else if (eventData.type === 'input_audio_buffer.speech_started') {
           useSessionHandler.getState().setIsUserSpeaking(true);
           if (
-            useChatRoomHandler.getState().currentChatRoom &&
+            !useChatRoomHandler.getState().currentChatRoom &&
             state === 'idle'
           ) {
+            console.log(useChatRoomHandler.getState().currentChatRoom);
             createChatRoom({ name: 'New Chat' });
           }
         } else if (eventData.type === 'input_audio_buffer.speech_stopped') {
