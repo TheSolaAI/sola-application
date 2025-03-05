@@ -32,7 +32,7 @@ import { InProgressMessageChatItem } from '../components/ui/message_items/InProg
 import useKeyboardHeight from '../hooks/useKeyboardHeight.ts';
 import WalletLensButton from '../components/wallet/WalletLensButton.tsx';
 
-const Conversation = () => {
+export const Conversation = () => {
   const navigate = useNavigate();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollableContainerRef = useRef<HTMLDivElement>(null);
@@ -370,5 +370,3 @@ const Conversation = () => {
     </div>
   );
 };
-
-export default Conversation;

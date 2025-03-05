@@ -8,9 +8,8 @@
 import { Route, Routes } from 'react-router-dom';
 import MasterLayout from '../layout/MasterLayout';
 import PageTitle from '../components/PageTitle';
-import Conversation from '../pages/Conversation';
+import { Conversation } from '../pages/Conversation';
 import Onboarding from '../pages/Onboarding.tsx';
-// import OnRamp from '../pages/OnRamp';
 import Pricing from '../pages/Pricing';
 import { SessionProvider } from '../models/provider/SessionProvider.tsx';
 
@@ -42,15 +41,6 @@ const AppRoutes = () => {
               </>
             }
           />
-          {/* <Route
-            path="/onramp"
-            element={
-              <>
-                <PageTitle title="On Ramp" />
-                <OnRamp />
-              </>
-            }
-          /> */}
           <Route
             path="/pricing"
             element={
