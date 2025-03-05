@@ -19,12 +19,6 @@ interface SettingsHandler {
   updateSettings: (
     setting: 'all' | 'voice' | 'emotion' | 'theme' | 'custom_themes' | 'name',
   ) => Promise<boolean>;
-
-  /**
-   * This function only updates the credits in the user settings. Due to it being called often it is separated
-   * from the updateSettings function.
-   */
-  updateCredits: () => Promise<void>;
 }
 
 /**
@@ -94,19 +88,6 @@ export const useSettingsHandler = create<SettingsHandler>(() => {
       } else {
         toast.error('Failed to update settings.');
         return false;
-      }
-    },
-
-    updateCredits: async (): Promise<void> => {
-      const response = await apiClient.patch<UserSettingsResponse>(
-        API_URLS.AUTH.SETTINGS.UPDATE,
-        { credits_remaining: useCreditHandler.getState().credits },
-        'auth',
-      );
-      if (ApiClient.isApiResponse(response)) {
-        return;
-      } else {
-        toast.error('Failed to fetch settings.');
       }
     },
   };
