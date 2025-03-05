@@ -2,7 +2,7 @@ import { Tool } from '../types/tool.ts';
 import { useChatMessageHandler } from '../models/ChatMessageHandler.ts';
 import { ApiClient, apiClient } from '../api/ApiClient.ts';
 import { TokenDataResponse } from '../types/response.ts';
-import { TokenDataMessageItem } from '../components/ui/message_items/TokenDataMessageItem.tsx';
+import { TokenDataMessageItem } from '../components/messages/TokenDataMessageItem.tsx';
 import { TokenDataChatContent } from '../types/chatItem.ts';
 
 const functionDescription = `Get the current price of any token in Solana Blockchain, including detailed information like buy/sell prices, Market Cap, Top Holders, Bubblemaps and Token Analysis.`;

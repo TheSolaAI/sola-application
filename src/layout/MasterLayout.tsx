@@ -1,10 +1,10 @@
 import React, { ReactNode } from 'react';
-import { Sidebar } from '../components/Sidebar/SideBar.tsx';
+import { Sidebar } from '../components/sidebar/SideBar.tsx';
 import { WalletLensSideBar } from '../components/wallet/WalletLensSideBar.tsx';
 import { useLayoutContext } from './LayoutProvider.tsx';
 import useIsMobile from '../utils/isMobile.tsx';
-import { SettingsModal } from '../components/Settings/SettingsPopup.tsx';
-import { DashBoardContainer } from '../components/dashboard/DashboardContainer.tsx';
+import { SettingsModal } from '../components/settings/SettingsPopup.tsx';
+import { DashBoardContainer } from '../components/dashboards/DashboardContainer.tsx';
 
 const MasterLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
   const {

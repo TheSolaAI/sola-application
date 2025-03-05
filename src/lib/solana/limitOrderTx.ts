@@ -9,10 +9,8 @@ import {
 import { apiClient, ApiClient } from '../../api/ApiClient';
 import { Connection, VersionedTransaction } from '@solana/web3.js';
 import { useChatMessageHandler } from '../../models/ChatMessageHandler';
-import { TransactionDataMessageItem } from '../../components/ui/message_items/TransactionCard';
+import { TransactionDataMessageItem } from '../../components/messages/TransactionCard';
 import { TransactionChatContent, ChatItem } from '../../types/chatItem';
-
-
 
 const rpc = import.meta.env.VITE_SOLANA_RPC;
 
@@ -22,13 +20,13 @@ export async function limitOrderTx(
   let resp = await apiClient.post<LimitOrderResponse>(
     'api/wallet/jup/limit-order/create',
     params,
-    'wallet'
+    'wallet',
   );
   if (ApiClient.isApiError(resp)) {
     console.error('Error creating limit order:', resp.errors);
     return null;
   }
-  console.log(resp)
+  console.log(resp);
   return resp.data;
 }
 
@@ -36,10 +34,9 @@ export async function getLimitOrderHandler(
   params: ShowLimitOrderParams,
 ): Promise<ShowLimitOrderResponse | null> {
   let resp = await apiClient.get<ShowLimitOrderResponse>(
-    'api/wallet/jup/limit-order/show?address=' +
-    params.public_key,
+    'api/wallet/jup/limit-order/show?address=' + params.public_key,
     undefined,
-    'wallet'
+    'wallet',
   );
   if (ApiClient.isApiError(resp)) {
     console.error('Error cancelling limit order:', resp.errors);
@@ -51,7 +48,6 @@ export async function getLimitOrderHandler(
 export async function cancelLimitOrderHandler(
   params: CancelLimitOrderParams,
 ): Promise<void | null> {
-
   useChatMessageHandler.getState().setCurrentChatItem({
     content: {
       type: 'loader_message',
@@ -63,7 +59,7 @@ export async function cancelLimitOrderHandler(
     createdAt: new Date().toISOString(),
   });
 
-  if (!rpc) { 
+  if (!rpc) {
     return null;
   }
   let wallet = params.public_key;
@@ -75,12 +71,12 @@ export async function cancelLimitOrderHandler(
     order_id: params.order_id,
     public_key: params.public_key?.address,
   };
-  console.log(final_params)
+  console.log(final_params);
 
   let resp = await apiClient.post<CancelLimitOrderResponse>(
     'api/wallet/jup/limit-order/cancel',
     final_params,
-    'wallet'
+    'wallet',
   );
 
   if (ApiClient.isApiError(resp)) {
@@ -109,7 +105,6 @@ export async function cancelLimitOrderHandler(
     },
     createdAt: new Date().toISOString(),
   };
-  
-  useChatMessageHandler.getState().addMessage(msg)
 
+  useChatMessageHandler.getState().addMessage(msg);
 }

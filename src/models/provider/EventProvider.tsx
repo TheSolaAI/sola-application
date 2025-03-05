@@ -29,7 +29,7 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
     useSessionHandler();
   const { currentWallet } = useWalletHandler();
   const { addMessage } = useChatMessageHandler();
-  const { currentChatRoom, createChatRoom, state } = useChatRoomHandler();
+  const { createChatRoom, state } = useChatRoomHandler();
   const { calculateCreditUsage } = useCreditHandler();
 
   /**
@@ -57,9 +57,10 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
           useSessionHandler.getState().state = 'idle';
         } else if (eventData.type === 'input_audio_buffer.speech_started') {
           useSessionHandler.getState().setIsUserSpeaking(true);
-          if (!currentChatRoom && state === 'idle') {
-            console.log(currentChatRoom, state);
-            console.log('creating new room');
+          if (
+            useChatRoomHandler.getState().currentChatRoom &&
+            state === 'idle'
+          ) {
             createChatRoom({ name: 'New Chat' });
           }
         } else if (eventData.type === 'input_audio_buffer.speech_stopped') {

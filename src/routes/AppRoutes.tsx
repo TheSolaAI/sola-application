@@ -7,7 +7,7 @@
 
 import { Route, Routes } from 'react-router-dom';
 import MasterLayout from '../layout/MasterLayout';
-import PageTitle from '../components/PageTitle';
+import PageTitle from '../components/general/PageTitle.tsx';
 import { Conversation } from '../pages/Conversation';
 import Onboarding from '../pages/Onboarding.tsx';
 import Pricing from '../pages/Pricing';

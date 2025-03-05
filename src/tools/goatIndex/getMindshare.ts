@@ -1,5 +1,5 @@
 import { Tool } from '../../types/tool.ts';
-import { AiProjects } from '../../components/ui/message_items/AiProjects.tsx';
+import { AiProjects } from '../../components/messages/AiProjects.tsx';
 import { AiProjectsChatContent } from '../../types/chatItem.ts';
 import { useChatMessageHandler } from '../../models/ChatMessageHandler.ts';
 import { ApiClient, apiClient } from '../../api/ApiClient.ts';
@@ -54,7 +54,7 @@ export async function handleGetAiProjectsMindshare(): Promise<{
         response: 'Error getting mindshare.',
       };
     }
-    console.log("ogga booga")
+    console.log('ogga booga');
     return {
       status: 'success',
       response: `Notify the successful fetch. Do add any custom information and refrain from responding anythingo ther than successfully fetched data`,
@@ -67,8 +67,8 @@ export async function handleGetAiProjectsMindshare(): Promise<{
       },
     };
   } catch (e) {
-    console.log("ogga booga")
-    console.log("ooga error")
+    console.log('ogga booga');
+    console.log('ooga error');
     toast.error('Error getting AI projects.');
     return {
       status: 'error',

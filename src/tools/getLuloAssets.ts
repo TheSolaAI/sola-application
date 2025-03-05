@@ -3,7 +3,7 @@ import { getAssetsLulo } from '../lib/solana/lulo';
 import { AssetsParams } from '../types/lulo';
 import { LuloChatContent } from '../types/chatItem';
 import { Tool } from '../types/tool';
-import { LuloChatItem } from '../components/ui/message_items/LuloMessageItem.tsx';
+import { LuloChatItem } from '../components/messages/LuloMessageItem.tsx';
 import { useChatMessageHandler } from '../models/ChatMessageHandler.ts';
 
 const functionDescription =

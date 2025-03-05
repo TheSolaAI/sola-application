@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Mic, MicOff, Send, RefreshCw } from 'lucide-react';
 import { useSessionHandler } from '../models/SessionHandler.ts';
-import { useCreditHandler } from '../models/CreditHandler.ts';
-import { toast } from 'sonner';
 import { useChatMessageHandler } from '../models/ChatMessageHandler.ts';
 
 const LOADING_QUOTES = [
@@ -18,7 +16,6 @@ export const SessionControls = () => {
    */
   const { muted, setMuted, state, sendTextMessage } = useSessionHandler();
   const { addMessage } = useChatMessageHandler();
-  const { credits } = useCreditHandler();
 
   /**
    * Local States

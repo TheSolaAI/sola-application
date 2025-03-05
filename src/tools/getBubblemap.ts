@@ -2,7 +2,7 @@ import { useChatMessageHandler } from '../models/ChatMessageHandler.ts';
 import { Tool } from '../types/tool.ts';
 import { getTokenDataSymbol } from '../lib/solana/tokenData.ts';
 import { BubbleMapChatContent } from '../types/chatItem.ts';
-import { BubbleMapChatItem } from '../components/ui/message_items/BubbleMapCardItem.tsx';
+import { BubbleMapChatItem } from '../components/messages/BubbleMapCardItem.tsx';
 
 const functionDescription = `Fetches a bubblemap for the specified token. Either token symbol or token address is given as input`;
 

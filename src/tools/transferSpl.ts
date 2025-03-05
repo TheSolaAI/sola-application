@@ -14,7 +14,7 @@ import {
 import bs58 from 'bs58';
 import { Tool } from '../types/tool';
 import { TransactionChatContent } from '../types/chatItem';
-import { TransferChatItem } from '../components/ui/message_items/TransferMessageItem.tsx';
+import { TransferChatItem } from '../components/messages/TransferMessageItem.tsx';
 import { useChatMessageHandler } from '../models/ChatMessageHandler.ts';
 
 const functionDescription =
