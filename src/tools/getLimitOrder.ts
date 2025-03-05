@@ -3,7 +3,7 @@ import { Tool } from '../types/tool.ts';
 import { ShowLimitOrderParams } from '../types/jupiter.ts';
 import { getLimitOrderHandler } from '../lib/solana/limitOrderTx.ts';
 import { ShowLimitOrdersChatContent } from '../types/chatItem.ts';
-import { ShowLimitOrdersChatItem } from '../components/ui/message_items/ShowLimitOrderChatItem.tsx';
+import { ShowLimitOrdersChatItem } from '../components/messages/ShowLimitOrderChatItem.tsx';
 import { useChatMessageHandler } from '../models/ChatMessageHandler.ts';
 
 const functionDescription = 'Get the active limit orders of the user.';
@@ -33,7 +33,6 @@ async function getLimitOrderFunction(args: {
   response: string;
   props?: ShowLimitOrdersChatContent;
 }> {
-
   useChatMessageHandler.getState().setCurrentChatItem({
     content: {
       type: 'loader_message',
@@ -68,9 +67,9 @@ async function getLimitOrderFunction(args: {
     type: 'get_limit_order',
     data: resp,
   };
- 
-  let order_id:String[] = [];
-  resp.orders.forEach(element => {
+
+  let order_id: String[] = [];
+  resp.orders.forEach((element) => {
     order_id.push(element.order_id);
   });
 

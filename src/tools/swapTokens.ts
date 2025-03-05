@@ -4,7 +4,7 @@ import { SwapParams } from '../types/jupiter';
 import { swapTx } from '../lib/solana/swapTx';
 import { Tool } from '../types/tool';
 import { SwapChatContent } from '../types/chatItem';
-import { SwapChatItem } from '../components/ui/message_items/SwapMessageItem.tsx';
+import { SwapChatItem } from '../components/messages/SwapMessageItem.tsx';
 import { useChatMessageHandler } from '../models/ChatMessageHandler.ts';
 
 const functionDescription =

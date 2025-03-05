@@ -1,5 +1,5 @@
 import { Tool } from '../../types/tool.ts';
-import { AiProjects } from '../../components/ui/message_items/AiProjects.tsx';
+import { AiProjects } from '../../components/messages/AiProjects.tsx';
 import { AiProjectsChatContent } from '../../types/chatItem.ts';
 import { useChatMessageHandler } from '../../models/ChatMessageHandler.ts';
 import { ApiClient, apiClient } from '../../api/ApiClient.ts';

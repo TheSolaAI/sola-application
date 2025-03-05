@@ -1,11 +1,11 @@
 import { Connection, VersionedTransaction } from '@solana/web3.js';
 import { useChatMessageHandler } from '../models/ChatMessageHandler.ts';
-import { LimitOrderParams} from '../types/jupiter.ts';
+import { LimitOrderParams } from '../types/jupiter.ts';
 import { Tool } from '../types/tool.ts';
 import { ConnectedSolanaWallet } from '@privy-io/react-auth';
 import { limitOrderTx } from '../lib/solana/limitOrderTx.ts';
 import { TransactionChatContent } from '../types/chatItem.ts';
-import { TransactionDataMessageItem } from '../components/ui/message_items/TransactionCard.tsx';
+import { TransactionDataMessageItem } from '../components/messages/TransactionCard.tsx';
 
 const rpc = import.meta.env.VITE_SOLANA_RPC;
 
@@ -144,7 +144,8 @@ export async function createLimitOrder(args: {
     console.error('Error creating limit order:', error);
     return {
       status: 'error',
-      response: 'unable to place limit order. Do not add this limit order into completed.',
+      response:
+        'unable to place limit order. Do not add this limit order into completed.',
     };
   }
 }

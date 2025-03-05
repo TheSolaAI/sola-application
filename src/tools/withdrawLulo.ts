@@ -7,7 +7,7 @@ import { tokenList } from '../config/tokens/tokenMapping';
 import { withdrawLuloTx } from '../lib/solana/lulo';
 import { Connection } from '@solana/web3.js';
 import { TransactionCard } from '../types/messageCard';
-import { TransactionDataMessageItem } from '../components/ui/message_items/TransactionCard.tsx';
+import { TransactionDataMessageItem } from '../components/messages/TransactionCard.tsx';
 
 const functionDescription =
   'Call this function ONLY when the user explicitly requests to withdraw stable coins from Lulo. Ensure the user specifies the correct stable coin (USDS or USDC) and an amount. DO NOT assume or attach any arbitrary number if unclear. USDS and USDC are DISTINCT coins—select appropriately. This function is NOT for deposits or any other operation. Confirm the user’s intent before proceeding if you are unsure of the intent.';

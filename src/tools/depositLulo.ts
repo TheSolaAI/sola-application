@@ -7,7 +7,7 @@ import { depositLuloTx } from '../lib/solana/lulo.ts';
 import { useChatMessageHandler } from '../models/ChatMessageHandler.ts';
 import { TransactionChatContent } from '../types/chatItem.ts';
 import { TransactionCard } from '../types/messageCard.ts';
-import { TransactionDataMessageItem } from '../components/ui/message_items/TransactionCard.tsx';
+import { TransactionDataMessageItem } from '../components/messages/TransactionCard.tsx';
 
 const functionDescription =
   'Call this function ONLY when the user explicitly requests to deposit stable coins into Lulo Finance. Ensure the user specifies the correct stable coin (USDC, USDS, or USDT) and an amount. DO NOT make assumptions about the coin or the amount if unclear. These are DISTINCT coins—choose appropriately. This function is NOT for withdrawals or any other operation.';
