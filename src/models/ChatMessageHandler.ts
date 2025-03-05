@@ -38,8 +38,7 @@ interface ChatMessageHandler {
   messages: ChatItem<ChatContentType>[]; // stores an array of all the chat messages. Is managed entirely by this model
   messageQueueData: SerializedQueue<ChatItem<ChatContentType>>; // stores an array of messages that are yet to be sent to server.
   /**
-   * The current message that is being generated. This currently only supports Simple Messages
-   * // TODO: Add support for other loader message types.
+   * The current message that is being generated.
    */
   currentChatItem: ChatItem<
     InProgressChatContent | LoaderMessageChatContent

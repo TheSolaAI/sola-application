@@ -10,6 +10,7 @@ import { User } from 'lucide-react';
 import { UserSettings, UserSettingsRef } from './UserSettings.tsx';
 import { ThemeSettings, ThemeSettingsRef } from './ThemeSettings.tsx';
 import { WalletSettings } from './WalletSettings.tsx';
+import { toast } from 'sonner';
 
 export const SettingsModal: FC<{ isOpen: boolean; onClose: () => void }> = ({
   isOpen,
@@ -34,6 +35,17 @@ export const SettingsModal: FC<{ isOpen: boolean; onClose: () => void }> = ({
 
   // Check if device is mobile
   const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
+
+  /**
+   * Function to handle done button click. In this case call the submit method in all the settings components
+   */
+  const onDoneClicked = () => {
+    aiConfigRef.current?.onSubmit();
+    walletSettingsRef.current?.onSubmit();
+    userSettingsRef.current?.onSubmit();
+    themeSettingsRef.current?.onSubmit();
+    onClose();
+  };
 
   return (
     <AnimatePresence>
@@ -225,7 +237,7 @@ export const SettingsModal: FC<{ isOpen: boolean; onClose: () => void }> = ({
                   {/* Footer (Always Visible) */}
                   <div className="p-4 border-t border-border justify-end flex">
                     <button
-                      onClick={onClose}
+                      onClick={onDoneClicked}
                       className="px-4 py-2 bg-primary text-textColor rounded-lg hover:bg-primaryDark transition-colors"
                     >
                       Done

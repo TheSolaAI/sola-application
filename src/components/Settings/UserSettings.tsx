@@ -1,7 +1,10 @@
 import { forwardRef, useImperativeHandle, useState } from 'react';
 import { usePrivy } from '@privy-io/react-auth';
 import { toast } from 'sonner';
-import { FaDiscord, FaTwitter, FaLink, FaUnlink } from 'react-icons/fa';
+import { FaDiscord, FaLink, FaUnlink } from 'react-icons/fa';
+import { useSessionHandler } from '../../models/SessionHandler';
+import { useSettingsHandler } from '../../models/SettingsHandler';
+import { useUserHandler } from '../../models/UserHandler';
 
 interface UserSettingsProps {}
 
@@ -24,7 +27,7 @@ export const UserSettings = forwardRef<UserSettingsRef, UserSettingsProps>(
     } = usePrivy();
 
     // Local state
-    const [name, setName] = useState<string>('');
+    const [name, setName] = useState<string>(useUserHandler.getState().name);
     const [isLinkingEmail, setIsLinkingEmail] = useState<boolean>(false);
     const [isLinkingDiscord, setIsLinkingDiscord] = useState<boolean>(false);
     const [isLinkingTwitter, setIsLinkingTwitter] = useState<boolean>(false);
@@ -59,8 +62,17 @@ export const UserSettings = forwardRef<UserSettingsRef, UserSettingsProps>(
       return colors[hash % colors.length];
     };
 
+    /**
+     * Saves the user name and their profile to our settings in case the user never blurred the input
+     */
     const handleSubmit = () => {
-      return;
+      useUserHandler.getState().setUserName(name);
+      useUserHandler.getState().setProfilePic({
+        color: getAvatarColor(),
+        initials: getInitials(),
+      });
+      useSessionHandler.getState().updateSession('name');
+      useSettingsHandler.getState().updateSettings('name');
     };
 
     useImperativeHandle(ref, () => ({
@@ -180,6 +192,16 @@ export const UserSettings = forwardRef<UserSettingsRef, UserSettingsProps>(
             maxLength={30}
             value={name}
             onChange={(e) => setName(e.target.value)}
+            onBlur={() => {
+              // save the name on blur
+              useUserHandler.getState().setUserName(name);
+              useUserHandler.getState().setProfilePic({
+                color: getAvatarColor(),
+                initials: getInitials(),
+              });
+              useSessionHandler.getState().updateSession('name');
+              useSettingsHandler.getState().updateSettings('name');
+            }}
           />
           <p className="text-xs text-secText mt-1">Maximum 30 characters</p>
         </div>

@@ -8,6 +8,7 @@ import { useChatRoomHandler } from './ChatRoomHandler.ts';
 import { useAgentHandler } from './AgentHandler.ts';
 import { getAgentSwapper } from '../tools';
 import { BaseToolAbstraction } from '../types/tool.ts';
+import { useUserHandler } from './UserHandler.ts';
 
 interface SessionHandler {
   state: 'idle' | 'loading' | 'open' | 'error'; // the state of the session handler
@@ -40,7 +41,9 @@ interface SessionHandler {
   setAiVoice: (aiVoice: AIVoice) => void; // sets the voice of the AI
   setAiEmotion: (aiEmotion: string) => void; // sets the emotion of the AI
 
-  updateSession: (update_type: 'all' | 'tools' | 'voice' | 'emotion') => void; // Updates the session with the latest tools, voice and emotion
+  updateSession: (
+    update_type: 'all' | 'tools' | 'voice' | 'emotion' | 'name',
+  ) => void; // Updates the session with the latest tools, voice and emotion
 
   /**
    * Sets the mute state of the user. This means the user's audio will not be collected. However the
@@ -140,7 +143,7 @@ export const useSessionHandler = create<SessionHandler>((set, get) => {
     },
 
     updateSession: async (
-      update_type: 'all' | 'tools' | 'voice' | 'emotion',
+      update_type: 'all' | 'tools' | 'voice' | 'emotion' | 'name',
     ): Promise<void> => {
       // extract only the abstraction from each tool and pass to OpenAI if required
       let tools: BaseToolAbstraction[] = [];
@@ -164,7 +167,10 @@ export const useSessionHandler = create<SessionHandler>((set, get) => {
       if (update_type === 'all') {
         updateParams.session = {
           modalities: ['text', 'audio'],
-          instructions: getPrimeDirective(get().aiEmotion),
+          instructions: getPrimeDirective(
+            get().aiEmotion,
+            useUserHandler.getState().name,
+          ),
           voice: get().aiVoice.toLowerCase(),
           input_audio_transcription: {
             model: 'whisper-1',
@@ -184,7 +190,17 @@ export const useSessionHandler = create<SessionHandler>((set, get) => {
         };
       } else if (update_type === 'emotion') {
         updateParams.session = {
-          instructions: getPrimeDirective(get().aiEmotion),
+          instructions: getPrimeDirective(
+            get().aiEmotion,
+            useUserHandler.getState().name,
+          ),
+        };
+      } else if (update_type === 'name') {
+        updateParams.session = {
+          instructions: getPrimeDirective(
+            get().aiEmotion,
+            useUserHandler.getState().name,
+          ),
         };
       }
 

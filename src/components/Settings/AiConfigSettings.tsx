@@ -50,8 +50,11 @@ export const AIConfigSettings = forwardRef<
     onSubmit: () => {
       if (aiEmotionLocal !== aiEmotion) {
         setAiEmotion(aiEmotionLocal);
+        setAiVoice(aiVoice);
         updateSession('emotion');
-        toast.success('AI Emotion updated');
+        updateSession('voice');
+        updateSettings('emotion');
+        updateSettings('voice');
       }
     },
   }));
@@ -101,4 +104,3 @@ export const AIConfigSettings = forwardRef<
     </div>
   );
 });
-
