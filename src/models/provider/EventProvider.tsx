@@ -57,8 +57,11 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
           useSessionHandler.getState().state = 'idle';
         } else if (eventData.type === 'input_audio_buffer.speech_started') {
           useSessionHandler.getState().setIsUserSpeaking(true);
-          if (!currentChatRoom && state === 'idle')
+          if (!currentChatRoom && state === 'idle') {
+            console.log(currentChatRoom, state);
+            console.log('creating new room');
             createChatRoom({ name: 'New Chat' });
+          }
         } else if (eventData.type === 'input_audio_buffer.speech_stopped') {
           useSessionHandler.getState().setIsUserSpeaking(false);
         } else if (

@@ -3,6 +3,8 @@ import { ConnectedSolanaWallet } from '@privy-io/react-auth';
 import { toast } from 'sonner';
 import { Connection, LAMPORTS_PER_SOL, PublicKey } from '@solana/web3.js';
 import { NFTAsset, TokenAsset, WalletAssets } from '../types/wallet.ts';
+import { ApiClient, apiClient } from '../api/ApiClient.ts';
+import { API_URLS } from '../config/api_urls.ts';
 
 let connection = new Connection(import.meta.env.VITE_SOLANA_RPC!, 'confirmed');
 
@@ -140,7 +142,23 @@ export const useWalletHandler = create<WalletHandler>((set, get) => {
     },
     status: 'initialLoad',
 
-    setWallets: (wallets) => set({ wallets }),
+    setWallets: async (wallets) => {
+      set({ wallets });
+
+      for (const wallet of wallets) {
+        const response = await apiClient.post(
+          API_URLS.AUTH.WALLET,
+          {
+            wallet_address: wallet.address,
+            wallet_provider: wallet.walletClientType,
+          },
+          'auth',
+        );
+        if (ApiClient.isApiError(response)) {
+          toast.warning('Failed to update wallet info');
+        }
+      }
+    },
     setCurrentWallet: (wallet) => {
       // stop monitoring the previous wallet
       if (get().currentWallet) {
