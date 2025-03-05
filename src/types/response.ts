@@ -4,6 +4,11 @@ import { Theme } from '../models/ThemeManager.ts';
 export interface UserSettingsResponse {
   id: number;
   user_id: number;
+  name: string;
+  profile_pic: {
+    color: string;
+    initials: string;
+  };
   theme: string;
   voice_preference: AIVoice;
   emotion_choice: string;

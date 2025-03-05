@@ -15,6 +15,23 @@ interface UserHandler {
   ready: boolean;
 
   /**
+   * Represents the user's name. Is used to customize the AI response with the users name
+   */
+  name: string;
+
+  /**
+   * Represents the user's profile picture. Currently this is not used.
+   */
+  profilePic: {
+    color: string;
+    initials: string;
+  };
+
+  setUserName: (name: string) => void;
+
+  setProfilePic: (pic: { color: string; initials: string }) => void;
+
+  /**
    * Called when any server retursn that the token has expired. This is called and
    * the request is retried with the new token. Returns false if privy does not return
    * an auth token meaning the user has most likely signed out.
@@ -37,6 +54,19 @@ export const useUserHandler = create<UserHandler>((set) => {
   return {
     authToken: null,
     ready: false,
+    name: '',
+    profilePic: {
+      color: '',
+      initials: '',
+    },
+
+    setUserName: (name: string): void => {
+      set({ name });
+    },
+
+    setProfilePic: (pic: { color: string; initials: string }): void => {
+      set({ profilePic: pic });
+    },
 
     updateAuthToken: async (): Promise<boolean> => {
       // get the latest auth token from privy

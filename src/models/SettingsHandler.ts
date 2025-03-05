@@ -7,6 +7,7 @@ import useThemeManager, { Theme } from './ThemeManager.ts';
 import { UpdateUserSettingsRequest } from '../types/request.ts';
 import { useSessionHandler } from './SessionHandler.ts';
 import { useCreditHandler } from './CreditHandler.ts';
+import { useUserHandler } from './UserHandler.ts';
 
 interface SettingsHandler {
   getSettings: () => Promise<void>;
@@ -16,7 +17,7 @@ interface SettingsHandler {
    * Returns a boolean indicating if the update was successful. Optionally specify the specific setting that is required to be updated.
    */
   updateSettings: (
-    setting: 'all' | 'voice' | 'emotion' | 'theme' | 'custom_themes',
+    setting: 'all' | 'voice' | 'emotion' | 'theme' | 'custom_themes' | 'name',
   ) => Promise<boolean>;
 }
 
@@ -43,6 +44,8 @@ export const useSettingsHandler = create<SettingsHandler>(() => {
           .setTheme(
             useThemeManager.getState().availableThemes[response.data.theme],
           );
+        useUserHandler.getState().setUserName(response.data.name);
+        useUserHandler.getState().setProfilePic(response.data.profile_pic);
         useSessionHandler.getState().setAiEmotion(response.data.emotion_choice);
         useSessionHandler.getState().setAiVoice(response.data.voice_preference);
         useCreditHandler
@@ -54,7 +57,7 @@ export const useSettingsHandler = create<SettingsHandler>(() => {
     },
 
     updateSettings: async (
-      setting: 'all' | 'voice' | 'emotion' | 'theme' | 'custom_themes',
+      setting: 'all' | 'voice' | 'emotion' | 'theme' | 'custom_themes' | 'name',
     ): Promise<boolean> => {
       const data: UpdateUserSettingsRequest = {};
       if (setting === 'all' || setting === 'theme') {
@@ -70,6 +73,10 @@ export const useSettingsHandler = create<SettingsHandler>(() => {
         // in this case we set both the new custom theme that was added as well as setting the current users theme
         data['custom_themes'] = useThemeManager.getState().getCustomThemes();
         data['theme'] = useThemeManager.getState().theme.name;
+      }
+      if (setting === 'all' || setting === 'name') {
+        data['name'] = useUserHandler.getState().name;
+        data['profile_pic'] = useUserHandler.getState().profilePic;
       }
       const response = await apiClient.patch(
         API_URLS.AUTH.SETTINGS.UPDATE,

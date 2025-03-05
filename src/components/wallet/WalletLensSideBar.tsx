@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { useWalletHandler } from '../../models/WalletHandler.ts';
-import SUPPORTED_WALLETS from '../../config/wallets/supportedWallets.ts';
 import { titleCase } from '../../utils/titleCase.ts';
 import { ChevronDown } from 'lucide-react';
 import { WalletPicker } from './WalletPicker.tsx';
@@ -40,17 +39,8 @@ export const WalletLensSideBar: React.FC<WalletLensSidebarProps> = ({
    */
   const [walletPickerOpen, setWalletPickerOpen] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
-  const [walletLogo, setWalletLogo] = useState<string>('');
   const tabs = ['Tokens', 'NFTs', 'Transactions'];
   const isMobile = useIsMobile();
-
-  useEffect(() => {
-    if (SUPPORTED_WALLETS.includes(currentWallet?.walletClientType)) {
-      setWalletLogo(`/wallets/${currentWallet?.walletClientType}.svg`);
-    } else {
-      setWalletLogo('/wallets/default.svg');
-    }
-  }, [currentWallet?.walletClientType]);
 
   return (
     <div
@@ -80,18 +70,26 @@ export const WalletLensSideBar: React.FC<WalletLensSidebarProps> = ({
             ref={walletPickerRef}
           >
             <button onClick={(e) => e.stopPropagation()}>
-              <img
-                src={walletLogo}
-                alt="wallet logo"
-                className="w-8 h-8 sm:w-14 sm:h-14 rounded-xl"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  window.open(
-                    `https://solscan.io/account/${currentWallet?.address}`,
-                    '_blank',
-                  );
-                }}
-              />
+              {currentWallet?.meta.icon ? (
+                <img
+                  src={currentWallet.meta.icon}
+                  alt="wallet logo"
+                  className="w-10 h-10 rounded-xl"
+                  onClick={(e) => {
+                    e.stopPropagation(); // Stop event from selecting the wallet
+                    window.open(
+                      `https://solscan.io/account/${currentWallet.address}`,
+                      '_blank',
+                    );
+                  }}
+                />
+              ) : (
+                <img
+                  src="/default_wallet.svg"
+                  alt="wallet logo"
+                  className="w-10 h-10 rounded-xl"
+                />
+              )}
             </button>
             <div className="flex flex-col items-start flex-1 min-w-0">
               <div className="flex items-center gap-x-2">
