@@ -31,6 +31,7 @@ import { LoaderMessageItem } from '../components/messages/LoaderMessageItem.tsx'
 import { InProgressMessageChatItem } from '../components/messages/InProgressMessageChatItem.tsx';
 import useKeyboardHeight from '../utils/useKeyboardHeight.ts';
 import WalletLensButton from '../components/wallet/WalletLensButton.tsx';
+import InfoText from '../components/InfoText.tsx';
 
 export const Conversation = () => {
   const navigate = useNavigate();
@@ -366,6 +367,7 @@ export const Conversation = () => {
         }}
       >
         <SessionControls />
+        <InfoText />
       </div>
     </div>
   );
