@@ -70,6 +70,7 @@ const RootApp = () => {
               accentColor: theme.primary || '#1D1D1F',
               logo: '/sola_black_logo.svg',
               showWalletLoginFirst: true,
+              walletChainType: 'solana-only',
             },
           }}
         >

@@ -110,7 +110,9 @@ export const WalletPicker: FC<WalletPickerProps> = ({
             'flex items-center justify-center w-full p-4 bg-surface rounded-xl gap-x-2 border-[2px] border-border'
           }
           onClick={() => {
-            connectWallet();
+            connectWallet({
+              walletList: ['phantom', 'solflare'],
+            });
           }}
         >
           <Link size={24} className="text-textColor text-md" />
