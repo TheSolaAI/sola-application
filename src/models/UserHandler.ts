@@ -7,6 +7,12 @@ import { toast } from 'sonner';
 import { useSettingsHandler } from './SettingsHandler.ts';
 
 interface UserHandler {
+  /**
+   * true when the user is logging for the first time
+   */
+  isNewUser: boolean;
+  setIsNewUser: (isNewUser: boolean) => void;
+
   authToken: string | null; // null represents the auth token has not been set yet
   /**
    * true when the UserHandler has completed its login function and is ready for
@@ -20,7 +26,7 @@ interface UserHandler {
   name: string;
 
   /**
-   * Represents the user's profile picture. Currently this is not used.
+   * Represents the user's profile picture. Currently, this is not used.
    */
   profilePic: {
     color: string;
@@ -32,7 +38,7 @@ interface UserHandler {
   setProfilePic: (pic: { color: string; initials: string }) => void;
 
   /**
-   * Called when any server retursn that the token has expired. This is called and
+   * Called when any server return's that the token has expired. This is called and
    * the request is retried with the new token. Returns false if privy does not return
    * an auth token meaning the user has most likely signed out.
    */
@@ -52,6 +58,11 @@ interface UserHandler {
 
 export const useUserHandler = create<UserHandler>((set) => {
   return {
+    isNewUser: false,
+    setIsNewUser: (isNewUser: boolean) => {
+      set({ isNewUser: isNewUser });
+      console.log('setUserName', isNewUser);
+    },
     authToken: null,
     ready: false,
     name: '',

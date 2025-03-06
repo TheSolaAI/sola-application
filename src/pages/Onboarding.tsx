@@ -1,4 +1,4 @@
-import { usePrivy } from '@privy-io/react-auth';
+import { useLogin, usePrivy } from '@privy-io/react-auth';
 import { motion } from 'framer-motion';
 import { AwesomeButton } from 'react-awesome-button';
 import { FaGithub, FaMobileAlt } from 'react-icons/fa';
@@ -9,9 +9,18 @@ import { useState, useRef } from 'react';
 import { Dropdown } from '../components/general/DropDown';
 import 'react-awesome-button/dist/styles.css';
 import '../css/buttons.css';
+// import { useUserHandler } from '../models/UserHandler.ts';
 
 function Onboarding() {
-  const { login, authenticated, ready } = usePrivy();
+  const { authenticated, ready } = usePrivy();
+  const { login } = useLogin({
+    onComplete: (params) => {
+      console.log(params);
+    },
+    onError: (error) => {
+      console.log(error);
+    },
+  });
   const { theme } = useThemeManager();
   const isMobile = useIsMobile();
 
@@ -120,7 +129,10 @@ function Onboarding() {
           </div>
           <div className="flex flex-col sm:flex-row justify-center gap-y-4 gap-x-6 mt-10 items-center">
             <AwesomeButton
-              onReleased={() => login()}
+              onReleased={() => {
+                console.log('Released');
+                login();
+              }}
               disabled={disableLogin}
               type="secondary"
             >
