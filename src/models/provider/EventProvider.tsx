@@ -7,7 +7,7 @@ import {
 import { useAgentHandler } from '../AgentHandler.ts';
 import { useWalletHandler } from '../WalletHandler.ts';
 import { useCreditHandler } from '../CreditHandler.ts';
-import { getAgentSwapper } from '../../tools';
+import { getAgentChanger } from '../../tools';
 import { useChatRoomHandler } from '../ChatRoomHandler.ts';
 
 interface EventProviderProps {
@@ -154,10 +154,11 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
             for (const output of eventData.response.output) {
               // check if the output is a function call. If it is a message call then ignore
               if (output.type === 'function_call') {
+                console.log(output)
                 // Check the tools this agent has access to
                 const tool =
-                  output.name === 'getAgentSwapper'
-                    ? getAgentSwapper
+                  output.name === 'getAgentChanger'
+                    ? getAgentChanger
                     : useAgentHandler
                         .getState()
                         .currentActiveAgent?.tools.find(

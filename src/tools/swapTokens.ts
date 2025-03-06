@@ -71,7 +71,7 @@ export async function swapTokensFunction(args: {
   useChatMessageHandler.getState().setCurrentChatItem({
     content: {
       type: 'loader_message',
-      text: `OnChain Handler: Performing Token Swap...`,
+      text: `OnChain Handler: Preparing Token Swap...`,
       response_id: 'temp',
       sender: 'system',
     },
@@ -90,7 +90,6 @@ export async function swapTokensFunction(args: {
   let connection = new Connection(rpc);
 
   const input_mint = args.tokenA.length > 35 ? args.tokenA : `$${args.tokenA}`;
-
   const output_mint = args.tokenB.length > 35 ? args.tokenB : `$${args.tokenB}`;
 
   let params: SwapParams = {
@@ -102,38 +101,74 @@ export async function swapTokensFunction(args: {
     priority_fee_needed: false,
   };
 
-  let swap_txn = await swapTx(params);
-  if (!swap_txn) {
+  try {
+    let swap_txn = await swapTx(params);
+    if (!swap_txn) {
+      return {
+        status: 'error',
+        response: 'Swap transaction creation failed',
+      };
+    }
+
+    useChatMessageHandler.getState().setCurrentChatItem({
+      content: {
+        type: 'loader_message',
+        text: `OnChain Handler: Waiting for wallet signature...`,
+        response_id: 'temp',
+        sender: 'system',
+      },
+      id: 0,
+      createdAt: new Date().toISOString(),
+    });
+    
+    const signedTransaction = await wallet.signTransaction(swap_txn);
+    const rawTransaction = signedTransaction.serialize();
+
+    useChatMessageHandler.getState().setCurrentChatItem({
+      content: {
+        type: 'loader_message',
+        text: `OnChain Handler: Submitting transaction...`,
+        response_id: 'temp',
+        sender: 'system',
+      },
+      id: 0,
+      createdAt: new Date().toISOString(),
+    });
+
+    const txid = await connection.sendRawTransaction(rawTransaction, {
+      skipPreflight: true,
+      maxRetries: 10,
+    });
+
+    const data: SwapChatContent = {
+      response_id: 'temp',
+      sender: 'system',
+      type: 'swap',
+      data: {
+        swap_mode: args.swapType,
+        amount: args.quantity,
+        input_mint: input_mint,
+        output_mint: output_mint,
+        public_key: wallet.address,
+        priority_fee_needed: false,
+      },
+      txn: txid,
+      status: 'pending',
+      timestamp: new Date().toISOString(),
+    };
+
+    return {
+      status: 'success',
+      response: `Swap for ${args.quantity} ${args.tokenA} to ${args.tokenB} has been submitted.`,
+      props: data,
+    };
+  } catch (error) {
+    console.error('Swap error:', error);
     return {
       status: 'error',
-      response: 'Swap failed',
+      response: `Swap failed`,
     };
   }
-  const signedTransaction = await wallet.signTransaction(swap_txn);
-
-  const rawTransaction = signedTransaction.serialize();
-
-  const txid = await connection.sendRawTransaction(rawTransaction, {
-    skipPreflight: true,
-    maxRetries: 10,
-  });
-  const data: SwapChatContent = {
-    response_id: 'temp',
-    sender: 'system',
-    type: 'swap',
-    data: {
-      swap_mode: args.swapType,
-      amount: args.quantity,
-      input_mint: input_mint,
-      output_mint: output_mint,
-      public_key: wallet.address,
-      priority_fee_needed: false,
-    },
-    txn: txid,
-  };
-  return {
-    status: 'success',
-    response: `Swap for ${args.quantity} ${args.tokenA} to ${args.tokenB} has been submitted.`,
-    props: data,
-  };
 }
+
+

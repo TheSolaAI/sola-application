@@ -4,7 +4,7 @@ import { Atom, ChartNetwork, Wallet, FolderKanban } from 'lucide-react';
 import { GiGoat } from 'react-icons/gi';
 import {
   depositLulo,
-  getAgentSwapper,
+  getAgentChanger,
   getAiProjectsByClassification,
   getAiProjectsByToken,
   getAiProjectsMindshare,
@@ -46,7 +46,7 @@ export const useAgentHandler = create<AgentHandler>((_setState, getState) => ({
         // getBlinks,
         limitOrder,
         getLimitOrders,
-        getAgentSwapper,
+        getAgentChanger,
       ],
     },
     {
@@ -59,7 +59,7 @@ export const useAgentHandler = create<AgentHandler>((_setState, getState) => ({
         getAiProjectsByClassification,
         getAiProjectsByToken,
         getAiProjectsMindshare,
-        getAgentSwapper,
+        getAgentChanger,
       ],
     },
     {
@@ -72,7 +72,7 @@ export const useAgentHandler = create<AgentHandler>((_setState, getState) => ({
         getNFTPrice,
         getTrendingNFTs,
         getBlinks,
-        getAgentSwapper,
+        getAgentChanger,
       ],
     },
     {
@@ -85,7 +85,7 @@ export const useAgentHandler = create<AgentHandler>((_setState, getState) => ({
         getLuloAssets,
         depositLulo,
         withdrawLulo,
-        getAgentSwapper,
+        getAgentChanger,
       ],
     },
     {
@@ -101,7 +101,7 @@ export const useAgentHandler = create<AgentHandler>((_setState, getState) => ({
         transferSpl,
         swapLST,
         // getBlinks,
-        getAgentSwapper,
+        getAgentChanger,
       ],
     },
   ],

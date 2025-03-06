@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { FaEye } from 'react-icons/fa';
 import { TbActivityHeartbeat } from 'react-icons/tb';
 
 type BasicMetricCardProps = {
