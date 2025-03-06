@@ -19,4 +19,4 @@ export { getNFTLaunchpad } from './getLaunchpadCollections';
 export { getAiProjectsByClassification } from './goatIndex/getAiProjectsByClassification';
 export { getAiProjectsByToken } from './goatIndex/getAiProjectsByToken';
 export { getAiProjectsMindshare } from './goatIndex/getMindshare.ts';
-export { getAgentSwapper } from './agentSwapper.ts';
+export { getAgentChanger} from './agentSwapper.ts';

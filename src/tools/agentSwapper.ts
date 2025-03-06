@@ -7,12 +7,12 @@ import { useChatMessageHandler } from '../models/ChatMessageHandler.ts';
 const functionDescription =
   'Use this function when the current user request cannot be fulfilled by the current agent that you have but can be fulfilled by other agent.';
 
-export const getAgentSwapper: Tool = {
+export const getAgentChanger: Tool = {
   cost: 0, // the agent swapper is free
-  implementation: getAgentSwapperFunction,
+  implementation: getAgentChangerFunction,
   abstraction: {
     type: 'function',
-    name: 'getAgentSwapper',
+    name: 'getAgentChanger',
     description: functionDescription,
     parameters: {
       type: 'object',
@@ -39,7 +39,7 @@ export const getAgentSwapper: Tool = {
   },
 };
 
-function getAgentSwapperFunction(
+function getAgentChangerFunction(
   args: { agent: string; original_request: string },
   response_id: string,
 ): Promise<{

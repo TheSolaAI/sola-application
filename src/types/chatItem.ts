@@ -123,8 +123,18 @@ export interface TopHoldersChatContent extends BaseChatContent {
 
 export interface SwapChatContent extends BaseChatContent {
   type: 'swap';
-  data: SwapParams;
+  data: {
+    swap_mode: 'EXACT_IN' | 'EXACT_OUT' | 'EXACT_DOLLAR';
+    amount: number;
+    input_mint: string;
+    output_mint: string;
+    public_key: string;
+    priority_fee_needed: boolean;
+  };
   txn: string;
+  status: 'pending' | 'failed' | 'success';
+  timestamp: string;
+  lastChecked?: string;
 }
 
 export interface BubbleMapChatContent extends BaseChatContent {

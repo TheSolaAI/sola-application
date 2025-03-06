@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 import { AIVoice, getPrimeDirective } from '../config/ai.ts';
 import { useChatRoomHandler } from './ChatRoomHandler.ts';
 import { useAgentHandler } from './AgentHandler.ts';
-import { getAgentSwapper } from '../tools';
+import { getAgentChanger } from '../tools';
 import { BaseToolAbstraction } from '../types/tool.ts';
 import { useUserHandler } from './UserHandler.ts';
 
@@ -155,7 +155,7 @@ export const useSessionHandler = create<SessionHandler>((set, get) => {
               tools.push(tool.abstraction);
             });
         } else {
-          tools = [getAgentSwapper.abstraction];
+          tools = [getAgentChanger.abstraction];
         }
       }
 
