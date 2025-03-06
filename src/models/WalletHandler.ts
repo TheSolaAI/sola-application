@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { ConnectedSolanaWallet } from '@privy-io/react-auth';
+import { createPhantom } from '@phantom/wallet-sdk';
 import { toast } from 'sonner';
 import { Connection, LAMPORTS_PER_SOL, PublicKey } from '@solana/web3.js';
 import { NFTAsset, TokenAsset, WalletAssets } from '../types/wallet.ts';
@@ -8,12 +9,40 @@ import { API_URLS } from '../config/api_urls.ts';
 
 let connection = new Connection(import.meta.env.VITE_SOLANA_RPC!, 'confirmed');
 
-interface WalletHandler {
-  currentWallet: ConnectedSolanaWallet | null; // The current wallet that the user is using
-  defaultWallet: ConnectedSolanaWallet | null; // The default wallet that the user has set
-  wallets: ConnectedSolanaWallet[]; // All connected wallets
+// Step 1: Create the ConnectedPhantomEmbeddedWallet interface
+interface ConnectedPhantomEmbeddedWallet {
+  address: string; // Wallet address
+  signTransaction: (transaction: any) => Promise<any>; // Method to sign transactions
+  walletClientType: string;
+  meta: any;
+  // Add any other methods required by the Phantom wallet
+}
 
-  setWallets: (wallets: ConnectedSolanaWallet[]) => void; // Updates available wallets
+export interface Phantom {
+  // UI Controls
+  show: () => void; // Show the wallet UI
+  hide: () => void; // Hide the wallet UI
+
+  // Wallet Actions
+  buy: (options: { amount?: number; buy: string }) => void; // Buy tokens
+  swap: (options: { buy: string; sell?: string; amount?: string }) => void; // Swap tokens
+  navigate: ({ route, params }: { route: string; params?: any }) => void; // Navigate within wallet
+
+  // Blockchain RPC Interfaces
+  solana?: any; // Solana RPC interface
+  ethereum?: any; // Ethereum RPC interface
+  sui?: any; // Sui RPC interface
+  bitcoin?: any; // Bitcoin RPC interface
+}
+
+interface WalletHandler {
+  currentWallet: ConnectedSolanaWallet | ConnectedPhantomEmbeddedWallet | null; // Allow both wallet types
+  defaultWallet: ConnectedSolanaWallet | ConnectedPhantomEmbeddedWallet | null; // The default wallet that the user has set
+  wallets: (ConnectedSolanaWallet | ConnectedPhantomEmbeddedWallet)[]; // Update wallets array
+
+  setWallets: (
+    wallets: (ConnectedSolanaWallet | ConnectedPhantomEmbeddedWallet)[],
+  ) => void; // Updates available wallets
   setCurrentWallet: (wallet: ConnectedSolanaWallet | null) => void; // Updates current wallet
   setDefaultWallet: (wallet: ConnectedSolanaWallet | null) => void; // Updates default wallet
 
@@ -214,6 +243,20 @@ export const useWalletHandler = create<WalletHandler>((set, get) => {
         // start the monitoring of the wallet
         get().startMonitoring(get().currentWallet?.address || '', true);
       });
+
+      // Initialize the Phantom wallet
+      const phantomWallet: ConnectedPhantomEmbeddedWallet = {
+        address: '', // Set the address after connecting
+        signTransaction: async (transaction) => {
+          const phantom = await createPhantom();
+          return await phantom.solana.signAndSendTransaction(transaction);
+        },
+        walletClientType: 'phantom',
+        meta: {},
+      };
+
+      // Add the Phantom wallet to the wallets array
+      set({ wallets: [...get().wallets, phantomWallet] });
     },
 
     startMonitoring: (walletId: string, fresh: boolean) => {
