@@ -43,7 +43,9 @@ interface WalletHandler {
   setWallets: (
     wallets: (ConnectedSolanaWallet | ConnectedPhantomEmbeddedWallet)[],
   ) => void; // Updates available wallets
-  setCurrentWallet: (wallet: ConnectedSolanaWallet | null) => void; // Updates current wallet
+  setCurrentWallet: (
+    wallet: ConnectedSolanaWallet | ConnectedPhantomEmbeddedWallet | null,
+  ) => void; // Allow both wallet types
   setDefaultWallet: (wallet: ConnectedSolanaWallet | null) => void; // Updates default wallet
 
   initWalletManager: () => void; // Initializes the wallet manager
