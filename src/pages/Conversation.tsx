@@ -32,6 +32,7 @@ import { InProgressMessageChatItem } from '../components/messages/InProgressMess
 import useKeyboardHeight from '../utils/useKeyboardHeight.ts';
 import WalletLensButton from '../components/wallet/WalletLensButton.tsx';
 import InfoText from '../components/InfoText.tsx';
+import { CreateLimitOrderChatItem } from '../components/messages/CreateLimitOrderMessageItem.tsx';
 
 export const Conversation = () => {
   const navigate = useNavigate();
@@ -205,6 +206,9 @@ export const Conversation = () => {
     }
     if (type === 'ai_projects_classification') {
       return <AiProjects key={index} props={chatItem.content} />;
+    }
+    if (type === 'create_limit_order') {
+      return <CreateLimitOrderChatItem key={index} props={chatItem.content} />;
     }
 
     return null; // Prevent rendering an empty fragment

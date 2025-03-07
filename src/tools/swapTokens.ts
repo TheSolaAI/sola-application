@@ -102,8 +102,8 @@ export async function swapTokensFunction(args: {
   };
 
   try {
-    let swap_txn = await swapTx(params);
-    if (!swap_txn) {
+    let swap_res = await swapTx(params);
+    if (!swap_res) {
       return {
         status: 'error',
         response: 'Swap transaction creation failed',
@@ -121,7 +121,7 @@ export async function swapTokensFunction(args: {
       createdAt: new Date().toISOString(),
     });
     
-    const signedTransaction = await wallet.signTransaction(swap_txn);
+    const signedTransaction = await wallet.signTransaction(swap_res.transaction);
     const rawTransaction = signedTransaction.serialize();
 
     useChatMessageHandler.getState().setCurrentChatItem({
@@ -147,6 +147,7 @@ export async function swapTokensFunction(args: {
       data: {
         swap_mode: args.swapType,
         amount: args.quantity,
+        output_amount: swap_res.outAmount,
         input_mint: input_mint,
         output_mint: output_mint,
         public_key: wallet.address,
@@ -159,7 +160,7 @@ export async function swapTokensFunction(args: {
 
     return {
       status: 'success',
-      response: `Swap for ${args.quantity} ${args.tokenA} to ${args.tokenB} has been submitted.`,
+      response: `Swap for ${args.quantity} ${args.tokenA} to ${swap_res.outAmount} ${args.tokenB} has been submitted.`,
       props: data,
     };
   } catch (error) {

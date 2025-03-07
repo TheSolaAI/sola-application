@@ -1,12 +1,12 @@
 import { FC, useEffect, useState } from 'react';
-import { SwapChatContent } from '../../types/chatItem.ts';
+import { LimitOrderChatContent} from '../../types/chatItem.ts';
 import { Connection } from '@solana/web3.js';
 
-interface SwapChatItemProps {
-  props: SwapChatContent;
+interface LimitOrderChatItemProps {
+  props: LimitOrderChatContent;
 }
 
-export const SwapChatItem: FC<SwapChatItemProps> = ({ props }) => {
+export const CreateLimitOrderChatItem: FC<LimitOrderChatItemProps> = ({ props }) => {
   const [txStatus, setTxStatus] = useState<'pending' | 'success' | 'failed'>(
     props.status || 'pending'
   );
@@ -128,7 +128,7 @@ export const SwapChatItem: FC<SwapChatItemProps> = ({ props }) => {
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center space-x-2">
               <img src="/solscan.png" alt="solscan" className="h-8 w-8 rounded-lg" />
-              <span className="font-medium text-lg text-primaryDark">Token Swap</span>
+              <span className="font-medium text-lg text-primaryDark">Limit Order</span>
             </div>
             
             <div className="px-3 py-1 rounded-full flex items-center">
@@ -148,15 +148,20 @@ export const SwapChatItem: FC<SwapChatItemProps> = ({ props }) => {
             </div>
           </div>
           
-          <div className="grid grid-cols-2 gap-4 mb-3">
+          <div className="grid grid-cols-3 gap-4 mb-3">
             <div className="flex flex-col">
               <span className="text-bodydark2 text-sm">From</span>
               <span className="font-medium text-secText">{props.data.amount} {inputToken}</span>
             </div>
             <div className="flex flex-col">
               <span className="text-bodydark2 text-sm">To</span>
-            <span className="font-medium text-secText">{props.data.output_amount} {outputToken}</span>
+            <span className="font-medium text-secText">{outputToken}</span>
             </div>
+            <div className="flex flex-col">
+              <span className="text-bodydark2 text-sm">at</span>
+            <span className="font-medium text-secText">{props.data.limit_price}$</span>
+            </div>    
+                
           </div>
           
           <div className="text-xs text-bodydark2 mb-2">
