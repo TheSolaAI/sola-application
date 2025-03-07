@@ -4,8 +4,8 @@ import { LimitOrderParams } from '../types/jupiter.ts';
 import { Tool } from '../types/tool.ts';
 import { ConnectedSolanaWallet } from '@privy-io/react-auth';
 import { limitOrderTx } from '../lib/solana/limitOrderTx.ts';
-import { TransactionChatContent } from '../types/chatItem.ts';
-import { TransactionDataMessageItem } from '../components/messages/TransactionCard.tsx';
+import { LimitOrderChatContent} from '../types/chatItem.ts';
+import { CreateLimitOrderChatItem } from '../components/messages/CreateLimitOrderMessageItem.tsx';
 
 const rpc = import.meta.env.VITE_SOLANA_RPC;
 
@@ -16,8 +16,8 @@ export const limitOrder: Tool = {
   cost: 0.00005,
   implementation: createLimitOrder,
   representation: {
-    props_type: 'transaction_message',
-    component: TransactionDataMessageItem,
+    props_type: 'create_limit_order',
+    component: CreateLimitOrderChatItem,
   },
 
   abstraction: {
@@ -60,7 +60,7 @@ export async function createLimitOrder(args: {
 }): Promise<{
   status: 'success' | 'error';
   response: string;
-  props?: TransactionChatContent;
+  props?: LimitOrderChatContent;
 }> {
   useChatMessageHandler.getState().setCurrentChatItem({
     content: {
@@ -119,19 +119,27 @@ export async function createLimitOrder(args: {
         maxRetries: 10,
       });
 
+      const data: LimitOrderChatContent = {
+        response_id: 'temp',
+        sender: 'system',
+        type: 'create_limit_order',
+        data: {
+          amount: args.amount,
+          input_mint: input_mint,
+          output_mint: "USDC",
+          limit_price: args.limitPrice,
+          action: args.action,
+          priority_fee_needed: false,
+        },
+        txn: txid,
+        status: 'pending',
+        timestamp: new Date().toISOString(),
+      };
+  
       return {
         status: 'success',
-        response: 'Limit order created successfully',
-        props: {
-          response_id: 'temp',
-          sender: 'system',
-          type: 'transaction_message',
-          data: {
-            title: 'Limit Order',
-            status: 'success',
-            link: `https://solscan.io/tx/${txid}`,
-          },
-        },
+        response: `Limit order created successfully`,
+        props: data,
       };
     } else {
       return {

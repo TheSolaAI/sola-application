@@ -1,5 +1,5 @@
 import { LSTData, RugCheck } from './data_types';
-import { ShowLimitOrderResponse, SwapParams } from './jupiter';
+import { ShowLimitOrderResponse} from './jupiter';
 import {
   BubblemapCard,
   LuloCard,
@@ -44,7 +44,8 @@ export type ChatContentType =
   | RugCheckChatContent
   | TopHoldersChatContent
   | GetTrendingNFTSChatContent
-  | AiProjectsChatContent;
+  | AiProjectsChatContent
+  | LimitOrderChatContent;
 
 export interface SimpleMessageChatContent extends BaseChatContent {
   type: 'simple_message';
@@ -126,9 +127,26 @@ export interface SwapChatContent extends BaseChatContent {
   data: {
     swap_mode: 'EXACT_IN' | 'EXACT_OUT' | 'EXACT_DOLLAR';
     amount: number;
+    output_amount: number;
     input_mint: string;
     output_mint: string;
     public_key: string;
+    priority_fee_needed: boolean;
+  };
+  txn: string;
+  status: 'pending' | 'failed' | 'success';
+  timestamp: string;
+  lastChecked?: string;
+}
+
+export interface LimitOrderChatContent extends BaseChatContent {
+  type: 'create_limit_order';
+  data: {
+    amount: number;
+    input_mint: string;
+    output_mint: string;
+    limit_price: number;
+    action: 'BUY' | 'SELL';
     priority_fee_needed: boolean;
   };
   txn: string;

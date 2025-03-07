@@ -6,7 +6,7 @@ import { VersionedTransaction } from '@solana/web3.js';
 
 export async function swapTx(
   params: SwapParams,
-): Promise<VersionedTransaction | null> {
+): Promise<{ transaction: VersionedTransaction; priorityFee: number; outAmount: number; } | null> {
   const response = await apiClient.post<SwapResponse>(
     '/api/wallet/jup/swap',
     params,
@@ -21,7 +21,10 @@ export async function swapTx(
     const swapTransaction = response.data.transaction;
     const transactionBuffer = Buffer.from(swapTransaction, 'base64');
     const transaction = VersionedTransaction.deserialize(transactionBuffer);
-    return transaction;
+    const priorityFee = response.data.priorityFee;
+    const outAmount = response.data.outAmount;
+    return { "transaction": transaction, "priorityFee": priorityFee, "outAmount": outAmount };
+
   } catch (error) {
     console.error('Error during swap:', error);
     return null;

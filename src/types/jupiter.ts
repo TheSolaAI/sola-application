@@ -11,6 +11,8 @@ export type SwapParams = {
 
 export type SwapResponse = {
   transaction: string;
+  priorityFee: number;
+  outAmount: number;
 };
 
 export type LimitOrderParams = {

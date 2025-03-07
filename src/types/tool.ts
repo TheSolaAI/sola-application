@@ -5,6 +5,7 @@ import {
   BaseChatContent,
   BubbleMapChatContent,
   GetTrendingNFTSChatContent,
+  LimitOrderChatContent,
   LuloChatContent,
   MarketDataChatContent,
   NFTCollectionChatContent,
@@ -134,11 +135,11 @@ export interface CreateLimitOrderTool extends BaseTool {
   ) => Promise<{
     status: 'success' | 'error';
     response: string;
-    props?: TransactionChatContent;
+    props?: LimitOrderChatContent;
   }>;
   representation?: {
-    props_type: 'transaction_message';
-    component: FC<{ props: TransactionChatContent }>;
+    props_type: 'create_limit_order';
+    component: FC<{ props: LimitOrderChatContent }>;
   };
 }
 

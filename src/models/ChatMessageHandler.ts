@@ -14,6 +14,7 @@ import {
   ChatItem,
   GetTrendingNFTSChatContent,
   InProgressChatContent,
+  LimitOrderChatContent,
   LoaderMessageChatContent,
   LuloChatContent,
   MarketDataChatContent,
@@ -401,6 +402,8 @@ const parseChatItemContent = (item: ChatMessageResponseWrapper) => {
     return createChatItem<GetTrendingNFTSChatContent>(item, parsedContent);
   } else if (isAiProjectClassificationChatContent(parsedContent)) {
     return createChatItem<AiProjectsChatContent>(item, parsedContent);
+  }else if (isCreateLimitOrderChatContent(parsedContent)) {
+    return createChatItem<LimitOrderChatContent>(item, parsedContent);
   }
 };
 
@@ -484,6 +487,11 @@ function isAiProjectClassificationChatContent(
   content: any,
 ): content is AiProjectsChatContent {
   return content.type === 'ai_projects_classification';
+}
+function isCreateLimitOrderChatContent(
+  content: any,
+): content is LimitOrderChatContent {
+  return content.type === 'create_limit_order';
 }
 
 export function createChatItemFromTool(
@@ -614,6 +622,15 @@ export function createChatItemFromTool(
       };
       return message;
     }
+    case 'create_limit_order': {
+      message = {
+        id: generateUniqueId(),
+        content: data as LimitOrderChatContent,
+        createdAt: new Date().toISOString(),
+      };
+      return message;
+    }
+      
     default: {
       throw new Error('Unsupported props_type');
     }
