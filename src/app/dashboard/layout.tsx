@@ -4,6 +4,7 @@ import {usePrivy} from "@privy-io/react-auth";
 import {useUserHandler} from "@/store/UserHandler";
 import {useEffect} from "react";
 import {LayoutProvider} from "@/providers/LayoutProvider";
+import MasterLayout from "@/app/dashboard/_components/MasterLayout";
 
 export default function DashboardLayout({children,}: Readonly<{
     children: React.ReactNode;
@@ -30,7 +31,9 @@ export default function DashboardLayout({children,}: Readonly<{
     return (
         <WalletProvider isAuthenticated={authenticated && ready}>
             <LayoutProvider>
-                {children}
+                <MasterLayout>
+                    {children}
+                </MasterLayout>
             </LayoutProvider>
         </WalletProvider>
     );
