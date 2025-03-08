@@ -1,12 +1,12 @@
 'use client'
 
 import React, { ReactNode } from 'react';
-import { Sidebar } from '../components/sidebar/SideBar.tsx';
-import { WalletLensSideBar } from '../components/wallet/WalletLensSideBar.tsx';
+import { Sidebar } from '@/app/dashboard/_components/sidebar/SideBar';
+// import { WalletLensSideBar } from '../components/wallet/WalletLensSideBar.tsx';
 import { useLayoutContext } from '@/providers/LayoutProvider';
 import useIsMobile from '@/utils/isMobile';
-import { SettingsModal } from '../components/settings/SettingsPopup.tsx';
-import { DashBoardContainer } from '../components/dashboards/DashboardContainer.tsx';
+// import { SettingsModal } from '../components/settings/SettingsPopup.tsx';
+// import { DashBoardContainer } from '../components/dashboards/DashboardContainer.tsx';
 
 const MasterLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
     const {
@@ -47,23 +47,23 @@ const MasterLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
                     </main>
                 )}
 
-                <DashBoardContainer
-                    visible={dashboardOpen}
-                    setVisible={handleDashboardOpen}
-                >
-                    {dashboardLayoutContent}
-                </DashBoardContainer>
+                {/*<DashBoardContainer*/}
+                {/*    visible={dashboardOpen}*/}
+                {/*    setVisible={handleDashboardOpen}*/}
+                {/*>*/}
+                {/*    {dashboardLayoutContent}*/}
+                {/*</DashBoardContainer>*/}
 
-                <WalletLensSideBar
-                    setVisible={handleWalletLensOpen}
-                    visible={walletLensOpen}
-                />
+                {/*<WalletLensSideBar*/}
+                {/*    setVisible={handleWalletLensOpen}*/}
+                {/*    visible={walletLensOpen}*/}
+                {/*/>*/}
             </div>
 
-            <SettingsModal
-                isOpen={settingsIsOpen}
-                onClose={() => setSettingsIsOpen(false)}
-            />
+            {/*<SettingsModal*/}
+            {/*    isOpen={settingsIsOpen}*/}
+            {/*    onClose={() => setSettingsIsOpen(false)}*/}
+            {/*/>*/}
         </>
     );
 };

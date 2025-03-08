@@ -21,6 +21,7 @@
     "react-awesome-button": "^7.0.5",
     "react-dom": "^19.0.0",
     "react-icons": "^5.5.0",
+    "react-spinners": "^0.15.0",
     "sonner": "^2.0.1",
     "tailwind-scrollbar": "^4.0.1",
     "tailwindcss-animate": "^1.0.7",
