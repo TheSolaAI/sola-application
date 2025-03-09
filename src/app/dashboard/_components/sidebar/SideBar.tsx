@@ -159,7 +159,7 @@ export const Sidebar: FC<SidebarProps> = ({
           onClick={() => {
             setCurrentChatRoom(null);
             useChatMessageHandler.getState().messages = [];
-            router.push('/');
+            router.push('/dashboard/chat');
           }}
         >
           <div className="flex h-full w-full flex-row items-center justify-center gap-4 rounded-xl bg-background p-2">
@@ -180,12 +180,12 @@ export const Sidebar: FC<SidebarProps> = ({
                     onClick={() => {
                       if (isMobile) setIsOpen(false);
                       setCurrentChatRoom(room);
+                      router.push(`/dashboard/chat/${room.id}`);
                     }}
                     ref={(el) => el && (editButtonRefs.current[room.id!] = el)}
                     className={`group font-small text-sm flex w-full justify-between items-center rounded-lg p-[10px] transition-color duration-300 ease-in-out hover:bg-primaryDark
                       ${
-                        pathname === `/c/${room.id}` ||
-                        pathname.startsWith(`/c/${room.id}/`)
+                        pathname === `/dashboard/chat/${room.id}`
                           ? 'bg-primaryDark'
                           : ''
                       }`}
@@ -198,8 +198,8 @@ export const Sidebar: FC<SidebarProps> = ({
                       onClick={(e) => handleEditClick(e, room.id!)}
                       className={`transition-opacity duration-300 group-hover:opacity-100 
                         ${
-                          pathname === `/c/${room.id}` ||
-                          pathname.startsWith(`/c/${room.id}/`)
+                          pathname === `/chat/${room.id}` ||
+                          pathname.startsWith(`/chat/${room.id}/`)
                             ? 'lg:opacity-100'
                             : 'lg:opacity-0'
                         }`}

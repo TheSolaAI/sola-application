@@ -1,12 +1,14 @@
+'use client';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import useThemeManager from '../../../models/ThemeManager.ts';
+import useThemeManager from '@/store/ThemeManager';
 import {
   a11yDark,
   oneDark,
 } from 'react-syntax-highlighter/dist/cjs/styles/prism';
+import Image from 'next/image';
 
 const MarkdownRenderer = ({ content }: { content: string }) => {
   /**
@@ -41,14 +43,14 @@ const MarkdownRenderer = ({ content }: { content: string }) => {
               {...props}
             />
           ),
-          img: ({ node, alt, src, ...props }) => (
-            <img
-              alt={alt}
-              src={src}
-              className="max-w-full h-auto rounded-lg my-4"
-              {...props}
-            />
-          ),
+          // img: ({ node, alt, src, ...props }) => (
+          //   <Image
+          //     alt={alt}
+          //     src={src}
+          //     className="max-w-full h-auto rounded-lg my-4"
+          //     {...props}
+          //   />
+          // ),
           code: ({ node, className, children, ...props }) => {
             const match = /language-(\w+)/.exec(className || '');
             return match ? (

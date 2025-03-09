@@ -1,7 +1,8 @@
+'use client';
 import { FC } from 'react';
-import { SimpleMessageChatContent } from '../../types/chatItem.ts';
-import BaseChatItem from './general/BaseChatItem.tsx';
-import MarkDownRenderer from './general/MarkDownRenderer.tsx';
+import { SimpleMessageChatContent } from '@/types/chatItem';
+import BaseChatItem from '@/components/messages/general/BaseChatItem';
+import MarkDownRenderer from '@/components/messages/general/MarkDownRenderer';
 
 interface SimpleMessageChatItemProps {
   props: SimpleMessageChatContent;

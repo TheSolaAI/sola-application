@@ -1,5 +1,7 @@
-import { useWalletHandler } from '../../models/WalletHandler.ts';
-import { titleCase } from '../../utils/titleCase.ts';
+'use client';
+import { useWalletHandler } from '@/store/WalletHandler';
+import { titleCase } from '@/utils/titleCase';
+import Image from 'next/image';
 
 interface WalletLensButtonProps {
   onClick?: () => void;
@@ -19,23 +21,27 @@ function WalletLensButton({ onClick }: WalletLensButtonProps) {
         onClick={onClick}
       >
         {currentWallet?.meta.icon ? (
-          <img
+          <Image
             src={currentWallet.meta.icon}
             alt="wallet logo"
             className="w-8 h-8 rounded-xl"
+            width={20}
+            height={20}
             onClick={(e) => {
               e.stopPropagation(); // Stop event from selecting the wallet
               window.open(
                 `https://solscan.io/account/${currentWallet.address}`,
-                '_blank',
+                '_blank'
               );
             }}
           />
         ) : (
-          <img
+          <Image
             src="/default_wallet.svg"
             alt="wallet logo"
             className="w-8 h-8 rounded-xl"
+            width={20}
+            height={20}
           />
         )}
         <h1 className=" hidden md:block text-textColor font-medium md:text-lg">
