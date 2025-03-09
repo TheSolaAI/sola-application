@@ -82,7 +82,7 @@ const ThemeHandler: StateCreator<ThemeStore> = (set, get) => {
   );
 
   return {
-    theme: defaultThemes['light'],
+    theme: defaultThemes['dark'],
     availableThemes: defaultThemes,
 
     initThemeManager: () => {

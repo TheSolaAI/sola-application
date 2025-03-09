@@ -1,4 +1,4 @@
-type GraphPoint = {
+export type GraphPoint = {
   date: string;
   value: number;
 };
@@ -10,7 +10,7 @@ type GoatIndexProjectCount = {
 
 type GoatIndexGraphData = GraphPoint;
 
-interface Tweet {
+export interface Tweet {
   engagement: number;
   url: string;
   senderProfileImage: string;
@@ -24,7 +24,7 @@ interface Tweet {
   reply: number;
 }
 
-interface Metrics {
+export interface Metrics {
   price: number;
   marketCap: number;
   liquidity: number;
@@ -103,7 +103,7 @@ export type GoatIndexTopAiProjectsApiResponse = {
   };
 };
 
-interface GithubAnalysis {
+export interface GithubAnalysis {
   score: number;
   contributors: number;
   stars: number;
@@ -119,31 +119,31 @@ interface GithubAnalysis {
 
 export interface AgentTokenDetail {
   id: string;
-  chain: string;
+  chain: string; // doesnt matter
   contractAddress: string;
-  name: string;
+  name: string; // done
   symbol: string;
-  image: string;
-  creationTime: string;
-  description: string;
-  labels: string[];
-  category: string;
-  twitter: string;
-  devTwitter: string;
-  devDoxxed: boolean;
-  telegram: string;
-  website: string;
-  github: string;
-  framework: string;
-  warning: string;
-  status: string;
+  image: string; // done
+  creationTime: string; // ignored
+  description: string; // done
+  labels: { name: string }[]; // done
+  category: string; // done
+  twitter: string; // done
+  devTwitter: string; // done
+  devDoxxed: boolean; // done
+  telegram: string; // done
+  website: string; // done
+  github: string; // done
+  framework: string; // useless
+  warning: string; // useless
+  status: string; // useless
   githubScore: string;
-  githubAnalysis: GithubAnalysis;
-  mindShare: number;
-  totalConversations: number;
-  priceDelta: number;
-  mindShareDelta: number;
-  isInWatchList: boolean;
+  githubAnalysis: GithubAnalysis; // done
+  mindShare: number; // done
+  totalConversations: number; // done
+  priceDelta: number; // done
+  mindShareDelta: number; // done
+  isInWatchList: boolean; // done
 }
 
 export interface GoatIndexAgentResponse {
@@ -151,11 +151,11 @@ export interface GoatIndexAgentResponse {
     agentDetail: {
       tokenDetail: AgentTokenDetail;
       topTweets: Tweet[];
-      metrics: Metrics;
-      deltaMetrics: DeltaMetrics;
-      priceGraphs: GraphPoint[];
-      mindshareGraphs: GraphPoint[];
-      marketCapGraphs: GraphPoint[];
+      metrics: Metrics; // done
+      deltaMetrics: DeltaMetrics; // useless
+      priceGraphs: GraphPoint[]; // done
+      mindshareGraphs: GraphPoint[]; // done
+      marketCapGraphs: GraphPoint[]; // done
       mentionTweets: Tweet[];
       similarProjects: SimilarProjects;
     };
