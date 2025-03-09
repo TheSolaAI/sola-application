@@ -1,16 +1,18 @@
-import { useWalletHandler } from '../../models/WalletHandler.ts';
+'use client';
+import { useWalletHandler } from '@/store/WalletHandler';
 import { useEffect, useRef, useState } from 'react';
 import { AgCharts } from 'ag-charts-react';
-import { titleCase } from '../../utils/titleCase.ts';
-import { ArrowUpDown, PauseIcon, PlayIcon } from 'lucide-react';
+import { titleCase } from '@/utils/titleCase';
+import { LuArrowUpDown, LuPause, LuPlay } from 'react-icons/lu';
 import {
   CoinsSortDropDown,
   SortDirection,
   SortType,
-} from './CoinsSortDropDown.tsx';
-import { TokenAsset } from '../../types/wallet.ts';
-import useThemeManager from '../../models/ThemeManager.ts';
-import { formatNumber } from '../../utils/formatNumber.ts';
+} from '@/app/dashboard/_components/wallet/CoinsSortDropDown';
+import { TokenAsset } from '@/types/wallet';
+import useThemeManager from '@/store/ThemeManager';
+import { formatNumber } from '@/utils/formatNumber';
+
 const WalletCoinAssets = () => {
   const {
     walletAssets,
@@ -29,7 +31,7 @@ const WalletCoinAssets = () => {
   const [tokens, setTokens] = useState<TokenAsset[]>(walletAssets.tokens);
   const [sortType, setSortType] = useState<SortType>(SortType.TOTAL_PRICE);
   const [direction, setDirection] = useState<SortDirection>(
-    SortDirection.ASCENDING,
+    SortDirection.ASCENDING
   );
   const [prioritizeSolana, setPrioritizeSolana] = useState<boolean>(false);
 
@@ -60,7 +62,7 @@ const WalletCoinAssets = () => {
             : b.symbol === 'SOL'
               ? 1
               : 0
-          : 0,
+          : 0
       );
   };
 
@@ -72,7 +74,7 @@ const WalletCoinAssets = () => {
   const updateSorting = (
     newSortType: SortType,
     newDirection: SortDirection,
-    newPrioritizeSolana: boolean,
+    newPrioritizeSolana: boolean
   ) => {
     setSortType(newSortType);
     setDirection(newDirection);
@@ -189,7 +191,7 @@ const WalletCoinAssets = () => {
               </p>
               {status === 'listening' || status === 'updating' ? (
                 <button className={'ml-3'} onClick={() => stopMonitoring()}>
-                  <PauseIcon className={'w-6 h-6 text-secText '} />
+                  <LuPause className={'w-6 h-6 text-secText '} />
                 </button>
               ) : status === 'paused' ? (
                 <button
@@ -198,7 +200,7 @@ const WalletCoinAssets = () => {
                     startMonitoring(currentWallet?.address!, false);
                   }}
                 >
-                  <PlayIcon className={'w-6 h-6 text-secText '} />
+                  <LuPlay className={'w-6 h-6 text-secText '} />
                 </button>
               ) : null}
             </div>
@@ -211,7 +213,7 @@ const WalletCoinAssets = () => {
               onClick={() => setCoinSortOpen(true)}
             >
               <h1 className={'text-secText font-medium text-lg'}>Sort</h1>
-              <ArrowUpDown className={'w-6 h-6 text-secText'} />
+              <LuArrowUpDown className={'w-6 h-6 text-secText'} />
             </button>
           </div>
           {/*Status Bar Section End*/}

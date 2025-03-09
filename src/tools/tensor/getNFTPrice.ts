@@ -1,9 +1,10 @@
-import { NFTCollectionChatContent } from '../../types/chatItem.ts';
-import { Tool } from '../../types/tool.ts';
-import { useChatMessageHandler } from '../../models/ChatMessageHandler.ts';
-import { NFTCollectionCard } from '../../types/messageCard.ts';
-import { ApiClient, apiClient } from '../../api/ApiClient.ts';
-import { NFTCollectionMessageItem } from '../../components/messages/NFTCollectionCardItem.tsx';
+'use client'
+import { NFTCollectionChatContent } from '@/types/chatItem';
+import { Tool } from '@/types/tool';
+import { useChatMessageHandler } from '@/store/ChatMessageHandler';
+import { NFTCollectionCard } from '@/types/messageCard';
+import { ApiClient, apiClient } from '@/lib/ApiClient';
+import { NFTCollectionMessageItem } from '@/components/messages/NFTCollectionCardItem';
 
 const functionDescription =
   'Get floor price, volume, and marketplace data for NFT collections on Solana. Use this function when users ask about NFT prices, collection stats, floor prices, or trading activity for any Solana NFT collection.';

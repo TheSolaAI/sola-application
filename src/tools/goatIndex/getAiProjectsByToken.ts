@@ -1,10 +1,11 @@
-import { Tool } from '../../types/tool.ts';
-import { AiProjects } from '../../components/messages/AiProjects.tsx';
-import { AiProjectsChatContent } from '../../types/chatItem.ts';
-import { useChatMessageHandler } from '../../models/ChatMessageHandler.ts';
-import { ApiClient, apiClient } from '../../api/ApiClient.ts';
+'use client'
+import { Tool } from '@/types/tool';
+import { AiProjects } from '@/components/messages/AiProjects';
+import { AiProjectsChatContent } from '@/types/chatItem';
+import { useChatMessageHandler } from '@/store/ChatMessageHandler';
+import { ApiClient, apiClient } from '@/lib/ApiClient';
 import { toast } from 'sonner';
-import { AIProjectRankingApiResponse } from '../../types/goatIndex.ts';
+import { AIProjectRankingApiResponse } from '@/types/goatIndex';
 
 const functionDescription = 'To get the AI projects by token status';
 
@@ -87,6 +88,7 @@ export async function handleGetAiProjectsByToken(args: {
       },
     };
   } catch (e) {
+    console.log(e);
     toast.error('Error getting AI projects.');
     return {
       status: 'error',

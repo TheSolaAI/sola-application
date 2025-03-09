@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import { create, StateCreator } from 'zustand';
 import themeJSONRaw from '../config/themes.json';
@@ -49,18 +49,33 @@ const applyTheme = (theme: Theme) => {
   if (typeof window === 'undefined') return;
 
   const root = document.documentElement;
-  root.style.setProperty('--color-baseBackground', hexToRGB(theme.baseBackground));
+  root.style.setProperty(
+    '--color-baseBackground',
+    hexToRGB(theme.baseBackground)
+  );
   root.style.setProperty('--color-background', hexToRGB(theme.background));
-  root.style.setProperty('--color-backgroundContrast', hexToRGB(theme.backgroundContrast));
-  root.style.setProperty('--color-sec_background', hexToRGB(theme.sec_background));
+  root.style.setProperty(
+    '--color-backgroundContrast',
+    hexToRGB(theme.backgroundContrast)
+  );
+  root.style.setProperty(
+    '--color-sec_background',
+    hexToRGB(theme.sec_background)
+  );
   root.style.setProperty('--color-surface', hexToRGB(theme.surface));
   root.style.setProperty('--color-textColor', hexToRGB(theme.textColor));
-  root.style.setProperty('--color-textColorContrast', hexToRGB(theme.textColorContrast));
+  root.style.setProperty(
+    '--color-textColorContrast',
+    hexToRGB(theme.textColorContrast)
+  );
   root.style.setProperty('--color-secText', hexToRGB(theme.secText));
   root.style.setProperty('--color-border', hexToRGB(theme.border));
   root.style.setProperty('--color-primary', hexToRGB(theme.primary));
   root.style.setProperty('--color-primaryDark', hexToRGB(theme.primaryDark));
-  root.style.setProperty('--color-dashboardBackground', hexToRGB(theme.dashboardBackground));
+  root.style.setProperty(
+    '--color-dashboardBackground',
+    hexToRGB(theme.dashboardBackground)
+  );
 };
 
 const ThemeHandler: StateCreator<ThemeStore> = (set, get) => {
@@ -69,7 +84,7 @@ const ThemeHandler: StateCreator<ThemeStore> = (set, get) => {
     Object.entries(themeJSON).map(([name, theme]) => [
       name,
       { name, ...theme } as Theme,
-    ]),
+    ])
   );
 
   return {
@@ -88,7 +103,9 @@ const ThemeHandler: StateCreator<ThemeStore> = (set, get) => {
         const storedThemeName = localStorage.getItem('theme');
 
         if (storedThemeName) {
-          const storedThemeData = localStorage.getItem(`${storedThemeName}-data`);
+          const storedThemeData = localStorage.getItem(
+            `${storedThemeName}-data`
+          );
           if (storedThemeData) {
             const storedTheme = JSON.parse(storedThemeData);
             if (storedTheme && storedTheme.name) {
@@ -162,7 +179,7 @@ const ThemeHandler: StateCreator<ThemeStore> = (set, get) => {
     getCustomThemes: () => {
       const allThemes = get().availableThemes;
       return Object.values(allThemes).filter(
-        (theme) => !Object.keys(themeJSON).includes(theme.name),
+        (theme) => !Object.keys(themeJSON).includes(theme.name)
       );
     },
 

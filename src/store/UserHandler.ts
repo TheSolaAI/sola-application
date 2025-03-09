@@ -1,6 +1,7 @@
 /**
  * This handler is responsible for creating users, ensuring authentication and other user related tasks.
  */
+'use client';
 import { create } from 'zustand';
 import { getAccessToken } from '@privy-io/react-auth';
 import { toast } from 'sonner';

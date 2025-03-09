@@ -1,3 +1,4 @@
+'use client';
 import { create } from 'zustand';
 import { ConnectedSolanaWallet } from '@privy-io/react-auth';
 import { toast } from 'sonner';
@@ -6,7 +7,10 @@ import { NFTAsset, TokenAsset, WalletAssets } from '@/types/wallet';
 import { ApiClient, apiClient } from '@/lib/ApiClient';
 import { API_URLS } from '@/config/api_urls';
 
-const connection = new Connection(process.env.NEXT_PUBLIC_SOLANA_RPC!, 'confirmed');
+const connection = new Connection(
+  process.env.NEXT_PUBLIC_SOLANA_RPC!,
+  'confirmed'
+);
 
 //TODO: handle live monitoring using server
 
@@ -24,7 +28,7 @@ interface WalletHandler {
   walletAssets: WalletAssets; // Stores balance, tokens and NFTs
   status: 'listening' | 'paused' | 'updating' | 'error' | 'initialLoad'; // Status of the wallet handler
   setStatus: (
-    status: 'listening' | 'paused' | 'updating' | 'error' | 'initialLoad',
+    status: 'listening' | 'paused' | 'updating' | 'error' | 'initialLoad'
   ) => void; // Updates the status
   startMonitoring: (walletId: string, fresh: boolean) => void; // start monitoring the wallet
   stopMonitoring: () => void; // stop monitoring the wallet
@@ -108,7 +112,7 @@ export const useWalletHandler = create<WalletHandler>((set, get) => {
 
       // remove any tokens that have a total price of 0 or undefined
       tokens = tokens.filter(
-        (token: TokenAsset) => token.totalPrice && token.totalPrice > 0,
+        (token: TokenAsset) => token.totalPrice && token.totalPrice > 0
       );
       // Add the Sol balance
       tokens.unshift(nativeSolToken);
@@ -116,7 +120,7 @@ export const useWalletHandler = create<WalletHandler>((set, get) => {
       // calculate the total balance
       const totalBalance = tokens.reduce(
         (acc: any, token: TokenAsset) => acc + token.totalPrice,
-        0,
+        0
       );
 
       // Update the state with tokens and NFTs
@@ -129,7 +133,7 @@ export const useWalletHandler = create<WalletHandler>((set, get) => {
         },
       }));
     } catch (error) {
-      console.log(error)
+      console.log(error);
       toast.error('Error Fetching Wallet Assets');
     }
   };
@@ -155,7 +159,7 @@ export const useWalletHandler = create<WalletHandler>((set, get) => {
             wallet_address: wallet.address,
             wallet_provider: wallet.walletClientType,
           },
-          'auth',
+          'auth'
         );
         if (ApiClient.isApiError(response)) {
           toast.warning('Failed to update wallet info');
@@ -192,13 +196,13 @@ export const useWalletHandler = create<WalletHandler>((set, get) => {
       const defaultWalletAddress = localStorage.getItem('defaultWallet');
       if (defaultWalletAddress) {
         const wallet = get().wallets.find(
-          (w) => w.address === defaultWalletAddress,
+          (w) => w.address === defaultWalletAddress
         );
         if (wallet) {
           set({ currentWallet: wallet });
         } else {
           toast.message(
-            "Your Default Wallet doesn't exist anymore, please select a new one.",
+            "Your Default Wallet doesn't exist anymore, please select a new one."
           );
           localStorage.setItem('defaultWallet', '');
           set({ defaultWallet: null });
@@ -245,7 +249,7 @@ export const useWalletHandler = create<WalletHandler>((set, get) => {
           await fetchTokensAndNFTs(walletId);
           if (get().status === 'paused') return; // Check after long running operation
           set({ status: 'listening' });
-        },
+        }
       );
       if (!fresh) {
         set({ status: 'listening' });
@@ -267,7 +271,7 @@ export const useWalletHandler = create<WalletHandler>((set, get) => {
 });
 
 function getBasicType(
-  mimeType: string,
+  mimeType: string
 ): 'image' | 'video' | 'document' | 'model' | 'audio' | 'unknown' {
   const imageTypes = [
     'image/jpeg',

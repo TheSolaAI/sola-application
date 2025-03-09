@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import { Dropdown } from '../general/DropDown.tsx';
+import { Dropdown } from '@/components/common/DropDown';
 
 interface PaginationCountDropdownProps {
   isOpen: boolean;

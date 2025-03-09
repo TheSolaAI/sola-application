@@ -1,3 +1,4 @@
+'use client';
 import { create } from 'zustand';
 import { ChatRoom, ChatRoomPatch } from '@/types/chatRoom';
 import { ApiClient, apiClient } from '@/lib/ApiClient';
@@ -63,7 +64,7 @@ export const useChatRoomHandler = create<ChatRoomHandler>((set, get) => {
       const response = await apiClient.get<ChatRoomResponse>(
         API_URLS.CHAT_ROOMS,
         undefined,
-        'auth',
+        'auth'
       );
       if (ApiClient.isApiResponse<ChatRoomResponse[]>(response)) {
         set({
@@ -91,7 +92,7 @@ export const useChatRoomHandler = create<ChatRoomHandler>((set, get) => {
       }
       const response = await apiClient.delete(
         API_URLS.CHAT_ROOMS + `${roomId}/`,
-        'auth',
+        'auth'
       );
       if (ApiClient.isApiResponse(response)) {
         set({
@@ -114,13 +115,13 @@ export const useChatRoomHandler = create<ChatRoomHandler>((set, get) => {
       const response = await apiClient.patch<ChatRoomResponse>(
         API_URLS.CHAT_ROOMS + `${room.id}/`,
         room,
-        'auth',
+        'auth'
       );
 
       if (ApiClient.isApiResponse(response)) {
         set({
           rooms: get().rooms.map((r: ChatRoomPatch) =>
-            r.id === room.id ? (room as ChatRoom) : (r as ChatRoom),
+            r.id === room.id ? (room as ChatRoom) : (r as ChatRoom)
           ),
           state: 'idle',
         });
@@ -135,7 +136,7 @@ export const useChatRoomHandler = create<ChatRoomHandler>((set, get) => {
       const response = await apiClient.post<ChatRoomResponse>(
         API_URLS.CHAT_ROOMS,
         { name: room.name, session_id: 123 },
-        'auth',
+        'auth'
       );
 
       if (ApiClient.isApiResponse<ChatRoomResponse>(response)) {

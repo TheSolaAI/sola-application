@@ -1,3 +1,4 @@
+'use client';
 import { create } from 'zustand';
 import { useChatRoomHandler } from '@/store/ChatRoomHandler';
 import { toast } from 'sonner';
@@ -73,7 +74,7 @@ interface ChatMessageHandler {
   setCurrentChatItem: (
     messageUpdater: ChatItem<
       LoaderMessageChatContent | InProgressChatContent
-    > | null,
+    > | null
   ) => void;
 
   /**
@@ -109,7 +110,7 @@ export const useChatMessageHandler = create<ChatMessageHandler>((set, get) => {
     enqueueMessage: (message: ChatItem<ChatContentType>): void => {
       try {
         const queue = MessageQueue.fromSerialized<ChatItem<ChatContentType>>(
-          get().messageQueueData,
+          get().messageQueueData
         );
         queue.enqueue(message);
         set({ messageQueueData: queue.serialize() });
@@ -124,7 +125,7 @@ export const useChatMessageHandler = create<ChatMessageHandler>((set, get) => {
 
     dequeueMessage: (): ChatItem<ChatContentType> | undefined => {
       const queue = MessageQueue.fromSerialized<ChatItem<ChatContentType>>(
-        get().messageQueueData,
+        get().messageQueueData
       );
       const message = queue.dequeue();
       set({ messageQueueData: queue.serialize() });
@@ -133,14 +134,14 @@ export const useChatMessageHandler = create<ChatMessageHandler>((set, get) => {
 
     getQueueSize: (): number => {
       const queue = MessageQueue.fromSerialized<ChatItem<ChatContentType>>(
-        get().messageQueueData,
+        get().messageQueueData
       );
       return queue.size();
     },
 
     clearQueue: (): void => {
       const queue = MessageQueue.fromSerialized<ChatItem<ChatContentType>>(
-        get().messageQueueData,
+        get().messageQueueData
       );
       queue.clear();
       set({ messageQueueData: queue.serialize() });
@@ -158,7 +159,7 @@ export const useChatMessageHandler = create<ChatMessageHandler>((set, get) => {
       const response = await apiClient.get<ChatMessagesResponse>(
         API_URLS.CHAT_ROOMS + currentRoomID + '/messages/?limit=40',
         undefined,
-        'auth',
+        'auth'
       );
       if (ApiClient.isApiResponse<ChatMessagesResponse>(response)) {
         set({ state: 'idle' });
@@ -166,7 +167,7 @@ export const useChatMessageHandler = create<ChatMessageHandler>((set, get) => {
           .reduce(
             (
               acc: ChatItem<ChatContentType>[],
-              message: ChatMessageResponseWrapper,
+              message: ChatMessageResponseWrapper
             ) => {
               const item = parseChatItemContent(message);
               if (item) {
@@ -174,7 +175,7 @@ export const useChatMessageHandler = create<ChatMessageHandler>((set, get) => {
               }
               return acc;
             },
-            [],
+            []
           )
           .reverse();
         set({ messages, state: 'idle', next: response.data.next });
@@ -192,7 +193,7 @@ export const useChatMessageHandler = create<ChatMessageHandler>((set, get) => {
       const response = await apiClient.get<ChatMessagesResponse>(
         get().next!,
         undefined,
-        'auth',
+        'auth'
       );
       if (ApiClient.isApiResponse<ChatMessagesResponse>(response)) {
         set({ state: 'idle' });
@@ -200,7 +201,7 @@ export const useChatMessageHandler = create<ChatMessageHandler>((set, get) => {
           response.data.results.reduce(
             (
               acc: ChatItem<ChatContentType>[],
-              message: ChatMessageResponseWrapper,
+              message: ChatMessageResponseWrapper
             ) => {
               const item = parseChatItemContent(message);
               if (item) {
@@ -208,7 +209,7 @@ export const useChatMessageHandler = create<ChatMessageHandler>((set, get) => {
               }
               return acc;
             },
-            [],
+            []
           );
         set({
           messages: [...get().messages, ...messages],
@@ -243,7 +244,7 @@ export const useChatMessageHandler = create<ChatMessageHandler>((set, get) => {
             const response = await apiClient.post(
               API_URLS.CHAT_ROOMS + newRoom.id + '/messages/',
               { message: JSON.stringify(chatItem.content) },
-              'auth',
+              'auth'
             );
 
             if (ApiClient.isApiError(response)) {
@@ -262,7 +263,7 @@ export const useChatMessageHandler = create<ChatMessageHandler>((set, get) => {
         const response = await apiClient.post(
           API_URLS.CHAT_ROOMS + currentRoomID + '/messages/',
           { message: JSON.stringify(chatItem.content) },
-          'auth',
+          'auth'
         );
         if (ApiClient.isApiError(response)) {
           toast.error('Failed to Save Message, Reload the Page');
@@ -273,7 +274,7 @@ export const useChatMessageHandler = create<ChatMessageHandler>((set, get) => {
       try {
         // Process all queued messages and upload them to the server
         const queue = MessageQueue.fromSerialized<ChatItem<ChatContentType>>(
-          get().messageQueueData,
+          get().messageQueueData
         );
         if (!queue.isEmpty()) {
           // Get messages before clearing
@@ -289,7 +290,7 @@ export const useChatMessageHandler = create<ChatMessageHandler>((set, get) => {
               const response = await apiClient.post(
                 API_URLS.CHAT_ROOMS + currentRoomID + '/messages/',
                 { message: JSON.stringify(message.content) },
-                'auth',
+                'auth'
               );
               if (ApiClient.isApiError(response)) {
                 toast.error('Failed to save queued message');
@@ -306,9 +307,7 @@ export const useChatMessageHandler = create<ChatMessageHandler>((set, get) => {
     },
 
     setCurrentChatItem: (
-      message: ChatItem<
-        InProgressChatContent | LoaderMessageChatContent
-      > | null,
+      message: ChatItem<InProgressChatContent | LoaderMessageChatContent> | null
     ) => {
       set({ currentChatItem: message });
     },
@@ -402,14 +401,14 @@ const parseChatItemContent = (item: ChatMessageResponseWrapper) => {
     return createChatItem<GetTrendingNFTSChatContent>(item, parsedContent);
   } else if (isAiProjectClassificationChatContent(parsedContent)) {
     return createChatItem<AiProjectsChatContent>(item, parsedContent);
-  }else if (isCreateLimitOrderChatContent(parsedContent)) {
+  } else if (isCreateLimitOrderChatContent(parsedContent)) {
     return createChatItem<LimitOrderChatContent>(item, parsedContent);
   }
 };
 
 function createChatItem<T extends ChatContentType>(
   wrapper: ChatMessageResponseWrapper,
-  parsedMessage: T,
+  parsedMessage: T
 ): ChatItem<T> {
   return {
     id: wrapper.id,
@@ -422,7 +421,7 @@ function createChatItem<T extends ChatContentType>(
  * Type Guards for the Chat Item content
  */
 function isSimpleMessageChatContent(
-  content: any,
+  content: any
 ): content is SimpleMessageChatContent {
   return content.type === 'simple_message';
 }
@@ -445,12 +444,12 @@ function isRugCheckChatContent(content: any): content is RugCheckChatContent {
   return content.type === 'rug_check';
 }
 function isMarketDataChatContent(
-  content: any,
+  content: any
 ): content is MarketDataChatContent {
   return content.type === 'market_data';
 }
 function isTopHoldersChatContent(
-  content: any,
+  content: any
 ): content is TopHoldersChatContent {
   return content.type === 'top_holders';
 }
@@ -458,45 +457,45 @@ function isUserLuloChatContent(content: any): content is LuloChatContent {
   return content.type === 'user_lulo_data';
 }
 function isTransactionDataChatContent(
-  content: any,
+  content: any
 ): content is TransactionChatContent {
   return content.type === 'transaction_message';
 }
 function isTransferSolChatContent(
-  content: any,
+  content: any
 ): content is TransactionChatContent {
   return content.type === 'transfer_sol';
 }
 function isTransferSplChatContent(
-  content: any,
+  content: any
 ): content is TransactionChatContent {
   return content.type === 'transfer_spl';
 }
 
 function isNFTCollectionChatContent(
-  content: any,
+  content: any
 ): content is NFTCollectionChatContent {
   return content.type === 'nft_collection_data';
 }
 function isTrendingNFTSChatContent(
-  content: any,
+  content: any
 ): content is GetTrendingNFTSChatContent {
   return content.type === 'get_trending_nfts';
 }
 function isAiProjectClassificationChatContent(
-  content: any,
+  content: any
 ): content is AiProjectsChatContent {
   return content.type === 'ai_projects_classification';
 }
 function isCreateLimitOrderChatContent(
-  content: any,
+  content: any
 ): content is LimitOrderChatContent {
   return content.type === 'create_limit_order';
 }
 
 export function createChatItemFromTool(
   tool: Tool,
-  data: any,
+  data: any
 ): ChatItem<ChatContentType> {
   let message: ChatItem<ChatContentType>;
 
@@ -630,7 +629,7 @@ export function createChatItemFromTool(
       };
       return message;
     }
-      
+
     default: {
       throw new Error('Unsupported props_type');
     }

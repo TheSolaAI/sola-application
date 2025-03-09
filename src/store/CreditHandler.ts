@@ -1,3 +1,4 @@
+'use client';
 import { create } from 'zustand';
 import { Tool } from '@/types/tool';
 import { apiClient } from '@/lib/ApiClient';
@@ -17,7 +18,7 @@ interface CreditHandler {
     cachedTokens: number,
     outputTextTokens: number,
     outputAudioTokens: number,
-    tool?: Tool,
+    tool?: Tool
   ) => void;
 }
 
@@ -32,7 +33,7 @@ export const useCreditHandler = create<CreditHandler>((set, get) => ({
     cachedTokens: number,
     outputTextTokens: number,
     outputAudioTokens: number,
-    tool?: Tool,
+    tool?: Tool
   ) => {
     const currentCredits = get().credits;
     let chargedCredits = 0;
@@ -56,7 +57,7 @@ export const useCreditHandler = create<CreditHandler>((set, get) => ({
     apiClient.post(
       API_URLS.AUTH.SETTINGS.UPDATE_CREDITS,
       { credits: chargedCredits },
-      'auth',
+      'auth'
     );
 
     // If the user runs out of credits, mute the session

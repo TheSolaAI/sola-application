@@ -1,17 +1,18 @@
+'use client';
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { useWalletHandler } from '../../models/WalletHandler.ts';
-import { titleCase } from '../../utils/titleCase.ts';
+import { useWalletHandler } from '@/store/WalletHandler';
+import { titleCase } from '@/utils/titleCase';
 import {
-  ArrowUpDown,
-  ChevronDownIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  ImageIcon,
-  PauseIcon,
-  PlayIcon,
-} from 'lucide-react';
+  LuArrowUpDown,
+  LuChevronDown,
+  LuChevronLeft,
+  LuChevronRight,
+  LuImage,
+  LuPause,
+  LuPlay,
+} from 'react-icons/lu';
 import { AnimatePresence, motion } from 'framer-motion';
-import { PaginationCountDropDown } from './PaginationCountDropDown.tsx';
+import { PaginationCountDropDown } from './PaginationCountDropDown';
 
 export const WalletNFTAssets = () => {
   const {
@@ -43,7 +44,7 @@ export const WalletNFTAssets = () => {
 
   const totalPages = useMemo(
     () => Math.ceil(walletAssets.nfts.length / paginationCount),
-    [walletAssets.nfts.length, paginationCount],
+    [walletAssets.nfts.length, paginationCount]
   );
 
   const handleNextPage = useCallback(() => {
@@ -63,20 +64,20 @@ export const WalletNFTAssets = () => {
   };
 
   const getRarityAttribute = (
-    attributes?: { value: string; trait_type: string }[],
+    attributes?: { value: string; trait_type: string }[]
   ) => {
     if (!attributes) return null;
     return attributes.find(
       (attr) =>
         attr.trait_type.toLowerCase().includes('rarity') ||
-        attr.trait_type.toLowerCase() === 'rare',
+        attr.trait_type.toLowerCase() === 'rare'
     );
   };
 
   return (
     <div className="w-full">
       {walletAssets.nfts.length === 0 ? (
-        <p className={'text-textColor'}>No NFT's found </p>
+        <p className={'text-textColor'}>No NFT&#39;s found </p>
       ) : (
         <div className={'flex flex-col gap-y-2'}>
           <div
@@ -120,7 +121,7 @@ export const WalletNFTAssets = () => {
               </p>
               {status === 'listening' || status === 'updating' ? (
                 <button className={'ml-3'} onClick={() => stopMonitoring()}>
-                  <PauseIcon className={'w-6 h-6 text-secText '} />
+                  <LuPause className={'w-6 h-6 text-secText '} />
                 </button>
               ) : status === 'paused' ? (
                 <button
@@ -129,7 +130,7 @@ export const WalletNFTAssets = () => {
                     startMonitoring(currentWallet?.address!, false)
                   }
                 >
-                  <PlayIcon className={'w-6 h-6 text-secText '} />
+                  <LuPlay className={'w-6 h-6 text-secText '} />
                 </button>
               ) : null}
             </div>
@@ -147,7 +148,7 @@ export const WalletNFTAssets = () => {
               <h1 className={'text-secText font-medium text-lg'}>
                 {paginationCount} per page
               </h1>
-              <ArrowUpDown className={'w-6 h-6 text-secText'} />
+              <LuArrowUpDown className={'w-6 h-6 text-secText'} />
             </button>
             <div className={'flex justify-center items-center space-x-4'}>
               <button
@@ -159,7 +160,7 @@ export const WalletNFTAssets = () => {
                     : 'text-textColor hover:bg-background'
                 }`}
               >
-                <ChevronLeftIcon />
+                <LuChevronLeft />
               </button>
               <span className={'text-textColor'}>
                 Page {currentPage} of {totalPages}
@@ -173,7 +174,7 @@ export const WalletNFTAssets = () => {
                     : 'text-textColor hover:bg-background'
                 }`}
               >
-                <ChevronRightIcon />
+                <LuChevronRight />
               </button>
               <PaginationCountDropDown
                 isOpen={paginationOpen}
@@ -205,7 +206,7 @@ export const WalletNFTAssets = () => {
                     onClick={() => toggleNFTExpand(nft.id)}
                   >
                     {imageError[nft.id] ? (
-                      <ImageIcon className={'h-15 w-15 text-primaryDark'} />
+                      <LuImage className={'h-15 w-15 text-primaryDark'} />
                     ) : (
                       <img
                         className={'h-15 w-15 rounded-xl object-cover'}
@@ -235,11 +236,9 @@ export const WalletNFTAssets = () => {
                     </div>
                     <button className={'ml-2'}>
                       {isExpanded ? (
-                        <ChevronDownIcon
-                          className={'rotate-180 text-secText'}
-                        />
+                        <LuChevronDown className={'rotate-180 text-secText'} />
                       ) : (
-                        <ChevronDownIcon className={'text-secText'} />
+                        <LuChevronDown className={'text-secText'} />
                       )}
                     </button>
                   </motion.div>
@@ -256,7 +255,7 @@ export const WalletNFTAssets = () => {
                       >
                         <div className={'w-full flex justify-center mb-4'}>
                           {imageError[nft.id] ? (
-                            <ImageIcon className={'h-15 w-15 text-gray-500'} />
+                            <LuImage className={'h-15 w-15 text-gray-500'} />
                           ) : (
                             <motion.img
                               initial={{ scale: 0.9, opacity: 0 }}
@@ -309,7 +308,7 @@ export const WalletNFTAssets = () => {
                                   >
                                     {attr.trait_type}: {attr.value}
                                   </motion.span>
-                                ),
+                                )
                             )}
                           </div>
                         </motion.div>

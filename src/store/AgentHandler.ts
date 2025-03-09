@@ -1,30 +1,10 @@
+'use client';
 import { create } from 'zustand';
 import { Agent } from '@/types/agent';
-import { BiAtom } from "react-icons/bi";
-import { LuChartNetwork, LuFolderKanban } from "react-icons/lu";
-import { FaWallet } from "react-icons/fa";
+import { BiAtom } from 'react-icons/bi';
+import { LuChartNetwork, LuFolderKanban } from 'react-icons/lu';
+import { FaWallet } from 'react-icons/fa';
 import { GiGoat } from 'react-icons/gi';
-import {
-  depositLulo,
-  getAgentChanger,
-  getAiProjectsByClassification,
-  getAiProjectsByToken,
-  getAiProjectsMindshare,
-  getBlinks,
-  getLimitOrders,
-  getLstData,
-  getLuloAssets,
-  getNFTPrice,
-  getTokenData,
-  getTrendingNFTs,
-  limitOrder,
-  swapLST,
-  swapTokens,
-  transferSolTx,
-  transferSpl,
-  // walletActions,
-  withdrawLulo,
-} from '@/tools';
 
 interface AgentHandler {
   agents: Agent[];
@@ -40,55 +20,28 @@ export const useAgentHandler = create<AgentHandler>((_setState, getState) => ({
       slug: 'token-analyst',
       description: 'Designed for deep token analysis and trading experience.',
       logo: LuChartNetwork,
-      tools: [
-        // walletActions,
-        getTokenData,
-        getLstData,
-        // getMarketData,
-        // getBlinks,
-        limitOrder,
-        getLimitOrders,
-        getAgentChanger,
-      ],
+      tools: [],
     },
     {
       name: 'GoatIndex',
       slug: 'goatindex',
       description: 'Agent to analyse AI projects using GoatIndex',
       logo: GiGoat,
-      tools: [
-        // walletActions,
-        getAiProjectsByClassification,
-        getAiProjectsByToken,
-        getAiProjectsMindshare,
-        getAgentChanger,
-      ],
+      tools: [],
     },
     {
       name: 'NFT Analyst',
       slug: 'nft-analyst',
       description: 'Designed for NFT-related tasks and price queries.',
       logo: BiAtom,
-      tools: [
-        //walletActions,
-        getNFTPrice,
-        getTrendingNFTs,
-        getBlinks,
-        getAgentChanger,
-      ],
+      tools: [],
     },
     {
       name: 'Lulo Agent',
       slug: 'lulo-agent',
       description: 'Perform operation on Lulo platform',
       logo: LuFolderKanban,
-      tools: [
-        // walletActions,
-        getLuloAssets,
-        depositLulo,
-        withdrawLulo,
-        getAgentChanger,
-      ],
+      tools: [],
     },
     {
       name: 'OnChain Handler',
@@ -96,15 +49,7 @@ export const useAgentHandler = create<AgentHandler>((_setState, getState) => ({
       description:
         'Agent to perform token swapping and token transfers (Send Tokens).',
       logo: FaWallet,
-      tools: [
-        // walletActions,
-        swapTokens,
-        transferSolTx,
-        transferSpl,
-        swapLST,
-        // getBlinks,
-        getAgentChanger,
-      ],
+      tools: [],
     },
   ],
   currentActiveAgent: null,

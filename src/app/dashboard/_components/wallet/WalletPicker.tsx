@@ -1,11 +1,13 @@
+'use client';
 import { FC } from 'react';
-import { Dropdown } from '../general/DropDown.tsx';
-import { useWalletHandler } from '../../models/WalletHandler.ts';
-import { titleCase } from '../../utils/titleCase.ts';
+import { Dropdown } from '@/components/common/DropDown';
+import { useWalletHandler } from '@/store/WalletHandler';
+import { titleCase } from '@/utils/titleCase';
 import { FiCopy } from 'react-icons/fi';
+import { LuLink } from 'react-icons/lu';
 import { toast } from 'sonner';
-import { Link } from 'lucide-react';
 import { usePrivy } from '@privy-io/react-auth';
+import Image from 'next/image';
 
 interface WalletPickerProps {
   isOpen: boolean;
@@ -59,7 +61,7 @@ export const WalletPicker: FC<WalletPickerProps> = ({
               onClick={(e) => e.stopPropagation()}
             >
               {wallet.meta.icon ? (
-                <img
+                <Image
                   src={wallet.meta.icon}
                   alt="wallet logo"
                   className="w-14 h-14 rounded-xl"
@@ -67,15 +69,17 @@ export const WalletPicker: FC<WalletPickerProps> = ({
                     e.stopPropagation(); // Stop event from selecting the wallet
                     window.open(
                       `https://solscan.io/account/${wallet.address}`,
-                      '_blank',
+                      '_blank'
                     );
                   }}
                 />
               ) : (
-                <img
+                <Image
                   src="/default_wallet.svg"
                   alt="wallet logo"
-                  className="w-14 h-14 rounded-xl"
+                  className="rounded-xl"
+                  width={40}
+                  height={40}
                 />
               )}
             </button>
@@ -113,7 +117,7 @@ export const WalletPicker: FC<WalletPickerProps> = ({
             connectWallet();
           }}
         >
-          <Link size={24} className="text-textColor text-md" />
+          <LuLink size={24} className="text-textColor text-md" />
           <h1 className="text-textColor font-normal text-md">
             Link Another Wallet
           </h1>

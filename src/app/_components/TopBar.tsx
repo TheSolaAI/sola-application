@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import { motion } from 'framer-motion';
 import { FaGithub, FaMobileAlt } from 'react-icons/fa';
@@ -8,14 +8,17 @@ import useThemeManager from '@/store/ThemeManager';
 import useIsMobile from '@/utils/isMobile';
 import Link from 'next/link';
 import 'react-awesome-button/dist/styles.css';
-import PushableButton from "@/components/common/PushableButton";
+import PushableButton from '@/components/common/PushableButton';
 
 interface TopBarProps {
   isMobileLogin: boolean;
   setIsMobileLogin: (value: boolean) => void;
 }
 
-export default function TopBar({ isMobileLogin, setIsMobileLogin }: TopBarProps) {
+export default function TopBar({
+  isMobileLogin,
+  setIsMobileLogin,
+}: TopBarProps) {
   const { theme } = useThemeManager();
   const isMobile = useIsMobile();
 
@@ -27,11 +30,13 @@ export default function TopBar({ isMobileLogin, setIsMobileLogin }: TopBarProps)
       className="absolute top-2 w-[60%] rounded-2xl p-3 bg-backgroundContrast bg-opacity-90 z-10 flex flex-row justify-between gap-2"
     >
       <div className="flex flex-row h-full self-center items-center gap-x-3">
-        <div className={`h-8 w-8 rounded-xl fill-textColor relative ${
-          theme.name === 'dark'
-            ? 'bg-light-backgroundContrast'
-            : 'bg-background'
-        }`}>
+        <div
+          className={`h-8 w-8 rounded-xl fill-textColor relative ${
+            theme.name === 'dark'
+              ? 'bg-light-backgroundContrast'
+              : 'bg-background'
+          }`}
+        >
           <Image
             src="/sola_black_logo.svg"
             alt="logo"
@@ -49,17 +54,22 @@ export default function TopBar({ isMobileLogin, setIsMobileLogin }: TopBarProps)
       </div>
       <div className="flex gap-2 items-center ">
         {!isMobile && (
-          <button className="h-12" onClick={()=>setIsMobileLogin(!isMobileLogin)}>{isMobileLogin ? (
-            <div className="flex flex-row items-center justify-center">
-              <HiComputerDesktop className="mr-2" />
-              Web App
-            </div>
-          ) : (
-            <div className="flex flex-row items-center justify-center">
-              <FaMobileAlt className="mr-2" />
-              Mobile
-            </div>
-          )}</button>
+          <button
+            className="h-12"
+            onClick={() => setIsMobileLogin(!isMobileLogin)}
+          >
+            {isMobileLogin ? (
+              <div className="flex flex-row items-center justify-center">
+                <HiComputerDesktop className="mr-2" />
+                Web App
+              </div>
+            ) : (
+              <div className="flex flex-row items-center justify-center">
+                <FaMobileAlt className="mr-2" />
+                Mobile
+              </div>
+            )}
+          </button>
         )}
         <button>
           <div className="flex items-center justify-center">

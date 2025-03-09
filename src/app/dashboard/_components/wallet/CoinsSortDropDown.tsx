@@ -1,6 +1,11 @@
+'use client';
 import { FC, useState } from 'react';
-import { Dropdown } from '../general/DropDown.tsx';
-import { ArrowDown, ArrowUp, SortAsc, SortDesc } from 'lucide-react';
+import { Dropdown } from '@/components/common/DropDown';
+import { LuArrowDown, LuArrowUp } from 'react-icons/lu';
+import {
+  PiSortAscendingDuotone,
+  PiSortDescendingDuotone,
+} from 'react-icons/pi';
 
 export enum SortType {
   TOTAL_PRICE = 'Total Price',
@@ -19,7 +24,7 @@ interface CoinseSortDropDownProps {
   onSortChange: (
     sortType: SortType,
     direction: SortDirection,
-    prioritizeSolana: boolean,
+    prioritizeSolana: boolean
   ) => void;
 }
 
@@ -31,17 +36,17 @@ export const CoinsSortDropDown: FC<CoinseSortDropDownProps> = ({
 }) => {
   // State to track current sorting preferences
   const [selectedSortType, setSelectedSortType] = useState<SortType>(
-    SortType.TOTAL_PRICE,
+    SortType.TOTAL_PRICE
   );
   const [selectedDirection, setSelectedDirection] = useState<SortDirection>(
-    SortDirection.DESCENDING,
+    SortDirection.DESCENDING
   );
   const [prioritizeSolana, setPrioritizeSolana] = useState<boolean>(false);
 
   // Handle sort selection
   const handleSortSelection = (
     sortType: SortType,
-    direction: SortDirection,
+    direction: SortDirection
   ) => {
     setSelectedSortType(sortType);
     setSelectedDirection(direction);
@@ -87,9 +92,9 @@ export const CoinsSortDropDown: FC<CoinseSortDropDownProps> = ({
                 {selectedSortType === sortType && (
                   <div className="flex items-center">
                     {selectedDirection === SortDirection.ASCENDING ? (
-                      <ArrowUp className="w-6 h-6 mr-2 text-textColor" />
+                      <LuArrowUp className="w-6 h-6 mr-2 text-textColor" />
                     ) : (
-                      <ArrowDown className="w-6 h-6 mr-2 text-textColor" />
+                      <LuArrowDown className="w-6 h-6 mr-2 text-textColor" />
                     )}
                   </div>
                 )}
@@ -112,7 +117,7 @@ export const CoinsSortDropDown: FC<CoinseSortDropDownProps> = ({
                 handleSortSelection(selectedSortType, SortDirection.ASCENDING)
               }
             >
-              <SortAsc className="w-5 h-5 mr-2 text-textColor" />
+              <PiSortAscendingDuotone className="w-5 h-5 mr-2 text-textColor" />
               Ascending
             </button>
             <button
@@ -125,7 +130,7 @@ export const CoinsSortDropDown: FC<CoinseSortDropDownProps> = ({
                 handleSortSelection(selectedSortType, SortDirection.DESCENDING)
               }
             >
-              <SortDesc className="w-5 h-5 mr-2 text-textColor" />
+              <PiSortDescendingDuotone className="w-5 h-5 mr-2 text-textColor" />
               Descending
             </button>
           </div>

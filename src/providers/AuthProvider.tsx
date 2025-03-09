@@ -41,9 +41,7 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
     Sentry.init({
       enabled: process.env.NODE_ENV === 'production',
       dsn: 'https://9b7886f252a8435b9083cf088a03039d@o4508596709097472.ingest.us.sentry.io/4508601347866624',
-      integrations: [
-        Sentry.browserTracingIntegration(),
-      ],
+      integrations: [Sentry.browserTracingIntegration()],
       tracesSampleRate: 1.0,
       tracePropagationTargets: ['localhost'],
       replaysSessionSampleRate: 0.2,

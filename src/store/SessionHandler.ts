@@ -1,3 +1,4 @@
+'use client';
 import { create } from 'zustand';
 import { ApiClient, apiClient } from '@/lib/ApiClient';
 import { OpenAIKeyGenResponse } from '@/types/response';
@@ -6,7 +7,7 @@ import { toast } from 'sonner';
 import { AIVoice, getPrimeDirective } from '@/config/ai';
 import { useChatRoomHandler } from '@/store/ChatRoomHandler';
 import { useAgentHandler } from '@/store/AgentHandler';
-import { getAgentChanger } from '@/tools';
+// import { getAgentChanger } from '@/tools';
 import { BaseToolAbstraction } from '@/types/tool';
 import { useUserHandler } from '@/store/UserHandler';
 
@@ -42,7 +43,7 @@ interface SessionHandler {
   setAiEmotion: (aiEmotion: string) => void; // sets the emotion of the AI
 
   updateSession: (
-    update_type: 'all' | 'tools' | 'voice' | 'emotion' | 'name',
+    update_type: 'all' | 'tools' | 'voice' | 'emotion' | 'name'
   ) => void; // Updates the session with the latest tools, voice and emotion
 
   /**
@@ -106,7 +107,7 @@ export const useSessionHandler = create<SessionHandler>((set, get) => {
       const response = await apiClient.get<OpenAIKeyGenResponse>(
         API_URLS.SESSION,
         undefined,
-        'data',
+        'data'
       );
       if (ApiClient.isApiResponse<OpenAIKeyGenResponse>(response)) {
         return response.data.client_secret.value;
@@ -143,7 +144,7 @@ export const useSessionHandler = create<SessionHandler>((set, get) => {
     },
 
     updateSession: async (
-      update_type: 'all' | 'tools' | 'voice' | 'emotion' | 'name',
+      update_type: 'all' | 'tools' | 'voice' | 'emotion' | 'name'
     ): Promise<void> => {
       // extract only the abstraction from each tool and pass to OpenAI if required
       let tools: BaseToolAbstraction[] = [];
@@ -154,9 +155,10 @@ export const useSessionHandler = create<SessionHandler>((set, get) => {
             .currentActiveAgent?.tools.forEach((tool) => {
               tools.push(tool.abstraction);
             });
-        } else {
-          tools = [getAgentChanger.abstraction];
         }
+        // else {
+        //   tools = [getAgentChanger.abstraction];
+        // }
       }
 
       const updateParams: any = {
@@ -169,7 +171,7 @@ export const useSessionHandler = create<SessionHandler>((set, get) => {
           modalities: ['text', 'audio'],
           instructions: getPrimeDirective(
             get().aiEmotion,
-            useUserHandler.getState().name,
+            useUserHandler.getState().name
           ),
           voice: get().aiVoice.toLowerCase(),
           input_audio_transcription: {
@@ -192,14 +194,14 @@ export const useSessionHandler = create<SessionHandler>((set, get) => {
         updateParams.session = {
           instructions: getPrimeDirective(
             get().aiEmotion,
-            useUserHandler.getState().name,
+            useUserHandler.getState().name
           ),
         };
       } else if (update_type === 'name') {
         updateParams.session = {
           instructions: getPrimeDirective(
             get().aiEmotion,
-            useUserHandler.getState().name,
+            useUserHandler.getState().name
           ),
         };
       }
@@ -299,7 +301,7 @@ export const useSessionHandler = create<SessionHandler>((set, get) => {
             response: {
               modalities: ['text'],
             },
-          }),
+          })
         );
       } else {
         toast.error('Failed to send message. Reload the page');
@@ -308,7 +310,7 @@ export const useSessionHandler = create<SessionHandler>((set, get) => {
 
     sendFunctionCallResponseMessage: (
       message: string,
-      call_id: string,
+      call_id: string
     ): void => {
       if (get().dataStream && get().dataStream?.readyState === 'open') {
         const textMessage = {
@@ -326,7 +328,7 @@ export const useSessionHandler = create<SessionHandler>((set, get) => {
             response: {
               modalities: ['text'],
             },
-          }),
+          })
         );
       } else {
         toast.error('Failed to send message. Reload the page');

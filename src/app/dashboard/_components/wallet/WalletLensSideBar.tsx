@@ -1,18 +1,19 @@
-import React, { useEffect, useState } from 'react';
-import { useWalletHandler } from '../../models/WalletHandler.ts';
-import { titleCase } from '../../utils/titleCase.ts';
-import { ChevronDown } from 'lucide-react';
-import { WalletPicker } from './WalletPicker.tsx';
+'use client';
+import React, { useState } from 'react';
+import { useWalletHandler } from '@/store/WalletHandler';
+import { titleCase } from '@/utils/titleCase';
+import { WalletPicker } from '@/app/dashboard/_components/wallet/WalletPicker';
 import { FiCopy } from 'react-icons/fi';
+import { LuChevronDown, LuX } from 'react-icons/lu';
 import { toast } from 'sonner';
 import { AnimatePresence, motion } from 'framer-motion';
-import WalletCoinAssets from './WalletCoinAssets.tsx';
-import { MaskedRevealLoader } from '../general/MaskedRevealLoader.tsx';
-import useThemeManager from '../../models/ThemeManager.ts';
-import { X } from 'lucide-react';
-import { useLayoutContext } from '../../layout/LayoutProvider.tsx';
-import { WalletNFTAssets } from './WalletNFTAssets.tsx';
-import useIsMobile from '../../utils/isMobile.tsx';
+import WalletCoinAssets from '@/app/dashboard/_components/wallet/WalletCoinAssets';
+import { MaskedRevealLoader } from '@/components/common/MaskedRevealLoader';
+import useThemeManager from '@/store/ThemeManager';
+import { useLayoutContext } from '@/providers/LayoutProvider';
+import { WalletNFTAssets } from '@/app/dashboard/_components/wallet/WalletNFTAssets';
+import useIsMobile from '@/utils/isMobile';
+import Image from 'next/image';
 
 interface WalletLensSidebarProps {
   visible: boolean;
@@ -60,7 +61,7 @@ export const WalletLensSideBar: React.FC<WalletLensSidebarProps> = ({
               }}
               className="p-1 sm:p-2"
             >
-              <X className=" w-4 h-4 sm:w-8 sm:h-8 text-secText" />
+              <LuX className=" w-4 h-4 sm:w-8 sm:h-8 text-secText" />
             </button>
           </div>
           {/* End Close Button*/}
@@ -71,7 +72,7 @@ export const WalletLensSideBar: React.FC<WalletLensSidebarProps> = ({
           >
             <button onClick={(e) => e.stopPropagation()}>
               {currentWallet?.meta.icon ? (
-                <img
+                <Image
                   src={currentWallet.meta.icon}
                   alt="wallet logo"
                   className="w-10 h-10 rounded-xl"
@@ -79,15 +80,17 @@ export const WalletLensSideBar: React.FC<WalletLensSidebarProps> = ({
                     e.stopPropagation(); // Stop event from selecting the wallet
                     window.open(
                       `https://solscan.io/account/${currentWallet.address}`,
-                      '_blank',
+                      '_blank'
                     );
                   }}
                 />
               ) : (
-                <img
+                <Image
                   src="/default_wallet.svg"
                   alt="wallet logo"
-                  className="w-10 h-10 rounded-xl"
+                  width={40}
+                  height={40}
+                  className="rounded-xl"
                 />
               )}
             </button>
@@ -118,7 +121,7 @@ export const WalletLensSideBar: React.FC<WalletLensSidebarProps> = ({
               onClick={() => setWalletPickerOpen(!walletPickerOpen)}
               className="flex-shrink-0"
             >
-              <ChevronDown className="w-8 h-8 text-secText" />
+              <LuChevronDown className="w-8 h-8 text-secText" />
             </button>
           </div>
         </div>

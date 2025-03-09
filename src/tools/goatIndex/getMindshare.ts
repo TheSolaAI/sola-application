@@ -1,10 +1,10 @@
-import { Tool } from '../../types/tool.ts';
-import { AiProjects } from '../../components/messages/AiProjects.tsx';
-import { AiProjectsChatContent } from '../../types/chatItem.ts';
-import { useChatMessageHandler } from '../../models/ChatMessageHandler.ts';
-import { ApiClient, apiClient } from '../../api/ApiClient.ts';
+import { Tool } from '@/types/tool';
+import { AiProjects } from '@/components/messages/AiProjects';
+import { AiProjectsChatContent } from '@/types/chatItem';
+import { useChatMessageHandler } from '@/store/ChatMessageHandler';
+import { ApiClient, apiClient } from '@/lib/ApiClient';
 import { toast } from 'sonner';
-import { GoatIndexTopAiProjectsApiResponse } from '../../types/goatIndex.ts';
+import { GoatIndexTopAiProjectsApiResponse } from '@/types/goatIndex';
 
 const functionDescription =
   'To get the mindshare of AI projects or to get the graph analysis of AI projects';
