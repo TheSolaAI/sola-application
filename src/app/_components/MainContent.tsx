@@ -1,5 +1,4 @@
-'use client'
-
+'use client';
 import { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Dropdown } from '@/components/common/DropDown';
@@ -7,9 +6,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 import useIsMobile from '@/utils/isMobile';
 import { useLogin, usePrivy } from '@privy-io/react-auth';
-import 'react-awesome-button/dist/styles.css';
-import AnimatedButton from "@/components/common/AnimatedButton";
-import {useRouter} from "next/navigation";
+import AnimatedButton from '@/components/common/AnimatedButton';
+import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 
 export default function MainContent() {
   const router = useRouter();
@@ -17,10 +16,11 @@ export default function MainContent() {
   const { login } = useLogin({
     onComplete: (params) => {
       console.log(params);
-      router.push('/dashboard');
+      router.push('/dashboard/chat');
     },
     onError: (error) => {
       console.log(error);
+      toast.error('Login failed. Please try again later.');
     },
   });
 
@@ -45,11 +45,7 @@ export default function MainContent() {
           Redefine your on-chain experience through voice commands.
         </div>
         <div className="flex flex-col sm:flex-row justify-center gap-y-4 gap-x-6 mt-10 items-center">
-
-          <AnimatedButton
-              onClick={()=>login()}
-              disabled={disableLogin}
-          >
+          <AnimatedButton onClick={() => login()} disabled={disableLogin}>
             {isMobile ? 'Get Started' : 'Login to Sola AI'}
           </AnimatedButton>
 

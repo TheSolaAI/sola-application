@@ -7,6 +7,7 @@ import { LayoutProvider } from '@/providers/LayoutProvider';
 import MasterLayout from '@/app/dashboard/_components/MasterLayout';
 import { useChatRoomHandler } from '@/store/ChatRoomHandler';
 import { SessionProvider } from '@/providers/SessionProvider';
+import PageLoading from '@/components/common/PageLoading';
 
 export default function DashboardLayout({
   children,
@@ -32,6 +33,10 @@ export default function DashboardLayout({
     };
     init();
   }, [authenticated, ready, login]);
+
+  if (!ready) {
+    return <PageLoading />;
+  }
 
   return (
     <WalletProvider isAuthenticated={authenticated && ready}>
