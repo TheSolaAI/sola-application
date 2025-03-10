@@ -216,7 +216,8 @@ export const useWalletHandler = create<WalletHandler>((set, get) => {
     /**
      * Initializes the wallet manager by loading the default wallet from localStorage.
      */
-    initWalletManager: () => {
+    initWalletManager: async () => {
+      const phantom = await createPhantom();
       const defaultWalletAddress = localStorage.getItem('defaultWallet');
       if (defaultWalletAddress) {
         const wallet = get().wallets.find(
@@ -250,7 +251,6 @@ export const useWalletHandler = create<WalletHandler>((set, get) => {
       const phantomWallet: ConnectedPhantomEmbeddedWallet = {
         address: '', // Set the address after connecting
         signTransaction: async (transaction) => {
-          const phantom = await createPhantom();
           return await phantom.solana.signAndSendTransaction(transaction);
         },
         walletClientType: 'phantom',
