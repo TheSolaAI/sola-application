@@ -6,6 +6,7 @@ import { useEffect } from 'react';
 import { LayoutProvider } from '@/providers/LayoutProvider';
 import MasterLayout from '@/app/dashboard/_components/MasterLayout';
 import { useChatRoomHandler } from '@/store/ChatRoomHandler';
+import { SessionProvider } from '@/providers/SessionProvider';
 
 export default function DashboardLayout({
   children,
@@ -35,7 +36,9 @@ export default function DashboardLayout({
   return (
     <WalletProvider isAuthenticated={authenticated && ready}>
       <LayoutProvider>
-        <MasterLayout>{children}</MasterLayout>
+        <MasterLayout>
+          <SessionProvider>{children}</SessionProvider>
+        </MasterLayout>
       </LayoutProvider>
     </WalletProvider>
   );
