@@ -43,7 +43,7 @@
     "recharts": "^2.15.1",
     "rehype-raw": "^7.0.0",
     "remark-gfm": "^4.0.1",
-    "sonner": "^1.7.2",
+    "sonner": "^2.0.1",
     "tailwind-scrollbar": "^4.0.0",
     "tailwindcss-animate": "^1.0.7",
     "vite-plugin-compression": "^0.5.1",
