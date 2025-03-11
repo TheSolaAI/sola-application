@@ -28,7 +28,7 @@ export const WalletLensSideBar: React.FC<WalletLensSidebarProps> = ({
    */
   const { currentWallet, status } = useWalletHandler();
   const { theme } = useThemeManager();
-  const { setWalletLensOpen } = useLayoutContext();
+  const { handleWalletLensOpen } = useLayoutContext();
 
   /**
    * Refs
@@ -57,7 +57,7 @@ export const WalletLensSideBar: React.FC<WalletLensSidebarProps> = ({
           <div className="flex justify-center items-center sm:hidden bg-baseBackground p-2 rounded-2xl border-border border-2">
             <button
               onClick={() => {
-                setWalletLensOpen(false);
+                handleWalletLensOpen(false);
               }}
               className="p-1 sm:p-2"
             >
