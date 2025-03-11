@@ -32,6 +32,8 @@
     "sonner": "^2.0.1",
     "tailwind-scrollbar": "^4.0.1",
     "tailwindcss-animate": "^1.0.7",
+    "zod": "^3.24.2",
+    "zod-to-json-schema": "^3.24.3",
     "zustand": "^5.0.3"
   },
   "devDependencies": {

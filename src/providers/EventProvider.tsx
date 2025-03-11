@@ -6,10 +6,11 @@ import {
   useChatMessageHandler,
 } from '@/store/ChatMessageHandler';
 import { useAgentHandler } from '@/store/AgentHandler';
-import { useWalletHandler } from '@/store/WalletHandler';
 import { useCreditHandler } from '@/store/CreditHandler';
 import { useChatRoomHandler } from '@/store/ChatRoomHandler';
 import { getAgentChanger } from '@/tools';
+import { getToolByName } from '@/lib/registry/toolRegistry';
+import { executeToolCall } from '@/lib/executeTools';
 
 interface EventProviderProps {
   children: ReactNode;
@@ -28,7 +29,6 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
    */
   const { dataStream, updateSession, sendFunctionCallResponseMessage } =
     useSessionHandler();
-  const { currentWallet } = useWalletHandler();
   const { addMessage } = useChatMessageHandler();
   const { createChatRoom, state } = useChatRoomHandler();
   const { calculateCreditUsage } = useCreditHandler();
@@ -157,58 +157,55 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
               if (output.type === 'function_call') {
                 console.log(output);
                 // Check the tools this agent has access to
-                const tool =
-                  output.name === 'getAgentChanger'
-                    ? getAgentChanger
-                    : useAgentHandler
-                        .getState()
-                        .currentActiveAgent?.tools.find(
-                          (tool) => tool.abstraction.name === output.name
-                        );
-                if (tool) {
-                  const tool_result = await tool.implementation(
-                    {
-                      ...JSON.parse(output.arguments),
-                      currentWallet: currentWallet,
-                    },
+                const toolName = output.name;
+
+                try {
+                  // Parse the arguments as JSON
+                  const args = JSON.parse(output.arguments);
+
+                  // Execute the tool with schema validation
+                  const result = await executeToolCall(
+                    toolName,
+                    args,
                     eventData.response_id
                   );
-                  // calculate the cost of this function call and the input and output tokens used by it
-                  // add the message to our local array and also our database history
-                  if (tool_result.status === 'success') {
-                    if (tool_result.props?.type === 'agent_swap') {
-                      // we have switched agents so we do not want to render the message
-                      // we will just re prompt the AI with the original request
+
+                  if (result.status === 'success' && result.props) {
+                    // Create a chat item from the tool result
+                    const tool = getToolByName(toolName);
+
+                    if (toolName === 'getAgentChanger') {
                       sendFunctionCallResponseMessage(
-                        tool_result.response,
+                        result.response,
                         output.call_id
                       );
                       useChatMessageHandler.getState().setCurrentChatItem(null);
-                      await handleSendMessage(
-                        tool_result.props.original_request
-                      );
-                      return;
-                    } else {
-                      addMessage(
-                        createChatItemFromTool(tool, tool_result.props)
-                      );
-                      // send the response to OpenAI
+                      await handleSendMessage(result.response);
+                    } else if (tool && tool.name !== 'getAgentChanger') {
+                      addMessage(createChatItemFromTool(tool, result.props));
+
+                      // Send response back to OpenAI
                       sendFunctionCallResponseMessage(
-                        tool_result.response,
+                        result.response,
                         output.call_id
                       );
                     }
                   } else {
+                    // Handle error case
                     sendFunctionCallResponseMessage(
-                      tool_result.response,
+                      result.response || 'An error occurred',
                       output.call_id
                     );
                   }
+
+                  // Clear any current chat item
                   useChatMessageHandler.getState().setCurrentChatItem(null);
-                } else {
-                  // we do not have this tool and somehow the auto agent swapper was not called
-                  // TODO: Handle this by prompting the user to manually switch agents
-                  return;
+                } catch (error) {
+                  console.error(`Error with function call ${toolName}:`, error);
+                  sendFunctionCallResponseMessage(
+                    `Error occurred: ${error}`,
+                    output.call_id
+                  );
                 }
               }
             }

@@ -8,8 +8,9 @@ import { AIVoice, getPrimeDirective } from '@/config/ai';
 import { useChatRoomHandler } from '@/store/ChatRoomHandler';
 import { useAgentHandler } from '@/store/AgentHandler';
 // import { getAgentChanger } from '@/tools';
-import { BaseToolAbstraction } from '@/types/tool';
 import { useUserHandler } from '@/store/UserHandler';
+import { getAgentFunctionDefinitions } from '@/lib/registry/agentRegistry';
+import { executeToolCall } from '@/lib/executeTools';
 
 interface SessionHandler {
   state: 'idle' | 'loading' | 'open' | 'error'; // the state of the session handler
@@ -147,18 +148,13 @@ export const useSessionHandler = create<SessionHandler>((set, get) => {
       update_type: 'all' | 'tools' | 'voice' | 'emotion' | 'name'
     ): Promise<void> => {
       // extract only the abstraction from each tool and pass to OpenAI if required
-      let tools: BaseToolAbstraction[] = [];
+      let tools = [];
       if (update_type === 'all' || update_type === 'tools') {
         if (useAgentHandler.getState().currentActiveAgent) {
-          useAgentHandler
-            .getState()
-            .currentActiveAgent?.tools.forEach((tool) => {
-              tools.push(tool.abstraction);
-            });
+          const agentSlug =
+            useAgentHandler.getState().currentActiveAgent?.slug || '';
+          tools = getAgentFunctionDefinitions(agentSlug);
         }
-        // else {
-        //   tools = [getAgentChanger.abstraction];
-        // }
       }
 
       const updateParams: any = {
