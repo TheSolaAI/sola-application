@@ -149,10 +149,11 @@ export const SessionControls = () => {
       >
         <button
           className="
-            flex items-center gap-2 bg-primaryDark text-textColorContrast
+            flex items-center gap-2 bg-primaryDark text-textColorContrast cursor-pointer
             py-4 px-6 rounded-full text-base
             hover:bg-primary transition-colors duration-200
           "
+          onClick={() => useSessionHandler.getState().initSessionHandler()}
         >
           <LuRefreshCw size={16} />
           Reconnect Session

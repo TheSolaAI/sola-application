@@ -26,7 +26,6 @@ export default function ChatLayout({
   /**
    * Local State
    */
-  const primaryRGB = hexToRgb(theme.primary);
   const primaryDarkRGB = hexToRgb(theme.primaryDark);
 
   return (
@@ -42,7 +41,7 @@ export default function ChatLayout({
       {state === 'loading' && (
         <div
           className={
-            'absolute inset-0 flex flex-col gap-4 items-center justify-center'
+            'absolute inset-0 flex flex-col gap-4 items-center justify-center z-20'
           }
         >
           <ScaleLoader color={theme.textColor} height={80} width={20} />
@@ -53,14 +52,9 @@ export default function ChatLayout({
 
       {/* Session Controls (Fixed at Bottom) */}
       <div
-        className={`absolute left-0 right-0 z-20 p-4 pb-8 ${
-          isPWA
-            ? keyboardHeight > 0
-              ? `bottom-[${keyboardHeight}px]`
-              : 'bottom-0'
-            : 'bottom-0'
-        }`}
+        className="absolute left-0 right-0 z-20 p-4 pb-8 bottom-0"
         style={{
+          bottom: isPWA && keyboardHeight > 0 ? `${keyboardHeight}px` : 0,
           backgroundImage: `
             linear-gradient(to top, 
             rgba(${primaryDarkRGB.r}, ${primaryDarkRGB.g}, ${primaryDarkRGB.b}, ${audioIntensity * 1.2}),
