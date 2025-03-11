@@ -13,7 +13,10 @@ const tokenAnalyst = registerAgent({
   slug: 'token-analyst',
   description: 'Designed for deep token analysis and trading experience.',
   logo: LuChartNetwork,
-  tools: [{ name: 'getTokenData', propsType: 'token_data' }],
+  tools: [
+    { name: 'getTokenData', propsType: 'token_data' },
+    { name: 'getAgentChanger', propsType: 'agent_swap' },
+  ],
 });
 
 interface AgentHandler {

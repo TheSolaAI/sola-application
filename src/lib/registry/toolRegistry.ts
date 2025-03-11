@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { createFunctionDefinition } from '../zodToOpenAI';
+import { zodToJsonSchema } from 'zod-to-json-schema';
 import { FC } from 'react';
 import { ToolPropsType, RegisteredTool, ToolResult } from '@/types/tool';
 import { ChatContentType } from '@/types/chatItem';
@@ -11,6 +11,12 @@ interface BaseTool<T extends ToolPropsType> {
   schema: z.ZodTypeAny;
   propsType: T;
   cost?: number;
+  abstraction: {
+    type: 'function';
+    name: string;
+    description: string;
+    parameters: any;
+  };
   implementation: (args: any, response_id: string) => Promise<ToolResult<T>>;
   representation?: {
     props_type: T;
@@ -37,13 +43,29 @@ export function registerTool<T extends ToolPropsType, S extends z.ZodTypeAny>(
     args: z.infer<S>,
     response_id: string
   ) => Promise<ToolResult<T>>,
-  component?: FC<{ props: Extract<ChatContentType, { type: T }> }>
+  component?: FC<{ props: Extract<ChatContentType, { type: T }> }>,
+  customParameters?: any // New parameter for direct control over function definition
 ): RegisteredTool<T> {
   if (!registry[propsType]) {
     registry[propsType] = new Map();
   }
 
   const typeRegistry = registry[propsType]!;
+
+  // Create the abstraction using either custom parameters or zod schema
+  const parameters =
+    customParameters ||
+    zodToJsonSchema(schema, {
+      target: 'openApi3',
+      $refStrategy: 'none',
+    });
+
+  const abstraction = {
+    type: 'function' as const,
+    name,
+    description,
+    parameters,
+  };
 
   // Create the tool with type-safe implementation but store it with a looser type
   const tool: BaseTool<T> = {
@@ -52,6 +74,7 @@ export function registerTool<T extends ToolPropsType, S extends z.ZodTypeAny>(
     schema,
     propsType,
     cost,
+    abstraction,
     implementation: implementation as any, // Type assertion because we can't properly express this constraint
     representation: component
       ? {
@@ -63,9 +86,9 @@ export function registerTool<T extends ToolPropsType, S extends z.ZodTypeAny>(
 
   typeRegistry.set(name, tool);
 
-  // Return the OpenAI-compatible tool
+  // Return the OpenAI-compatible tool with the pre-built abstraction
   return {
-    abstraction: createFunctionDefinition(name, schema, description),
+    abstraction,
     cost,
     implementation: implementation as any, // Same type assertion
     representation: tool.representation,
@@ -105,9 +128,7 @@ export function getAllTools(): BaseTool<ToolPropsType>[] {
   return result;
 }
 
-// Get all tool abstractions for OpenAI
+// Get all tool abstractions for OpenAI - now uses pre-built abstractions
 export function getAllToolAbstractions() {
-  return getAllTools().map((tool) =>
-    createFunctionDefinition(tool.name, tool.schema, tool.description)
-  );
+  return getAllTools().map((tool) => tool.abstraction);
 }
