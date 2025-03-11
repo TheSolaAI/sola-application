@@ -1,6 +1,6 @@
 'use client';
 import { LuChevronLeft, LuEllipsis, LuMenu, LuUser } from 'react-icons/lu';
-import React, { FC, useEffect, useRef, useState } from 'react';
+import React, { FC, useCallback, useEffect, useRef, useState } from 'react';
 import useThemeManager from '@/store/ThemeManager';
 import { usePathname, useRouter } from 'next/navigation';
 import { EditRoom } from '@/app/dashboard/_components/sidebar/EditRoom';
@@ -92,11 +92,14 @@ export const Sidebar: FC<SidebarProps> = ({
   /**
    * Handle edit button click for a chat room
    */
-  const handleEditClick = (e: React.MouseEvent, roomId: number) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setEditingRoom(editingRoom === roomId ? null : roomId);
-  };
+  const handleEditClick = useCallback(
+    (e: React.MouseEvent, roomId: number) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setEditingRoom(editingRoom === roomId ? null : roomId);
+    },
+    [editingRoom]
+  );
 
   /**
    * Sets up listener to close when clicking outside of the sidebar
@@ -182,7 +185,10 @@ export const Sidebar: FC<SidebarProps> = ({
                       setCurrentChatRoom(room);
                       router.push(`/dashboard/chat/${room.id}`);
                     }}
-                    ref={(el) => el && (editButtonRefs.current[room.id!] = el)}
+                    ref={(el) => {
+                      if (el) editButtonRefs.current[room.id!] = el;
+                      return;
+                    }}
                     className={`group font-small text-sm flex w-full justify-between items-center rounded-lg p-[10px] transition-color duration-300 ease-in-out hover:bg-primaryDark
                       ${
                         pathname === `/dashboard/chat/${room.id}`
