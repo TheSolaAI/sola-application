@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@bonfida/spl-name-service": "^3.0.7",
-    "@dialectlabs/blinks": "0.18.3",
+    "@dialectlabs/blinks": "0.22.4",
     "@microsoft/clarity": "^1.0.0",
     "@privy-io/react-auth": "^2.2.1",
     "@sentry/react": "^8.47.0",
