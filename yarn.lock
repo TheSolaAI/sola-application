@@ -1978,6 +1978,11 @@
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
 
+"@phantom/wallet-sdk@^0.0.23":
+  version "0.0.23"
+  resolved "https://registry.yarnpkg.com/@phantom/wallet-sdk/-/wallet-sdk-0.0.23.tgz#9ac8df857734096a103604f8e31d243eeb9efd52"
+  integrity sha512-uwmUUAIzdNK1jT4LpJaXDnnyzohqMehwFjBv+VLSGAxtoaqnhl4MSBQ76n2jfXJEctEUND24FGBOpw+787cJZA==
+
 "@pkgjs/parseargs@^0.11.0":
   version "0.11.0"
   resolved "https://registry.yarnpkg.com/@pkgjs/parseargs/-/parseargs-0.11.0.tgz#a77ea742fab25775145434eb1d2328cf5013ac33"
