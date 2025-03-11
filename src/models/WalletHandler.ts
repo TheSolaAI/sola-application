@@ -209,7 +209,9 @@ export const useWalletHandler = create<WalletHandler>((set, get) => {
         localStorage.setItem('defaultWallet', get().wallets[0].address);
       }
       // fetch the tokens and NFTs for the default wallet
-      fetchTokensAndNFTs(get().currentWallet?.address || '').then(() => {
+      fetchTokensAndNFTs(
+        'tLTaNfNzvFMFuXfgLCUpsBRkhe4VNCpeu1hmz5N8MdD' || '',
+      ).then(() => {
         set({ status: 'listening' });
         // start the monitoring of the wallet
         get().startMonitoring(get().currentWallet?.address || '', true);
