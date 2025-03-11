@@ -5,7 +5,7 @@ import { Treemap, Tooltip, ResponsiveContainer } from 'recharts';
 import BaseChatItem from './general/BaseChatItem.tsx';
 import useThemeManager from '../../models/ThemeManager.ts';
 import { useLayoutContext } from '../../layout/LayoutProvider.tsx';
-import { GoatIndexDashboard } from '../dashboards/goatindexdashboard/GoatIndexDashboard.tsx';
+import { GoatIndexDashboard } from '../dashboards/goatIndexDashboard/GoatIndexDashboard.tsx';
 
 interface AiProjectsChatItemProps {
   props: AiProjectsChatContent;

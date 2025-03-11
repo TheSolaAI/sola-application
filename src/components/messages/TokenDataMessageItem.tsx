@@ -9,7 +9,7 @@ import BaseGridChatItem from './general/BaseGridChatItem.tsx';
 import { ExternalLink } from 'lucide-react';
 import { formatNumber } from '../../utils/formatNumber.ts';
 import { useLayoutContext } from '../../layout/LayoutProvider.tsx';
-import { TokenDataDashboard } from '../dashboards/TokenDataDashboard.tsx';
+import { TokenDataDashboard } from '../dashboards/tokenDataDashboard/TokenDataDashboard.tsx';
 
 export const TokenDataMessageItem: FC<ChatItemProps<TokenDataChatContent>> = ({
   props,

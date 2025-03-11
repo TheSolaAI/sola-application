@@ -64,27 +64,23 @@ export const GoatIndexDashboard: FC<GoatIndexDashboardProps> = ({
   }, [contract_address]);
 
   return (
-    <div className="flex flex-col gap-y-2">
-      <MaskedRevealLoader isLoading={isLoading}>
-        <ProjectSummaryCard
-          tokenDetail={agentDetails?.data.agentDetail.tokenDetail}
+    <MaskedRevealLoader isLoading={isLoading}>
+      <ProjectSummaryCard
+        tokenDetail={agentDetails?.data.agentDetail.tokenDetail}
+      />
+      <div className="bg-baseBackground rounded-xl w-full flex flex-col p-2 gap-y-2 mt-2">
+        <MetricsSummaryCard
+          metrics={agentDetails?.data.agentDetail.metrics}
+          priceData={agentDetails?.data.agentDetail.priceGraphs}
+          mindshareData={agentDetails?.data.agentDetail.mindshareGraphs}
+          marketCapData={agentDetails?.data.agentDetail.marketCapGraphs}
+          tokenSymbol={agentDetails?.data.agentDetail.tokenDetail.symbol}
         />
-        <div className="bg-baseBackground rounded-xl w-full flex flex-col p-2 gap-y-2 mt-2">
-          <MetricsSummaryCard
-            metrics={agentDetails?.data.agentDetail.metrics}
-            priceData={agentDetails?.data.agentDetail.priceGraphs}
-            mindshareData={agentDetails?.data.agentDetail.mindshareGraphs}
-            marketCapData={agentDetails?.data.agentDetail.marketCapGraphs}
-            tokenSymbol={agentDetails?.data.agentDetail.tokenDetail.symbol}
-          />
-          <GithubSummaryCard
-            stats={agentDetails?.data.agentDetail.tokenDetail.githubAnalysis}
-          />
-          <TweetsSummaryCard
-            tweets={agentDetails?.data.agentDetail.topTweets}
-          />
-        </div>
-      </MaskedRevealLoader>
-    </div>
+        <GithubSummaryCard
+          stats={agentDetails?.data.agentDetail.tokenDetail.githubAnalysis}
+        />
+        <TweetsSummaryCard tweets={agentDetails?.data.agentDetail.topTweets} />
+      </div>
+    </MaskedRevealLoader>
   );
 };

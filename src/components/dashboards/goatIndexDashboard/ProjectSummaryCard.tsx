@@ -6,6 +6,7 @@ import { FaXTwitter } from 'react-icons/fa6';
 import { RiTelegramFill } from 'react-icons/ri';
 import { FiCopy } from 'react-icons/fi';
 import { Pill } from '../../general/Pill';
+import { toast } from 'sonner';
 
 interface ProjectSummaryCardProps {
   tokenDetail?: AgentTokenDetail;
@@ -47,6 +48,7 @@ export const ProjectSummaryCard: FC<ProjectSummaryCardProps> = ({
               hoverable={true}
               onClick={() => {
                 navigator.clipboard.writeText(tokenDetail?.contractAddress!);
+                toast.success('Address copied to clipboard');
               }}
             />
           </div>
