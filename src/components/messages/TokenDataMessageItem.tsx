@@ -4,12 +4,13 @@
  * on Dexscreener.
  */
 import { FC } from 'react';
-import { ChatItemProps, TokenDataChatContent } from '../../types/chatItem.ts';
-import BaseGridChatItem from './general/BaseGridChatItem.tsx';
-import { ExternalLink } from 'lucide-react';
-import { formatNumber } from '../../utils/formatNumber.ts';
-import { useLayoutContext } from '../../layout/LayoutProvider.tsx';
-import { TokenDataDashboard } from '../dashboards/TokenDataDashboard.tsx';
+import { ChatItemProps, TokenDataChatContent } from '@/types/chatItem';
+import BaseGridChatItem from '@/components/messages/general/BaseGridChatItem';
+import { LuExternalLink } from 'react-icons/lu';
+import { formatNumber } from '@/utils/formatNumber';
+import { useLayoutContext } from '@/providers/LayoutProvider';
+import { TokenDataDashboard } from '@/app/dashboard/_components/dashboards/tokenDataDashboard/TokenDataDashboard';
+import Image from 'next/image';
 
 export const TokenDataMessageItem: FC<ChatItemProps<TokenDataChatContent>> = ({
   props,
@@ -39,10 +40,12 @@ export const TokenDataMessageItem: FC<ChatItemProps<TokenDataChatContent>> = ({
         <div className="relative p-2 w-full rounded-lg bg-sec_background overflow-x-auto text-secText cursor-pointer hover:bg-background">
           <div className="flex justify-between items-start">
             <div className="flex gap-4 items-center">
-              <img
+              <Image
                 src={data.logoURI}
                 alt="coin logo"
-                className="h-12 w-12 rounded-lg"
+                height={40}
+                width={40}
+                className="rounded-lg"
               />
               <div>
                 <h3 className="truncate text-sm font-medium">
@@ -69,12 +72,12 @@ export const TokenDataMessageItem: FC<ChatItemProps<TokenDataChatContent>> = ({
                 e.stopPropagation();
                 window.open(
                   `https://dexscreener.com/solana/${data.address}`,
-                  '_blank',
+                  '_blank'
                 );
               }}
               className="p-1 rounded-lg bg-sec_background hover:opacity-80 transition"
             >
-              <ExternalLink className="w-4 h-4 text-primaryDark" />
+              <LuExternalLink className="w-4 h-4 text-primaryDark" />
             </button>
           </div>
 

@@ -64,12 +64,23 @@ const getTokenDataImplementation = async (
 };
 
 // Register the tool using the registry
-export const getTokenData = registerTool(
-  'getTokenData',
-  'Get the current price of any token in Solana Blockchain, including detailed information.',
-  tokenDataSchema,
-  'token_data',
-  0.00001,
-  getTokenDataImplementation,
-  TokenDataMessageItem
-);
+export const getTokenData = registerTool({
+  name: 'getTokenData',
+  description:
+    'Get the current price of any token in Solana Blockchain, including detailed information.',
+  propsType: 'token_data',
+  cost: 0.00001,
+  implementation: getTokenDataImplementation,
+  component: TokenDataMessageItem,
+  customParameters: {
+    type: 'object',
+    properties: {
+      token_address: {
+        type: 'string',
+        description:
+          'The exact token contract address, symbol, or name. For symbols or names, provide ONLY the raw text (e.g., "SOL", "JUP", "BONK") without any additions like "address", "token", or other modifiers.',
+      },
+    },
+    required: ['token_address'],
+  },
+});

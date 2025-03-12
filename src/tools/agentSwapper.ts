@@ -5,15 +5,15 @@ import { useChatMessageHandler } from '@/store/ChatMessageHandler';
 import { registerTool } from '@/lib/registry/toolRegistry';
 import { agentChangerSchema } from '@/lib/schemas/agentChangerSchema';
 
-export const getAgentChanger = registerTool(
-  'getAgentChanger',
-  'Use this function when the current user request cannot be fulfilled by the current agent',
-  agentChangerSchema,
-  'agent_swap',
-  0.00001,
-  getAgentChangerFunction,
-  undefined,
-  {
+export const getAgentChanger = registerTool({
+  name: 'getAgentChanger',
+  description:
+    'Use this function when the current user request cannot be fulfilled by the current agent',
+  propsType: 'agent_swap',
+  cost: 0.00001,
+  implementation: getAgentChangerFunction,
+  component: undefined,
+  customParameters: {
     type: 'object',
     required: ['agent', 'original_request'],
     properties: {
@@ -34,8 +34,8 @@ export const getAgentChanger = registerTool(
           'The original request that prompted the agent switch as is without any modifications',
       },
     },
-  }
-);
+  },
+});
 
 function getAgentChangerFunction(
   args: { agent: string; original_request: string },

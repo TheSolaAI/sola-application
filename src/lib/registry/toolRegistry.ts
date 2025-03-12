@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { zodToJsonSchema } from 'zod-to-json-schema';
 import { FC } from 'react';
 import { ToolPropsType, RegisteredTool, ToolResult } from '@/types/tool';
 import { ChatContentType } from '@/types/chatItem';
@@ -8,7 +7,6 @@ import { ChatContentType } from '@/types/chatItem';
 interface BaseTool<T extends ToolPropsType> {
   name: string;
   description: string;
-  schema: z.ZodTypeAny;
   propsType: T;
   cost?: number;
   abstraction: {
@@ -33,19 +31,26 @@ type Registry = {
 const registry: Registry = {};
 
 // Register a tool with type safety
-export function registerTool<T extends ToolPropsType, S extends z.ZodTypeAny>(
-  name: string,
-  description: string,
-  schema: S,
-  propsType: T,
-  cost: number | undefined,
+export function registerTool<T extends ToolPropsType, S extends z.ZodTypeAny>({
+  name,
+  description,
+  propsType,
+  cost,
+  implementation,
+  component,
+  customParameters,
+}: {
+  name: string;
+  description: string;
+  propsType: T;
+  cost?: number;
   implementation: (
     args: z.infer<S>,
     response_id: string
-  ) => Promise<ToolResult<T>>,
-  component?: FC<{ props: Extract<ChatContentType, { type: T }> }>,
-  customParameters?: any // New parameter for direct control over function definition
-): RegisteredTool<T> {
+  ) => Promise<ToolResult<T>>;
+  component?: FC<{ props: Extract<ChatContentType, { type: T }> }>;
+  customParameters?: any;
+}): RegisteredTool<T> {
   if (!registry[propsType]) {
     registry[propsType] = new Map();
   }
@@ -53,12 +58,7 @@ export function registerTool<T extends ToolPropsType, S extends z.ZodTypeAny>(
   const typeRegistry = registry[propsType]!;
 
   // Create the abstraction using either custom parameters or zod schema
-  const parameters =
-    customParameters ||
-    zodToJsonSchema(schema, {
-      target: 'openApi3',
-      $refStrategy: 'none',
-    });
+  const parameters = customParameters || {};
 
   const abstraction = {
     type: 'function' as const,
@@ -71,7 +71,6 @@ export function registerTool<T extends ToolPropsType, S extends z.ZodTypeAny>(
   const tool: BaseTool<T> = {
     name,
     description,
-    schema,
     propsType,
     cost,
     abstraction,

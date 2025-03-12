@@ -34,6 +34,8 @@ interface LayoutContextType {
   dashboardLayoutContent: ReactNode | null;
   setDashboardLayoutContent: (content: ReactNode | null) => void;
   handleDashboardOpen: (state: boolean) => void;
+  dashboardTitle: string;
+  setDashboardTitle: (title: string) => void;
 }
 
 const LayoutContext = createContext<LayoutContextType | undefined>(undefined);
@@ -59,6 +61,7 @@ export const LayoutProvider: React.FC<{ children: ReactNode }> = ({
   const [dashboardOpen, setDashboardOpen] = useState(false);
   const [dashboardLayoutContent, setDashboardLayoutContent] =
     useState<ReactNode | null>(null);
+  const [dashboardTitle, setDashboardTitle] = useState<string>('');
 
   // Initialize audio element once on client
   useEffect(() => {
@@ -117,17 +120,18 @@ export const LayoutProvider: React.FC<{ children: ReactNode }> = ({
     canAutoClose,
     setCanAutoClose,
     walletLensOpen,
-    setWalletLensOpen,
+    handleWalletLensOpen,
     audioIntensity,
     setAudioIntensity,
     audioEl,
-    handleWalletLensOpen,
     settingsIsOpen,
     setSettingsIsOpen,
     dashboardOpen,
     dashboardLayoutContent,
     setDashboardLayoutContent,
     handleDashboardOpen,
+    dashboardTitle,
+    setDashboardTitle,
   };
 
   return (
