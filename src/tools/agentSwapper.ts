@@ -3,7 +3,6 @@ import { useSessionHandler } from '@/store/SessionHandler';
 import { AgentSwapChatContent } from '@/types/chatItem';
 import { useChatMessageHandler } from '@/store/ChatMessageHandler';
 import { registerTool } from '@/lib/registry/toolRegistry';
-import { agentChangerSchema } from '@/lib/schemas/agentChangerSchema';
 
 export const getAgentChanger = registerTool({
   name: 'getAgentChanger',

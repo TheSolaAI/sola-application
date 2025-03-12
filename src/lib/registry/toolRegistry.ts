@@ -99,6 +99,7 @@ export function getTool<T extends ToolPropsType>(
   name: string,
   propsType: T
 ): BaseTool<T> | undefined {
+  console.log(registry, registry[propsType]);
   return registry[propsType]?.get(name);
 }
 

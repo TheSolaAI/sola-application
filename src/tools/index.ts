@@ -20,3 +20,4 @@
 // export { getAiProjectsByToken } from './goatIndex/getAiProjectsByToken';
 // export { getAiProjectsMindshare } from './goatIndex/getMindshare.ts';
 export { getAgentChanger } from './agentSwapper';
+export { getTokenData } from './getTokenData';

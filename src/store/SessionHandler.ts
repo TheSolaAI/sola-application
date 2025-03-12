@@ -158,6 +158,7 @@ export const useSessionHandler = create<SessionHandler>((set, get) => {
       if (update_type === 'all' || update_type === 'tools') {
         if (useAgentHandler.getState().currentActiveAgent) {
           const agentSlug = useAgentHandler.getState().currentActiveAgent?.slug;
+          console.log('agent slug of current agent', agentSlug);
           tools = getAgentFunctionDefinitions(agentSlug);
         } else {
           tools = [getAgentChanger.abstraction];

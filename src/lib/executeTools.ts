@@ -17,11 +17,8 @@ export async function executeToolCall(
   }
 
   try {
-    // Validate args using the tool's schema
-    const validatedArgs = tool.schema.parse(args);
-
-    // Execute the tool with validated args
-    const result = await tool.implementation(validatedArgs, response_id);
+    // Execute the tool with args
+    const result = await tool.implementation(args, response_id);
 
     // Return the result
     return result;

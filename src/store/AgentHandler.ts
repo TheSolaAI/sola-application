@@ -27,7 +27,7 @@ interface AgentHandler {
 }
 
 export const useAgentHandler = create<AgentHandler>((set, get) => ({
-  agents: [tokenAnalyst /* other agents */],
+  agents: [tokenAnalyst],
   currentActiveAgent: null,
 
   setCurrentActiveAgent: (agent: Agent | null) => {

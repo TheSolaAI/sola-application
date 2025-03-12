@@ -1,6 +1,5 @@
 import { Agent } from '@/types/agent';
 import { getTool } from './toolRegistry';
-import { createFunctionDefinition } from '../zodToOpenAI';
 import { ToolPropsType } from '@/types/tool';
 import { getAgentChanger } from '@/tools';
 
@@ -31,17 +30,44 @@ export function getAgentTools(slug: string) {
   const agent = agentRegistry.get(slug) as EnhancedAgent | undefined;
   if (!agent) return [];
 
-  return agent.tools
-    .map((tool) => getTool(tool.name, tool.propsType))
-    .filter(Boolean);
+  console.log('tools for an agent', agent.tools);
+
+  return agent.tools.map((tool) => getTool(tool.name, tool.propsType));
 }
 
+// Modify your getAgentFunctionDefinitions function
 export function getAgentFunctionDefinitions(slug: string | undefined | null) {
-  console.log(slug);
-  if (!slug) return [getAgentChanger.abstraction];
-  console.log('passed');
-  const tools = getAgentTools(slug);
-  const nonNullTools = tools as NonNullable<ReturnType<typeof getTool>>[];
+  console.log('Getting function definitions for slug:', slug);
 
-  return nonNullTools.map((tool) => tool.abstraction);
+  if (!slug) {
+    console.log('No slug provided, returning only agent changer');
+    return [getAgentChanger.abstraction];
+  }
+
+  // Get the agent directly from the registry
+  const agent = agentRegistry.get(slug);
+  if (!agent) {
+    console.log(`Agent with slug "${slug}" not found in registry`);
+    return [getAgentChanger.abstraction];
+  }
+
+  console.log('Found agent:', agent.name);
+  const tools = getAgentTools(slug);
+  console.log(`Retrieved ${tools.length} tools for agent ${slug}`);
+  console.log(tools);
+
+  // Always include the agent changer tool
+  const allTools = [getAgentChanger.abstraction];
+
+  // Add any other tool abstractions
+  tools.forEach((tool) => {
+    if (tool && tool.abstraction) {
+      console.log(`Adding tool: ${tool.abstraction.name}`);
+      allTools.push(tool.abstraction);
+    } else {
+      console.log('Found invalid tool without abstraction');
+    }
+  });
+
+  return allTools;
 }
