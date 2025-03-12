@@ -5,10 +5,8 @@ import {
   createChatItemFromTool,
   useChatMessageHandler,
 } from '@/store/ChatMessageHandler';
-import { useAgentHandler } from '@/store/AgentHandler';
 import { useCreditHandler } from '@/store/CreditHandler';
 import { useChatRoomHandler } from '@/store/ChatRoomHandler';
-import { getAgentChanger } from '@/tools';
 import { getToolByName } from '@/lib/registry/toolRegistry';
 import { executeToolCall } from '@/lib/executeTools';
 

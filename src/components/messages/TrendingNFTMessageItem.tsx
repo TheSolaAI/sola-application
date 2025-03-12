@@ -20,7 +20,8 @@
  * />
  * ```
  */
-'use client'
+'use client';
+
 import { FC } from 'react';
 import { GetTrendingNFTSChatContent } from '@/types/chatItem';
 import BaseGridChatItem from '@/components/messages/general/BaseGridChatItem';

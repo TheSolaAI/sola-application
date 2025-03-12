@@ -1,9 +1,8 @@
-'use client'
+'use client';
+
 import { AiProjectsChatContent } from '@/types/chatItem';
 import BaseGridChatItem from '@/components/messages/general/BaseGridChatItem';
 import { FaSquareXTwitter } from 'react-icons/fa6';
-import { Treemap, Tooltip, ResponsiveContainer } from 'recharts';
-import BaseChatItem from '@/components/messages/general/BaseChatItem';
 import useThemeManager from '@/store/ThemeManager';
 import { useLayoutContext } from '@/providers/LayoutProvider';
 import { GoatIndexDashboard } from '@/app/dashboard/_components/dashboards/GoatIndexDashboard';
@@ -32,7 +31,7 @@ export const AiProjects = ({ props }: AiProjectsChatItemProps) => {
                 setDashboardLayoutContent(
                   <GoatIndexDashboard
                     contract_address={token.contractAddress}
-                  />,
+                  />
                 );
                 if (!dashboardOpen) handleDashboardOpen(true);
               }}
@@ -73,7 +72,7 @@ export const AiProjects = ({ props }: AiProjectsChatItemProps) => {
                 setDashboardLayoutContent(
                   <GoatIndexDashboard
                     contract_address={token.tokenDetail.contractAddress}
-                  />,
+                  />
                 );
                 if (!dashboardOpen) handleDashboardOpen(true);
               }}
@@ -108,64 +107,7 @@ export const AiProjects = ({ props }: AiProjectsChatItemProps) => {
               </p>
             </div>
           ))}
-      </BaseGridChatItem>{' '}
-      <BaseChatItem>
-        {props.category === 'mindshare' &&
-          props.tokensByMindShare &&
-          (() => {
-            const treemapData = props.tokensByMindShare.map((token) => ({
-              name: token.name,
-              tokenCa: token.contractAddress,
-              size: token.mindShare * 100,
-            }));
-
-            return (
-              <div className="w-full h-full bg-sec_background p-4 rounded-lg">
-                <h2 className="text-textColor text-lg mb-2">
-                  Mindshare by Projects
-                </h2>
-                <ResponsiveContainer width="100%" height={400}>
-                  <Treemap
-                    data={treemapData}
-                    dataKey="size"
-                    stroke={theme?.textColor || '#ffffff'}
-                    fill={theme?.primaryDark || '#1e3a8a'}
-                    animationEasing="ease-in-out"
-                    animationDuration={1200}
-                    isAnimationActive={true}
-                  >
-                    <Tooltip
-                      content={({ payload }) => {
-                        if (!payload || !payload.length) return null;
-                        const { name, size, tokenCa } = payload[0].payload;
-                        return (
-                          <div className="bg-gray-900 text-white p-3 rounded-md shadow-xl border border-gray-700">
-                            <div className="font-bold mb-1 text-blue-400">
-                              {name.length > 15
-                                ? `${name.substring(0, 15)}...`
-                                : name}
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <span className="text-gray-300">Mind Share:</span>
-                              <span className="font-mono text-green-400">
-                                {Number(Number(size).toFixed(3))}%
-                              </span>
-                            </div>
-                            {tokenCa && (
-                              <div className="text-xs text-gray-400 mt-1 font-mono truncate max-w-xs">
-                                {`${tokenCa.substring(0, 8)}...${tokenCa.substring(tokenCa.length - 6)}`}
-                              </div>
-                            )}
-                          </div>
-                        );
-                      }}
-                    />
-                  </Treemap>
-                </ResponsiveContainer>
-              </div>
-            );
-          })()}
-      </BaseChatItem>
+      </BaseGridChatItem>
     </>
   );
 };

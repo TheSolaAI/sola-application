@@ -21,7 +21,8 @@
  * ```
  */
 
-'use client'
+'use client';
+
 import { FC } from 'react';
 import { NFTCollectionChatContent } from '@/types/chatItem';
 import BaseGridChatItem from '@/components/messages/general/BaseGridChatItem';

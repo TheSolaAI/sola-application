@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useChatMessageHandler } from '@/store/ChatMessageHandler';
 import { ChatContentType, ChatItem } from '@/types/chatItem';
 import { SimpleMessageChatItem } from '@/components/messages/SimpleMessageChatItem';
+import { messageComponentMap } from '@/lib/messageComponentMap';
 
 export default function Chat() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -77,12 +78,13 @@ export default function Chat() {
     if (!chatItem) return null;
 
     const { type } = chatItem.content;
+    const Component = messageComponentMap[type];
 
-    if (type === 'simple_message') {
-      return <SimpleMessageChatItem key={index} props={chatItem.content} />;
+    if (Component) {
+      return <Component key={index} props={chatItem.content} />;
     }
 
-    return null; // Prevent rendering an empty fragment
+    return null;
   };
 
   return (

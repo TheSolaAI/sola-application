@@ -1,4 +1,4 @@
-import { UserAudioChatContent } from '../../types/chatItem.ts';
+import { UserAudioChatContent } from '@/types/chatItem';
 
 interface AudioPlayerChatItemProps {
   props: UserAudioChatContent;

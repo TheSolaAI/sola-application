@@ -1,4 +1,6 @@
-import {IconType} from "react-icons";
+'use client';
+
+import { IconType } from 'react-icons';
 
 interface BorderGlowButtonProps {
   text: string;

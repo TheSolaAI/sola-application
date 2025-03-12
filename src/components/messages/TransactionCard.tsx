@@ -24,10 +24,12 @@
  * ```
  */
 
-'use client'
+'use client';
+
 import { FC } from 'react';
-import { ChatItemProps, TransactionChatContent } from '../../types/chatItem.ts';
-import BaseMonoGridChatItem from './general/BaseMonoGridChatItem.tsx';
+import { ChatItemProps, TransactionChatContent } from '@/types/chatItem';
+import BaseMonoGridChatItem from '@/components/messages/general/BaseMonoGridChatItem';
+import Image from 'next/image';
 
 export const TransactionDataMessageItem: FC<
   ChatItemProps<TransactionChatContent>
@@ -35,7 +37,7 @@ export const TransactionDataMessageItem: FC<
   return (
     <div>
       <BaseMonoGridChatItem>
-        <img src="/solscan.png" alt="solscan" className="h-10 w-10" />
+        <Image height={40} width={40} src="/solscan.png" alt="solscan" />
         <span className="font-semibold text-lg">{props.data.title}</span>
         <span>{props.data.status}</span>
         <a

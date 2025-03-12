@@ -1,7 +1,9 @@
+'use client';
+
 import { FC } from 'react';
-import BaseChatItem from './general/BaseChatItem.tsx';
-import MarkDownRenderer from './general/MarkDownRenderer.tsx';
-import { InProgressChatContent } from '../../types/chatItem.ts';
+import BaseChatItem from './general/BaseChatItem';
+import MarkDownRenderer from './general/MarkDownRenderer';
+import { InProgressChatContent } from '@/types/chatItem';
 
 interface InProgressMessageChatItemProps {
   props: InProgressChatContent;
