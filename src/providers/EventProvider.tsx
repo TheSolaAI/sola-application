@@ -47,7 +47,6 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
         // console.log(eventData, null, 2);
         if (eventData.type === 'session.created') {
           // update the session with our latest tools, voice and emotion
-          console.log(eventData);
           updateSession('all');
           // set that the session is now open to receive messages
           useSessionHandler.getState().state = 'open';
@@ -176,13 +175,11 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
                     const tool = getToolByName(toolName);
 
                     if (toolName === 'getAgentChanger') {
-                      console.log('inside get agent changer tool response');
                       sendFunctionCallResponseMessage(
                         result.response,
                         output.call_id
                       );
                       useChatMessageHandler.getState().setCurrentChatItem(null);
-                      console.log('sent original request to openai');
                       await handleSendMessage(result.response);
                     } else if (tool && tool.name !== 'getAgentChanger') {
                       addMessage(createChatItemFromTool(tool, result.props));

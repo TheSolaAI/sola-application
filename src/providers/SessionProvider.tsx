@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { useUserHandler } from '@/store/UserHandler';
 import { EventProvider } from '@/providers/EventProvider';
 import { useLayoutContext } from '@/providers/LayoutProvider';
+import { initializeTools } from '@/lib/initTools';
 
 interface SessionProviderProps {
   children: ReactNode;
@@ -21,7 +22,6 @@ export const SessionProvider: FC<SessionProviderProps> = ({ children }) => {
     useChatRoomHandler();
   const { initChatMessageHandler } = useChatMessageHandler();
   const {
-    initSessionHandler,
     setDataStream,
     setPeerConnection,
     setMediaStream,
@@ -143,6 +143,12 @@ export const SessionProvider: FC<SessionProviderProps> = ({ children }) => {
     // load the messages of the room asynchronously
     initChatMessageHandler();
   }, [currentChatRoom]);
+
+  // Initialize tools when the component mounts
+  useEffect(() => {
+    initializeTools();
+    console.log('Tools initialized in SessionProvider');
+  }, []);
 
   return (
     <EventProvider>

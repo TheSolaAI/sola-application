@@ -7,10 +7,8 @@ import { toast } from 'sonner';
 import { AIVoice, getPrimeDirective } from '@/config/ai';
 import { useChatRoomHandler } from '@/store/ChatRoomHandler';
 import { useAgentHandler } from '@/store/AgentHandler';
-// import { getAgentChanger } from '@/tools';
 import { useUserHandler } from '@/store/UserHandler';
 import { getAgentFunctionDefinitions } from '@/lib/registry/agentRegistry';
-import { executeToolCall } from '@/lib/executeTools';
 import { getAgentChanger } from '@/tools';
 
 interface SessionHandler {

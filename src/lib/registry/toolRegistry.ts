@@ -99,8 +99,26 @@ export function getTool<T extends ToolPropsType>(
   name: string,
   propsType: T
 ): BaseTool<T> | undefined {
-  console.log(registry, registry[propsType]);
-  return registry[propsType]?.get(name);
+  console.log(`Attempting to get tool: ${name} with propsType: ${propsType}`);
+  console.log('Available registry categories:', Object.keys(registry));
+
+  if (!registry[propsType]) {
+    console.warn(`No tools registered for propsType: ${propsType}`);
+    return undefined;
+  }
+
+  const toolsInCategory = Array.from(registry[propsType]!.keys());
+  console.log(`Tools available in category ${propsType}:`, toolsInCategory);
+
+  const tool = registry[propsType]?.get(name);
+
+  if (!tool) {
+    console.warn(`Tool "${name}" not found in category "${propsType}"`);
+  } else {
+    console.log(`Successfully found tool: ${name}`);
+  }
+
+  return tool;
 }
 
 // Get tool by name

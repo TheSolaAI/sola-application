@@ -30,9 +30,23 @@ export function getAgentTools(slug: string) {
   const agent = agentRegistry.get(slug) as EnhancedAgent | undefined;
   if (!agent) return [];
 
-  console.log('tools for an agent', agent.tools);
+  const tools = agent.tools
+    .map((tool) => {
+      const foundTool = getTool(tool.name, tool.propsType);
+      if (!foundTool) {
+        console.warn(
+          `Tool "${tool.name}" with type "${tool.propsType}" not found for agent "${agent.name}"`
+        );
+      }
+      return foundTool;
+    })
+    .filter(Boolean); // Remove undefined tools
 
-  return agent.tools.map((tool) => getTool(tool.name, tool.propsType));
+  console.log(
+    `Found ${tools.length} of ${agent.tools.length} tools for agent ${agent.name}`
+  );
+
+  return tools;
 }
 
 // Modify your getAgentFunctionDefinitions function
@@ -51,13 +65,16 @@ export function getAgentFunctionDefinitions(slug: string | undefined | null) {
     return [getAgentChanger.abstraction];
   }
 
-  console.log('Found agent:', agent.name);
   const tools = getAgentTools(slug);
   console.log(`Retrieved ${tools.length} tools for agent ${slug}`);
-  console.log(tools);
 
   // Always include the agent changer tool
-  const allTools = [getAgentChanger.abstraction];
+  const allTools: {
+    type: 'function';
+    name: string;
+    description: string;
+    parameters: any;
+  }[] = [];
 
   // Add any other tool abstractions
   tools.forEach((tool) => {
