@@ -1,17 +1,18 @@
 'use client';
 
 import { registerTool } from '@/lib/registry/toolRegistry';
-import { DepositParams } from '@/types/lulo';
+import { WithdrawParams } from '@/types/lulo';
 import { tokenList } from '@/config/tokenMapping';
-import { depositLuloTx } from '@/lib/solana/lulo';
+import { withdrawLuloTx } from '@/lib/solana/lulo';
 import { useChatMessageHandler } from '@/store/ChatMessageHandler';
 import { TransactionChatContent } from '@/types/chatItem';
 import { TransactionCard } from '@/types/messageCard';
+import { TransactionDataMessageItem } from '@/components/messages/TransactionCard';
 import { ToolResult } from '@/types/tool';
 import { useWalletHandler } from '@/store/WalletHandler';
-import { TransactionDataMessageItem } from '@/components/messages/TransactionCard';
 
-async function handleDepositLulo(
+// Implementation function with response_id parameter
+async function handleWithdrawLulo(
   args: {
     amount: number;
     token: 'USDT' | 'USDS' | 'USDC';
@@ -21,7 +22,7 @@ async function handleDepositLulo(
   useChatMessageHandler.getState().setCurrentChatItem({
     content: {
       type: 'loader_message',
-      text: `Lulo agent: Depositing assets...`,
+      text: `Lulo agent: Withdrawing assets...`,
       response_id: 'temp',
       sender: 'system',
     },
@@ -34,30 +35,31 @@ async function handleDepositLulo(
   if (!currentWallet) {
     return {
       status: 'error',
-      response: 'Ask user to connect wallet first, before trying to deposit.',
+      response: 'Ask user to connect wallet first, before trying to withdraw.',
     };
   }
 
-  const params: DepositParams = {
+  const params: WithdrawParams = {
     owner: `${currentWallet.address}`,
-    depositAmount: args.amount,
+    withdrawAmount: args.amount,
     mintAddress: tokenList[args.token].MINT,
+    withdrawAll: false,
   };
 
   try {
-    const resp = await depositLuloTx(params);
+    const resp = await withdrawLuloTx(params);
     if (!resp) {
       return {
         status: 'error',
-        response: 'Deposit failed. Ask user to try again later.',
+        response: 'Withdrawal failed. Tell user to try again later.',
       };
     }
 
     for (const transaction of resp) {
-      // Fetch latest blockhash from the API
       const blockhashRes = await fetch('/api/wallet/blockhash');
       const { blockhash } = await blockhashRes.json();
       transaction.message.recentBlockhash = blockhash;
+      console.log(transaction);
 
       const signedTransaction =
         await currentWallet.signTransaction(transaction);
@@ -75,13 +77,14 @@ async function handleDepositLulo(
       const { txid } = await sendRes.json();
 
       const transactionData: TransactionCard = {
-        title: txid,
-        status: 'success',
         link: txid,
+        title: 'Withdrawal Completed',
+        status: 'success',
       };
 
+      // Create the properly typed TransactionChatContent
       const transactionContent: TransactionChatContent = {
-        response_id,
+        response_id: response_id,
         sender: 'assistant',
         type: 'transaction_message',
         data: transactionData,
@@ -89,44 +92,44 @@ async function handleDepositLulo(
 
       return {
         status: 'success',
-        response: 'Deposit successful.',
+        response: 'Withdrawal successful.',
         props: transactionContent,
       };
     }
 
     return {
       status: 'success',
-      response: 'Deposit successful.',
+      response: 'Withdrawal successful.',
     };
   } catch (error) {
-    console.error('Error during deposit:', error);
+    console.error('Error during withdrawal:', error);
     return {
       status: 'error',
-      response: 'Deposit failed. Ask user to try again later.',
+      response: 'Withdrawal failed. Ask user to try again later.',
     };
   }
 }
 
-export const depositLulo = registerTool({
-  name: 'depositLulo',
+// Register the tool using the registry
+export const withdrawLulo = registerTool({
+  name: 'withdrawLulo',
   description:
-    'Call this function ONLY when the user explicitly requests to deposit stable coins into Lulo Finance.',
+    "Call this function ONLY when the user explicitly requests to withdraw stable coins from Lulo. Ensure the user specifies the correct stable coin (USDS or USDC) and an amount. DO NOT assume or attach any arbitrary number if unclear. USDS and USDC are DISTINCT coins—select appropriately. This function is NOT for deposits or any other operation. Confirm the user's intent before proceeding if you are unsure of the intent.",
   propsType: 'transaction_message',
   cost: 0.00005,
-  implementation: handleDepositLulo,
+  implementation: handleWithdrawLulo,
   component: TransactionDataMessageItem,
   customParameters: {
     type: 'object',
     properties: {
       amount: {
         type: 'number',
-        description: 'Amount of stable coin that the user wants to deposit.',
+        description: 'Amount of stable coin to withdraw.',
       },
       token: {
         type: 'string',
         enum: ['USDT', 'USDS', 'USDC'],
-        description:
-          'The symbol/name of the stable coin user wants to deposit.',
+        description: 'The stable coin that the user wants to withdraw.',
       },
       currentWallet: {
         type: 'object',

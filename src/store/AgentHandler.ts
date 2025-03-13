@@ -58,10 +58,11 @@ const LuloAgent = registerAgent({
   logo: LuFolderKanban,
   tools: [
     {
-      name: 'getNFTPrice',
-      propsType: 'nft_collection_data',
+      name: 'getLuloAssets',
+      propsType: 'user_lulo_data',
     },
-    { name: 'getTrendingNFTs', propsType: 'get_trending_nfts' },
+    { name: 'depositLulo', propsType: 'transaction_message' },
+    { name: 'withdrawLulo', propsType: 'transaction_message' },
     { name: 'getAgentChanger', propsType: 'agent_swap' },
   ],
 });

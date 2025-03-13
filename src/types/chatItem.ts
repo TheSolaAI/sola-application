@@ -81,7 +81,7 @@ export interface InProgressChatContent extends BaseChatContent {
 }
 
 export interface TransactionChatContent extends BaseChatContent {
-  type: 'transaction_message' | 'transfer_sol' | 'transfer_spl';
+  type: 'transaction_message';
   data: TransactionCard;
 }
 

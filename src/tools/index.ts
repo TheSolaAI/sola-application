@@ -31,3 +31,5 @@ export { getNFTPrice } from './nftAnalyst/getNFTPrice';
 export { getTrendingNFTs } from './nftAnalyst/getTrendingNFTs';
 
 export { getLuloAssets } from './luloAgent/getLuloAssets';
+export { depositLulo } from './luloAgent/depositLulo';
+export { withdrawLulo } from './luloAgent/withdrawLulo';
