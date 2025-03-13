@@ -42,13 +42,14 @@ export default function Chat() {
       const currentRoom = rooms.find((room) => room.id === roomId);
 
       if (currentRoom) {
+        console.log('id page executed', currentChatRoom, id, rooms.length);
         setCurrentChatRoom(currentRoom).then(() => {
           // Initialize messages for this chat room
           initChatMessageHandler();
         });
       }
     }
-  }, [id, rooms, currentChatRoom, setCurrentChatRoom, initChatMessageHandler]);
+  }, [id, setCurrentChatRoom, initChatMessageHandler]);
 
   // Function to handle smooth scrolling to bottom
   const scrollToBottom = () => {

@@ -183,7 +183,6 @@ export const Sidebar: FC<SidebarProps> = ({
                     onClick={() => {
                       if (isMobile) setIsOpen(false);
                       setCurrentChatRoom(room);
-                      router.push(`/dashboard/chat/${room.id}`);
                     }}
                     ref={(el) => {
                       if (el) editButtonRefs.current[room.id!] = el;

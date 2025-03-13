@@ -8,6 +8,7 @@ import MasterLayout from '@/app/dashboard/_components/MasterLayout';
 import { useChatRoomHandler } from '@/store/ChatRoomHandler';
 import { SessionProvider } from '@/providers/SessionProvider';
 import PageLoading from '@/components/common/PageLoading';
+import { ChatNavigationHandler } from '@/providers/ChatNavigationHandler';
 
 export default function DashboardLayout({
   children,
@@ -42,6 +43,7 @@ export default function DashboardLayout({
     <WalletProvider isAuthenticated={authenticated && ready}>
       <LayoutProvider>
         <MasterLayout>
+          <ChatNavigationHandler />
           <SessionProvider>{children}</SessionProvider>
         </MasterLayout>
       </LayoutProvider>
