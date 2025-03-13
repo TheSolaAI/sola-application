@@ -1,7 +1,7 @@
 'use client';
 import useThemeManager from '@/store/ThemeManager';
 import { hexToRgb } from '@/utils/hexToRGB';
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useChatMessageHandler } from '@/store/ChatMessageHandler';
 import { ChatContentType, ChatItem } from '@/types/chatItem';
 import { SimpleMessageChatItem } from '@/components/messages/SimpleMessageChatItem';

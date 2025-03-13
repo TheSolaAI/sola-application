@@ -1,4 +1,5 @@
 'use client';
+
 import { create } from 'zustand';
 import { useChatRoomHandler } from '@/store/ChatRoomHandler';
 import { toast } from 'sonner';
@@ -9,86 +10,36 @@ import {
 } from '@/types/response';
 import { API_URLS } from '@/config/api_urls';
 import {
-  AiProjectsChatContent,
-  BubbleMapChatContent,
   ChatContentType,
   ChatItem,
-  GetTrendingNFTSChatContent,
   InProgressChatContent,
-  LimitOrderChatContent,
   LoaderMessageChatContent,
-  LuloChatContent,
-  MarketDataChatContent,
-  NFTCollectionChatContent,
-  RugCheckChatContent,
-  ShowLimitOrdersChatContent,
-  ShowLSTDataChatContent,
   SimpleMessageChatContent,
-  SwapChatContent,
-  TokenDataChatContent,
-  TopHoldersChatContent,
-  TransactionChatContent,
-  UserAudioChatContent,
 } from '@/types/chatItem';
-import { Tool } from '@/types/tool';
+import { RegisteredTool, ToolPropsType } from '@/types/tool';
 import { generateUniqueId } from '@/utils/randomID';
 import { MessageQueue, SerializedQueue } from '@/lib/MessageQueue';
 
 interface ChatMessageHandler {
-  state: 'idle' | 'loading' | 'error'; // the state of the chat message handler
-
-  messages: ChatItem<ChatContentType>[]; // stores an array of all the chat messages. Is managed entirely by this model
-  messageQueueData: SerializedQueue<ChatItem<ChatContentType>>; // stores an array of messages that are yet to be sent to server.
-  /**
-   * The current message that is being generated.
-   */
+  state: 'idle' | 'loading' | 'error';
+  messages: ChatItem<ChatContentType>[];
+  messageQueueData: SerializedQueue<ChatItem<ChatContentType>>;
   currentChatItem: ChatItem<
     InProgressChatContent | LoaderMessageChatContent
   > | null;
+  next: string | null;
 
-  next: string | null; // the next url to fetch more messages. If set to null then no more messages are available
-
-  /**
-   * Initializes the chat message handler with the current chatRoom's messages.
-   * This function is called whenever the current chat room is changed. Unlike other
-   * handlers, this handler's lifecycle is managed by the chat room handler.
-   */
   initChatMessageHandler: () => Promise<void>;
-
-  /**
-   * Gets the next set of messages from the server based on the next URL
-   */
   getNextMessages: () => Promise<void>;
-
-  /**
-   * Adds a new message to the message array and updates the history on the server.
-   * If there is no chatroom set by default then it creates a new chat room and adds the
-   * message to that chat room.
-   */
   addMessage: (message: ChatItem<ChatContentType>) => Promise<void>;
-
-  /**
-   * Sets a new current message when we get a response from the server
-   * @param messageUpdater
-   */
   setCurrentChatItem: (
     messageUpdater: ChatItem<
       LoaderMessageChatContent | InProgressChatContent
     > | null
   ) => void;
-
-  /**
-   * Updates the current message text with the new delta
-   */
   updateCurrentChatItem: (delta: string) => void;
-
-  /**
-   * Commits the current message to the message array and sends the result to
-   * our database
-   */
   commitCurrentChatItem: () => Promise<void>;
 
-  // Helpers to work with the queue
   enqueueMessage: (message: ChatItem<ChatContentType>) => void;
   dequeueMessage: () => ChatItem<ChatContentType> | undefined;
   getQueueSize: () => number;
@@ -96,7 +47,6 @@ interface ChatMessageHandler {
 }
 
 export const useChatMessageHandler = create<ChatMessageHandler>((set, get) => {
-  // Creating an empty queue to store the temporary messages that are formed during new chat creation.
   const emptyQueue = MessageQueue.createEmpty<ChatItem<ChatContentType>>();
 
   return {
@@ -106,7 +56,6 @@ export const useChatMessageHandler = create<ChatMessageHandler>((set, get) => {
     messageQueueData: emptyQueue,
     currentChatItem: null,
 
-    // Helper methods to work with the message queue
     enqueueMessage: (message: ChatItem<ChatContentType>): void => {
       try {
         const queue = MessageQueue.fromSerialized<ChatItem<ChatContentType>>(
@@ -116,7 +65,6 @@ export const useChatMessageHandler = create<ChatMessageHandler>((set, get) => {
         set({ messageQueueData: queue.serialize() });
       } catch (error) {
         console.error('Error enqueuing message:', error);
-        // Create a new queue if there's an error
         const newQueue = new MessageQueue<ChatItem<ChatContentType>>();
         newQueue.enqueue(message);
         set({ messageQueueData: newQueue.serialize() });
@@ -224,7 +172,6 @@ export const useChatMessageHandler = create<ChatMessageHandler>((set, get) => {
 
     addMessage: async (chatItem: ChatItem<ChatContentType>) => {
       if (useChatRoomHandler.getState().isCreatingRoom) {
-        // store the messages in the queue, since we have to wait for the new chat to get created.
         get().enqueueMessage(chatItem);
         return;
       }
@@ -234,13 +181,11 @@ export const useChatMessageHandler = create<ChatMessageHandler>((set, get) => {
       if (currentRoomID === undefined) {
         useChatRoomHandler.getState().setIsCreatingRoom(true);
         try {
-          // no chat room has been selected so we create a new one with our default agent and navigate the user to that room
           const newRoom = await useChatRoomHandler.getState().createChatRoom({
             name: 'New Chat',
           });
 
           if (newRoom) {
-            // we then add this message to the new room on our server
             const response = await apiClient.post(
               API_URLS.CHAT_ROOMS + newRoom.id + '/messages/',
               { message: JSON.stringify(chatItem.content) },
@@ -250,7 +195,6 @@ export const useChatMessageHandler = create<ChatMessageHandler>((set, get) => {
             if (ApiClient.isApiError(response)) {
               toast.error('Failed to Save Message, Reload the Page');
             }
-            // add the message to our local state
             set({ messages: [chatItem] });
           }
         } catch (error) {
@@ -272,18 +216,13 @@ export const useChatMessageHandler = create<ChatMessageHandler>((set, get) => {
       }
 
       try {
-        // Process all queued messages and upload them to the server
         const queue = MessageQueue.fromSerialized<ChatItem<ChatContentType>>(
           get().messageQueueData
         );
         if (!queue.isEmpty()) {
-          // Get messages before clearing
           const queueMessages = queue.toArray();
-
-          // Clear the queue to prevent reprocessing
           get().clearQueue();
 
-          // Process all messages in the queue
           for (const message of queueMessages) {
             console.log('Processing queued message:', message);
             try {
@@ -341,8 +280,6 @@ export const useChatMessageHandler = create<ChatMessageHandler>((set, get) => {
 
     commitCurrentChatItem: async () => {
       if (get().currentChatItem) {
-        // add the message in our server
-        // convert the in progress chat item to a simple message chat item
         const converted: ChatItem<SimpleMessageChatContent> = {
           id: get().currentChatItem!.id,
           content: {
@@ -363,49 +300,33 @@ export const useChatMessageHandler = create<ChatMessageHandler>((set, get) => {
 });
 
 /**
- * Parses the content of a chat item from a JSON string to the appropriate ChatContent type
- * @param item The chat item to parse
+ * Improved parser that doesn't need manual type guards for each content type
  */
 const parseChatItemContent = (item: ChatMessageResponseWrapper) => {
-  const parsedContent = JSON.parse(item.message);
-  console.log(parsedContent);
-  if (isSimpleMessageChatContent(parsedContent)) {
-    return createChatItem<SimpleMessageChatContent>(item, parsedContent);
-  } else if (isUserAudioChatContent(parsedContent)) {
-    return createChatItem<UserAudioChatContent>(item, parsedContent);
-  } else if (isTokenDataChatContent(parsedContent)) {
-    return createChatItem<TokenDataChatContent>(item, parsedContent);
-  } else if (isBubblemapChatContent(parsedContent)) {
-    return createChatItem<BubbleMapChatContent>(item, parsedContent);
-  } else if (isSwapChatContent(parsedContent)) {
-    return createChatItem<SwapChatContent>(item, parsedContent);
-  } else if (isLstChatContent(parsedContent)) {
-    return createChatItem<ShowLSTDataChatContent>(item, parsedContent);
-  } else if (isRugCheckChatContent(parsedContent)) {
-    return createChatItem<RugCheckChatContent>(item, parsedContent);
-  } else if (isMarketDataChatContent(parsedContent)) {
-    return createChatItem<MarketDataChatContent>(item, parsedContent);
-  } else if (isTopHoldersChatContent(parsedContent)) {
-    return createChatItem<TopHoldersChatContent>(item, parsedContent);
-  } else if (isUserLuloChatContent(parsedContent)) {
-    return createChatItem<LuloChatContent>(item, parsedContent);
-  } else if (isTransactionDataChatContent(parsedContent)) {
-    return createChatItem<TransactionChatContent>(item, parsedContent);
-  } else if (isTransferSolChatContent(parsedContent)) {
-    return createChatItem<TransactionChatContent>(item, parsedContent);
-  } else if (isTransferSplChatContent(parsedContent)) {
-    return createChatItem<TransactionChatContent>(item, parsedContent);
-  } else if (isNFTCollectionChatContent(parsedContent)) {
-    return createChatItem<NFTCollectionChatContent>(item, parsedContent);
-  } else if (isTrendingNFTSChatContent(parsedContent)) {
-    return createChatItem<GetTrendingNFTSChatContent>(item, parsedContent);
-  } else if (isAiProjectClassificationChatContent(parsedContent)) {
-    return createChatItem<AiProjectsChatContent>(item, parsedContent);
-  } else if (isCreateLimitOrderChatContent(parsedContent)) {
-    return createChatItem<LimitOrderChatContent>(item, parsedContent);
+  try {
+    const parsedContent = JSON.parse(item.message);
+
+    // Validate that the content has a valid type property
+    if (typeof parsedContent.type !== 'string') {
+      console.error(
+        'Invalid message format - missing type property',
+        parsedContent
+      );
+      return null;
+    }
+
+    // Simple check to ensure the type property exists - we can trust it's valid
+    // because our tools now validate with Zod
+    return createChatItem(item, parsedContent);
+  } catch (error) {
+    console.error('Error parsing chat item content:', error);
+    return null;
   }
 };
 
+/**
+ * Creates a typed ChatItem from the raw message wrapper
+ */
 function createChatItem<T extends ChatContentType>(
   wrapper: ChatMessageResponseWrapper,
   parsedMessage: T
@@ -418,220 +339,23 @@ function createChatItem<T extends ChatContentType>(
 }
 
 /**
- * Type Guards for the Chat Item content
+ * Creates a chat item from a tool execution result
  */
-function isSimpleMessageChatContent(
-  content: any
-): content is SimpleMessageChatContent {
-  return content.type === 'simple_message';
-}
-function isUserAudioChatContent(content: any): content is UserAudioChatContent {
-  return content.type === 'user_audio_chat';
-}
-function isTokenDataChatContent(content: any): content is TokenDataChatContent {
-  return content.type === 'token_data';
-}
-function isBubblemapChatContent(content: any): content is BubbleMapChatContent {
-  return content.type === 'bubble_map';
-}
-function isSwapChatContent(content: any): content is SwapChatContent {
-  return content.type === 'swap';
-}
-function isLstChatContent(content: any): content is ShowLSTDataChatContent {
-  return content.type === 'get_lst_data';
-}
-function isRugCheckChatContent(content: any): content is RugCheckChatContent {
-  return content.type === 'rug_check';
-}
-function isMarketDataChatContent(
-  content: any
-): content is MarketDataChatContent {
-  return content.type === 'market_data';
-}
-function isTopHoldersChatContent(
-  content: any
-): content is TopHoldersChatContent {
-  return content.type === 'top_holders';
-}
-function isUserLuloChatContent(content: any): content is LuloChatContent {
-  return content.type === 'user_lulo_data';
-}
-function isTransactionDataChatContent(
-  content: any
-): content is TransactionChatContent {
-  return content.type === 'transaction_message';
-}
-function isTransferSolChatContent(
-  content: any
-): content is TransactionChatContent {
-  return content.type === 'transfer_sol';
-}
-function isTransferSplChatContent(
-  content: any
-): content is TransactionChatContent {
-  return content.type === 'transfer_spl';
-}
-
-function isNFTCollectionChatContent(
-  content: any
-): content is NFTCollectionChatContent {
-  return content.type === 'nft_collection_data';
-}
-function isTrendingNFTSChatContent(
-  content: any
-): content is GetTrendingNFTSChatContent {
-  return content.type === 'get_trending_nfts';
-}
-function isAiProjectClassificationChatContent(
-  content: any
-): content is AiProjectsChatContent {
-  return content.type === 'ai_projects_classification';
-}
-function isCreateLimitOrderChatContent(
-  content: any
-): content is LimitOrderChatContent {
-  return content.type === 'create_limit_order';
-}
-
 export function createChatItemFromTool(
-  tool: Tool,
+  tool: RegisteredTool<ToolPropsType>,
   data: any
 ): ChatItem<ChatContentType> {
-  let message: ChatItem<ChatContentType>;
+  // All tools now have a properly typed propsType
+  const propsType = tool.representation?.props_type;
 
-  switch (tool.representation?.props_type) {
-    case 'token_data': {
-      message = {
-        id: generateUniqueId(),
-        content: data as TokenDataChatContent,
-        createdAt: new Date().toISOString(),
-      };
-      return message;
-    }
-    case 'bubble_map': {
-      message = {
-        id: generateUniqueId(),
-        content: data as BubbleMapChatContent,
-        createdAt: new Date().toISOString(),
-      };
-      return message;
-    }
-    case 'swap': {
-      message = {
-        id: generateUniqueId(),
-        content: data as SwapChatContent,
-        createdAt: new Date().toISOString(),
-      };
-      return message;
-    }
-    case 'get_lst_data': {
-      message = {
-        id: generateUniqueId(),
-        content: data as ShowLSTDataChatContent,
-        createdAt: new Date().toISOString(),
-      };
-      return message;
-    }
-    case 'rug_check': {
-      message = {
-        id: generateUniqueId(),
-        content: data as RugCheckChatContent,
-        createdAt: new Date().toISOString(),
-      };
-      return message;
-    }
-    case 'market_data': {
-      message = {
-        id: generateUniqueId(),
-        content: data as MarketDataChatContent,
-        createdAt: new Date().toISOString(),
-      };
-      return message;
-    }
-    case 'show_limit_orders': {
-      message = {
-        id: generateUniqueId(),
-        content: data as ShowLimitOrdersChatContent,
-        createdAt: new Date().toISOString(),
-      };
-      return message;
-    }
-    case 'transaction_message': {
-      message = {
-        id: generateUniqueId(),
-        content: data as TransactionChatContent,
-        createdAt: new Date().toISOString(),
-      };
-      return message;
-    }
-
-    case 'transfer_sol': {
-      message = {
-        id: generateUniqueId(),
-        content: data as TransactionChatContent,
-        createdAt: new Date().toISOString(),
-      };
-      return message;
-    }
-    case 'transfer_spl': {
-      message = {
-        id: generateUniqueId(),
-        content: data as TransactionChatContent,
-        createdAt: new Date().toISOString(),
-      };
-      return message;
-    }
-    case 'withdraw_lulo': {
-      message = {
-        id: generateUniqueId(),
-        content: data as LuloChatContent,
-        createdAt: new Date().toISOString(),
-      };
-      return message;
-    }
-    case 'user_assets_lulo': {
-      message = {
-        id: generateUniqueId(),
-        content: data as TransactionChatContent,
-        createdAt: new Date().toISOString(),
-      };
-      return message;
-    }
-    case 'nft_collection_data': {
-      message = {
-        id: generateUniqueId(),
-        content: data as NFTCollectionChatContent,
-        createdAt: new Date().toISOString(),
-      };
-      return message;
-    }
-    case 'get_trending_nfts': {
-      message = {
-        id: generateUniqueId(),
-        content: data as GetTrendingNFTSChatContent,
-        createdAt: new Date().toISOString(),
-      };
-      return message;
-    }
-    case 'ai_projects_classification': {
-      message = {
-        id: generateUniqueId(),
-        content: data as AiProjectsChatContent,
-        createdAt: new Date().toISOString(),
-      };
-      return message;
-    }
-    case 'create_limit_order': {
-      message = {
-        id: generateUniqueId(),
-        content: data as LimitOrderChatContent,
-        createdAt: new Date().toISOString(),
-      };
-      return message;
-    }
-
-    default: {
-      throw new Error('Unsupported props_type');
-    }
+  if (!propsType) {
+    throw new Error('Tool is missing props_type');
   }
+
+  // Create a generic chat item with the data properly typed
+  return {
+    id: generateUniqueId(),
+    content: data, // the data from our Zod-validated tools
+    createdAt: new Date().toISOString(),
+  };
 }

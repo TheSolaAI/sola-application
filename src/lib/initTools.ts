@@ -1,4 +1,19 @@
-import { getAgentChanger, getTokenData } from '@/tools';
+import {
+  getAgentChanger,
+  getTokenData,
+  limitOrder,
+  getLimitOrders,
+  getAiProjectsByClassification,
+  getAiProjectsByToken,
+  getNFTPrice,
+  getTrendingNFTs,
+  getLuloAssets,
+  depositLulo,
+  withdrawLulo,
+  swapTokens,
+  transferSolTx,
+  transferSpl,
+} from '@/tools';
 
 /**
  * Initializes all tools by importing them, which triggers their registration
@@ -7,9 +22,36 @@ import { getAgentChanger, getTokenData } from '@/tools';
  */
 export function initializeTools() {
   // The imports above will trigger tool registration
-  // We can add logging to confirm registration
   console.log('Tool initialization started');
-  const tools = [getAgentChanger, getTokenData];
+
+  const tools = [
+    // Agent swapper
+    getAgentChanger,
+
+    // Token Analyst tools
+    getTokenData,
+    limitOrder,
+    getLimitOrders,
+
+    // GoatIndex tools
+    getAiProjectsByClassification,
+    getAiProjectsByToken,
+
+    // NFT Analyst tools
+    getNFTPrice,
+    getTrendingNFTs,
+
+    // Lulo Agent tools
+    getLuloAssets,
+    depositLulo,
+    withdrawLulo,
+
+    // OnChain Handler tools
+    swapTokens,
+    transferSolTx,
+    transferSpl,
+  ];
+
   console.log(`Initialized ${tools.length} tools`);
 
   return true;
