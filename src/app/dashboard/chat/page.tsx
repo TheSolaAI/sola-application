@@ -1,7 +1,9 @@
 'use client';
-import { useCallback, useMemo } from 'react';
+
+import { useCallback, useEffect, useMemo } from 'react';
 import { useSessionHandler } from '@/store/SessionHandler';
 import { useAgentHandler } from '@/store/AgentHandler';
+import { useChatRoomHandler } from '@/store/ChatRoomHandler';
 
 type CategoryTile = {
   text: string;
@@ -33,6 +35,17 @@ const CATEGORY_TILES: CategoryTile[] = [
 ];
 
 export default function NewChat() {
+  /**
+   * Global State
+   */
+  const { currentChatRoom, setCurrentChatRoom } = useChatRoomHandler();
+
+  useEffect(() => {
+    if (!currentChatRoom) {
+      setCurrentChatRoom(null);
+    }
+  }, [setCurrentChatRoom, currentChatRoom]);
+
   // Memoize store selectors
   const sendTextMessage = useSessionHandler((state) => state.sendTextMessage);
   const agents = useAgentHandler((state) => state.agents);

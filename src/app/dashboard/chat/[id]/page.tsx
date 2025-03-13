@@ -4,19 +4,24 @@ import { hexToRgb } from '@/utils/hexToRGB';
 import React, { useEffect, useRef, useState } from 'react';
 import { useChatMessageHandler } from '@/store/ChatMessageHandler';
 import { ChatContentType, ChatItem } from '@/types/chatItem';
-import { SimpleMessageChatItem } from '@/components/messages/SimpleMessageChatItem';
 import { messageComponentMap } from '@/lib/messageComponentMap';
+import { useParams } from 'next/navigation';
+import { useChatRoomHandler } from '@/store/ChatRoomHandler';
+import { LuArrowDown } from 'react-icons/lu';
 
 export default function Chat() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollableContainerRef = useRef<HTMLDivElement>(null);
   const isAutoScrollEnabled = useRef(true);
+  const { id } = useParams();
 
   /**
    * Global State
    */
   const { theme } = useThemeManager();
-  const { messages, currentChatItem } = useChatMessageHandler();
+  const { messages, currentChatItem, initChatMessageHandler } =
+    useChatMessageHandler();
+  const { rooms, setCurrentChatRoom, currentChatRoom } = useChatRoomHandler();
 
   /**
    * Local State
@@ -29,6 +34,21 @@ export default function Chat() {
       scrollToBottom();
     }
   }, [messages, currentChatItem]);
+
+  // Set current room based on URL parameter
+  useEffect(() => {
+    if (!currentChatRoom && id && rooms.length > 0) {
+      const roomId = parseInt(id as string);
+      const currentRoom = rooms.find((room) => room.id === roomId);
+
+      if (currentRoom) {
+        setCurrentChatRoom(currentRoom).then(() => {
+          // Initialize messages for this chat room
+          initChatMessageHandler();
+        });
+      }
+    }
+  }, [id, rooms, currentChatRoom, setCurrentChatRoom, initChatMessageHandler]);
 
   // Function to handle smooth scrolling to bottom
   const scrollToBottom = () => {

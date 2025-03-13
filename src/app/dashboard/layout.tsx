@@ -32,7 +32,7 @@ export default function DashboardLayout({
       }
     };
     init();
-  }, [authenticated, ready, login]);
+  }, [authenticated, ready, login, initRoomHandler]);
 
   if (!ready) {
     return <PageLoading />;

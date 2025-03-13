@@ -1,4 +1,5 @@
 'use client';
+
 import { create } from 'zustand';
 import { ChatRoom, ChatRoomPatch } from '@/types/chatRoom';
 import { ApiClient, apiClient } from '@/lib/ApiClient';
@@ -51,6 +52,7 @@ export const useChatRoomHandler = create<ChatRoomHandler>((set, get) => {
     setState: (state: 'idle' | 'loading' | 'error'): void => set({ state }),
 
     setCurrentChatRoom: async (room: ChatRoom | null): Promise<void> => {
+      console.log(room);
       set({
         previousChatRoom: get().currentChatRoom,
         currentChatRoom: room,
@@ -150,6 +152,7 @@ export const useChatRoomHandler = create<ChatRoomHandler>((set, get) => {
           isNewRoomCreated: true,
           currentChatRoom: chatRoom,
         });
+
         return {
           id: response.data.id,
           name: response.data.name,
