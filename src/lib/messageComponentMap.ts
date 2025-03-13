@@ -11,6 +11,7 @@ import { NFTCollectionMessageItem } from '@/components/messages/NFTCollectionCar
 import { TrendingNFTMessageItem } from '@/components/messages/TrendingNFTMessageItem';
 import { LuloChatItem } from '@/components/messages/LuloMessageItem';
 import { TransactionDataMessageItem } from '@/components/messages/TransactionCard';
+import { SwapChatItem } from '@/components/messages/SwapMessageItem';
 
 export const messageComponentMap: Record<string, React.ComponentType<any>> = {
   simple_message: SimpleMessageChatItem,
@@ -21,6 +22,7 @@ export const messageComponentMap: Record<string, React.ComponentType<any>> = {
   nft_collection_data: NFTCollectionMessageItem,
   get_trending_nfts: TrendingNFTMessageItem,
   user_lulo_data: LuloChatItem,
+  swap: SwapChatItem,
   user_audio_chat: AudioPlayerMessageItem,
   in_progress_message: InProgressMessageChatItem,
   loader_message: LoaderMessageItem,

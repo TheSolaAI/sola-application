@@ -2,7 +2,6 @@
 
 import { FC, useEffect, useState } from 'react';
 import { LimitOrderChatContent } from '@/types/chatItem';
-import { Connection } from '@solana/web3.js';
 
 interface LimitOrderChatItemProps {
   props: LimitOrderChatContent;
@@ -20,13 +19,11 @@ export const CreateLimitOrderChatItem: FC<LimitOrderChatItemProps> = ({
   const [isPolling, setIsPolling] = useState<boolean>(true);
 
   useEffect(() => {
-    const rpc = process.env.SOLANA_RPC_URL;
-    if (!rpc || !props.txn || txStatus === 'success' || txStatus === 'failed') {
+    if (!props.txn || txStatus === 'success' || txStatus === 'failed') {
       setIsPolling(false);
       return;
     }
 
-    const connection = new Connection(rpc);
     let timeoutId: number;
     let attempts = 0;
     const maxAttempts = 30;
@@ -42,27 +39,48 @@ export const CreateLimitOrderChatItem: FC<LimitOrderChatItemProps> = ({
         }
 
         attempts++;
-        const txInfo = await connection.getTransaction(props.txn, {
-          maxSupportedTransactionVersion: 0,
-          commitment: 'confirmed',
+
+        // Use the API endpoint instead of direct connection
+        const response = await fetch('/api/get-transaction', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            signature: props.txn,
+            options: {
+              maxSupportedTransactionVersion: 0,
+              commitment: 'confirmed',
+            },
+          }),
         });
 
-        if (txInfo) {
-          if (txInfo.meta?.err || !txInfo.meta) {
-            setTxStatus('failed');
+        const data = await response.json();
+
+        if (data.status === 'success') {
+          if (data.transaction) {
+            if (data.error) {
+              setTxStatus('failed');
+              setLastChecked(new Date().toISOString());
+              setIsPolling(false);
+              return;
+            }
+
+            setTxStatus('success');
             setLastChecked(new Date().toISOString());
             setIsPolling(false);
             return;
           }
 
-          setTxStatus('success');
+          // Transaction not found yet, continue polling
           setLastChecked(new Date().toISOString());
-          setIsPolling(false);
-          return;
+          timeoutId = window.setTimeout(checkStatus, interval);
+        } else {
+          // API error
+          console.error('API Error:', data.message);
+          setLastChecked(new Date().toISOString());
+          timeoutId = window.setTimeout(checkStatus, interval);
         }
-
-        setLastChecked(new Date().toISOString());
-        timeoutId = window.setTimeout(checkStatus, interval);
       } catch (error) {
         console.error('Error checking transaction status:', error);
         setLastChecked(new Date().toISOString());

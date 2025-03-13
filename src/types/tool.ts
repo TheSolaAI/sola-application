@@ -21,8 +21,6 @@ export const ToolPropsTypeMap = {
   get_lst_data: 'ShowLSTDataChatContent',
   market_data: 'MarketDataChatContent',
   transaction_message: 'TransactionChatContent',
-  transfer_sol: 'TransactionChatContent',
-  transfer_spl: 'TransactionChatContent',
   agent_swap: 'AgentSwapChatContent',
 } as const;
 

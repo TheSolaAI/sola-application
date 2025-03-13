@@ -67,6 +67,20 @@ const LuloAgent = registerAgent({
   ],
 });
 
+const OnChainHandler = registerAgent({
+  name: 'OnChainHandler',
+  slug: 'onchain-handler',
+  description:
+    'Agent to perform token swapping and token transfers (Send Tokens).',
+  logo: FaWallet,
+  tools: [
+    { name: 'swapTokens', propsType: 'swap' },
+    { name: 'transferSolTx', propsType: 'transaction_message' },
+    { name: 'transferSpl', propsType: 'transaction_message' },
+    { name: 'getAgentChanger', propsType: 'agent_swap' },
+  ],
+});
+
 interface AgentHandler {
   agents: Agent[];
   currentActiveAgent: Agent | null;
@@ -75,7 +89,7 @@ interface AgentHandler {
 }
 
 export const useAgentHandler = create<AgentHandler>((set, get) => ({
-  agents: [TokenAnalyst, GoatIndex, NFTAnalyst, LuloAgent],
+  agents: [TokenAnalyst, GoatIndex, NFTAnalyst, LuloAgent, OnChainHandler],
   currentActiveAgent: null,
 
   setCurrentActiveAgent: (agent: Agent | null) => {
