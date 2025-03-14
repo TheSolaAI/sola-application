@@ -17,6 +17,7 @@ export const ChatNavigationHandler = () => {
     // 3. The room ID hasn't actually changed
     // 4. The chat is new chat
     if (!currentChatRoom) return;
+    console.log(currentChatRoom);
 
     const currentRoomId = currentChatRoom.id;
     if (prevRoomIdRef.current === currentRoomId) return;

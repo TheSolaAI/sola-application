@@ -49,7 +49,7 @@ export default function Chat() {
         });
       }
     }
-  }, [id, setCurrentChatRoom, initChatMessageHandler]);
+  }, [id, rooms, setCurrentChatRoom, initChatMessageHandler]);
 
   // Function to handle smooth scrolling to bottom
   const scrollToBottom = () => {

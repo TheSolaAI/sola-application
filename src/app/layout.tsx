@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import AuthProvider from '@/providers/AuthProvider';
+import React from 'react';
+import ThemeInitializer from '@/app/_components/ThemeInitializer';
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -32,6 +34,7 @@ export default function RootLayout({
         <title>Sola AI</title>
       </head>
       <body suppressHydrationWarning={true}>
+        <ThemeInitializer />
         <AuthProvider>{children}</AuthProvider>
       </body>
     </html>

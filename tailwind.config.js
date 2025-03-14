@@ -11,17 +11,18 @@ module.exports = {
         baseBackground: 'rgb(var(--color-baseBackground) / <alpha-value>)',
         background: 'rgb(var(--color-background) / <alpha-value>)',
         backgroundContrast:
-            'rgb(var(--color-backgroundContrast) / <alpha-value>)',
+          'rgb(var(--color-backgroundContrast) / <alpha-value>)',
         sec_background: 'rgb(var(--color-sec_background) / <alpha-value>)',
         surface: 'rgb(var(--color-surface) / <alpha-value>)',
         textColor: 'rgb(var(--color-textColor) / <alpha-value>)',
         textColorContrast:
-            'rgb(var(--color-textColorContrast) / <alpha-value>)',
+          'rgb(var(--color-textColorContrast) / <alpha-value>)',
         secText: 'rgb(var(--color-secText) / <alpha-value>)',
         border: 'rgb(var(--color-border) / <alpha-value>)',
         primary: 'rgb(var(--color-primary) / <alpha-value>)',
         primaryDark: 'rgb(var(--color-primaryDark) / <alpha-value>)',
-        dashboardBackground: 'rgb(var(--color-dashboardBackground) / <alpha-value>)',
+        dashboardBackground:
+          'rgb(var(--color-dashboardBackground) / <alpha-value>)',
       },
       spacing: {
         4.5: '1.125rem',
@@ -191,8 +192,5 @@ module.exports = {
       },
     },
   },
-  plugins: [
-    'tailwindcss-animate',
-    'tailwind-scrollbar',
-  ],
+  plugins: ['tailwindcss-animate', 'tailwind-scrollbar'],
 };

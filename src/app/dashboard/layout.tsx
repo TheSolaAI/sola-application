@@ -9,6 +9,7 @@ import { useChatRoomHandler } from '@/store/ChatRoomHandler';
 import { SessionProvider } from '@/providers/SessionProvider';
 import PageLoading from '@/components/common/PageLoading';
 import { ChatNavigationHandler } from '@/providers/ChatNavigationHandler';
+import useThemeManager from '@/store/ThemeManager';
 
 export default function DashboardLayout({
   children,
@@ -21,6 +22,7 @@ export default function DashboardLayout({
   const { authenticated, ready } = usePrivy();
   const { login } = useUserHandler();
   const { initRoomHandler } = useChatRoomHandler();
+  const { initThemeManager } = useThemeManager();
 
   /**
    * Add any code here that needs to run when the user has completed authentication
