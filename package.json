@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@headlessui/react": "^2.2.0",
     "@microsoft/clarity": "^1.0.0",
     "@privy-io/react-auth": "^2.6.2",
     "@sentry/nextjs": "^9.5.0",

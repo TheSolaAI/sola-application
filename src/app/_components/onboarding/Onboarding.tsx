@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import TopBar from './TopBar';
-import MobileContent from './MobileContent';
-import MainContent from './MainContent';
+import TopBar from '../TopBar';
+import MobileContent from '../MobileContent';
+import MainContent from '../MainContent';
 import useIsMobile from '@/utils/isMobile';
 
 export default function Onboarding() {
