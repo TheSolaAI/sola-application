@@ -1,16 +1,16 @@
-type GraphPoint = {
+export type GraphPoint = {
   date: string;
   value: number;
 };
 
-type GoatIndexProjectCount = {
+export type GoatIndexProjectCount = {
   latest: number;
   previous24Hours: number;
 };
 
 type GoatIndexGraphData = GraphPoint;
 
-interface Tweet {
+export interface Tweet {
   engagement: number;
   url: string;
   senderProfileImage: string;
@@ -24,7 +24,7 @@ interface Tweet {
   reply: number;
 }
 
-interface Metrics {
+export interface Metrics {
   price: number;
   marketCap: number;
   liquidity: number;
@@ -103,7 +103,7 @@ export type GoatIndexTopAiProjectsApiResponse = {
   };
 };
 
-interface GithubAnalysis {
+export interface GithubAnalysis {
   score: number;
   contributors: number;
   stars: number;

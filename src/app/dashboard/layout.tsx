@@ -2,7 +2,7 @@
 import { WalletProvider } from '@/providers/WalletProvider';
 import { usePrivy } from '@privy-io/react-auth';
 import { useUserHandler } from '@/store/UserHandler';
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { LayoutProvider } from '@/providers/LayoutProvider';
 import MasterLayout from '@/app/dashboard/_components/MasterLayout';
 import { useChatRoomHandler } from '@/store/ChatRoomHandler';
@@ -22,7 +22,6 @@ export default function DashboardLayout({
   const { authenticated, ready } = usePrivy();
   const { login } = useUserHandler();
   const { initRoomHandler } = useChatRoomHandler();
-  const { initThemeManager } = useThemeManager();
 
   /**
    * Add any code here that needs to run when the user has completed authentication

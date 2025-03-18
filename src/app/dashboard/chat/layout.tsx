@@ -8,6 +8,7 @@ import { SessionControls } from '@/app/dashboard/chat/_components/SessionControl
 import InfoText from '@/app/dashboard/chat/_components/InfoText';
 import { useChatMessageHandler } from '@/store/ChatMessageHandler';
 import { ScaleLoader } from 'react-spinners';
+import React from 'react';
 
 export default function ChatLayout({
   children,

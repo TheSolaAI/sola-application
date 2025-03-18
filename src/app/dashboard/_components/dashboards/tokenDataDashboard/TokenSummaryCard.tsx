@@ -34,7 +34,7 @@ export const TokenSummaryCard: FC<TokenSummaryCardProps> = ({
 
   return (
     <div className="bg-baseBackground rounded-xl w-full flex flex-col p-4">
-      <div className="flex flex-row gap-x-4 items-start">
+      <div className="flex flex-row gap-x-4 items-start overflow-x-auto">
         <img src={logoURI} alt="token" className="w-20 h-20 rounded-xl" />
         <div className="flex flex-col w-full">
           <div className="flex flex-row w-full justify-between">

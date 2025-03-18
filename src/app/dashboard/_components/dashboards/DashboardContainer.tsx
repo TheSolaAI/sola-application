@@ -45,22 +45,24 @@ const DashBoardContainer: FC<DashBoardContainerProps> = memo(
 
     return (
       <motion.div
-        className="h-full bg-sec_background sm:rounded-2xl overflow-y-auto flex"
+        className={`h-full bg-sec_background sm:rounded-2xl overflow-y-auto flex 
+                    ${visible ? 'opacity-100 sm:ml-2 w-[75%] p-2' : 'w-0 opacity-100'}
+                    ${isMobile && visible && 'min-w-[100%]'}`}
         initial="hidden"
         animate={visible ? 'visible' : 'hidden'}
         variants={containerVariants}
         layout
       >
         {visible && (
-          <div className="w-full p-2">
+          <div className="w-full">
             {/* Header - Container */}
-            <div className="flex flex-row mt-2 gap-x-2 w-full justify-between items-center">
+            <div className="flex flex-row mt-2 px-4 gap-x-2 w-full justify-between items-center">
               {/* Title */}
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.2 }}
-                className="font-semibold text-lg px-4 text-textColor"
+                className="font-semibold text-lg px-2 text-textColor"
               >
                 {title}
               </motion.div>

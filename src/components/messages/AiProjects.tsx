@@ -3,9 +3,9 @@
 import { AiProjectsChatContent } from '@/types/chatItem';
 import BaseGridChatItem from '@/components/messages/general/BaseGridChatItem';
 import { FaSquareXTwitter } from 'react-icons/fa6';
-import useThemeManager from '@/store/ThemeManager';
 import { useLayoutContext } from '@/providers/LayoutProvider';
-import { GoatIndexDashboard } from '@/app/dashboard/_components/dashboards/GoatIndexDashboard';
+import { GoatIndexDashboard } from '@/app/dashboard/_components/dashboards/goatIndexDashboard/GoatIndexDashboard';
+import Image from 'next/image';
 
 interface AiProjectsChatItemProps {
   props: AiProjectsChatContent;
@@ -18,7 +18,6 @@ export const AiProjects = ({ props }: AiProjectsChatItemProps) => {
   const { handleDashboardOpen, dashboardOpen, setDashboardLayoutContent } =
     useLayoutContext();
 
-  const { theme } = useThemeManager();
   return (
     <>
       <BaseGridChatItem col={2}>
@@ -37,10 +36,12 @@ export const AiProjects = ({ props }: AiProjectsChatItemProps) => {
               }}
             >
               <div className="flex items-center gap-4">
-                <img
+                <Image
                   src={token.image}
                   alt="sanctumimage"
-                  className="h-16 rounded-lg"
+                  className="rounded-lg"
+                  height={64}
+                  width={64}
                 />
                 <div>
                   <p className="text-base font-semibold">{token.name}</p>
@@ -78,10 +79,12 @@ export const AiProjects = ({ props }: AiProjectsChatItemProps) => {
               }}
             >
               <div className="flex items-center gap-4">
-                <img
+                <Image
                   src={token.tokenDetail.image}
                   alt="sanctumimage"
-                  className="h-16 rounded-lg"
+                  className="rounded-lg"
+                  height={64}
+                  width={64}
                 />
                 <div>
                   <p className="text-base font-semibold">
