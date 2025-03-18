@@ -9,6 +9,7 @@ import InfoText from '@/app/dashboard/chat/_components/InfoText';
 import { useChatMessageHandler } from '@/store/ChatMessageHandler';
 import { ScaleLoader } from 'react-spinners';
 import React from 'react';
+import { useChatRoomHandler } from '@/store/ChatRoomHandler';
 
 export default function ChatLayout({
   children,
@@ -39,7 +40,8 @@ export default function ChatLayout({
       </div>
 
       {/* Empty state message */}
-      {state === 'loading' && (
+      {(state === 'loading' ||
+        useChatRoomHandler.getState().state === 'loading') && (
         <div
           className={
             'absolute inset-0 flex flex-col gap-4 items-center justify-center z-20'

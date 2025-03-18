@@ -227,7 +227,9 @@ export const useChatMessageHandler = create<ChatMessageHandler>((set, get) => {
             console.log('Processing queued message:', message);
             try {
               const response = await apiClient.post(
-                API_URLS.CHAT_ROOMS + currentRoomID + '/messages/',
+                API_URLS.CHAT_ROOMS +
+                  useChatRoomHandler.getState().currentChatRoom?.id +
+                  '/messages/',
                 { message: JSON.stringify(message.content) },
                 'auth'
               );

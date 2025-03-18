@@ -48,12 +48,14 @@ export const SessionControls = () => {
     }
   }, [state]);
 
-  const sendMessageToAI = () => {
+  const sendMessageToAI = async () => {
     if (inputRef.current?.value === '') return;
     // if (credits <= 0) {
     //   toast.warning('Refuel your credits to keep going!');
     //   return;
     // }
+
+    await sendTextMessage(inputRef.current?.value || '');
 
     addMessage({
       id: 0,
@@ -65,7 +67,7 @@ export const SessionControls = () => {
       },
       createdAt: new Date().toISOString(),
     });
-    sendTextMessage(inputRef.current?.value || '');
+
     inputRef.current!.value = '';
   };
 
