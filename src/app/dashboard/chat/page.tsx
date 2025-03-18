@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo } from 'react';
 import { useSessionHandler } from '@/store/SessionHandler';
 import { useAgentHandler } from '@/store/AgentHandler';
 import { useChatRoomHandler } from '@/store/ChatRoomHandler';
+import { useChatMessageHandler } from '@/store/ChatMessageHandler';
 
 type CategoryTile = {
   text: string;
@@ -79,38 +80,43 @@ export default function NewChat() {
 
   return (
     <div className="absolute inset-0 flex flex-col items-center justify-center p-4 z-10">
-      {/* Logo and Title */}
-      <div className="flex flex-col items-center mb-8">
-        <h1 className="font-semibold text-lg md:text-title-xl text-secText animate-in fade-in duration-700">
-          ASK SOLA
-        </h1>
-        <p className="font-medium text-lg md:text-title-xs text-secText animate-in fade-in duration-700">
-          Perform Voice Powered Solana Intents
-        </p>
-      </div>
+      {useChatRoomHandler.getState().state !== 'loading' &&
+        useChatMessageHandler.getState().state !== 'loading' && (
+          <>
+            {/* Logo and Title */}
+            <div className="flex flex-col items-center mb-8">
+              <h1 className="font-semibold text-lg md:text-title-xl text-secText animate-in fade-in duration-700">
+                ASK SOLA
+              </h1>
+              <p className="font-medium text-lg md:text-title-xs text-secText animate-in fade-in duration-700">
+                Perform Voice Powered Solana Intents
+              </p>
+            </div>
 
-      {/* Category tiles */}
-      <div className="grid grid-cols-2 gap-6 w-full max-w-xl">
-        {CATEGORY_TILES.map((item, index) => (
-          <div
-            key={index}
-            className="border border-border bg-sec_background rounded-2xl p-5 text-secText hover:bg-primaryDark hover:text-textColorContrast transition cursor-pointer shadow-sm"
-            onClick={() => handleTileClick(item.action)}
-          >
-            <h2 className="text-lg md:text-title-m animate-in fade-in duration-300 font-semibold">
-              {item.text}
-            </h2>
-            <p className="md:text-title-m animate-in fade-in duration-300 text-sm mt-1">
-              {item.subtext}
-            </p>
-          </div>
-        ))}
-      </div>
+            {/* Category tiles */}
+            <div className="grid grid-cols-2 gap-6 w-full max-w-xl">
+              {CATEGORY_TILES.map((item, index) => (
+                <div
+                  key={index}
+                  className="border border-border bg-sec_background rounded-2xl p-5 text-secText hover:bg-primaryDark hover:text-textColorContrast transition cursor-pointer shadow-sm"
+                  onClick={() => handleTileClick(item.action)}
+                >
+                  <h2 className="text-lg md:text-title-m animate-in fade-in duration-300 font-semibold">
+                    {item.text}
+                  </h2>
+                  <p className="md:text-title-m animate-in fade-in duration-300 text-sm mt-1">
+                    {item.subtext}
+                  </p>
+                </div>
+              ))}
+            </div>
 
-      {/* Available Agents */}
-      <div className="flex flex-wrap gap-2 p-2 w-full justify-center mt-3">
-        {agentElements}
-      </div>
+            {/* Available Agents */}
+            <div className="flex flex-wrap gap-2 p-2 w-full justify-center mt-3">
+              {agentElements}
+            </div>
+          </>
+        )}
     </div>
   );
 }

@@ -172,7 +172,7 @@ export const Sidebar: FC<SidebarProps> = ({
         </button>
 
         {/* ChatRooms List */}
-        <div className="mt-[10px] flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-primary scrollbar-track-sec_background">
+        <div className="mt-[10px] flex-1 overflow-y-auto">
           <div className="flex flex-col items-start gap-y-1">
             {rooms.map((room) => {
               const isEditing = editingRoom === room.id;

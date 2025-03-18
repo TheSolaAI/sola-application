@@ -192,5 +192,5 @@ module.exports = {
       },
     },
   },
-  plugins: ['tailwindcss-animate', 'tailwind-scrollbar'],
+  plugins: ['tailwindcss-animate'],
 };
