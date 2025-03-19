@@ -58,13 +58,13 @@ const WalletLensButton = memo(function WalletLensButton({
         <Image
           src="/default_wallet.svg"
           alt="wallet logo"
-          className="w-8 h-8 rounded-xl"
+          className="rounded-xl"
           width={20}
           height={20}
         />
       )}
       <h1 className="hidden md:block text-textColor font-medium md:text-lg">
-        {titleCase(currentWallet?.walletClientType)}
+        {titleCase(currentWallet?.meta.name)}
       </h1>
     </motion.button>
   );

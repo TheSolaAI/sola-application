@@ -75,7 +75,9 @@ export const WalletLensSideBar: React.FC<WalletLensSidebarProps> = ({
                 <Image
                   src={currentWallet.meta.icon}
                   alt="wallet logo"
-                  className="w-10 h-10 rounded-xl"
+                  className="bg-white p-2 rounded-xl"
+                  height={36}
+                  width={36}
                   onClick={(e) => {
                     e.stopPropagation(); // Stop event from selecting the wallet
                     window.open(
@@ -88,8 +90,8 @@ export const WalletLensSideBar: React.FC<WalletLensSidebarProps> = ({
                 <Image
                   src="/default_wallet.svg"
                   alt="wallet logo"
-                  width={40}
-                  height={40}
+                  width={36}
+                  height={36}
                   className="rounded-xl"
                 />
               )}
@@ -97,7 +99,7 @@ export const WalletLensSideBar: React.FC<WalletLensSidebarProps> = ({
             <div className="flex flex-col items-start flex-1 min-w-0">
               <div className="flex items-center gap-x-2">
                 <h1 className="text-sm text-textColor font-semibold sm:text-xl">
-                  {titleCase(currentWallet?.walletClientType)} Wallet
+                  {titleCase(currentWallet?.meta.name)}
                 </h1>
                 <button
                   onClick={(e) => {

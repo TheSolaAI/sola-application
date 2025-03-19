@@ -6,6 +6,8 @@ import { Connection, LAMPORTS_PER_SOL, PublicKey } from '@solana/web3.js';
 import { NFTAsset, TokenAsset, WalletAssets } from '@/types/wallet';
 import { ApiClient, apiClient } from '@/lib/ApiClient';
 import { API_URLS } from '@/config/api_urls';
+import { ConnectedPhantomWallet } from '@/adapters/ConnectedPhantomWallet';
+import { PhantomWalletService } from '@/services/PhantomWalletService';
 
 const connection = new Connection(
   process.env.NEXT_PUBLIC_SOLANA_RPC!,
@@ -18,10 +20,15 @@ interface WalletHandler {
   currentWallet: ConnectedSolanaWallet | null; // The current wallet that the user is using
   defaultWallet: ConnectedSolanaWallet | null; // The default wallet that the user has set
   wallets: ConnectedSolanaWallet[]; // All connected wallets
+  phantomWallet: ConnectedPhantomWallet | null; // To track the phantom-embedded wallet
 
   setWallets: (wallets: ConnectedSolanaWallet[]) => void; // Updates available wallets
   setCurrentWallet: (wallet: ConnectedSolanaWallet | null) => void; // Updates current wallet
   setDefaultWallet: (wallet: ConnectedSolanaWallet | null) => void; // Updates default wallet
+
+  //Methods to manage Phantom wallet
+  initPhantomWallet: () => Promise<boolean>;
+  connectPhantomWallet: () => Promise<boolean>;
 
   initWalletManager: () => void; // Initializes the wallet manager
 
@@ -142,6 +149,7 @@ export const useWalletHandler = create<WalletHandler>((set, get) => {
     currentWallet: null,
     defaultWallet: null,
     wallets: [],
+    phantomWallet: null,
     walletAssets: {
       totalBalance: null,
       tokens: [],
@@ -166,11 +174,29 @@ export const useWalletHandler = create<WalletHandler>((set, get) => {
         }
       }
     },
-    setCurrentWallet: (wallet) => {
+    setCurrentWallet: async (wallet) => {
       // stop monitoring the previous wallet
       if (get().currentWallet) {
         get().stopMonitoring();
       }
+
+      console.log('set current wallet called', wallet);
+
+      if (wallet && wallet.walletClientType === 'phantom-embedded') {
+        set({ status: 'updating' });
+
+        const phantomWallet = wallet as ConnectedPhantomWallet;
+        const publicKey = await phantomWallet.connect();
+
+        if (!publicKey) {
+          toast.error('Failed to connect to Phantom wallet');
+          set({ status: 'paused' });
+          return;
+        }
+
+        toast.success('Connected to Phantom wallet');
+      }
+
       // start monitoring the new wallet
       if (wallet) {
         get().startMonitoring(wallet.address, true);
@@ -189,10 +215,82 @@ export const useWalletHandler = create<WalletHandler>((set, get) => {
       }
     },
 
+    initPhantomWallet: async () => {
+      try {
+        const phantomService = PhantomWalletService.getInstance();
+        await phantomService.initialize();
+
+        const phantomWallet = new ConnectedPhantomWallet();
+        set({ phantomWallet });
+
+        const existingWallets = get().wallets;
+        if (
+          !existingWallets.find(
+            (w) => w.walletClientType === 'phantom-embedded'
+          )
+        ) {
+          set({ wallets: [...existingWallets, phantomWallet] });
+        }
+
+        return true;
+      } catch (error) {
+        console.error('Failed to initialize Phantom wallet:', error);
+        return false;
+      }
+    },
+
+    connectPhantomWallet: async () => {
+      let phantomWallet = get().phantomWallet;
+
+      if (!phantomWallet) {
+        const initialized = await get().initPhantomWallet();
+        if (!initialized) {
+          toast.error('Failed to initialize Phantom wallet');
+          return false;
+        }
+        phantomWallet = get().phantomWallet;
+      }
+
+      if (!phantomWallet) {
+        toast.error('Failed to initialize Phantom wallet');
+        return false;
+      }
+
+      try {
+        const publicKey = await phantomWallet.connect();
+        if (publicKey) {
+          // If the Phantom wallet is already selected as current wallet,
+          // update the reference since the address may have changed
+          const currentWallet = get().currentWallet;
+          if (currentWallet?.walletClientType === 'phantom-embedded') {
+            set({ currentWallet: phantomWallet });
+          }
+
+          // Update the wallets array with the connected wallet
+          const wallets = get().wallets.map((w) =>
+            w.walletClientType === 'phantom-embedded' ? phantomWallet! : w
+          );
+          set({ wallets });
+
+          return true;
+        } else {
+          toast.error('Failed to connect to Phantom wallet');
+          return false;
+        }
+      } catch (error) {
+        console.error('Error connecting to Phantom wallet:', error);
+        toast.error('Error connecting to Phantom wallet');
+        return false;
+      }
+    },
+
     /**
      * Initializes the wallet manager by loading the default wallet from localStorage.
      */
-    initWalletManager: () => {
+    initWalletManager: async () => {
+      // Initialize Phantom wallet first
+      await get().initPhantomWallet();
+      console.log('initWalletManager called');
       const defaultWalletAddress = localStorage.getItem('defaultWallet');
       if (defaultWalletAddress) {
         const wallet = get().wallets.find(
@@ -230,7 +328,6 @@ export const useWalletHandler = create<WalletHandler>((set, get) => {
           get().wallets.find((w) => w.address === walletId) || null;
         set({ currentWallet: wallet });
       }
-
       const publicKey = new PublicKey(walletId);
       balanceSubscriptionId = connection.onAccountChange(
         publicKey,

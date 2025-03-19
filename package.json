@@ -11,6 +11,7 @@
   "dependencies": {
     "@headlessui/react": "^2.2.0",
     "@microsoft/clarity": "^1.0.0",
+    "@phantom/wallet-sdk": "^0.0.23",
     "@privy-io/react-auth": "^2.6.2",
     "@sentry/nextjs": "^9.5.0",
     "@solana/spl-token": "^0.4.13",
@@ -34,7 +35,6 @@
     "sonner": "^2.0.1",
     "tailwindcss-animate": "^1.0.7",
     "zod": "^3.24.2",
-    "zod-to-json-schema": "^3.24.3",
     "zustand": "^5.0.3"
   },
   "devDependencies": {

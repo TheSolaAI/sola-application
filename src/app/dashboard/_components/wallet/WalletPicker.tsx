@@ -44,7 +44,7 @@ export const WalletPicker: FC<WalletPickerProps> = ({
     >
       <div className="flex gap-y-3 flex-col px-2 pb-2">
         {wallets.map((wallet) => (
-          <button
+          <div
             key={wallet.walletClientType}
             className={`flex items-center justify-between w-full p-4 bg-surface rounded-xl gap-x-4 ${
               currentWallet?.walletClientType === wallet.walletClientType
@@ -64,7 +64,9 @@ export const WalletPicker: FC<WalletPickerProps> = ({
                 <Image
                   src={wallet.meta.icon}
                   alt="wallet logo"
-                  className="w-14 h-14 rounded-xl"
+                  className="bg-white p-2 rounded-xl"
+                  height={36}
+                  width={36}
                   onClick={(e) => {
                     e.stopPropagation(); // Stop event from selecting the wallet
                     window.open(
@@ -88,7 +90,7 @@ export const WalletPicker: FC<WalletPickerProps> = ({
             <div className="flex flex-col items-start flex-1 min-w-0">
               <div className="flex items-center gap-x-2">
                 <h1 className="text-textColor font-semibold text-xl">
-                  {titleCase(wallet?.walletClientType)} Wallet
+                  {titleCase(wallet?.meta.name)}
                 </h1>
                 <button
                   onClick={(e) => {
@@ -106,7 +108,7 @@ export const WalletPicker: FC<WalletPickerProps> = ({
                 {wallet?.address}
               </h1>
             </div>
-          </button>
+          </div>
         ))}
         {/* Link a new Wallet */}
         <button
