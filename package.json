@@ -25,7 +25,7 @@
     "@solana/spl-token": "^0.4.9",
     "@solana/web3.js": "^1.98.0",
     "@types/react-syntax-highlighter": "^15.5.13",
-    "axios": "^1.7.9",
+    "axios": "^1.8.4",
     "axios-retry": "^4.5.0",
     "bs58": "^6.0.0",
     "lucide-react": "^0.474.0",
