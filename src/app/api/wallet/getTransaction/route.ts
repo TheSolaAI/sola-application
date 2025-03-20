@@ -1,5 +1,5 @@
+import { NextRequest } from 'next/server';
 import { Connection, VersionedTransactionResponse } from '@solana/web3.js';
-import type { NextApiRequest, NextApiResponse } from 'next';
 
 // Define response data types
 type ErrorResponse = {
@@ -24,61 +24,59 @@ interface GetTransactionRequest {
   };
 }
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse<ApiResponse>
-) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({
-      status: 'error',
-      message: 'Method not allowed',
-    });
-  }
-
-  const { signature, options = {} } = req.body as GetTransactionRequest;
-
-  if (!signature) {
-    return res.status(400).json({
-      status: 'error',
-      message: 'Missing transaction signature',
-    });
-  }
-
+// Next.js App Router expects API routes to export a function named `POST`
+export async function POST(req: NextRequest) {
   try {
+    const body = (await req.json()) as GetTransactionRequest;
+
+    if (!body.signature) {
+      return new Response(
+        JSON.stringify({
+          status: 'error',
+          message: 'Missing transaction signature',
+        }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
     // Use server-side RPC URL
     const rpc = process.env.SOLANA_RPC_URL;
 
     if (!rpc) {
-      return res.status(500).json({
-        status: 'error',
-        message: 'Server configuration error',
-      });
+      return new Response(
+        JSON.stringify({
+          status: 'error',
+          message: 'Server configuration error',
+        }),
+        { status: 500, headers: { 'Content-Type': 'application/json' } }
+      );
     }
 
     const connection = new Connection(rpc);
-
-    const txInfo = await connection.getTransaction(signature, {
+    const txInfo = await connection.getTransaction(body.signature, {
       maxSupportedTransactionVersion: 0,
       commitment: 'confirmed',
     });
 
     const hasError = txInfo?.meta?.err || !txInfo?.meta;
 
-    return res.status(200).json({
-      status: 'success',
-      transaction: txInfo,
-      error: !!hasError,
-    });
+    return new Response(
+      JSON.stringify({
+        status: 'success',
+        transaction: txInfo,
+        error: !!hasError,
+      }),
+      { status: 200, headers: { 'Content-Type': 'application/json' } }
+    );
   } catch (error: unknown) {
     console.error('Error getting transaction:', error);
 
-    // Proper error handling with TypeScript
     const errorMessage =
       error instanceof Error ? error.message : 'Error getting transaction';
 
-    return res.status(500).json({
-      status: 'error',
-      message: errorMessage,
-    });
+    return new Response(
+      JSON.stringify({ status: 'error', message: errorMessage }),
+      { status: 500, headers: { 'Content-Type': 'application/json' } }
+    );
   }
 }
