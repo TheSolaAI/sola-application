@@ -1,36 +1,65 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Sola AI: AI Voice Assistant for Solana
 
-## Getting Started
+Sola AI is a personalized AI voice assistant that bridges Solana blockchain technology and AI through a hands-free user experience.
 
-First, run the development server:
+![app-screenshot](https://github.com/user-attachments/assets/c6464910-2ab6-45fd-b751-071562775d44)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Overview
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+This application provides seamless interaction between the user, OpenAI, and blockchain data using voice and text. Key features include:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+* **Real-time Communication:** Utilizes WebRTC for seamless voice and text communication.
+* **Modern Frontend:** Built with Vite React and styled with Tailwind CSS.
+* **Scalable Backend:** Employs a microservices architecture for efficient data processing.
+* **Blockchain Data Filtering:** Microservices filter and process blockchain data based on user queries.
+* **Blockchain Interactions:** Supports Solana on-chain interactions (e.g., transfer, swap).
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Core Components
 
-## Learn More
+1. **Sola AI Application:** Serves as the central hub for processing user input, communicating with services, and integrating AI models with blockchain interactions.
+   * Interfaces with OpenAI for natural language processing.
+   * Routes user requests to appropriate microservices.
+   * Provides AI powered intelligent interface.
 
-To learn more about Next.js, take a look at the following resources:
+2. **Data Service:**
+   * Microservice providing blockchain data built using rust.
+   * Filters and structures Solana blockchain and web data based on user queries.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+3. **Wallet Service:**
+   * Helps to build pre-defined transactions and provides transaction objects.
+   * Built using Rust for fast data processing.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+4. **User Service:**
+   * Manages user data such as chat rooms management, chat history, user settings.
 
-## Deploy on Vercel
+> Refer our [Docs](https://docs.solaai.xyz/application-overview/high-level-architecture) for a better understanding of the application architecture. 
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Workflow
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. **User Input:** Sola AI receives voice or text input.
+2. **Data Fetching:** The Data Service retrieves and filters blockchain data.
+3. **Transaction Building:** The Wallet Service handles transaction construction.
+4. **Transaction Execution:** The transaction is executed using an embedded wallet or the user's custom wallet.
+5. **Response:** Sola AI processes the results and responds to the user through the voice/text interface.
+
+## Installation
+
+For detailed installation instructions, please refer to the [INSTALL.md](INSTALL.md) file.
+
+## Contributing
+
+We welcome contributions! To contribute:
+
+1. Fork the repository and create a new branch.
+2. Make your changes and test thoroughly.
+3. Submit a pull request with detailed explanations of your changes.
+
+Please see the [CONTRIBUTING.md](CONTRIBUTING.md) file for more guidelines.
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=TheSolaAI/sola-application&type=Date)](https://star-history.com/#TheSolaAI/sola-application&Date)
+
+## License
+
+This project is licensed under the GNU General Public License v3.0. See the [LICENSE](LICENSE) file for details.
