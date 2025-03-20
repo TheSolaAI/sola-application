@@ -1,4 +1,4 @@
-import { apiClient, ApiClient } from '../../api/ApiClient';
+import { apiClient, ApiClient } from '@/lib/ApiClient';
 import {
   DepositParams,
   DepositResponse,
@@ -7,10 +7,10 @@ import {
   AssetsParams,
   AssetsResponse,
   WithdrawTransaction,
-} from '../../types/lulo';
+} from '@/types/lulo';
 import { VersionedTransaction } from '@solana/web3.js';
 
-const wallet_service_url = import.meta.env.VITE_WALLET_SERVICE_URL;
+const wallet_service_url = process.env.NEXT_PUBLIC_WALLET_SERVICE_URL;
 
 export async function getAssetsLulo(
   params: AssetsParams,

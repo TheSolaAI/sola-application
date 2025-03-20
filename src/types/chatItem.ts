@@ -1,5 +1,5 @@
 import { LSTData, RugCheck } from './data_types';
-import { ShowLimitOrderResponse} from './jupiter';
+import { ShowLimitOrderResponse } from './jupiter';
 import {
   BubblemapCard,
   LuloCard,
@@ -11,8 +11,7 @@ import {
   TransactionCard,
   TrendingNFTCard,
 } from './messageCard';
-import { AIProjectRankingResult, GoatIndexTokenData } from './goatIndex.ts';
-
+import { AIProjectRankingResult, GoatIndexTokenData } from './goatIndex';
 
 export interface ChatItem<T extends BaseChatContent> {
   // Make ChatItem generic
@@ -82,7 +81,7 @@ export interface InProgressChatContent extends BaseChatContent {
 }
 
 export interface TransactionChatContent extends BaseChatContent {
-  type: 'transaction_message' | 'transfer_sol' | 'transfer_spl';
+  type: 'transaction_message';
   data: TransactionCard;
 }
 
@@ -105,7 +104,6 @@ export interface ShowLimitOrdersChatContent extends BaseChatContent {
   type: 'get_limit_order';
   data: ShowLimitOrderResponse;
 }
-
 
 export interface ShowLSTDataChatContent extends BaseChatContent {
   type: 'get_lst_data';

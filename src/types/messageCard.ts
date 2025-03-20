@@ -112,11 +112,11 @@ export interface TokenExtensions {
 }
 
 export interface TokenCard {
-  address: string; // done
-  decimals: number; // done
-  symbol: string; // done
-  name: string; // done 
-  marketCap: number; 
+  address: string;
+  decimals: number;
+  symbol: string;
+  name: string;
+  marketCap: number;
   fdv: number;
   extensions: TokenExtensions;
   logoURI: string;

@@ -1,9 +1,9 @@
-import { ApiClient, apiClient } from '../../api/ApiClient.ts';
-import { useChatMessageHandler } from '../../models/ChatMessageHandler.ts';
-import { TrendingNFTCard } from '../../types/messageCard.ts';
-import { Tool } from '../../types/tool.ts';
-import { GetTrendingNFTSChatContent } from '../../types/chatItem.ts';
-import { TrendingNFTMessageItem } from '../../components/messages/TrendingNFTMessageItem.tsx';
+import { ApiClient, apiClient } from '@/lib/ApiClient';
+import { useChatMessageHandler } from '@/store/ChatMessageHandler';
+import { TrendingNFTCard } from '@/types/messageCard';
+import { Tool } from '@/types/tool';
+import { GetTrendingNFTSChatContent } from '@/types/chatItem';
+import { TrendingNFTMessageItem } from '@/components/messages/TrendingNFTMessageItem';
 
 const functionDescription =
   'Call this function when the user wants to get the trending solana nfts.';

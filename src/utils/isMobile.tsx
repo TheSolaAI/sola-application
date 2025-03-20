@@ -1,9 +1,14 @@
+'use client'
 import { useEffect, useState } from 'react';
 
 const useIsMobile = (breakpoint = 640) => {
-  const [isMobile, setIsMobile] = useState(window.innerWidth < breakpoint);
+  // Use null as initial state to indicate "not determined yet"
+  const [isMobile, setIsMobile] = useState<boolean | null>(null);
 
   useEffect(() => {
+    // Now we're on the client, we can safely check window
+    setIsMobile(window.innerWidth < breakpoint);
+
     const handleResize = () => {
       setIsMobile(window.innerWidth < breakpoint);
     };
@@ -12,7 +17,8 @@ const useIsMobile = (breakpoint = 640) => {
     return () => window.removeEventListener('resize', handleResize);
   }, [breakpoint]);
 
-  return isMobile;
+  // Return false during SSR, and the actual value during CSR
+  return isMobile === null ? false : isMobile;
 };
 
 export default useIsMobile;

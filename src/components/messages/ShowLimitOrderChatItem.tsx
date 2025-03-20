@@ -1,10 +1,12 @@
+'use client';
+
 import { FC } from 'react';
-import { ShowLimitOrdersChatContent } from '../../types/chatItem.ts';
-import BaseGridChatItem from './general/BaseGridChatItem.tsx';
-import { tokenList } from '../../config/tokens/tokenMapping.ts';
-import { cancelLimitOrderHandler } from '../../lib/solana/limitOrderTx.ts';
-import { useWalletHandler } from '../../models/WalletHandler.ts';
-import { BorderGlowButton } from '../dashboards/BorderGlowButton.tsx';
+import { ShowLimitOrdersChatContent } from '@/types/chatItem';
+import BaseGridChatItem from '@/components/messages/general/BaseGridChatItem';
+import { tokenList } from '@/config/tokenMapping';
+import { cancelLimitOrderHandler } from '@/lib/solana/limitOrderTx';
+import { useWalletHandler } from '@/store/WalletHandler';
+import { BorderGlowButton } from '@/app/dashboard/_components/dashboards/BorderGlowButton';
 
 interface ShowLimitOrdersChatItemProps {
   props: ShowLimitOrdersChatContent;
@@ -18,10 +20,10 @@ export const ShowLimitOrdersChatItem: FC<ShowLimitOrdersChatItemProps> = ({
     <BaseGridChatItem col={3}>
       {props.data.orders.map((order, lIndex) => {
         const inputToken = Object.values(tokenList).find(
-          (v) => v.MINT === order.input_mint,
+          (v) => v.MINT === order.input_mint
         );
         const outputToken = Object.values(tokenList).find(
-          (v) => v.MINT === order.output_mint,
+          (v) => v.MINT === order.output_mint
         );
 
         return (

@@ -50,35 +50,30 @@ Create a `.env` file in the root directory with the following environment variab
 
 ```env
 # OpenAI Configuration
-VITE_OPENAI_API_KEY=        # Openai Secret Key
-VITE_OPENAI_API_URL=        # GPT-4.0 realtime/realtime mini model url
+NEXT_PUBLIC_OPENAI_API_URL=https://api.openai.com/v1/realtime?model=gpt-4o-mini-realtime-preview-2024-12-17
+OPENAI_API_KEY= #your open-ai key
 
 # Authentication
-VITE_PRIVY_APP_ID=          # Privy application ID
-VITE_SENTRY_AUTH_TOKEN=     # Sentry authentication token (optional for development)
+NEXT_PUBLIC_PRIVY_APP_ID=cm5lc4euv00c5kmrbpu9oj0u4  
 
 # Solana Configuration
-VITE_HELIUS_API_KEY=        # Your Helius API key
-VITE_SOLANA_RPC=            # Solana RPC endpoint URL
-VITE_ATA_PRIV_KEY=          # Solana private key for validation
+NEXT_PUBLIC_SOLANA_RPC= #Solana RPC
+SOLANA_RPC_URL= #Solana RPC
 
-# Microservices URLs (privy Whitelisted Access Required to interact with these endpoints)
-VITE_WALLET_SERVICE_URL=https://wallet-service.solaai.tech/         # Wallet service endpoint
-VITE_DATA_SERVICE_URL=https://data-stream-service.solaai.tech/      # Data stream service endpoint
-VITE_AUTH_SERVICE_URL=https://user-service.solaai.tech/api/v1/      # User authentication service endpoint
-
-# Environment
-VITE_ENVIORNMENT=development  # 'development' or 'production'
+# Microservices URLs
+NEXT_PUBLIC_WALLET_SERVICE_URL=https://wallet-service.solaai.tech/  
+NEXT_PUBLIC_DATA_SERVICE_URL=https://data-stream-service.solaai.tech/  
+NEXT_PUBLIC_AUTH_SERVICE_URL=https://user-service.solaai.tech/api/v1/  
 ```
 
 ### Environment Variable Details
 
-- **VITE_OPENAI_API_URL**: Use GPT-4.0 realtime or realtime mini model url
-- **VITE_PRIVY_APP_ID**: Use `cm5m351oa03ij5a8yrrj64qcv` if you have a whitelisted wallet, or your own Privy ID
-- **VITE_HELIUS_API_KEY**: Your Helius API key for Solana data access
-- **VITE_SOLANA_RPC**: Your Solana RPC endpoint (Helius RPC recommended)
-- **VITE_ATA_PRIV_KEY**: Solana private key for general validation (not used in transactions)
-- **VITE_SENTRY_AUTH_TOKEN**: Can use dummy value for development
+- **OPENAI_API_URL**: Use GPT-4.0 realtime or realtime mini model url
+- **PRIVY_APP_ID**: Use `cm5lc4euv00c5kmrbpu9oj0u4` or your own privy ID.
+- **HELIUS_API_KEY**: Your Helius API key for Solana data access
+- **SOLANA_RPC**: Your Solana RPC endpoint (Helius RPC recommended)
+- **ATA_PRIV_KEY**: Solana private key for general validation (not used in transactions)
+- **SENTRY_AUTH_TOKEN**: Can use dummy value for development
 
 ### Security Note
 
@@ -94,7 +89,7 @@ For production deployments:
 Start the development server:
 
 ```sh
-yarn dev
+yarn dev -p 5173
 ```
 
 The application will be available at `http://localhost:5173`
@@ -132,19 +127,6 @@ If you encounter issues during setup:
    - Check your internet connection
    - Verify Solana RPC endpoint is responsive
    - Ensure you have access to required microservices
-   - 
-5. **Application Access and Configuration**
-   - Ensure your `.env` file is properly configured in the project root directory
-   - For microservices access:
-      - Option 1 (Recommended): Use our hosted services
-         - Requires a whitelisted wallet with our default Privy App ID
-         - Must use `VITE_PRIVY_APP_ID=cm5m351oa03ij5a8yrrj64qcv`
-         - Server performs authentication and validation checks
-      - Option 2 (Self-hosted): Run your own infrastructure
-         - Deploy microservices locally or on your infrastructure
-         - Use your own Privy App ID
-         - Implement custom service logic as needed
-   - Note: The application will have limited functionality without proper microservice access
 
 ## Support
 

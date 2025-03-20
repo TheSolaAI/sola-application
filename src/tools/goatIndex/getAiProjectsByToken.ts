@@ -1,44 +1,17 @@
-import { Tool } from '../../types/tool.ts';
-import { AiProjects } from '../../components/messages/AiProjects.tsx';
-import { AiProjectsChatContent } from '../../types/chatItem.ts';
-import { useChatMessageHandler } from '../../models/ChatMessageHandler.ts';
-import { ApiClient, apiClient } from '../../api/ApiClient.ts';
+'use client';
+import { registerTool } from '@/lib/registry/toolRegistry';
+import { AiProjects } from '@/components/messages/AiProjects';
+import { useChatMessageHandler } from '@/store/ChatMessageHandler';
+import { ApiClient, apiClient } from '@/lib/ApiClient';
 import { toast } from 'sonner';
-import { AIProjectRankingApiResponse } from '../../types/goatIndex.ts';
+import { AIProjectRankingApiResponse } from '@/types/goatIndex';
+import { ToolResult } from '@/types/tool';
 
-const functionDescription = 'To get the AI projects by token status';
-
-export const getAiProjectsByToken: Tool = {
-  cost: 0.00001,
-  implementation: handleGetAiProjectsByToken,
-  representation: {
-    props_type: 'ai_projects_classification',
-    component: AiProjects,
-  },
-  abstraction: {
-    type: 'function',
-    name: 'getAiProjectsByToken',
-    description: functionDescription,
-    parameters: {
-      type: 'object',
-      properties: {
-        withToken: {
-          type: 'boolean',
-          description: 'get ai projects with token or without token',
-        },
-      },
-      required: ['withToken'],
-    },
-  },
-};
-
-export async function handleGetAiProjectsByToken(args: {
-  withToken: boolean;
-}): Promise<{
-  status: 'success' | 'error';
-  response: string;
-  props?: AiProjectsChatContent;
-}> {
+// Implementation function with response_id parameter
+async function handleGetAiProjectsByToken(
+  args: { withToken: boolean },
+  response_id: string
+): Promise<ToolResult<'ai_projects_classification'>> {
   useChatMessageHandler.getState().setCurrentChatItem({
     content: {
       type: 'loader_message',
@@ -64,7 +37,7 @@ export async function handleGetAiProjectsByToken(args: {
         page: 1,
         limit: 15,
       },
-      'goatIndex',
+      'goatIndex'
     );
 
     if (ApiClient.isApiError(response)) {
@@ -77,9 +50,9 @@ export async function handleGetAiProjectsByToken(args: {
 
     return {
       status: 'success',
-      response: `Notify the successful fetch. Do add any custom information and refrain from responding anythingo ther than successfully fetched data`,
+      response: `Notify the successful fetch. Do add any custom information and refrain from responding anything other than successfully fetched data`,
       props: {
-        response_id: 'topAiProjects',
+        response_id: response_id,
         sender: 'system',
         type: 'ai_projects_classification',
         category: 'tokenByRanking',
@@ -87,6 +60,7 @@ export async function handleGetAiProjectsByToken(args: {
       },
     };
   } catch (e) {
+    console.log(e);
     toast.error('Error getting AI projects.');
     return {
       status: 'error',
@@ -94,3 +68,23 @@ export async function handleGetAiProjectsByToken(args: {
     };
   }
 }
+
+// Register the tool using the registry
+export const getAiProjectsByToken = registerTool({
+  name: 'getAiProjectsByToken',
+  description: 'To get the AI projects by token status',
+  propsType: 'ai_projects_classification',
+  cost: 0.00001,
+  implementation: handleGetAiProjectsByToken,
+  component: AiProjects,
+  customParameters: {
+    type: 'object',
+    properties: {
+      withToken: {
+        type: 'boolean',
+        description: 'get ai projects with token or without token',
+      },
+    },
+    required: ['withToken'],
+  },
+});

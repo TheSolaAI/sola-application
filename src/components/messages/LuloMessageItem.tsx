@@ -25,10 +25,13 @@
  * />
  * ```
  */
+'use client';
+
 import { FC } from 'react';
-import { LuloChatContent } from '../../types/chatItem.ts';
-import BaseGridChatItem from './general/BaseGridChatItem.tsx';
-import BaseMonoGridChatItem from './general/BaseMonoGridChatItem.tsx';
+import { LuloChatContent } from '@/types/chatItem';
+import BaseGridChatItem from '@/components/messages/general/BaseGridChatItem';
+import BaseMonoGridChatItem from '@/components/messages/general/BaseMonoGridChatItem';
+import Image from 'next/image';
 
 interface LuloChatItemProps {
   props: LuloChatContent;
@@ -39,7 +42,13 @@ export const LuloChatItem: FC<LuloChatItemProps> = ({ props }) => {
   return (
     <>
       <BaseMonoGridChatItem>
-        <img src="/lulo.png" alt="luloimage" className="h-16 rounded-lg" />
+        <Image
+          height={60}
+          width={60}
+          src="/lulo.png"
+          alt="luloimage"
+          className="rounded-lg"
+        />
         <p className="text-base font-medium">
           Deposit Value : {props.data.depositValue.toFixed(2)}
         </p>
@@ -60,10 +69,12 @@ export const LuloChatItem: FC<LuloChatItemProps> = ({ props }) => {
             className="group relative w-full overflow-hidden block rounded-xl bg-sec_background p-3"
           >
             <div className="flex items-center gap-3">
-              <img
+              <Image
+                height={40}
+                width={40}
                 src={token.mint ? `/${token.mint}.png` : '/placeholder.png'}
                 alt="Token"
-                className="h-10 w-10 rounded-lg "
+                className="rounded-lg"
               />
               <div>
                 <h3 className="truncate text-sm font-medium">

@@ -1,19 +1,22 @@
+'use client';
+
 import { FC } from 'react';
-import { TransferChatContent } from '../../types/chatItem.ts';
-import BaseMonoGridChatItem from './general/BaseMonoGridChatItem.tsx';
+import { TransactionChatContent } from '@/types/chatItem';
+import BaseMonoGridChatItem from '@/components/messages/general/BaseMonoGridChatItem';
+import Image from 'next/image';
 
 interface TransferChatItemProps {
-  props: TransferChatContent;
+  props: TransactionChatContent;
 }
 
 export const TransferChatItem: FC<TransferChatItemProps> = ({ props }) => {
   return (
     <BaseMonoGridChatItem>
-      <img src="/solscan.png" alt="solscan" className="h-10 w-10" />
+      <Image height={40} width={40} src="/solscan.png" alt="solscan" />
       <span className="font-semibold text-lg">Transfer</span>
-      <span>{props.status}</span>
+      <span>{props.data.status}</span>
       <a
-        href={props.txn}
+        href={props.data.link}
         target="_blank"
         rel="noopener noreferrer"
         className="text-primaryDark hover:underline text-sm"

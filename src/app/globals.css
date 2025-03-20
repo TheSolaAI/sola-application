@@ -1,0 +1,67 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*!* Fallback for theme *!*/
+@layer base {
+  :root {
+    --color-baseBackground: 255 255 255;
+    /* #FFFFFF */
+    --color-background: 237 237 237;
+    /* #EDEDED */
+    --color-backgroundContrast: 27 27 27;
+    /* #1b1b1b */
+    --color-sec_background: 242 242 243;
+    /* #f2f2f3 */
+    --color-surface: 242 242 243;
+    /* #f2f2f3 */
+    --color-textColor: 12 13 13;
+    /* #0c0d0d */
+    --color-textColorContrast: 255 255 255;
+    /* #FFFFFF */
+    --color-secText: 37 38 39;
+    /* #252627 */
+    --color-border: 189 191 193;
+    /* #bdbfc1 */
+    --color-primary: 197 179 254;
+    /* #c5b3fe */
+    --color-primaryDark: 159 129 254;
+    /* #9f81fe */
+  }
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Hide scrollbar for Firefox */
+  .no-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+}
+
+/* For Webkit browsers (Chrome, Safari, newer versions of Opera) */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgb(var(--color-sec_background));
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgb(var(--color-primary));
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(var(--color-primaryDark));
+}
+
+/* For Firefox */
+* {
+  scrollbar-width: thin; /* "auto" or "thin" */
+  scrollbar-color: rgb(var(--color-primary)) rgb(var(--color-sec_background)); /* thumb and track color */
+}

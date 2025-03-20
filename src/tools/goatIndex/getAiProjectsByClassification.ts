@@ -1,29 +1,17 @@
-import { Tool } from '../../types/tool.ts';
-import { AiProjects } from '../../components/messages/AiProjects.tsx';
-import { AiProjectsChatContent } from '../../types/chatItem.ts';
-import { useChatMessageHandler } from '../../models/ChatMessageHandler.ts';
-import { ApiClient, apiClient } from '../../api/ApiClient.ts';
+'use client';
+
+import { registerTool } from '@/lib/registry/toolRegistry';
+import { AiProjects } from '@/components/messages/AiProjects';
+import { AiProjectsChatContent } from '@/types/chatItem';
+import { useChatMessageHandler } from '@/store/ChatMessageHandler';
+import { ApiClient, apiClient } from '@/lib/ApiClient';
 import { toast } from 'sonner';
-import { GoatIndexTopAiProjectsApiResponse } from '../../types/goatIndex.ts';
+import { GoatIndexTopAiProjectsApiResponse } from '@/types/goatIndex';
 
-const functionDescription = 'To get the top AI projects';
-
-export const getAiProjectsByClassification: Tool = {
-  cost: 0.00001,
-  implementation: handleGetAiProjectsByClassification,
-  representation: {
-    props_type: 'ai_projects_classification',
-    component: AiProjects,
-  },
-  abstraction: {
-    type: 'function',
-    name: 'getAiProjectsByClassification',
-    description: functionDescription,
-    parameters: {},
-  },
-};
-
-export async function handleGetAiProjectsByClassification(): Promise<{
+async function handleGetAiProjectsByClassification(
+  _args: Record<string, never>,
+  response_id: string
+): Promise<{
   status: 'success' | 'error';
   response: string;
   props?: AiProjectsChatContent;
@@ -43,7 +31,7 @@ export async function handleGetAiProjectsByClassification(): Promise<{
     const response = await apiClient.get<GoatIndexTopAiProjectsApiResponse>(
       '/api/agent/overview?dataSource=AI_INDEX',
       undefined,
-      'goatIndex',
+      'goatIndex'
     );
 
     if (ApiClient.isApiError(response)) {
@@ -58,7 +46,7 @@ export async function handleGetAiProjectsByClassification(): Promise<{
       status: 'success',
       response: `Notify the successful fetch. Do add any custom information and refrain from responding anything other than successfully fetched data`,
       props: {
-        response_id: 'topAiProjects',
+        response_id,
         sender: 'system',
         type: 'ai_projects_classification',
         category: 'tokensByMindShare',
@@ -66,6 +54,7 @@ export async function handleGetAiProjectsByClassification(): Promise<{
       },
     };
   } catch (e) {
+    console.log(e);
     toast.error('Error getting AI projects.');
     return {
       status: 'error',
@@ -73,3 +62,17 @@ export async function handleGetAiProjectsByClassification(): Promise<{
     };
   }
 }
+
+export const getAiProjectsByClassification = registerTool({
+  name: 'getAiProjectsByClassification',
+  description: 'To get the top AI projects',
+  propsType: 'ai_projects_classification',
+  cost: 0.00001,
+  implementation: handleGetAiProjectsByClassification,
+  component: AiProjects,
+  customParameters: {
+    type: 'object',
+    properties: {},
+    // No required parameters as the function doesn't take any inputs
+  },
+});

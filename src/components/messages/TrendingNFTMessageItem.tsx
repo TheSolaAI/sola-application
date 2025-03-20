@@ -20,10 +20,12 @@
  * />
  * ```
  */
+'use client';
+
 import { FC } from 'react';
-import { GetTrendingNFTSChatContent } from '../../types/chatItem.ts';
-import BaseGridChatItem from './general/BaseGridChatItem.tsx';
-import { formatNumber } from '../../utils/formatNumber.ts';
+import { GetTrendingNFTSChatContent } from '@/types/chatItem';
+import BaseGridChatItem from '@/components/messages/general/BaseGridChatItem';
+import { formatNumber } from '@/utils/formatNumber';
 
 interface GetTrendingNFTSChatItemProps {
   props: GetTrendingNFTSChatContent;

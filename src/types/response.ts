@@ -1,5 +1,5 @@
-import { AIVoice } from '../config/ai.ts';
-import { Theme } from '../models/ThemeManager.ts';
+import { AIVoice } from '@/config/ai';
+import { Theme } from '@/store/ThemeManager';
 
 export interface UserSettingsResponse {
   id: number;

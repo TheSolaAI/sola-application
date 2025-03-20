@@ -1,6 +1,8 @@
-import { LoaderMessageChatContent } from '../../types/chatItem.ts';
+'use client';
+
+import { LoaderMessageChatContent } from '@/types/chatItem';
 import { FC } from 'react';
-import useThemeManager from '../../models/ThemeManager.ts';
+import useThemeManager from '@/store/ThemeManager';
 
 interface LoaderMessageItemProps {
   props: LoaderMessageChatContent;
