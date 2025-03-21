@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import { ReactNode, useRef, useState, useEffect } from 'react';
 
 interface BaseGridChatItemProps {

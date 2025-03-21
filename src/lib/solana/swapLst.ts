@@ -5,11 +5,11 @@ import { VersionedTransaction } from '@solana/web3.js';
 const wallet_service_url = import.meta.env.VITE_WALLET_SERVICE_URL;
 
 export async function swapLST(
-  params: SwapParams,
+  params: SwapParams
 ): Promise<VersionedTransaction | null> {
   const response = await ApiClient.post<SwapResponse>(
     wallet_service_url + 'api/wallet/jup/swap',
-    params,
+    params
   );
   if (!response) {
     return null;

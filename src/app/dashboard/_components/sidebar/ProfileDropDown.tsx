@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import { FC } from 'react';
 import { Dropdown } from '@/components/common/DropDown';
 import { usePrivy } from '@privy-io/react-auth';
@@ -66,7 +66,7 @@ export const ProfileDropDown: FC<ProfileDropDownProps> = ({
             window.open(
               'https://docs.solaai.xyz/',
               '_blank',
-              'noopener,noreferrer',
+              'noopener,noreferrer'
             );
           }}
         >
@@ -79,7 +79,7 @@ export const ProfileDropDown: FC<ProfileDropDownProps> = ({
             window.open(
               'https://github.com/TheSolaAI/sola-application',
               '_blank',
-              'noopener,noreferrer',
+              'noopener,noreferrer'
             );
           }}
         >

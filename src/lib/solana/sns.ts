@@ -8,7 +8,7 @@ function isValidDomainNamee(domainName: string): boolean {
   return regex.test(domainName);
 }
 export async function getPublicKeyFromSolDomain(
-  domain: string,
+  domain: string
 ): Promise<string> {
   if (!RPC) {
     console.log('RPC is not defined');
@@ -18,7 +18,7 @@ export async function getPublicKeyFromSolDomain(
     console.log('Invalid domain name');
     return '';
   }
-  let connection = new Connection(RPC);
+  const connection = new Connection(RPC);
   const { pubkey } = await getDomainKeySync(domain);
   const owner = (
     await NameRegistryState.retrieve(connection, pubkey)

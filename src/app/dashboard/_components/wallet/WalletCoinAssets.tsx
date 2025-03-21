@@ -1,7 +1,6 @@
 'use client';
 import { useWalletHandler } from '@/store/WalletHandler';
 import { useEffect, useRef, useState } from 'react';
-import { AgCharts } from 'ag-charts-react';
 import { titleCase } from '@/utils/titleCase';
 import { LuArrowUpDown, LuPause, LuPlay } from 'react-icons/lu';
 import {
@@ -9,9 +8,30 @@ import {
   SortDirection,
   SortType,
 } from '@/app/dashboard/_components/wallet/CoinsSortDropDown';
+import {
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+  Tooltip,
+  Legend,
+} from 'recharts';
 import { TokenAsset } from '@/types/wallet';
 import useThemeManager from '@/store/ThemeManager';
 import { formatNumber } from '@/utils/formatNumber';
+
+const COLORS = [
+  '#0088FE',
+  '#00C49F',
+  '#FFBB28',
+  '#FF8042',
+  '#8884d8',
+  '#82ca9d',
+  '#ffc658',
+  '#d0ed57',
+  '#a4de6c',
+  '#8dd1e1',
+];
 
 const WalletCoinAssets = () => {
   const {
@@ -87,20 +107,33 @@ const WalletCoinAssets = () => {
   const coinSortRef = useRef<HTMLButtonElement>(null);
 
   /**
-   * Converts the wallet Assets into AGT chart format for the pie chart
+   * Converts the wallet Assets into Recharts format for the pie chart
    */
   useEffect(() => {
-    setChartData([]);
-    walletAssets.tokens.forEach((token) => {
-      setChartData((prev) => [
-        ...prev,
-        {
-          token: token.symbol,
-          amount: token.totalPrice,
-        },
-      ]);
-    });
+    const newChartData = walletAssets.tokens.map((token) => ({
+      name: token.symbol,
+      value: token.totalPrice,
+    }));
+    setChartData(newChartData);
   }, [walletAssets]);
+
+  // Custom tooltip for the pie chart
+  const CustomTooltip = ({ active, payload }: any) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-baseBackground p-2 rounded-lg border border-gray-300">
+          <p className="font-semibold">{`${payload[0].name}`}</p>
+          <p className="text-secText">{`${formatNumber(payload[0].value)} USDC`}</p>
+        </div>
+      );
+    }
+    return null;
+  };
+
+  // Custom Legend formatter
+  const renderColorfulLegendText = (value: string) => {
+    return <span className="text-textColor">{value}</span>;
+  };
 
   return (
     <div className="text-textColor flex flex-col">
@@ -111,42 +144,43 @@ const WalletCoinAssets = () => {
           {/* Main Content Start*/}
           {/* Chart Section Start*/}
           <div className="bg-background rounded-xl">
-            <AgCharts
-              style={{ height: '500px' }}
-              options={{
-                data: chartData,
-                theme:
-                  theme.baseTheme === 'dark'
-                    ? 'ag-polychroma-dark'
-                    : 'ag-polychroma',
-                series: [
-                  {
-                    title: {
-                      text: 'Wallet Assets',
-                    },
-                    type: 'donut', // @ts-ignore
-                    calloutLabelKey: 'token',
-                    angleKey: 'amount',
-                    innerRadiusRatio: 0.7,
-                    innerLabels: [
-                      {
-                        text: 'Total Balance',
-                        fontWeight: 'bold',
-                        spacing: 10,
-                      },
-                      {
-                        text: formatNumber(walletAssets.totalBalance ?? 0.0),
-                        fontWeight: 'bold',
-                        fontSize: 20,
-                      },
-                    ],
-                  },
-                ],
-                background: {
-                  visible: false,
-                },
-              }}
-            />
+            <ResponsiveContainer width="100%" height={450}>
+              <PieChart>
+                <Pie
+                  data={chartData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  outerRadius={160}
+                  innerRadius={115}
+                  dataKey="value"
+                >
+                  {chartData.map((entry, index) => (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={COLORS[index % COLORS.length]}
+                    />
+                  ))}
+                </Pie>
+                <Tooltip content={<CustomTooltip />} />
+                <Legend
+                  formatter={renderColorfulLegendText}
+                  layout="horizontal"
+                  verticalAlign="bottom"
+                  align="center"
+                />
+              </PieChart>
+            </ResponsiveContainer>
+
+            {/* Total Balance Section Below Chart */}
+            <div className="flex flex-col items-center justify-center py-4">
+              <h2 className="text-textColor font-bold text-lg">
+                Total Balance
+              </h2>
+              <p className="text-textColor font-bold text-2xl">
+                {formatNumber(walletAssets.totalBalance ?? 0.0)} USDC
+              </p>
+            </div>
           </div>
           {/* Chart Section End*/}
           {/* Status Bar Section Start*/}

@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import { NFTCollectionChatContent } from '@/types/chatItem';
 import { Tool } from '@/types/tool';
 import { useChatMessageHandler } from '@/store/ChatMessageHandler';
@@ -51,10 +51,10 @@ export async function getNFTPriceFunction(args: { nft_name: string }): Promise<{
   });
 
   const symbol = args.nft_name;
-  let response = await apiClient.get<NFTCollectionCard>(
+  const response = await apiClient.get<NFTCollectionCard>(
     '/data/nft/symbol?nft_symbol=' + symbol.toLowerCase(),
     undefined,
-    'data',
+    'data'
   );
   if (ApiClient.isApiResponse<NFTCollectionCard>(response)) {
     return {

@@ -109,7 +109,7 @@ export class MessageQueue<T extends ChatItem<ChatContentType>> {
    * Handles null/undefined input safely by returning an empty queue
    */
   static fromSerialized<T extends ChatItem<ChatContentType>>(
-    data?: SerializedQueue<T> | null,
+    data?: SerializedQueue<T> | null
   ): MessageQueue<T> {
     const queue = new MessageQueue<T>();
 
