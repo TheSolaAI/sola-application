@@ -41,10 +41,10 @@ export async function getTrendingNFTsFunction(): Promise<{
     id: 0,
     createdAt: new Date().toISOString(),
   });
-  let response = await apiClient.get<TrendingNFTCard[]>(
+  const response = await apiClient.get<TrendingNFTCard[]>(
     '/data/nft/top_nft',
     undefined,
-    'data',
+    'data'
   );
   if (ApiClient.isApiResponse<TrendingNFTCard[]>(response)) {
     return {

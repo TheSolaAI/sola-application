@@ -59,7 +59,7 @@ export class ApiClient {
         }
         return config;
       },
-      (error) => Promise.reject(error),
+      (error) => Promise.reject(error)
     );
 
     // Retry on network errors or server errors (>=500)
@@ -68,7 +68,7 @@ export class ApiClient {
       retryDelay: (retryCount) => {
         const delay = axiosRetry.exponentialDelay(retryCount);
         console.log(
-          `Retrying request... Attempt ${retryCount}, waiting ${delay}ms`,
+          `Retrying request... Attempt ${retryCount}, waiting ${delay}ms`
         );
         return delay;
       },
@@ -132,7 +132,7 @@ export class ApiClient {
    */
   private async request<T>(
     requestFn: () => Promise<AxiosResponse<T>>,
-    service: ServiceType,
+    service: ServiceType
   ): Promise<ApiResponse<T> | ApiError> {
     let retryAttempted = false;
     while (true) {
@@ -246,7 +246,7 @@ export class ApiClient {
   async get<T>(
     url: string,
     params?: Record<string, any>,
-    service: ServiceType = 'auth',
+    service: ServiceType = 'auth'
   ): Promise<ApiResponse<T> | ApiError> {
     const client = this.getClient(service);
     return this.request<T>(() => client.get<T>(url, { params }), service);
@@ -255,7 +255,7 @@ export class ApiClient {
   async post<T>(
     url: string,
     data: any,
-    service: ServiceType = 'auth',
+    service: ServiceType = 'auth'
   ): Promise<ApiResponse<T> | ApiError> {
     const client = this.getClient(service);
     return this.request<T>(() => client.post<T>(url, data), service);
@@ -264,7 +264,7 @@ export class ApiClient {
   async put<T>(
     url: string,
     data: any,
-    service: ServiceType = 'auth',
+    service: ServiceType = 'auth'
   ): Promise<ApiResponse<T> | ApiError> {
     const client = this.getClient(service);
     return this.request<T>(() => client.put<T>(url, data), service);
@@ -273,7 +273,7 @@ export class ApiClient {
   async patch<T>(
     url: string,
     data: any,
-    service: ServiceType = 'auth',
+    service: ServiceType = 'auth'
   ): Promise<ApiResponse<T> | ApiError> {
     const client = this.getClient(service);
     return this.request<T>(() => client.patch<T>(url, data), service);
@@ -281,7 +281,7 @@ export class ApiClient {
 
   async delete<T>(
     url: string,
-    service: ServiceType = 'auth',
+    service: ServiceType = 'auth'
   ): Promise<ApiResponse<T> | ApiError> {
     const client = this.getClient(service);
     return this.request<T>(() => client.delete<T>(url), service);

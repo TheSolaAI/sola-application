@@ -1,5 +1,3 @@
-
-
 export type TokenData = {
   image: string;
   metadata: {

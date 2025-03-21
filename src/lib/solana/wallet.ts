@@ -3,7 +3,7 @@ const url = `https://mainnet.helius-rpc.com/?api-key=${helius_api_key}`;
 
 export const fetchFilteredAssets = async (
   key: string,
-  ownerAddress: string,
+  ownerAddress: string
 ) => {
   if (!ownerAddress) {
     console.log('No address provided');
@@ -79,7 +79,7 @@ export const fetchFilteredAssets = async (
   filteredAssets.push(nativeSolToken);
 
   const sortedAssets = filteredAssets.sort(
-    (a: any, b: any) => b.totalPrice - a.totalPrice,
+    (a: any, b: any) => b.totalPrice - a.totalPrice
   );
 
   return sortedAssets;

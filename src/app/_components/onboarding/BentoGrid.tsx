@@ -1,10 +1,25 @@
 import Image from 'next/image';
 import { motion } from 'framer-motion';
+import { IoMdSpeedometer } from 'react-icons/io';
 
 export default function BentoGrid() {
+  // Animation variants
   const fadeInUp = {
     hidden: { y: 20, opacity: 0 },
     visible: { y: 0, opacity: 1 },
+  };
+
+  const pulseVariant = {
+    hidden: { scale: 0.95, opacity: 0.8 },
+    visible: {
+      scale: [0.95, 1.05, 0.95],
+      opacity: [0.8, 1, 0.8],
+      transition: {
+        duration: 3,
+        repeat: Infinity,
+        repeatType: 'loop',
+      },
+    },
   };
 
   return (
@@ -21,7 +36,7 @@ export default function BentoGrid() {
             Sola AI Features
           </h2>
           <p className="mx-auto mt-2 max-w-2xl text-center text-3xl font-semibold tracking-tight text-balance text-white sm:text-4xl">
-            The current state of the application
+            Power at Your Fingertips ⚡️
           </p>
         </motion.div>
 
@@ -37,6 +52,7 @@ export default function BentoGrid() {
             variants={fadeInUp}
             transition={{ duration: 0.5 }}
             className="relative row-span-2"
+            whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
           >
             <div className="absolute inset-px rounded-lg bg-gradient-to-br from-white/5 to-white/10 lg:rounded-l-[1.5rem]"></div>
             <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(var(--radius-lg)+1px)] lg:rounded-l-[calc(1.5rem+1px)]">
@@ -45,8 +61,8 @@ export default function BentoGrid() {
                   Mobile friendly
                 </p>
                 <p className="mt-2 max-w-lg text-sm/6 text-gray-400 max-lg:text-center">
-                  Access the full-featured application from your mobile device
-                  using our Progressive Web App technology.
+                  Access our full-featured application directly from your mobile
+                  device using our Progressive Web App.
                 </p>
               </div>
               <div className="@container relative min-h-[18rem] w-full max-w-[260px] mx-auto grow">
@@ -71,6 +87,7 @@ export default function BentoGrid() {
             variants={fadeInUp}
             transition={{ duration: 0.5 }}
             className="relative max-lg:row-start-1"
+            whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
           >
             <div className="absolute inset-px rounded-lg bg-gradient-to-br from-white/5 to-white/10 max-lg:rounded-t-[1.5rem]"></div>
             <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(var(--radius-lg)+1px)] max-lg:rounded-t-[calc(1.5rem+1px)]">
@@ -79,13 +96,30 @@ export default function BentoGrid() {
                   Realtime Actions
                 </p>
                 <p className="mt-2 max-w-lg text-sm/6 text-gray-400 max-lg:text-center">
-                  Seamlessly perform on-chain actions in real-time using natural
-                  voice or text commands.
+                  Seamlessly perform on-chain actions in real-time using just
+                  your voice or text commands.
                 </p>
               </div>
               <div className="flex-1 flex items-center justify-center p-6">
                 <div className="bg-indigo-900/30 h-24 w-24 rounded-full flex items-center justify-center">
-                  <div className="bg-indigo-500/80 h-16 w-16 rounded-full animate-pulse"></div>
+                  <motion.div
+                    className="bg-indigo-500/80 h-16 w-16 rounded-full items-center justify-center flex"
+                    animate={{
+                      boxShadow: [
+                        '0 0 10px #6366f1',
+                        '0 0 20px #6366f1',
+                        '0 0 10px #6366f1',
+                      ],
+                      scale: [1, 1.1, 1],
+                    }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                      repeatType: 'reverse',
+                    }}
+                  >
+                    <IoMdSpeedometer className="text-white w-10 h-10" />
+                  </motion.div>
                 </div>
               </div>
             </div>
@@ -97,6 +131,7 @@ export default function BentoGrid() {
             variants={fadeInUp}
             transition={{ duration: 0.5 }}
             className="relative max-lg:row-start-3 lg:col-start-2 lg:row-start-2"
+            whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
           >
             <div className="absolute inset-px rounded-lg bg-gradient-to-br from-white/5 to-white/10"></div>
             <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(var(--radius-lg)+1px)]">
@@ -105,15 +140,40 @@ export default function BentoGrid() {
                   Security
                 </p>
                 <p className="mt-2 max-w-lg text-sm/6 text-gray-400 max-lg:text-center">
-                  Choose between your favorite app wallet or our built-in secure
-                  wallet to perform actions with confidence.
+                  Link your favorite app wallet or use our built-in secure
+                  wallet (provided by Privy) to perform actions with confidence.
                 </p>
               </div>
               <div className="@container flex flex-1 items-center justify-center p-6">
                 <div className="relative w-full h-40 flex items-center justify-center">
-                  <div className="absolute w-24 h-24 rounded-full bg-indigo-900/30 flex items-center justify-center">
-                    <div className="w-16 h-16 rounded-full bg-indigo-800/50 flex items-center justify-center">
-                      <div className="w-10 h-10 rounded-full bg-indigo-600/80 flex items-center justify-center text-white">
+                  <motion.div
+                    className="absolute w-24 h-24 rounded-full bg-indigo-900/30 flex items-center justify-center"
+                    animate={{
+                      boxShadow: [
+                        '0 0 5px #6366f1',
+                        '0 0 20px #6366f1',
+                        '0 0 5px #6366f1',
+                      ],
+                    }}
+                    transition={{
+                      duration: 3,
+                      repeat: Infinity,
+                      repeatType: 'reverse',
+                    }}
+                  >
+                    <motion.div
+                      className="w-16 h-16 rounded-full bg-indigo-800/50 flex items-center justify-center"
+                      variants={pulseVariant}
+                      initial="hidden"
+                      animate="visible"
+                    >
+                      <motion.div
+                        className="w-10 h-10 rounded-full bg-indigo-600/80 flex items-center justify-center text-white"
+                        whileHover={{
+                          rotate: 180,
+                          transition: { duration: 0.5 },
+                        }}
+                      >
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           viewBox="0 0 24 24"
@@ -126,9 +186,9 @@ export default function BentoGrid() {
                             clipRule="evenodd"
                           />
                         </svg>
-                      </div>
-                    </div>
-                  </div>
+                      </motion.div>
+                    </motion.div>
+                  </motion.div>
                 </div>
               </div>
             </div>
@@ -140,6 +200,7 @@ export default function BentoGrid() {
             variants={fadeInUp}
             transition={{ duration: 0.5 }}
             className="relative row-span-2"
+            whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
           >
             <div className="absolute inset-px rounded-lg bg-gradient-to-br from-white/5 to-white/10 max-lg:rounded-b-[1.5rem] lg:rounded-r-[1.5rem]"></div>
             <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(var(--radius-lg)+1px)] max-lg:rounded-b-[calc(1.5rem+1px)] lg:rounded-r-[calc(1.5rem+1px)]">
@@ -154,7 +215,13 @@ export default function BentoGrid() {
                 </p>
               </div>
               <div className="relative min-h-[22rem] w-full grow">
-                <div className="absolute top-6 right-0 bottom-0 left-6 overflow-hidden rounded-xl bg-gray-900 shadow-2xl">
+                <motion.div
+                  className="absolute top-6 right-0 bottom-0 left-6 overflow-hidden rounded-xl bg-gray-900 shadow-2xl"
+                  whileHover={{
+                    boxShadow: '0 0 25px rgba(99, 102, 241, 0.4)',
+                    transition: { duration: 0.3 },
+                  }}
+                >
                   <div className="flex bg-gray-800/40 ring-1 ring-white/5">
                     <div className="-mb-px flex text-sm/6 font-medium text-gray-400">
                       <div className="border-r border-b border-r-white/10 border-b-white/20 bg-white/5 px-4 py-2 text-white">
@@ -198,7 +265,7 @@ export default function BentoGrid() {
                     <span className="text-indigo-400">default</span>{' '}
                     <span className="text-yellow-400">SolaAI</span>;
                   </div>
-                </div>
+                </motion.div>
               </div>
             </div>
             <div className="pointer-events-none absolute inset-px rounded-lg ring-1 shadow-sm ring-white/10 max-lg:rounded-b-[1.5rem] lg:rounded-r-[1.5rem]"></div>

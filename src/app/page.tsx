@@ -11,6 +11,7 @@ import useIsMobile from '@/utils/isMobile';
 import { usePwaStatus } from '@/hooks/usePwaStatus';
 import { useState, useEffect } from 'react';
 import { AnimatePresence } from 'framer-motion';
+import Footer from './_components/onboarding/Footer';
 
 export default function Home() {
   const router = useRouter();
@@ -54,6 +55,7 @@ export default function Home() {
         </AnimatePresence>
         <BentoGrid />
       </main>
+      <Footer />
     </div>
   );
 }

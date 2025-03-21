@@ -13,10 +13,10 @@ import { VersionedTransaction } from '@solana/web3.js';
 const wallet_service_url = process.env.NEXT_PUBLIC_WALLET_SERVICE_URL;
 
 export async function getAssetsLulo(
-  params: AssetsParams,
+  params: AssetsParams
 ): Promise<AssetsResponse | null> {
-  let resp = await apiClient.get<AssetsResponse>(
-    wallet_service_url + 'api/wallet/lulo/assets?owner=' + params.owner,
+  const resp = await apiClient.get<AssetsResponse>(
+    wallet_service_url + 'api/wallet/lulo/assets?owner=' + params.owner
   );
   if (ApiClient.isApiError(resp)) {
     console.error('Error during getAssetsLulo:', resp.errors);
@@ -26,11 +26,11 @@ export async function getAssetsLulo(
 }
 
 export async function depositLuloTx(
-  params: DepositParams,
+  params: DepositParams
 ): Promise<VersionedTransaction[] | null> {
   const response = await apiClient.post<DepositResponse>(
     wallet_service_url + 'api/wallet/lulo/deposit',
-    params,
+    params
   );
   if (ApiClient.isApiError(response)) {
     console.error('Error during deposit:', response.errors);
@@ -38,8 +38,8 @@ export async function depositLuloTx(
   }
   const deposit_transactions = response.data['transactions'][0];
   try {
-    let transactions = [];
-    for (let i in deposit_transactions) {
+    const transactions = [];
+    for (const i in deposit_transactions) {
       const transaction = deposit_transactions[i].transaction;
       const transactionBuffer = Buffer.from(transaction, 'base64');
       const final_tx = VersionedTransaction.deserialize(transactionBuffer);
@@ -52,11 +52,11 @@ export async function depositLuloTx(
   }
 }
 export async function withdrawLuloTx(
-  params: WithdrawParams,
+  params: WithdrawParams
 ): Promise<VersionedTransaction[] | null> {
   const response = await apiClient.post<WithdrawResponse>(
     wallet_service_url + 'api/wallet/lulo/withdraw',
-    params,
+    params
   );
 
   if (ApiClient.isApiError(response)) {
@@ -70,8 +70,8 @@ export async function withdrawLuloTx(
     return null;
   }
   try {
-    let transactions = [];
-    for (let i in withdraw_transactions) {
+    const transactions = [];
+    for (const i in withdraw_transactions) {
       const transaction = withdraw_transactions[i].transaction;
       const transactionBuffer = Buffer.from(transaction, 'base64');
       const final_tx = VersionedTransaction.deserialize(transactionBuffer);

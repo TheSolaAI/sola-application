@@ -36,7 +36,7 @@ export const TopHoldersMessageItem: FC<TopHoldersChatItemProps> = ({
                     onClick={() =>
                       window.open(
                         `https://solscan.io/account/${value.owner}`,
-                        '_blank',
+                        '_blank'
                       )
                     }
                     className="text-xs font-medium rounded-lg hover:scale-105 hover:shadow-lg transition-all"

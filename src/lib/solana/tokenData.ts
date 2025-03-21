@@ -5,7 +5,7 @@ export async function getTokenData(address: string): Promise<TokenData | null> {
   const resp = await apiClient.get<TokenData>(
     '/data/token/address?token_address=' + address,
     undefined,
-    'data',
+    'data'
   );
   if (ApiClient.isApiError(resp)) {
     console.error('Error during getTokenData:', resp.errors);
@@ -14,12 +14,12 @@ export async function getTokenData(address: string): Promise<TokenData | null> {
   return resp.data;
 }
 export async function getTokenDataSymbol(
-  symbol: string,
+  symbol: string
 ): Promise<TokenData | null> {
   const resp = await apiClient.get<TokenData>(
     '/data/token/symbol?symbol=' + symbol,
     undefined,
-    'data',
+    'data'
   );
   if (ApiClient.isApiError(resp)) {
     console.error('Error during getTokenData:', resp.errors);
