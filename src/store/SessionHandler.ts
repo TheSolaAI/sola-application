@@ -4,12 +4,12 @@ import { ApiClient, apiClient } from '@/lib/ApiClient';
 import { OpenAIKeyGenResponse } from '@/types/response';
 import { API_URLS } from '@/config/api_urls';
 import { toast } from 'sonner';
-import { AIVoice, getPrimeDirective } from '@/config/ai';
+import { AIVoice } from '@/config/ai';
 import { useChatRoomHandler } from '@/store/ChatRoomHandler';
 import { useAgentHandler } from '@/store/AgentHandler';
 import { useUserHandler } from '@/store/UserHandler';
-import { getAgentFunctionDefinitions } from '@/lib/registry/agentRegistry';
-import { getAgentChanger } from '@/tools';
+import { getRequiredTools } from '@/tools';
+import { getRealtimeModelConfig } from '@/lib/ai/aiConfig';
 
 interface SessionHandler {
   state: 'idle' | 'loading' | 'open' | 'error'; // the state of the session handler
@@ -146,32 +146,16 @@ export const useSessionHandler = create<SessionHandler>((set, get) => {
     updateSession: async (
       update_type: 'all' | 'tools' | 'voice' | 'emotion' | 'name'
     ): Promise<void> => {
-      // extract only the abstraction from each tool and pass to OpenAI if required
-      let tools: {
-        type: 'function';
-        name: string;
-        description: string;
-        parameters: any;
-      }[] = [];
-      if (update_type === 'all' || update_type === 'tools') {
-        if (useAgentHandler.getState().currentActiveAgent) {
-          const agentSlug = useAgentHandler.getState().currentActiveAgent?.slug;
-          console.log('agent slug of current agent', agentSlug);
-          tools = getAgentFunctionDefinitions(agentSlug);
-        } else {
-          tools = [getAgentChanger.abstraction];
-        }
-      }
-      console.log(tools);
       const updateParams: any = {
         type: 'session.update',
         session: {},
       };
 
       if (update_type === 'all') {
+        const tools = [getRequiredTools];
         updateParams.session = {
           modalities: ['text', 'audio'],
-          instructions: getPrimeDirective(
+          instructions: getRealtimeModelConfig(
             get().aiEmotion,
             useUserHandler.getState().name
           ),
@@ -179,14 +163,9 @@ export const useSessionHandler = create<SessionHandler>((set, get) => {
           input_audio_transcription: {
             model: 'whisper-1',
           },
-          tools,
+          tools: tools,
           tool_choice: 'auto',
           temperature: 0.6,
-        };
-      } else if (update_type === 'tools') {
-        updateParams.session = {
-          tools,
-          tool_choice: 'auto',
         };
       } else if (update_type === 'voice') {
         updateParams.session = {
@@ -194,14 +173,14 @@ export const useSessionHandler = create<SessionHandler>((set, get) => {
         };
       } else if (update_type === 'emotion') {
         updateParams.session = {
-          instructions: getPrimeDirective(
+          instructions: getRealtimeModelConfig(
             get().aiEmotion,
             useUserHandler.getState().name
           ),
         };
       } else if (update_type === 'name') {
         updateParams.session = {
-          instructions: getPrimeDirective(
+          instructions: getRealtimeModelConfig(
             get().aiEmotion,
             useUserHandler.getState().name
           ),

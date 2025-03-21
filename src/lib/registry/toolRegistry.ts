@@ -145,8 +145,3 @@ export function getAllTools(): BaseTool<ToolPropsType>[] {
 
   return result;
 }
-
-// Get all tool abstractions for OpenAI - now uses pre-built abstractions
-export function getAllToolAbstractions() {
-  return getAllTools().map((tool) => tool.abstraction);
-}

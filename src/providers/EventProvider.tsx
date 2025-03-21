@@ -14,6 +14,16 @@ interface EventProviderProps {
   children: ReactNode;
 }
 
+interface RealtimeOutputArgs {
+  agents:
+    | 'token-analyst'
+    | 'goatindex'
+    | 'nft-analyst'
+    | 'lulo-agent'
+    | 'onchain-handler';
+  original_request: string;
+}
+
 const handleSendMessage = async (message: string) => {
   if (!message) return;
   // wait 500ms before sending message to ensue the session is updated properly
@@ -159,42 +169,45 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
 
                 try {
                   // Parse the arguments as JSON
-                  const args = JSON.parse(output.arguments);
+                  const args = JSON.parse(
+                    output.arguments
+                  ) as RealtimeOutputArgs;
                   console.log('Tool call args: ', args);
+
                   // Execute the tool with schema validation
-                  const result = await executeToolCall(
-                    toolName,
-                    args,
-                    eventData.response_id
-                  );
-
-                  if (result.status === 'success' && result.props) {
-                    // Create a chat item from the tool result
-                    const tool = getToolByName(toolName);
-
-                    if (toolName === 'getAgentChanger') {
-                      sendFunctionCallResponseMessage(
-                        result.response,
-                        output.call_id
-                      );
-                      useChatMessageHandler.getState().setCurrentChatItem(null);
-                      await handleSendMessage(result.response);
-                    } else if (tool && tool.name !== 'getAgentChanger') {
-                      addMessage(createChatItemFromTool(tool, result.props));
-
-                      // Send response back to OpenAI
-                      sendFunctionCallResponseMessage(
-                        result.response,
-                        output.call_id
-                      );
-                    }
-                  } else {
-                    // Handle error case
-                    sendFunctionCallResponseMessage(
-                      result.response || 'An error occurred',
-                      output.call_id
-                    );
-                  }
+                  // const result = await executeToolCall(
+                  //   toolName,
+                  //   args,
+                  //   eventData.response_id
+                  // );
+                  //
+                  // if (result.status === 'success' && result.props) {
+                  //   // Create a chat item from the tool result
+                  //   const tool = getToolByName(toolName);
+                  //
+                  //   if (toolName === 'getAgentChanger') {
+                  //     sendFunctionCallResponseMessage(
+                  //       result.response,
+                  //       output.call_id
+                  //     );
+                  //     useChatMessageHandler.getState().setCurrentChatItem(null);
+                  //     await handleSendMessage(result.response);
+                  //   } else if (tool && tool.name !== 'getAgentChanger') {
+                  //     addMessage(createChatItemFromTool(tool, result.props));
+                  //
+                  //     // Send response back to OpenAI
+                  //     sendFunctionCallResponseMessage(
+                  //       result.response,
+                  //       output.call_id
+                  //     );
+                  //   }
+                  // } else {
+                  //   // Handle error case
+                  //   sendFunctionCallResponseMessage(
+                  //     result.response || 'An error occurred',
+                  //     output.call_id
+                  //   );
+                  // }
 
                   // Clear any current chat item
                   useChatMessageHandler.getState().setCurrentChatItem(null);

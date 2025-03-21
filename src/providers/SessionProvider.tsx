@@ -72,7 +72,6 @@ export const SessionProvider: FC<SessionProviderProps> = ({ children }) => {
         const token = await fetch('/api/openai/create-realtime-session');
         const data = await token.json();
         const EPHEMERAL_KEY = data.client_secret.value;
-        console.log(EPHEMERAL_KEY);
         if (EPHEMERAL_KEY === null) return; // if the token is not available, do not proceed
         const peerConnection = new RTCPeerConnection();
         peerConnection.ontrack = (e) => {

@@ -19,6 +19,10 @@ import {
 import { RegisteredTool, ToolPropsType } from '@/types/tool';
 import { generateUniqueId } from '@/utils/randomID';
 import { MessageQueue, SerializedQueue } from '@/lib/MessageQueue';
+import {
+  TopMessage,
+  TopMessageSchema,
+} from '@/types/schemas/conversation.schema';
 
 interface ChatMessageHandler {
   state: 'idle' | 'loading' | 'error';
@@ -32,6 +36,8 @@ interface ChatMessageHandler {
   initChatMessageHandler: () => Promise<void>;
   getNextMessages: () => Promise<void>;
   addMessage: (message: ChatItem<ChatContentType>) => Promise<void>;
+  getTopMessages: (count: number) => TopMessage[];
+
   setCurrentChatItem: (
     messageUpdater: ChatItem<
       LoaderMessageChatContent | InProgressChatContent
@@ -245,6 +251,35 @@ export const useChatMessageHandler = create<ChatMessageHandler>((set, get) => {
       } catch (error) {
         console.error('Error processing message queue:', error);
       }
+    },
+
+    getTopMessages: (count: number): TopMessage[] => {
+      const filteredMessages = get().messages.filter(
+        (message) =>
+          message.content.type === 'simple_message' ||
+          message.content.type === 'user_audio_chat'
+      );
+
+      // Sort by creation time (newest first) and take the specified count
+      const sortedMessages = [...filteredMessages]
+        .sort(
+          (a, b) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        )
+        .slice(0, count);
+
+      // Map to the TopMessage format and validate with Zod
+      return sortedMessages.map((message) => {
+        const topMessage = {
+          id: message.id,
+          text: 'text' in message.content ? message.content.text : '',
+          sender: message.content.sender,
+          createdAt: message.createdAt,
+          type: message.content.type as 'simple_message' | 'user_audio_chat',
+        };
+
+        return TopMessageSchema.parse(topMessage);
+      });
     },
 
     setCurrentChatItem: (
