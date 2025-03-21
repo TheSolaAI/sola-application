@@ -8,7 +8,7 @@ export default function ThemeInitializer() {
 
   useEffect(() => {
     initThemeManager();
-  }, [initThemeManager]);
+  }, []);
 
   return null;
 }

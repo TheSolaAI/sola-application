@@ -22,7 +22,7 @@ export const ProjectSummaryCard: FC<ProjectSummaryCardProps> = ({
   return (
     <div className="bg-baseBackground rounded-xl w-full flex flex-col p-4 overflow-x-auto">
       {/* Header Section */}
-      <div className="flex flex-row gap-x-4 items-start">
+      <div className="flex flex-col sm:flex-row gap-4 items-start">
         <img
           src={tokenDetail?.image}
           alt="token"
@@ -31,7 +31,7 @@ export const ProjectSummaryCard: FC<ProjectSummaryCardProps> = ({
         <div className="flex flex-col w-full">
           <div className="flex flex-row gap-x-2 items-center justify-between">
             <div className="flex flex-row gap-x-2 items-center">
-              <h1 className="text-3xl font-semibold text-textColor">
+              <h1 className="text-2xl sm:text-3xl font-semibold text-textColor">
                 {tokenDetail?.name}
               </h1>
               {tokenDetail?.category && (
@@ -42,17 +42,31 @@ export const ProjectSummaryCard: FC<ProjectSummaryCardProps> = ({
                 />
               )}
             </div>
-            <Pill
-              text={tokenDetail?.contractAddress}
-              color={theme.sec_background}
-              textColor={theme.secText}
-              icon={<FiCopy size={18} />}
-              hoverable={true}
-              onClick={() => {
-                navigator.clipboard.writeText(tokenDetail?.contractAddress!);
-                toast.success('Address copied to clipboard');
-              }}
-            />
+            <div className="hidden sm:block">
+              <Pill
+                text={tokenDetail?.contractAddress}
+                color={theme.sec_background}
+                textColor={theme.secText}
+                icon={<FiCopy size={18} />}
+                hoverable={true}
+                onClick={() => {
+                  navigator.clipboard.writeText(tokenDetail?.contractAddress!);
+                  toast.success('Address copied to clipboard');
+                }}
+              />
+            </div>
+            <div className="sm:hidden">
+              <Pill
+                icon={<FiCopy size={18} />}
+                color={theme.sec_background}
+                textColor={theme.secText}
+                hoverable={true}
+                onClick={() => {
+                  navigator.clipboard.writeText(tokenDetail?.contractAddress!);
+                  toast.success('Address copied to clipboard');
+                }}
+              />
+            </div>
           </div>
 
           {/* Labels as hashtags */}
@@ -67,7 +81,7 @@ export const ProjectSummaryCard: FC<ProjectSummaryCardProps> = ({
 
           <p className="text-secText mt-1">{tokenDetail?.description}</p>
 
-          <div className="flex flex-row gap-x-2 flex-wrap mt-5">
+          <div className="flex flex-row gap-2 flex-wrap mt-5">
             {/* Social Links */}
             {tokenDetail?.website && (
               <Pill
