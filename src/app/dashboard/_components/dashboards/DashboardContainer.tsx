@@ -46,7 +46,7 @@ const DashBoardContainer: FC<DashBoardContainerProps> = memo(
     return (
       <motion.div
         className={`h-full bg-sec_background sm:rounded-2xl overflow-y-auto flex 
-                    ${visible ? 'opacity-100 sm:ml-2 w-[75%] p-2' : 'w-0 opacity-100'}
+                    ${visible ? 'opacity-100 sm:ml-2 w-[75%]' : 'w-0 opacity-100'}
                     ${isMobile && visible && 'min-w-[100%]'}`}
         initial="hidden"
         animate={visible ? 'visible' : 'hidden'}
