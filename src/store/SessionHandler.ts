@@ -9,7 +9,7 @@ import { useChatRoomHandler } from '@/store/ChatRoomHandler';
 import { useAgentHandler } from '@/store/AgentHandler';
 import { useUserHandler } from '@/store/UserHandler';
 import { getRequiredTools } from '@/tools';
-import { getRealtimeModelConfig } from '@/lib/ai/aiConfig';
+import { getRealtimeModelConfig } from '@/lib/ai/agentsConfig';
 
 interface SessionHandler {
   state: 'idle' | 'loading' | 'open' | 'error'; // the state of the session handler

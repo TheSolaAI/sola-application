@@ -18,3 +18,5 @@ export { withdrawLulo } from './luloAgent/withdrawLulo';
 export { swapTokens } from './onChainHandler/swapTokens';
 export { transferSolTx } from './onChainHandler/transferSolTx';
 export { transferSpl } from './onChainHandler/transferSpl';
+
+export { aiProjectsTools } from './goatIndex/aiProjects';
