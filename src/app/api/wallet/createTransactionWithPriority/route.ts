@@ -5,18 +5,6 @@ import {
   ComputeBudgetProgram,
 } from '@solana/web3.js';
 
-type ErrorResponse = {
-  status: 'error';
-  message: string;
-};
-
-type SuccessResponse = {
-  txid: string;
-  message: string;
-};
-
-type ApiResponse = ErrorResponse | SuccessResponse;
-
 interface CreateTransactionWithPriorityRequest {
   serializedTransaction: string;
   walletAddress: string;
