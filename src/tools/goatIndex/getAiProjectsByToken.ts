@@ -12,7 +12,7 @@ async function handleGetAiProjectsByToken(
   args: { withToken: boolean },
   response_id: string
 ): Promise<ToolResult<'ai_projects_classification'>> {
-  useChatMessageHandler.getState().setCurrentChatItem({
+  useChatMessageHandler.getState().setCurrentMessage({
     content: {
       type: 'loader_message',
       text: `GoatIndex agent: Fetching AI projects...`,

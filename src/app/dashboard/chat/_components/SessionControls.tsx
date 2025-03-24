@@ -56,16 +56,10 @@ export const SessionControls = () => {
     // }
 
     await sendTextMessage(inputRef.current?.value || '');
-
     addMessage({
-      id: 0,
-      content: {
-        type: 'user_audio_chat',
-        response_id: 'Text-Input-0',
-        sender: 'user',
-        text: inputRef.current?.value || '',
-      },
-      createdAt: new Date().toISOString(),
+      content: inputRef.current?.value || '',
+      role: 'user',
+      id: Math.random().toString(),
     });
 
     inputRef.current!.value = '';

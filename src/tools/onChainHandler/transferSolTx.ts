@@ -50,7 +50,7 @@ async function transferSolTxFunction(
     };
   }
 
-  useChatMessageHandler.getState().setCurrentChatItem({
+  useChatMessageHandler.getState().setCurrentMessage({
     content: {
       type: 'loader_message',
       text: `OnChain Handler: Transferring SOL...`,
@@ -81,7 +81,7 @@ async function transferSolTxFunction(
     transaction.recentBlockhash = blockhash;
     transaction.feePayer = new PublicKey(senderAddress);
 
-    useChatMessageHandler.getState().setCurrentChatItem({
+    useChatMessageHandler.getState().setCurrentMessage({
       content: {
         type: 'loader_message',
         text: `OnChain Handler: Waiting for wallet signature...`,
@@ -95,7 +95,7 @@ async function transferSolTxFunction(
     // Sign transaction
     const signedTransaction = await currentWallet.signTransaction(transaction);
 
-    useChatMessageHandler.getState().setCurrentChatItem({
+    useChatMessageHandler.getState().setCurrentMessage({
       content: {
         type: 'loader_message',
         text: `OnChain Handler: Submitting transaction...`,

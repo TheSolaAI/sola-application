@@ -21,7 +21,7 @@ Available ToolSets:
 ${formattedTools}
 
 Key Guidelines:
-  - Only return the agents in the format: ["Tool1", "Tool2", ...].  
+  - Only return the tools in the format: ["Tool1", "Tool2", ...].  
   - Be complete — include all necessary Toolsets that are required to handle the request, if you're unsure, it's better to include the tool than to leave it out.
   - Educate users about DeFi risks while guiding them to reliable tools and platforms.
   - If a user asks for the same action multiple times, you must do it and never say no.

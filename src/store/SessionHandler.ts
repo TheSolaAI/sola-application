@@ -146,7 +146,7 @@ export const useSessionHandler = create<SessionHandler>((set, get) => {
     updateSession: async (
       update_type: 'all' | 'tools' | 'voice' | 'emotion' | 'name'
     ): Promise<void> => {
-      const updateParams: any = {
+      const updateParams = {
         type: 'session.update',
         session: {},
       };

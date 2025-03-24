@@ -24,7 +24,7 @@ async function getLimitOrderFunction(
   _args: Record<string, never>,
   response_id: string
 ): Promise<ToolResult<'get_limit_order'>> {
-  useChatMessageHandler.getState().setCurrentChatItem({
+  useChatMessageHandler.getState().setCurrentMessage({
     content: {
       type: 'loader_message',
       text: 'Token Analyst agent: Fetching active limit orders...',

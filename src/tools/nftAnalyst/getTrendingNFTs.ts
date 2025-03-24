@@ -11,7 +11,7 @@ async function getTrendingNFTsFunction(
   _args: Record<string, never>,
   response_id: string
 ): Promise<ToolResult<'get_trending_nfts'>> {
-  useChatMessageHandler.getState().setCurrentChatItem({
+  useChatMessageHandler.getState().setCurrentMessage({
     content: {
       type: 'loader_message',
       text: `NFT Analyst: Fetching trending NFTs...`,

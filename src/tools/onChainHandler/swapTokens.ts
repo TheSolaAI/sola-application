@@ -53,7 +53,7 @@ async function swapTokensFunction(
   },
   response_id: string
 ): Promise<ToolResult<'swap'>> {
-  useChatMessageHandler.getState().setCurrentChatItem({
+  useChatMessageHandler.getState().setCurrentMessage({
     content: {
       type: 'loader_message',
       text: `OnChain Handler: Preparing Token Swap...`,
@@ -94,7 +94,7 @@ async function swapTokensFunction(
       };
     }
 
-    useChatMessageHandler.getState().setCurrentChatItem({
+    useChatMessageHandler.getState().setCurrentMessage({
       content: {
         type: 'loader_message',
         text: `OnChain Handler: Waiting for wallet signature...`,
@@ -112,7 +112,7 @@ async function swapTokensFunction(
       'base64'
     );
 
-    useChatMessageHandler.getState().setCurrentChatItem({
+    useChatMessageHandler.getState().setCurrentMessage({
       content: {
         type: 'loader_message',
         text: `OnChain Handler: Submitting transaction...`,

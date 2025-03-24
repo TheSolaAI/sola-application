@@ -12,7 +12,7 @@ async function getNFTPriceFunction(
   args: { nft_name: string },
   response_id: string
 ): Promise<ToolResult<'nft_collection_data'>> {
-  useChatMessageHandler.getState().setCurrentChatItem({
+  useChatMessageHandler.getState().setCurrentMessage({
     content: {
       type: 'loader_message',
       text: `NFT Analyst agent: Fetching NFT data...`,

@@ -26,7 +26,7 @@ async function getLuloAssetsFunction(
     owner: `${wallet.address}`,
   };
 
-  useChatMessageHandler.getState().setCurrentChatItem({
+  useChatMessageHandler.getState().setCurrentMessage({
     content: {
       type: 'loader_message',
       text: `Lulo agent: Fetching assets...`,

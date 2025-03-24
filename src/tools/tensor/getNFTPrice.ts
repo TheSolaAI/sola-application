@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import { NFTCollectionChatContent } from '@/types/chatItem';
 import { Tool } from '@/types/tool';
 import { useChatMessageHandler } from '@/store/ChatMessageHandler';
@@ -39,7 +39,7 @@ export async function getNFTPriceFunction(args: { nft_name: string }): Promise<{
   response: string;
   props?: NFTCollectionChatContent;
 }> {
-  useChatMessageHandler.getState().setCurrentChatItem({
+  useChatMessageHandler.getState().setCurrentMessage({
     content: {
       type: 'loader_message',
       text: `NFT Analyst agent: Fetching NFT data...`,
@@ -54,7 +54,7 @@ export async function getNFTPriceFunction(args: { nft_name: string }): Promise<{
   let response = await apiClient.get<NFTCollectionCard>(
     '/data/nft/symbol?nft_symbol=' + symbol.toLowerCase(),
     undefined,
-    'data',
+    'data'
   );
   if (ApiClient.isApiResponse<NFTCollectionCard>(response)) {
     return {

@@ -59,7 +59,7 @@ async function transferSplTxFunction(
   const tokenMint = args.token;
   const amount = args.amount;
 
-  useChatMessageHandler.getState().setCurrentChatItem({
+  useChatMessageHandler.getState().setCurrentMessage({
     content: {
       type: 'loader_message',
       text: `OnChain Handler: Preparing SPL transfer...`,
@@ -93,7 +93,7 @@ async function transferSplTxFunction(
     const prepareData = await prepareResponse.json();
     const { serializedTransaction } = prepareData;
 
-    useChatMessageHandler.getState().setCurrentChatItem({
+    useChatMessageHandler.getState().setCurrentMessage({
       content: {
         type: 'loader_message',
         text: `OnChain Handler: Waiting for wallet signature...`,
@@ -112,7 +112,7 @@ async function transferSplTxFunction(
       signedTransaction.serialize()
     ).toString('base64');
 
-    useChatMessageHandler.getState().setCurrentChatItem({
+    useChatMessageHandler.getState().setCurrentMessage({
       content: {
         type: 'loader_message',
         text: `OnChain Handler: Submitting transaction...`,

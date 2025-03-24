@@ -13,7 +13,7 @@ const getTokenDataImplementation = async (
   args: z.infer<typeof tokenDataSchema>,
   response_id: string
 ): Promise<ToolResult<'token_data'>> => {
-  useChatMessageHandler.getState().setCurrentChatItem({
+  useChatMessageHandler.getState().setCurrentMessage({
     content: {
       type: 'loader_message',
       text: `Token Analyst: Fetching token data...`,

@@ -19,8 +19,6 @@ export const aiProjectsTools = {
     }),
     execute: async ({ category }: { category: 'mindShare' | 'ranking' }) => {
       try {
-        // In a real implementation, we would fetch from an API
-        // For this example, I'm simulating an API fetch
         const response = await fetch(
           'https://loadbalance.goatindex.ai//api/agent/overview?dataSource=AI_INDEX'
         );

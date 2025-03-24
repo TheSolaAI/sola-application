@@ -44,7 +44,7 @@ function getAgentChangerFunction(
   response: string;
   props?: AgentSwapChatContent;
 }> {
-  useChatMessageHandler.getState().setCurrentChatItem({
+  useChatMessageHandler.getState().setCurrentMessage({
     content: {
       type: 'loader_message',
       text: `Finding the suitable agent...`,

@@ -31,7 +31,7 @@ export async function getTrendingNFTsFunction(): Promise<{
   response: string;
   props?: GetTrendingNFTSChatContent;
 }> {
-  useChatMessageHandler.getState().setCurrentChatItem({
+  useChatMessageHandler.getState().setCurrentMessage({
     content: {
       type: 'loader_message',
       text: `NFT Analyst: Fetching trending NFTs...`,
@@ -44,7 +44,7 @@ export async function getTrendingNFTsFunction(): Promise<{
   let response = await apiClient.get<TrendingNFTCard[]>(
     '/data/nft/top_nft',
     undefined,
-    'data',
+    'data'
   );
   if (ApiClient.isApiResponse<TrendingNFTCard[]>(response)) {
     return {

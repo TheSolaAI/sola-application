@@ -16,7 +16,7 @@ async function handleGetAiProjectsByClassification(
   response: string;
   props?: AiProjectsChatContent;
 }> {
-  useChatMessageHandler.getState().setCurrentChatItem({
+  useChatMessageHandler.getState().setCurrentMessage({
     content: {
       type: 'loader_message',
       text: `GoatIndex agent: Fetching AI projects...`,

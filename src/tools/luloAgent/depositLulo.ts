@@ -18,7 +18,7 @@ async function handleDepositLulo(
   },
   response_id: string
 ): Promise<ToolResult<'transaction_message'>> {
-  useChatMessageHandler.getState().setCurrentChatItem({
+  useChatMessageHandler.getState().setCurrentMessage({
     content: {
       type: 'loader_message',
       text: `Lulo agent: Depositing assets...`,

@@ -20,20 +20,12 @@ export interface RealtimeOutputArgsTyped {
   original_request: string;
 }
 
-const handleSendMessage = async (message: string) => {
-  if (!message) return;
-  // wait 500ms before sending message to ensue the session is updated properly
-  await new Promise((resolve) => setTimeout(resolve, 500));
-  useSessionHandler.getState().sendTextMessage(message);
-};
-
 export const EventProvider: FC<EventProviderProps> = ({ children }) => {
   /**
    * Global State
    */
   const { dataStream, updateSession, sendFunctionCallResponseMessage } =
     useSessionHandler();
-  const { addMessage } = useChatMessageHandler();
   const { createChatRoom, state } = useChatRoomHandler();
   const { calculateCreditUsage } = useCreditHandler();
 
@@ -48,7 +40,6 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
       if (dataStream === null) return;
       dataStream.onmessage = async (event) => {
         const eventData = JSON.parse(event.data);
-        // console.log(eventData, null, 2);
         if (eventData.type === 'session.created') {
           // update the session with our latest tools, voice and emotion
           updateSession('all');
@@ -66,7 +57,6 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
             !useChatRoomHandler.getState().currentChatRoom &&
             state === 'idle'
           ) {
-            console.log(useChatRoomHandler.getState().currentChatRoom);
             createChatRoom({ name: 'New Chat' });
           }
         } else if (eventData.type === 'input_audio_buffer.speech_stopped') {
@@ -75,7 +65,6 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
           eventData.type ===
           'conversation.item.input_audio_transcription.completed'
         ) {
-          //TODO: add message to db
         } else if (
           eventData.type === 'response.audio_transcript.delta' ||
           eventData.type === 'response.text.delta'
@@ -85,18 +74,14 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
             // We are still receiving delta events for the current message so we keep appending to it
             useChatMessageHandler
               .getState()
-              .updateCurrentChatItem(eventData.delta);
+              .updateCurrentMessage(eventData.delta);
           } else {
             // this is a new message so create a new one
-            useChatMessageHandler.getState().setCurrentChatItem({
-              content: {
-                type: 'in_progress_message',
-                response_id: eventData.response_id,
-                text: eventData.delta,
-                sender: 'assistant',
-              },
+            useChatMessageHandler.getState().setCurrentMessage({
               id: eventData.response_id,
-              createdAt: new Date().toISOString(),
+              role: 'assistant',
+              parts: [{ type: 'text', text: eventData.delta }],
+              content: eventData.delta,
             });
           }
         } else if (
@@ -107,11 +92,10 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
           if (
             useChatMessageHandler.getState().currentChatItem === null ||
             eventData.response_id ===
-              useChatMessageHandler.getState().currentChatItem?.content
-                .response_id
+              useChatMessageHandler.getState().currentChatItem?.id
           ) {
             // this is the final event for the current message so we commit it
-            useChatMessageHandler.getState().commitCurrentChatItem();
+            useChatMessageHandler.getState().commitCurrentChat();
           }
         } else if (eventData.type === 'response.done') {
           // handle credit calculation
@@ -167,7 +151,7 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
                   // Get context from previous messages (top 8-10)
                   const previousMessages = useChatMessageHandler
                     .getState()
-                    .getTopMessagesInVercelSDKFormat(8);
+                    .getTopMessages(8);
 
                   // Create a message object for the current request
                   const currentMessage: Message = {
@@ -219,7 +203,7 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
                   }
 
                   // Clear any current chat item
-                  useChatMessageHandler.getState().setCurrentChatItem(null);
+                  useChatMessageHandler.getState().setCurrentMessage(null);
                 } catch (error) {
                   console.error(`Error with function call ${toolName}:`, error);
                   sendFunctionCallResponseMessage(

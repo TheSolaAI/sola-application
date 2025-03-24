@@ -22,7 +22,7 @@ const createLimitOrderImplementation = async (
   args: z.infer<typeof limitOrderSchema>,
   response_id: string
 ): Promise<ToolResult<'create_limit_order'>> => {
-  useChatMessageHandler.getState().setCurrentChatItem({
+  useChatMessageHandler.getState().setCurrentMessage({
     content: {
       type: 'loader_message',
       text: `Token Analysis agent: Creating limit order to ${args.action.toLowerCase()} ${args.amount} ${args.token} at $${args.limitPrice}...`,
