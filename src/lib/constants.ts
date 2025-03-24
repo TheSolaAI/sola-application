@@ -1,1 +1,1 @@
-export const MAX_MESSAGE_LENGTH = 5;
+export const TOOL_NAMES: string[] = ['filterTrendingAiProjects'];

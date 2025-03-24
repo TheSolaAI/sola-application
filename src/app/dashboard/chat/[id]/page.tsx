@@ -30,6 +30,8 @@ export default function Chat() {
     initialMessages: useChatMessageHandler.getState().messages,
   });
 
+  console.log(messages);
+
   /**
    * Local State
    */

@@ -4,10 +4,10 @@ import { useSessionHandler } from '@/store/SessionHandler';
 import { useChatMessageHandler } from '@/store/ChatMessageHandler';
 import { useCreditHandler } from '@/store/CreditHandler';
 import { useChatRoomHandler } from '@/store/ChatRoomHandler';
-import { TOOL_NAMES, toolsHandlerPrompt } from '@/lib/ai/agentsConfig';
+import { toolsHandlerPrompt } from '@/lib/ai/agentsConfig';
 import { useWalletHandler } from '@/store/WalletHandler';
 import { Message } from 'ai';
-import { useUser } from '@privy-io/react-auth';
+import { TOOL_NAMES } from '@/lib/constants';
 import { useUserHandler } from '@/store/UserHandler';
 
 interface EventProviderProps {

@@ -1,4 +1,4 @@
-import { TOOL_NAMES } from '@/lib/ai/agentsConfig';
+import { TOOL_NAMES } from '@/lib/constants';
 
 const functionDescription =
   'Get the set of tools required to fulfill users request';

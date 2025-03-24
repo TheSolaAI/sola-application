@@ -31,6 +31,8 @@ export async function POST(req: Request) {
       `User Solana wallet public key: ${userPublicKey}`,
     ].join('\n\n');
 
+    console.log(aiPrompt, userPublicKey, requiredTools, message, systemPrompt);
+
     return createDataStreamResponse({
       execute: (dataStream) => {
         if (dataStream.onError) {
@@ -56,11 +58,15 @@ export async function POST(req: Request) {
           maxSteps: 8,
           messages: message,
           async onFinish({ response }) {
+            console.log(response);
             try {
               const responseMessages = appendResponseMessages({
-                messages: [],
+                messages: [{ id: '', content: '', role: 'system' }],
                 responseMessages: response.messages,
-              }).filter((message) => message.content !== '');
+              }).filter(
+                (message) =>
+                  message.content !== '' || (message.parts || []).length !== 0
+              );
 
               const now = new Date();
               responseMessages.forEach((message, index) => {

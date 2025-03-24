@@ -102,5 +102,3 @@ export const getRequiredTools = (
 export const getParticularTool = (toolName: string): ToolConfig => {
   return availableTools[toolName];
 };
-
-export const TOOL_NAMES = Object.keys(availableTools);
