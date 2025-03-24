@@ -1,11 +1,8 @@
-import { ConnectedSolanaWallet } from '@privy-io/react-auth';
 import {
-  Connection,
   VersionedTransaction,
   PublicKey,
   TransactionMessage,
   ComputeBudgetProgram,
-  SendOptions,
 } from '@solana/web3.js';
 
 type ErrorResponse = {
@@ -14,22 +11,20 @@ type ErrorResponse = {
 };
 
 type SuccessResponse = {
-  status: 'success';
   txid: string;
   message: string;
 };
 
 type ApiResponse = ErrorResponse | SuccessResponse;
 
-interface SendTransactionWithPriorityRequest {
+interface CreateTransactionWithPriorityRequest {
   serializedTransaction: string;
-  wallet: ConnectedSolanaWallet;
-  options?: SendOptions;
+  walletAddress: string;
 }
 
 export async function POST(req: Request) {
   try {
-    const body = (await req.json()) as SendTransactionWithPriorityRequest;
+    const body = (await req.json()) as CreateTransactionWithPriorityRequest;
     if (!body.serializedTransaction) {
       return new Response(
         JSON.stringify({
@@ -39,7 +34,7 @@ export async function POST(req: Request) {
         { status: 400, headers: { 'Content-Type': 'application/json' } }
       );
     }
-    if (!body.wallet.address) {
+    if (!body.walletAddress) {
       return new Response(
         JSON.stringify({
           status: 'error',
@@ -59,7 +54,6 @@ export async function POST(req: Request) {
         { status: 500, headers: { 'Content-Type': 'application/json' } }
       );
     }
-    const connection = new Connection(rpc);
     const fee = await getPriorityFee(body.serializedTransaction);
 
     try {
@@ -76,43 +70,26 @@ export async function POST(req: Request) {
       });
 
       const newMessage = new TransactionMessage({
-        payerKey: new PublicKey(body.wallet.address),
+        payerKey: new PublicKey(body.walletAddress),
         recentBlockhash: txn.message.recentBlockhash,
         instructions: [computeUnitLimitIx, computePriceIx, ...txnIx],
       }).compileToV0Message();
 
       const newTxn = new VersionedTransaction(newMessage);
-      const signed_txn = await body.wallet.signTransaction(newTxn);
-      const signature = await connection.sendRawTransaction(
-        signed_txn.serialize(),
-        body.options || { skipPreflight: false }
-      );
 
       return new Response(
         JSON.stringify({
           status: 'success',
-          txid: signature,
-          message: 'Transaction sent successfully with priority',
+          txid: newTxn,
+          message: 'Created transaction with priority',
         }),
         { status: 200, headers: { 'Content-Type': 'application/json' } }
       );
     } catch (error: any) {
-      if (
-        error.message?.includes('0x1771') ||
-        error.message?.includes('6001')
-      ) {
-        return new Response(
-          JSON.stringify({
-            status: 'error',
-            message: 'Max Slippage hit',
-          }),
-          { status: 400, headers: { 'Content-Type': 'application/json' } }
-        );
-      }
-      throw error;
+      console.error('Error in version transaction formation:', error);
     }
   } catch (error: unknown) {
-    console.error('Error sending transaction with priority:', error);
+    console.error('Error creating transaction with priority:', error);
 
     const errorMessage =
       error instanceof Error
