@@ -1,26 +1,22 @@
 'use client';
 import { FC, ReactNode, useEffect } from 'react';
 import { useSessionHandler } from '@/store/SessionHandler';
-import {
-  createChatItemFromTool,
-  useChatMessageHandler,
-} from '@/store/ChatMessageHandler';
+import { useChatMessageHandler } from '@/store/ChatMessageHandler';
 import { useCreditHandler } from '@/store/CreditHandler';
 import { useChatRoomHandler } from '@/store/ChatRoomHandler';
-import { getToolByName } from '@/lib/registry/toolRegistry';
-import { executeToolCall } from '@/lib/executeTools';
+import { TOOL_NAMES, toolsHandlerPrompt } from '@/lib/ai/agentsConfig';
+import { useWalletHandler } from '@/store/WalletHandler';
+import { Message } from 'ai';
+import { useUser } from '@privy-io/react-auth';
+import { useUserHandler } from '@/store/UserHandler';
 
 interface EventProviderProps {
   children: ReactNode;
 }
 
-interface RealtimeOutputArgs {
-  agents:
-    | 'token-analyst'
-    | 'goatindex'
-    | 'nft-analyst'
-    | 'lulo-agent'
-    | 'onchain-handler';
+export type ToolName = (typeof TOOL_NAMES)[number];
+export interface RealtimeOutputArgsTyped {
+  required_tools: ToolName;
   original_request: string;
 }
 
@@ -79,16 +75,7 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
           eventData.type ===
           'conversation.item.input_audio_transcription.completed'
         ) {
-          useChatMessageHandler.getState().addMessage({
-            id: eventData.response_id,
-            content: {
-              type: 'user_audio_chat',
-              response_id: eventData.event_id,
-              sender: 'assistant',
-              text: eventData.transcript,
-            },
-            createdAt: new Date().toISOString(),
-          });
+          //TODO: add message to db
         } else if (
           eventData.type === 'response.audio_transcript.delta' ||
           eventData.type === 'response.text.delta'
@@ -171,43 +158,65 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
                   // Parse the arguments as JSON
                   const args = JSON.parse(
                     output.arguments
-                  ) as RealtimeOutputArgs;
+                  ) as RealtimeOutputArgsTyped;
                   console.log('Tool call args: ', args);
 
-                  // Execute the tool with schema validation
-                  // const result = await executeToolCall(
-                  //   toolName,
-                  //   args,
-                  //   eventData.response_id
-                  // );
-                  //
-                  // if (result.status === 'success' && result.props) {
-                  //   // Create a chat item from the tool result
-                  //   const tool = getToolByName(toolName);
-                  //
-                  //   if (toolName === 'getAgentChanger') {
-                  //     sendFunctionCallResponseMessage(
-                  //       result.response,
-                  //       output.call_id
-                  //     );
-                  //     useChatMessageHandler.getState().setCurrentChatItem(null);
-                  //     await handleSendMessage(result.response);
-                  //   } else if (tool && tool.name !== 'getAgentChanger') {
-                  //     addMessage(createChatItemFromTool(tool, result.props));
-                  //
-                  //     // Send response back to OpenAI
-                  //     sendFunctionCallResponseMessage(
-                  //       result.response,
-                  //       output.call_id
-                  //     );
-                  //   }
-                  // } else {
-                  //   // Handle error case
-                  //   sendFunctionCallResponseMessage(
-                  //     result.response || 'An error occurred',
-                  //     output.call_id
-                  //   );
-                  // }
+                  const userWallet = useWalletHandler.getState().currentWallet;
+                  const userPublicKey = userWallet?.address || '';
+
+                  // Get context from previous messages (top 8-10)
+                  const previousMessages = useChatMessageHandler
+                    .getState()
+                    .getTopMessagesInVercelSDKFormat(8);
+
+                  // Create a message object for the current request
+                  const currentMessage: Message = {
+                    id: `msg_${Date.now()}`,
+                    role: 'user',
+                    content: args.original_request,
+                    createdAt: new Date(),
+                  };
+
+                  // Combine previous messages with the current message for context
+                  const messages =
+                    previousMessages.length > 0
+                      ? [...previousMessages, currentMessage]
+                      : [currentMessage]; // Handle case with no previous messages
+
+                  // Get user emotion and name for prompt personalization
+                  const aiEmotion = useSessionHandler.getState().aiEmotion;
+                  const userName = useUserHandler.getState().name || 'User';
+
+                  // Add the current user message to the chat history
+                  await useChatMessageHandler
+                    .getState()
+                    .addMessage(currentMessage);
+
+                  // Call our API endpoint
+                  const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                      aiPrompt: toolsHandlerPrompt,
+                      userPublicKey,
+                      requiredTools: [args.required_tools],
+                      message: messages,
+                    }),
+                  });
+
+                  if (!response.ok) {
+                    sendFunctionCallResponseMessage(
+                      'Request processing unsuccessful',
+                      output.call_id
+                    );
+                  } else {
+                    sendFunctionCallResponseMessage(
+                      'Request processed successfully',
+                      output.call_id
+                    );
+                  }
 
                   // Clear any current chat item
                   useChatMessageHandler.getState().setCurrentChatItem(null);

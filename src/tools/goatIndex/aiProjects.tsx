@@ -7,7 +7,7 @@ import { AiProjects } from '@/components/messages/AiProjects';
 
 export const aiProjectsTools = {
   filterTrendingAiProjects: {
-    displayName: '🤖 AI Projects',
+    toolSlug: '🤖 AI Projects',
     isCollapsible: true,
     isExpandedByDefault: true,
     description:
@@ -69,7 +69,7 @@ export const aiProjectsTools = {
         };
       }
     },
-    render: (result: unknown) => {
+    implementation: (result: unknown) => {
       const typedResult = result as {
         success: boolean;
         data?: {

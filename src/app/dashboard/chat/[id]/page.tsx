@@ -1,13 +1,15 @@
 'use client';
 import useThemeManager from '@/store/ThemeManager';
 import { hexToRgb } from '@/utils/hexToRGB';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { ReactNode, useEffect, useRef, useState } from 'react';
 import { useChatMessageHandler } from '@/store/ChatMessageHandler';
-import { ChatContentType, ChatItem } from '@/types/chatItem';
-import { messageComponentMap } from '@/lib/messageComponentMap';
 import { useParams } from 'next/navigation';
 import { useChatRoomHandler } from '@/store/ChatRoomHandler';
 import { LuArrowDown } from 'react-icons/lu';
+import { useChat } from '@ai-sdk/react';
+import { Message } from 'ai';
+import { SimpleMessageChatItem } from '@/components/messages/SimpleMessageChatItem';
+import { getParticularTool } from '@/lib/ai/agentsConfig';
 
 export default function Chat() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -19,9 +21,14 @@ export default function Chat() {
    * Global State
    */
   const { theme } = useThemeManager();
-  const { messages, currentChatItem, initChatMessageHandler } =
-    useChatMessageHandler();
+  const { currentChatItem, initChatMessageHandler } = useChatMessageHandler();
   const { rooms, setCurrentChatRoom, currentChatRoom } = useChatRoomHandler();
+  const { messages, addToolResult } = useChat({
+    id: id as string,
+    maxSteps: 8,
+    sendExtraMessageFields: true,
+    initialMessages: useChatMessageHandler.getState().messages,
+  });
 
   /**
    * Local State
@@ -92,20 +99,25 @@ export default function Chat() {
     }
   }, [messages, currentChatItem]);
 
-  const renderMessageItem = (
-    chatItem: ChatItem<ChatContentType>,
-    index: number
+  const renderToolResult = (
+    toolName: string,
+    args: any,
+    result: any
   ): React.ReactNode => {
-    if (!chatItem) return null;
+    const tool = getParticularTool(toolName);
 
-    const { type } = chatItem.content;
-    const Component = messageComponentMap[type];
-
-    if (Component) {
-      return <Component key={index} props={chatItem.content} />;
+    if (!tool || !tool.implementation) {
+      console.warn(`Tool ${toolName} not found or has no implementation`);
+      return null;
     }
 
-    return null;
+    try {
+      // Make sure the implementation returns a React component
+      return tool.implementation(result);
+    } catch (error) {
+      console.error(`Error rendering tool ${toolName}:`, error);
+      return <div className="text-red-500">Error rendering tool result</div>;
+    }
   };
 
   return (
@@ -129,10 +141,43 @@ export default function Chat() {
           onScroll={handleScroll}
         >
           <div className="w-full sm:w-[60%] mx-auto pb-32 mt-10">
-            {messages.map((chatItem, index) =>
-              renderMessageItem(chatItem, index)
-            )}
-            {currentChatItem && renderMessageItem(currentChatItem, -1)}
+            {messages.map((message, messageIndex) => {
+              return (
+                <div key={`message-${messageIndex}`}>
+                  {message.parts &&
+                    message.parts.map((part, partIndex) => {
+                      switch (part.type) {
+                        case 'text':
+                          return (
+                            <SimpleMessageChatItem
+                              key={`text-${messageIndex}-${partIndex}`}
+                              text={part.text}
+                            />
+                          );
+                        case 'tool-invocation':
+                          if (part.toolInvocation.state === 'result') {
+                            // Return the component, don't just call the function
+                            return (
+                              <React.Fragment
+                                key={`tool-${messageIndex}-${partIndex}`}
+                              >
+                                {renderToolResult(
+                                  part.toolInvocation.toolName,
+                                  part.toolInvocation.args,
+                                  part.toolInvocation.result
+                                )}
+                              </React.Fragment>
+                            );
+                          }
+                          return null;
+                        default:
+                          console.warn(`Unknown part type: ${part.type}`);
+                          return null;
+                      }
+                    })}
+                </div>
+              );
+            })}
           </div>
           {/* This empty div is used as a reference for scrolling to the bottom */}
           <div ref={messagesEndRef} />

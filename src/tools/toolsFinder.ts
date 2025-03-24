@@ -1,3 +1,5 @@
+import { TOOL_NAMES } from '@/lib/ai/agentsConfig';
+
 const functionDescription =
   'Get the set of tools required to fulfill users request';
 
@@ -7,20 +9,14 @@ export const getRequiredTools = {
   description: functionDescription,
   parameters: {
     type: 'object',
-    required: ['agents', 'original_request'],
+    required: ['required_tools', 'original_request'],
     properties: {
-      agents: {
+      required_tools: {
         type: 'array',
-        description: 'The agents name that required to fulfill users request',
+        description: 'The tools that required to fulfill users request',
         items: {
           type: 'string',
-          enum: [
-            'token-analyst',
-            'goatindex',
-            'nft-analyst',
-            'lulo-agent',
-            'dam',
-          ],
+          enum: TOOL_NAMES,
         },
       },
       original_request: {
