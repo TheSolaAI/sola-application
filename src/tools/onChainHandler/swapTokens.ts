@@ -108,6 +108,7 @@ async function swapTokensFunction(
     const signedTransaction = await wallet.signTransaction(
       swap_res.transaction
     );
+    //add a sign error check here TODO!!!
     const serializedTx = Buffer.from(signedTransaction.serialize()).toString(
       'base64'
     );
@@ -156,9 +157,16 @@ async function swapTokensFunction(
     };
   } catch (error) {
     console.error('Swap error:', error);
-    return {
-      status: 'error',
-      response: `Swap failed`,
-    };
+    if (String(error).includes('WalletSignTransactionError')) {
+      return {
+        status: 'error',
+        response: `User rejected the transaction`,
+      };
+    } else {
+      return {
+        status: 'error',
+        response: `Swap failed`,
+      };
+    }
   }
 }

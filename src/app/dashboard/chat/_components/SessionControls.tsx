@@ -40,6 +40,8 @@ export const SessionControls = () => {
         setLoadingQuoteIndex((prevIndex) => {
           const newIndex = (prevIndex + 1) % LOADING_QUOTES.length;
           setCurrentQuote(LOADING_QUOTES[newIndex]);
+          useChatMessageHandler.getState().state = 'error';
+
           return newIndex;
         });
       }, 2000);
@@ -49,30 +51,47 @@ export const SessionControls = () => {
   }, [state]);
 
   const sendMessageToAI = async () => {
-    if (inputRef.current?.value === '') return;
-    // if (credits <= 0) {
-    //   toast.warning('Refuel your credits to keep going!');
-    //   return;
-    // }
+    try {
+      if (inputRef.current?.value === '') return;
+      // if (credits <= 0) {
+      //   toast.warning('Refuel your credits to keep going!');
+      //   return;
+      // }
 
-    await sendTextMessage(inputRef.current?.value || '');
+      await sendTextMessage(inputRef.current?.value || '');
 
-    addMessage({
-      id: 0,
-      content: {
-        type: 'user_audio_chat',
-        response_id: 'Text-Input-0',
-        sender: 'user',
-        text: inputRef.current?.value || '',
-      },
-      createdAt: new Date().toISOString(),
-    });
+      addMessage({
+        id: 0,
+        content: {
+          type: 'user_audio_chat',
+          response_id: 'Text-Input-0',
+          sender: 'user',
+          text: inputRef.current?.value || '',
+        },
+        createdAt: new Date().toISOString(),
+      });
 
-    inputRef.current!.value = '';
+      inputRef.current!.value = '';
+    } catch (error) {
+      console.log(error);
+      useChatMessageHandler.getState().state = 'error';
+    }
   };
 
   return (
     <div className="relative flex items-center justify-center w-full h-full mb-10">
+      {/*dummy div */}
+      <div
+        className={`
+          absolute flex items-center justify-center w-full h-full
+          transition-all duration-500 ease-in-out
+          ${state === 'error' ? 'opacity-100' : 'opacity-0 pointer-events-none'}
+        `}
+      >
+        <div className="flex items-center gap-2 bg-sec_background py-4 px-6 rounded-full text-base text-textColor">
+          hello world state test
+        </div>
+      </div>
       {/* Loading Pill */}
       <div
         className={`
@@ -155,7 +174,10 @@ export const SessionControls = () => {
             py-4 px-6 rounded-full text-base
             hover:bg-primary transition-colors duration-200
           "
-          onClick={() => useSessionHandler.getState().initSessionHandler()}
+          onClick={() => {
+            console.log('state check at reconnection area', state); // should display idle state
+            useSessionHandler.getState().initSessionHandler();
+          }}
         >
           <LuRefreshCw size={16} />
           Reconnect Session

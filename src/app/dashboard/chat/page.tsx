@@ -81,7 +81,10 @@ export default function NewChat() {
   return (
     <div className="absolute inset-0 flex flex-col items-center justify-center p-4 z-10">
       {useChatRoomHandler.getState().state !== 'loading' &&
-        useChatMessageHandler.getState().state !== 'loading' && (
+        useChatMessageHandler.getState().state !== 'loading' &&
+        (console.log('current chat room', currentChatRoom),
+        console.log('current state', useChatRoomHandler.getState().state),
+        (
           <>
             {/* Logo and Title */}
             <div className="flex flex-col items-center mb-8">
@@ -116,7 +119,7 @@ export default function NewChat() {
               {agentElements}
             </div>
           </>
-        )}
+        ))}
     </div>
   );
 }

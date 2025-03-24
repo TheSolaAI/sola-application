@@ -59,7 +59,7 @@ export const TokenSummaryCard: FC<TokenSummaryCardProps> = ({
               className="text-2xl font-semibold text-textColor mr-2"
               style={{ color: priceChange24hPercent > 0 ? 'green' : 'red' }}
             >
-              ${price}
+              ${Number(price).toPrecision(2)}
             </h1>
             {priceChange24hPercent !== 0 && (
               <div

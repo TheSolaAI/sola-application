@@ -58,6 +58,7 @@ export const useChatRoomHandler = create<ChatRoomHandler>((set, get) => {
         currentChatRoom: room,
         isNewRoomCreated: false,
       });
+      console.log(room);
     },
 
     initRoomHandler: async () => {

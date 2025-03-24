@@ -18,7 +18,14 @@ interface SettingsHandler {
    * Returns a boolean indicating if the update was successful. Optionally specify the specific setting that is required to be updated.
    */
   updateSettings: (
-    setting: 'all' | 'voice' | 'emotion' | 'theme' | 'custom_themes' | 'name'
+    setting:
+      | 'all'
+      | 'voice'
+      | 'emotion'
+      | 'theme'
+      | 'custom_themes'
+      | 'name'
+      | 'transaction_config'
   ) => Promise<boolean>;
 }
 
@@ -29,6 +36,7 @@ interface SettingsHandler {
 export const useSettingsHandler = create<SettingsHandler>(() => {
   return {
     getSettings: async (): Promise<void> => {
+      //add endpoint in db for storing transaction config
       const response = await apiClient.get<UserSettingsResponse>(
         API_URLS.AUTH.SETTINGS.GET,
         undefined,

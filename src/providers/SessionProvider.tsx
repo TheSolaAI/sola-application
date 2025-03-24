@@ -1,5 +1,5 @@
 'use client';
-import { FC, ReactNode, useEffect } from 'react';
+import { FC, ReactNode, use, useEffect } from 'react';
 import { useChatRoomHandler } from '@/store/ChatRoomHandler';
 import { useChatMessageHandler } from '@/store/ChatMessageHandler';
 import { useSessionHandler } from '@/store/SessionHandler';
@@ -72,8 +72,9 @@ export const SessionProvider: FC<SessionProviderProps> = ({ children }) => {
         const token = await fetch('/api/openai/create-realtime-session');
         const data = await token.json();
         const EPHEMERAL_KEY = data.client_secret.value;
-        console.log(EPHEMERAL_KEY);
-        if (EPHEMERAL_KEY === null) return; // if the token is not available, do not proceed
+        if (EPHEMERAL_KEY === null) {
+          return;
+        } // if the token is not available, do not proceed
         const peerConnection = new RTCPeerConnection();
         peerConnection.ontrack = (e) => {
           audioEl.srcObject = e.streams[0];
