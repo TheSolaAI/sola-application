@@ -10,6 +10,7 @@
     "prepare": "husky install"
   },
   "dependencies": {
+    "@bonfida/spl-name-service": "^3.0.10",
     "@headlessui/react": "^2.2.0",
     "@microsoft/clarity": "^1.0.0",
     "@phantom/wallet-sdk": "^0.0.23",
@@ -53,7 +54,7 @@
     "eslint-plugin-prettier": "^5.2.3",
     "eslint-plugin-react": "^7.37.4",
     "eslint-plugin-react-hooks": "^5.2.0",
-    "husky": "^8.0.0",
+    "husky": "^9.1.7",
     "lint-staged": "^15.5.0",
     "postcss": "^8.5.3",
     "prettier": "^3.5.3",
