@@ -1,8 +1,15 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { LuMic, LuMicOff, LuSend, LuRefreshCw } from 'react-icons/lu';
+import {
+  LuMic,
+  LuMicOff,
+  LuSend,
+  LuRefreshCw,
+  LuTriangleAlert,
+} from 'react-icons/lu';
 import { useSessionHandler } from '@/store/SessionHandler';
 import { useChatMessageHandler } from '@/store/ChatMessageHandler';
+import { toast } from 'sonner';
 
 const LOADING_QUOTES = [
   'Connecting SOLA...',
@@ -11,11 +18,19 @@ const LOADING_QUOTES = [
   'Charging brain cells...',
 ] as const;
 
+const ERROR_MESSAGES = [
+  'Connection lost. Please reconnect.',
+  'Session error occurred. Try reconnecting.',
+  'Unable to reach SOLA AI. Please reconnect.',
+  'Session timeout. Reconnect to continue chatting.',
+] as const;
+
 export const SessionControls = () => {
   /**
    * Global States
    */
-  const { muted, setMuted, state, sendTextMessage } = useSessionHandler();
+  const { muted, setMuted, state, sendTextMessage, initSessionHandler } =
+    useSessionHandler();
   const { addMessage } = useChatMessageHandler();
 
   /**
@@ -26,6 +41,9 @@ export const SessionControls = () => {
   );
   const [currentQuote, setCurrentQuote] = useState(
     LOADING_QUOTES[loadingQuoteIndex]
+  );
+  const [errorMessage, setErrorMessage] = useState(
+    ERROR_MESSAGES[Math.floor(Math.random() * ERROR_MESSAGES.length)]
   );
 
   /**
@@ -47,6 +65,16 @@ export const SessionControls = () => {
       return () => clearInterval(interval);
     }
   }, [state]);
+
+  const handleReconnect = async () => {
+    try {
+      await initSessionHandler();
+      toast.success('Reconnecting to SOLA AI...');
+    } catch (error) {
+      toast.error('Failed to reconnect. Please try again.');
+      console.error('Reconnection error:', error);
+    }
+  };
 
   const sendMessageToAI = async () => {
     if (inputRef.current?.value === '') return;
@@ -141,7 +169,32 @@ export const SessionControls = () => {
         </button>
       </div>
 
-      {/* Reconnect Button */}
+      {/* Error State */}
+      <div
+        className={`
+          absolute flex items-center justify-center w-full h-full
+          transition-all duration-500 ease-in-out flex-col gap-4
+          ${state === 'error' ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}
+        `}
+      >
+        <div className="flex items-center gap-2 bg-red-500/10 text-red-500 py-4 px-6 rounded-full text-base">
+          <LuTriangleAlert size={18} />
+          {errorMessage}
+        </div>
+        <button
+          className="
+            flex items-center gap-2 bg-primaryDark text-textColorContrast cursor-pointer
+            py-4 px-6 rounded-full text-base
+            hover:bg-primary transition-colors duration-200
+          "
+          onClick={handleReconnect}
+        >
+          <LuRefreshCw size={16} />
+          Reconnect Session
+        </button>
+      </div>
+
+      {/* Reconnect Button for Idle State */}
       <div
         className={`
           absolute flex items-center justify-center w-full h-full
@@ -155,7 +208,7 @@ export const SessionControls = () => {
             py-4 px-6 rounded-full text-base
             hover:bg-primary transition-colors duration-200
           "
-          onClick={() => useSessionHandler.getState().initSessionHandler()}
+          onClick={handleReconnect}
         >
           <LuRefreshCw size={16} />
           Reconnect Session
