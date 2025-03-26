@@ -1,13 +1,14 @@
 {
   "name": "sola-application",
-  "version": "0.1.0",
+  "version": "0.0.1",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "semantic-release": "semantic-release"
   },
   "dependencies": {
     "@bonfida/spl-name-service": "^3.0.10",
@@ -40,6 +41,9 @@
     "@commitlint/cli": "^19.8.0",
     "@commitlint/config-conventional": "^19.8.0",
     "@eslint/eslintrc": "^3",
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/github": "^11.0.1",
     "@tailwindcss/postcss": "^4",
     "@types/bs58": "^4.0.4",
     "@types/node": "^20",
@@ -58,6 +62,7 @@
     "lint-staged": "^15.5.0",
     "postcss": "^8.5.3",
     "prettier": "^3.5.3",
+    "semantic-release": "^24.2.3",
     "tailwindcss": "3",
     "typescript": "^5"
   }
