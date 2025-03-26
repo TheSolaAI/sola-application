@@ -11,6 +11,10 @@ export type SchemaRegistry = {
 // Map prop types to content types
 export const ToolPropsTypeMap = {
   token_data: 'TokenDataChatContent',
+  top_holders: 'TopHoldersChatContent',
+  bubble_map: 'BubbleMapChatContent',
+  rug_check: 'RugCheckChatContent',
+  token_address_result: 'TokenAddressResultChatContent',
   create_limit_order: 'LimitOrderChatContent',
   get_limit_order: 'ShowLimitOrdersChatContent',
   ai_projects_classification: 'AiProjectsChatContent',

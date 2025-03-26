@@ -33,6 +33,7 @@ export type ChatContentType =
   | UserAudioChatContent
   | TransactionChatContent
   | TokenDataChatContent
+  | TokenAddressResultChatContent
   | NFTCollectionChatContent
   | LuloChatContent
   | ShowLimitOrdersChatContent
@@ -118,6 +119,15 @@ export interface RugCheckChatContent extends BaseChatContent {
 export interface TopHoldersChatContent extends BaseChatContent {
   type: 'top_holders';
   data: TopHolder[];
+}
+
+export interface TokenAddressResultChatContent extends BaseChatContent {
+  type: 'token_address_result';
+  symbol: string;
+  tokenAddress: string;
+  success: boolean;
+  source?: string;
+  errorMessage?: string;
 }
 
 export interface SwapChatContent extends BaseChatContent {

@@ -351,7 +351,7 @@ export function createChatItemFromTool(
   const propsType = tool.representation?.props_type;
 
   if (!propsType) {
-    throw new Error('Tool is missing props_type');
+    console.error('Tool is missing props_type');
   }
 
   // Create a generic chat item with the data properly typed

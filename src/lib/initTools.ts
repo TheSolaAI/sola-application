@@ -13,6 +13,10 @@ import {
   swapTokens,
   transferSolTx,
   transferSpl,
+  topHolders,
+  bubblemap,
+  rugCheck,
+  tokenAddress,
 } from '@/tools';
 
 /**
@@ -32,6 +36,10 @@ export function initializeTools() {
     getTokenData,
     limitOrder,
     getLimitOrders,
+    topHolders,
+    bubblemap,
+    rugCheck,
+    tokenAddress,
 
     // GoatIndex tools
     getAiProjectsByClassification,
