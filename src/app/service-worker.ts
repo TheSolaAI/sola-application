@@ -1,13 +1,16 @@
 /// <reference lib="webworker" />
+import { getCacheVersion } from '@/utils/version';
 
-export default null;
+const serviceWorkerExport = null;
+export default serviceWorkerExport;
 
 const worker = self as unknown as ServiceWorkerGlobalScope;
+const CACHE_NAME = getCacheVersion();
 
 // Install event - cache static assets
 worker.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open('sola-ai-v1').then((cache) => {
+    caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll([
         '/',
         '/manifest.json',
@@ -16,7 +19,7 @@ worker.addEventListener('install', (event) => {
         '/icons/icon-512x512.png',
         '/icons/maskable-icon-512x512.png',
         '/sola_black_logo.svg',
-        '/offline.html', // Make sure to cache the offline page
+        '/offline.html',
       ]);
     })
   );
@@ -28,7 +31,7 @@ worker.addEventListener('activate', (event) => {
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames
-          .filter((cacheName) => cacheName !== 'sola-ai-v1')
+          .filter((cacheName) => cacheName !== CACHE_NAME)
           .map((cacheName) => caches.delete(cacheName))
       );
     })
@@ -56,20 +59,17 @@ worker.addEventListener('fetch', (event) => {
             return response;
           }
 
-          return caches.open('sola-ai-v1').then((cache) => {
+          return caches.open(CACHE_NAME).then((cache) => {
             cache.put(event.request, response.clone());
             return response;
           });
         });
       })
       .catch(async () => {
-        // Fallback for offline access - must return a Response object
         return caches.match('/offline.html').then((offlineResponse) => {
-          // If offline page is in cache, return it
           if (offlineResponse) {
             return offlineResponse;
           }
-          // Otherwise, create a simple response
           return new Response(
             'You are offline and the offline page is not cached.',
             {
