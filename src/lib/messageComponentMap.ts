@@ -12,10 +12,16 @@ import { TrendingNFTMessageItem } from '@/components/messages/TrendingNFTMessage
 import { LuloChatItem } from '@/components/messages/LuloMessageItem';
 import { TransactionDataMessageItem } from '@/components/messages/TransactionCard';
 import { SwapChatItem } from '@/components/messages/SwapMessageItem';
+import { TopHoldersMessageItem } from '@/components/messages/TopHoldersMessageItem';
+import { BubbleMapChatItem } from '@/components/messages/BubbleMapCardItem';
+import { TokenAddressResultItem } from '@/components/messages/TokenAddressResultItem';
 
 export const messageComponentMap: Record<string, React.ComponentType<any>> = {
   simple_message: SimpleMessageChatItem,
   token_data: TokenDataMessageItem,
+  top_holders: TopHoldersMessageItem,
+  bubble_map: BubbleMapChatItem,
+  token_address_result: TokenAddressResultItem,
   create_limit_order: CreateLimitOrderChatItem,
   show_limit_order: ShowLimitOrdersChatItem,
   ai_projects_classification: AiProjects,

@@ -14,7 +14,11 @@ const TokenAnalyst = registerAgent({
   description: 'Designed for deep token analysis and trading experience.',
   logo: LuChartNetwork,
   tools: [
+    { name: 'TokenAddress', propsType: 'token_address_result' },
     { name: 'getTokenData', propsType: 'token_data' },
+    { name: 'Bubblemap', propsType: 'bubble_map' },
+    { name: 'TopHolders', propsType: 'top_holders' },
+    { name: 'RugCheck', propsType: 'rug_check' },
     { name: 'limitOrder', propsType: 'create_limit_order' },
     { name: 'getLimitOrders', propsType: 'get_limit_order' },
     { name: 'getAgentChanger', propsType: 'agent_swap' },
