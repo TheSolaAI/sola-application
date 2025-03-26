@@ -11,9 +11,9 @@ Agents:
        2. get top holders or holders info for a token.
        3. get bubblemap visualization info for a token.
        4. get rug details for safety info for a token.
-       2. Get top Liquid-Staking-tokens [LST] with their details like price, yeild percentage.
-       3. Place a limit order using jupiter platform API.
-       4. Get the existing limit orders of an user.
+       5. Get top Liquid-Staking-tokens [LST] with their details like price, yeild percentage.
+       6. Place a limit order using jupiter platform API.
+       7. Get the existing limit orders of an user.
 
 - goatindex:
     1. Get Top AI projects, Projects with/without tokens on Solana Blockchain.
@@ -29,9 +29,9 @@ Agents:
     3. Withdraw assets from Lulo platform.
  
 - onchain-handler:
+    1. resolve Solana Name service (SNS) domains (eg: example.sol) to wallet address.
     1. Swap tokens on Solana Blockchain.
     2. Transfer/Send tokens on any contract address on Solana Blockchain.
-
 
 Key Guidelines:
   - Be concise and elaborate only when necessary.

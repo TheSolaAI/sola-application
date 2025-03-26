@@ -17,6 +17,7 @@ import {
   bubblemap,
   rugCheck,
   tokenAddress,
+  resolveSnsName,
 } from '@/tools';
 
 /**
@@ -55,6 +56,7 @@ export function initializeTools() {
     withdrawLulo,
 
     // OnChain Handler tools
+    resolveSnsName,
     swapTokens,
     transferSolTx,
     transferSpl,
