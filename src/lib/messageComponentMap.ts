@@ -15,6 +15,7 @@ import { SwapChatItem } from '@/components/messages/SwapMessageItem';
 import { TopHoldersMessageItem } from '@/components/messages/TopHoldersMessageItem';
 import { BubbleMapChatItem } from '@/components/messages/BubbleMapCardItem';
 import { TokenAddressResultItem } from '@/components/messages/TokenAddressResultItem';
+import { TransferChatItem } from '@/components/messages/TransferMessageItem';
 
 export const messageComponentMap: Record<string, React.ComponentType<any>> = {
   simple_message: SimpleMessageChatItem,
@@ -32,5 +33,5 @@ export const messageComponentMap: Record<string, React.ComponentType<any>> = {
   user_audio_chat: AudioPlayerMessageItem,
   in_progress_message: InProgressMessageChatItem,
   loader_message: LoaderMessageItem,
-  transaction_message: TransactionDataMessageItem,
+  transaction_message: TransferChatItem,
 };

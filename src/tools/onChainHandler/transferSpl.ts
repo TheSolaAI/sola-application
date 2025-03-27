@@ -11,7 +11,7 @@ import { TransactionChatContent } from '@/types/chatItem';
 export const transferSpl = registerTool({
   name: 'transferSpl',
   description:
-    'Call this function when the user wants to send SPL tokens (non-SOL) to an address or a .sol domain. Do not autocorrect or modify .sol domains, as they are arbitrary and may not have meaningful words.',
+    'Send SPL tokens (non-SOL tokens) to a recipient. This tool requires a valid token address. If user input contains token name/symbol and .sol domains resolve them using the available tools before using this tool.',
   propsType: 'transaction_message',
   cost: 0.00005,
   implementation: transferSplTxFunction,
@@ -21,29 +21,48 @@ export const transferSpl = registerTool({
     properties: {
       amount: {
         type: 'number',
-        description: 'Amount of the token to send.',
+        description: 'Amount of the token to send. Must be greater than zero.',
       },
-      token: {
+      tokenAddress: {
         type: 'string',
-        description: 'The token that the user wants to send.',
+        description:
+          'The token address (not symbol) to send. Must be a valid Solana SPL token address.',
       },
-      address: {
+      recipientAddress: {
         type: 'string',
-        description: 'Recipient wallet address or .sol domain.',
+        description:
+          'Recipient wallet address. For .sol domains, first resolve them using the other available tools',
       },
     },
-    required: ['amount', 'token', 'address'],
+    required: ['amount', 'tokenAddress', 'recipientAddress'],
   },
 });
 
 async function transferSplTxFunction(
   args: {
     amount: number;
-    token: string;
-    address: string;
+    tokenAddress: string;
+    recipientAddress: string;
   },
   response_id: string
 ): Promise<ToolResult<'transaction_message'>> {
+  // Input validation
+  if (args.amount <= 0) {
+    return {
+      status: 'error',
+      response: 'Transfer amount must be greater than zero.',
+    };
+  }
+
+  // Validate token address format
+  if (args.tokenAddress.length < 32) {
+    return {
+      status: 'error',
+      response:
+        'Invalid token address. Please use the TokenAddress tool to get a valid token address from a symbol.',
+    };
+  }
+
   const currentWallet = useWalletHandler.getState().currentWallet;
 
   if (currentWallet === null) {
@@ -55,8 +74,8 @@ async function transferSplTxFunction(
   }
 
   const senderAddress = currentWallet.address;
-  const recipientAddress = args.address;
-  const tokenMint = args.token;
+  const recipientAddress = args.recipientAddress;
+  const tokenAddress = args.tokenAddress;
   const amount = args.amount;
 
   useChatMessageHandler.getState().setCurrentChatItem({
@@ -80,18 +99,22 @@ async function transferSplTxFunction(
       body: JSON.stringify({
         senderAddress,
         recipientAddress,
-        tokenMint,
+        tokenMint: tokenAddress,
         amount,
       }),
     });
 
     if (!prepareResponse.ok) {
       const errorData = await prepareResponse.json();
-      throw new Error(errorData.message || 'Failed to prepare SPL transfer');
+      console.log(errorData);
+      return {
+        status: 'error',
+        response: `Transfer failed: Failed to prepare the transaction.`,
+      };
     }
 
     const prepareData = await prepareResponse.json();
-    const { serializedTransaction } = prepareData;
+    const { serializedTransaction, tokenDetails } = prepareData;
 
     useChatMessageHandler.getState().setCurrentChatItem({
       content: {
@@ -140,18 +163,28 @@ async function transferSplTxFunction(
 
     if (!sendResponse.ok) {
       const errorData = await sendResponse.json();
-      throw new Error(errorData.message || 'Failed to send transaction');
+      console.log(errorData);
+      return {
+        status: 'error',
+        response: `Transfer failed: Failed to send transaction to blockchain`,
+      };
     }
 
     const sendData = await sendResponse.json();
     const { txid } = sendData;
 
     // Get token display name or symbol
+    const tokenSymbol = tokenDetails?.symbol || 'Token';
     const tokenDisplay =
-      tokenMint.length > 10 ? tokenMint.substring(0, 6) + '...' : tokenMint;
+      tokenSymbol ||
+      (tokenAddress.length > 10
+        ? `${tokenAddress.substring(0, 6)}...${tokenAddress.substring(tokenAddress.length - 4)}`
+        : tokenAddress);
+
+    // Format recipient for display
     const recipientDisplay =
       recipientAddress.length > 10
-        ? recipientAddress.substring(0, 6) + '...'
+        ? `${recipientAddress.substring(0, 6)}...${recipientAddress.substring(recipientAddress.length - 4)}`
         : recipientAddress;
 
     // Prepare response data
@@ -160,22 +193,27 @@ async function transferSplTxFunction(
       sender: 'system',
       type: 'transaction_message',
       data: {
-        title: `Transfer ${amount} ${tokenDisplay} to ${recipientDisplay}`,
-        link: txid,
-        status: 'success',
+        title: `Transfer ${amount} ${tokenDisplay}`,
+        status: 'pending',
+        link: `https://solscan.io/tx/${txid}`,
+        recipient: recipientDisplay,
+        amount: amount,
+        tokenSymbol: tokenSymbol || tokenDisplay,
+        tokenAddress: tokenAddress,
+        txid: txid,
       },
     };
 
     return {
       status: 'success',
-      response: `Successfully sent ${amount} tokens to ${recipientAddress}`,
+      response: `Successfully initiated transfer of ${amount} ${tokenDisplay} to ${recipientDisplay}. The transaction has been submitted to the network and will be processed shortly.`,
       props: data,
     };
   } catch (error) {
     console.error('Transfer error:', error);
     return {
       status: 'error',
-      response: `Transfer failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      response: `Transfer failed: ${error instanceof Error ? error.message : 'Unknown error'}. Please check your token balance and try again.`,
     };
   }
 }

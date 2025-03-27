@@ -6,7 +6,7 @@ import { titleCase } from '@/utils/titleCase';
 import { FiCopy } from 'react-icons/fi';
 import { LuLink } from 'react-icons/lu';
 import { toast } from 'sonner';
-import { usePrivy } from '@privy-io/react-auth';
+import { ConnectedSolanaWallet, useConnectWallet } from '@privy-io/react-auth';
 import Image from 'next/image';
 
 interface WalletPickerProps {
@@ -23,14 +23,27 @@ export const WalletPicker: FC<WalletPickerProps> = ({
   /**
    * Global State
    */
-  const { wallets, currentWallet, setCurrentWallet } = useWalletHandler();
+  const { wallets, currentWallet, setCurrentWallet, setWallets } =
+    useWalletHandler();
+  const { connectWallet } = useConnectWallet({
+    onSuccess: ({ wallet }) => {
+      if (wallet.type === 'solana') {
+        // Check if this wallet is already in the wallets array by address
+        const walletExists = wallets.some((w) => w.address === wallet.address);
+
+        if (!walletExists) {
+          setWallets([...wallets, wallet as unknown as ConnectedSolanaWallet]);
+        }
+
+        setCurrentWallet(wallet as unknown as ConnectedSolanaWallet);
+      }
+    },
+  });
 
   /** Function to copy the wallet address */
   const copyToClipboard = (address: string) => {
     navigator.clipboard.writeText(address);
   };
-
-  const { connectWallet } = usePrivy();
 
   return (
     <Dropdown
