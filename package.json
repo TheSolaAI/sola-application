@@ -16,7 +16,7 @@
     "@microsoft/clarity": "^1.0.0",
     "@phantom/wallet-sdk": "^0.0.23",
     "@privy-io/react-auth": "^2.6.2",
-    "@sentry/nextjs": "^9.5.0",
+    "@sentry/nextjs": "^9",
     "@solana/spl-token": "^0.4.13",
     "@solana/web3.js": "^1.98.0",
     "axios": "^1.8.2",
