@@ -1,0 +1,252 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model auth_group {
+  id                     Int                      @id @default(autoincrement())
+  name                   String                   @unique @db.VarChar(150)
+  auth_group_permissions auth_group_permissions[]
+  authw_user_groups      authw_user_groups[]
+
+  @@index([name], map: "auth_group_name_a6ea08ec_like")
+}
+
+/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
+model auth_group_permissions {
+  id              BigInt          @id @default(autoincrement())
+  group_id        Int
+  permission_id   Int
+  auth_permission auth_permission @relation(fields: [permission_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "auth_group_permissio_permission_id_84c5c92e_fk_auth_perm")
+  auth_group      auth_group      @relation(fields: [group_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "auth_group_permissions_group_id_b120cbf9_fk_auth_group_id")
+
+  @@unique([group_id, permission_id], map: "auth_group_permissions_group_id_permission_id_0cd325b0_uniq")
+  @@index([group_id], map: "auth_group_permissions_group_id_b120cbf9")
+  @@index([permission_id], map: "auth_group_permissions_permission_id_84c5c92e")
+}
+
+/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
+model auth_permission {
+  id                          Int                           @id @default(autoincrement())
+  name                        String                        @db.VarChar(255)
+  content_type_id             Int
+  codename                    String                        @db.VarChar(100)
+  auth_group_permissions      auth_group_permissions[]
+  django_content_type         django_content_type           @relation(fields: [content_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "auth_permission_content_type_id_2f476e4b_fk_django_co")
+  authw_user_user_permissions authw_user_user_permissions[]
+
+  @@unique([content_type_id, codename], map: "auth_permission_content_type_id_codename_01ab375a_uniq")
+  @@index([content_type_id], map: "auth_permission_content_type_id_2f476e4b")
+}
+
+/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
+model authtoken_token {
+  key        String     @id @db.VarChar(40)
+  created    DateTime   @db.Timestamptz(6)
+  user_id    Int        @unique
+  authw_user authw_user @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "authtoken_token_user_id_35299eff_fk")
+
+  @@index([key], map: "authtoken_token_key_10f0b77e_like")
+}
+
+model authw_user {
+  id                          Int                           @id @default(autoincrement())
+  password                    String                        @db.VarChar(128)
+  last_login                  DateTime?                     @db.Timestamptz(6)
+  is_superuser                Boolean
+  username                    String                        @unique @db.VarChar(150)
+  first_name                  String                        @db.VarChar(150)
+  last_name                   String                        @db.VarChar(150)
+  is_staff                    Boolean
+  is_active                   Boolean
+  date_joined                 DateTime                      @db.Timestamptz(6)
+  email                       String?                       @db.VarChar(254)
+  authtoken_token             authtoken_token?
+  authw_user_groups           authw_user_groups[]
+  authw_user_user_permissions authw_user_user_permissions[]
+  authw_usersettings          authw_usersettings?
+  authw_userwallets           authw_userwallets[]
+  chat_chatroom               chat_chatroom[]
+  django_admin_log            django_admin_log[]
+  fcm_django_fcmdevice        fcm_django_fcmdevice[]
+  user_analytics_session_metrics user_analytics_session_metrics?
+
+  @@index([username], map: "authw_user_username_60f6f6d5_like")
+}
+
+/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
+model authw_user_groups {
+  id         BigInt     @id @default(autoincrement())
+  user_id    Int
+  group_id   Int
+  auth_group auth_group @relation(fields: [group_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "authw_user_groups_group_id_a3200e9f_fk_auth_group_id")
+  authw_user authw_user @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "authw_user_groups_user_id_5c309d6e_fk")
+
+  @@unique([user_id, group_id], map: "authw_user_groups_user_id_group_id_c5f45fc9_uniq")
+  @@index([group_id], map: "authw_user_groups_group_id_a3200e9f")
+  @@index([user_id], map: "authw_user_groups_user_id_5c309d6e")
+}
+
+/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
+model authw_user_user_permissions {
+  id              BigInt          @id @default(autoincrement())
+  user_id         Int
+  permission_id   Int
+  auth_permission auth_permission @relation(fields: [permission_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "authw_user_user_perm_permission_id_3f46cb26_fk_auth_perm")
+  authw_user      authw_user      @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "authw_user_user_permissions_user_id_0f18e082_fk")
+
+  @@unique([user_id, permission_id], map: "authw_user_user_permissions_user_id_permission_id_92be5dfb_uniq")
+  @@index([permission_id], map: "authw_user_user_permissions_permission_id_3f46cb26")
+  @@index([user_id], map: "authw_user_user_permissions_user_id_0f18e082")
+}
+
+/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
+model authw_usersettings {
+  id                Int        @id @default(autoincrement())
+  theme             String     @db.VarChar(20)
+  voice_preference  String     @db.VarChar(25)
+  emotion_choice    String     @db.VarChar(255)
+  user_id           Int        @unique
+  credits_remaining Decimal    @db.Decimal(10, 4)
+  tiers             String     @db.VarChar(10)
+  custom_themes     Json
+  name              String     @db.VarChar(150)
+  profile_pic       Json
+  authw_user        authw_user @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "authw_usersettings_user_id_1e792ee5_fk_authw_user_id")
+}
+
+/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
+model authw_userwallets {
+  id              Int        @id @default(autoincrement())
+  wallet_address  String     @db.VarChar(255)
+  wallet_provider String     @db.VarChar(50)
+  user_id         Int
+  authw_user      authw_user @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "authw_userwallets_user_id_3f218d95_fk_authw_user_id")
+
+  @@index([user_id], map: "authw_userwallets_user_id_3f218d95")
+}
+
+/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
+model chat_chatmessage {
+  id            BigInt        @id @default(autoincrement())
+  message       Json
+  created_at    DateTime      @db.Timestamptz(6)
+  updated_at    DateTime      @db.Timestamptz(6)
+  room_id       Int
+  chat_chatroom chat_chatroom @relation(fields: [room_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "chat_chatmessage_room_id_5d04fb68_fk_chat_chatroom_id")
+
+  @@index([room_id], map: "chat_chatmessage_room_id_5d04fb68")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
+model chat_chatroom {
+  id                 Int                @id @default(autoincrement())
+  name               String             @db.VarChar(100)
+  session_id         String             @db.VarChar(100)
+  created_at         DateTime           @db.Timestamptz(6)
+  updated_at         DateTime           @db.Timestamptz(6)
+  user_id            Int
+  agent_id           Int?               @db.SmallInt
+  message_updated_at DateTime?          @db.Timestamptz(6)
+  chat_chatmessage   chat_chatmessage[]
+  authw_user         authw_user         @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "chat_chatroom_user_id_80e8b860_fk_authw_user_id")
+
+  @@index([user_id], map: "chat_chatroom_user_id_80e8b860")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
+model django_admin_log {
+  id                  Int                  @id @default(autoincrement())
+  action_time         DateTime             @db.Timestamptz(6)
+  object_id           String?
+  object_repr         String               @db.VarChar(200)
+  action_flag         Int                  @db.SmallInt
+  change_message      String
+  content_type_id     Int?
+  user_id             Int
+  django_content_type django_content_type? @relation(fields: [content_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "django_admin_log_content_type_id_c4bce8eb_fk_django_co")
+  authw_user          authw_user           @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "django_admin_log_user_id_c564eba6_fk")
+
+  @@index([content_type_id], map: "django_admin_log_content_type_id_c4bce8eb")
+  @@index([user_id], map: "django_admin_log_user_id_c564eba6")
+}
+
+model django_content_type {
+  id               Int                @id @default(autoincrement())
+  app_label        String             @db.VarChar(100)
+  model            String             @db.VarChar(100)
+  auth_permission  auth_permission[]
+  django_admin_log django_admin_log[]
+
+  @@unique([app_label, model], map: "django_content_type_app_label_model_76bd3d3b_uniq")
+}
+
+model django_migrations {
+  id      BigInt   @id @default(autoincrement())
+  app     String   @db.VarChar(255)
+  name    String   @db.VarChar(255)
+  applied DateTime @db.Timestamptz(6)
+}
+
+model django_session {
+  session_key  String   @id @db.VarChar(40)
+  session_data String
+  expire_date  DateTime @db.Timestamptz(6)
+
+  @@index([expire_date], map: "django_session_expire_date_a5c62663")
+  @@index([session_key], map: "django_session_session_key_c0390e0f_like")
+}
+
+model django_site {
+  id     Int    @id @default(autoincrement())
+  domain String @unique(map: "django_site_domain_a2e37b91_uniq") @db.VarChar(100)
+  name   String @db.VarChar(50)
+
+  @@index([domain], map: "django_site_domain_a2e37b91_like")
+}
+
+/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
+model fcm_django_fcmdevice {
+  id              Int         @id @default(autoincrement())
+  name            String?     @db.VarChar(255)
+  active          Boolean
+  date_created    DateTime?   @db.Timestamptz(6)
+  device_id       String?     @db.VarChar(255)
+  registration_id String      @unique(map: "fcm_django_fcmdevice_registration_id_9918b353_uniq")
+  type            String      @db.VarChar(10)
+  user_id         Int?
+  authw_user      authw_user? @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fcm_django_fcmdevice_user_id_6cdfc0a2_fk")
+
+  @@index([registration_id, user_id], map: "fcm_django__registr_dacdb2_idx")
+  @@index([device_id], map: "fcm_django_fcmdevice_device_id_a9406c36")
+  @@index([registration_id], map: "fcm_django_fcmdevice_registration_id_9918b353_like")
+  @@index([user_id], map: "fcm_django_fcmdevice_user_id_6cdfc0a2")
+}
+
+model health_check_db_testmodel {
+  id    Int    @id @default(autoincrement())
+  title String @db.VarChar(128)
+}
+
+model user_analytics_session_metrics {
+  id                Int        @id @default(autoincrement())
+  user_id           Int        @unique
+  user_tier         Int        @default(0)
+  sessions_created  Int        @default(0)
+  sessions_left     Int        @default(0)
+  current_session_id   String?
+  current_session_created_at        DateTime   @default(now())
+  current_period_started_at DateTime @default(now())
+
+  // Reference to user in public schema
+  authw_user                    authw_user @relation(fields: [user_id], references: [id])
+
+  @@index([user_id])
+}
