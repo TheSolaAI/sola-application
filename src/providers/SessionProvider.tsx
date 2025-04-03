@@ -1,13 +1,15 @@
 'use client';
-import { FC, ReactNode, useEffect } from 'react';
+import { FC, ReactNode, useEffect, useState } from 'react';
 import { useChatRoomHandler } from '@/store/ChatRoomHandler';
 import { useChatMessageHandler } from '@/store/ChatMessageHandler';
 import { useSessionHandler } from '@/store/SessionHandler';
 import { toast } from 'sonner';
 import { useUserHandler } from '@/store/UserHandler';
 import { EventProvider } from '@/providers/EventProvider';
-import { useLayoutContext } from '@/providers/LayoutProvider';
 import { initializeTools } from '@/lib/initTools';
+import { useSessionManager } from '@/hooks/useSessionManager';
+import SessionVerificationModal from '@/app/dashboard/_components/SessionVerificationModal';
+import { useSessionManagerHandler } from '@/store/SessionManagerHandler';
 
 interface SessionProviderProps {
   children: ReactNode;
@@ -21,105 +23,43 @@ export const SessionProvider: FC<SessionProviderProps> = ({ children }) => {
   const { currentChatRoom, previousChatRoom, isNewRoomCreated } =
     useChatRoomHandler();
   const { initChatMessageHandler } = useChatMessageHandler();
+  const { mediaStream, muted } = useSessionHandler();
+  const { establishConnection } = useSessionManager();
   const {
-    setDataStream,
-    setPeerConnection,
-    setMediaStream,
-    muted,
-    mediaStream,
-  } = useSessionHandler();
-  const { audioEl, setAudioIntensity } = useLayoutContext();
-
-  const setupAudioVisualizer = (audioEl: HTMLAudioElement | null) => {
-    if (!audioEl) return;
-
-    const audioContext = new AudioContext();
-    const analyser = audioContext.createAnalyser();
-    analyser.fftSize = 256;
-
-    const source = audioContext.createMediaStreamSource(
-      audioEl.srcObject as MediaStream
-    );
-    source.connect(analyser);
-    analyser.connect(audioContext.destination);
-
-    const dataArray = new Uint8Array(analyser.frequencyBinCount);
-
-    const updateGradient = () => {
-      analyser.getByteFrequencyData(dataArray);
-
-      // Calculate the average volume
-      const volume = dataArray.reduce((a, b) => a + b, 0) / dataArray.length;
-      const intensity = Math.min(volume / 255, 1);
-
-      setAudioIntensity(intensity);
-
-      requestAnimationFrame(updateGradient);
-    };
-
-    updateGradient();
-  };
+    showVerifyHoldersPopup,
+    setShowVerifyHoldersPopup,
+    sessionStatus,
+    checkSessionAvailability,
+    verifyUserTierStatus,
+    getUserProvidedApiKey,
+    setUserProvidedApiKey,
+    clearUserProvidedApiKey,
+  } = useSessionManagerHandler();
 
   /**
-   * Runs when the application launches and starts the session with OpenAI. Even when room switches
-   * the session is not restarted as there is no context switch.
+   * Local State
+   */
+  const [tierVerificationResult, setTierVerificationResult] = useState<{
+    success: boolean;
+    tier: number;
+    totalSolaBalance: number;
+    message?: string;
+  } | null>(null);
+  const [showVerifyHoldersCard, setShowVerifyHoldersCard] = useState(
+    showVerifyHoldersPopup
+  );
+
+  /**
+   * Initialize tools when the component mounts
    */
   useEffect(() => {
-    // TODO: Add Check for the amount of credits the user has here. Add the credits amount as a dep in this hook
-    const init = async () => {
-      if (!audioEl) return;
-      try {
-        const token = await fetch('/api/openai/create-realtime-session');
-        const data = await token.json();
-        const EPHEMERAL_KEY = data.client_secret.value;
-        console.log(EPHEMERAL_KEY);
-        if (EPHEMERAL_KEY === null) return; // if the token is not available, do not proceed
-        const peerConnection = new RTCPeerConnection();
-        peerConnection.ontrack = (e) => {
-          audioEl.srcObject = e.streams[0];
-          setupAudioVisualizer(audioEl);
-        };
-        const mediaStream = await navigator.mediaDevices.getUserMedia({
-          audio: true,
-        });
-        // mute the media stream based on the muted state
-        mediaStream.getAudioTracks()[0].enabled = !muted;
-        peerConnection.addTrack(mediaStream.getTracks()[0]);
-        const dataChannel = peerConnection.createDataChannel('oai-events');
-        const offer = await peerConnection.createOffer();
-        await peerConnection.setLocalDescription(offer);
-        if (!process.env.NEXT_PUBLIC_OPENAI_API_URL) {
-          throw new Error('OPENAI_API_URL is not set');
-        }
-        const sdpResponse = await fetch(
-          process.env.NEXT_PUBLIC_OPENAI_API_URL,
-          {
-            method: 'POST',
-            body: offer.sdp,
-            headers: {
-              Authorization: `Bearer ${EPHEMERAL_KEY}`,
-              'Content-Type': 'application/sdp',
-            },
-          }
-        );
-        if (!sdpResponse.ok) {
-          toast.error('Failed to start session');
-          throw new Error('Failed to send SDP');
-        } else {
-          const sdp = await sdpResponse.text();
-          await peerConnection.setRemoteDescription({ type: 'answer', sdp }); // confim handshake
-          setMediaStream(mediaStream);
-          setDataStream(dataChannel);
-          setPeerConnection(peerConnection);
-        }
-      } catch (e) {
-        console.log(e);
-      }
-    };
-    if (ready) {
-      init();
-    }
-  }, [ready]);
+    initializeTools();
+    console.log('Tools initialized in SessionProvider');
+  }, []);
+
+  useEffect(() => {
+    setShowVerifyHoldersCard(showVerifyHoldersPopup);
+  }, [showVerifyHoldersPopup]);
 
   /**
    * Mutes the media stream when the user chooses to mute the audio
@@ -132,7 +72,7 @@ export const SessionProvider: FC<SessionProviderProps> = ({ children }) => {
       }
       console.log('Muted:', audioTrack);
     }
-  }, [muted]);
+  }, [muted, mediaStream]);
 
   /**
    * Runs every time the current chat room changes and loads the chat messages of the room
@@ -142,17 +82,92 @@ export const SessionProvider: FC<SessionProviderProps> = ({ children }) => {
     if (!currentChatRoom || (!previousChatRoom && isNewRoomCreated)) return;
     // load the messages of the room asynchronously
     initChatMessageHandler();
-  }, [currentChatRoom]);
+  }, [
+    currentChatRoom,
+    previousChatRoom,
+    isNewRoomCreated,
+    initChatMessageHandler,
+  ]);
 
-  // Initialize tools when the component mounts
+  /**
+   * Runs when the application is ready to initialize the session with OpenAI
+   */
   useEffect(() => {
-    initializeTools();
-    console.log('Tools initialized in SessionProvider');
-  }, []);
+    const initSession = async () => {
+      if (!ready) return;
+
+      try {
+        // Check if user has sessions available
+        const hasSessionsAvailable = await checkSessionAvailability();
+
+        if (hasSessionsAvailable || getUserProvidedApiKey()) {
+          // If sessions are available or user has provided their own key, try to connect
+          await establishConnection();
+        } else {
+          // Show verification modal if no sessions are available
+          setShowVerifyHoldersPopup(true);
+        }
+      } catch (error) {
+        console.error('Error initializing session:', error);
+        toast.error('Failed to initialize session');
+      }
+    };
+
+    initSession();
+  }, [ready]);
+
+  /**
+   * Handle tier verification
+   */
+  const handleVerifyTier = async () => {
+    try {
+      const result = await verifyUserTierStatus();
+      setTierVerificationResult(result);
+
+      // If verification succeeded and user now has sessions, close modal and connect
+      if (result.success && sessionStatus !== 'no_sessions_left') {
+        setShowVerifyHoldersPopup(false);
+        await establishConnection();
+      }
+    } catch (error) {
+      console.error('Error verifying tier:', error);
+      toast.error('Failed to verify tier');
+    }
+  };
+
+  /**
+   * Handle connection from modal
+   */
+  const handleConnect = async () => {
+    try {
+      const success = await establishConnection();
+      if (success) {
+        setShowVerifyHoldersPopup(false);
+      }
+    } catch (error) {
+      console.error('Error connecting:', error);
+      toast.error('Failed to connect');
+    }
+  };
 
   return (
     <EventProvider>
-      <>{children}</>
+      <div className="overflow-y-auto">
+        {/* Session Verification Modal */}
+        <SessionVerificationModal
+          isOpen={showVerifyHoldersCard}
+          onClose={() => setShowVerifyHoldersPopup(false)}
+          sessionStatus={sessionStatus}
+          onVerifyTier={handleVerifyTier}
+          onConnect={handleConnect}
+          tierVerificationResult={tierVerificationResult}
+          userProvidedApiKey={getUserProvidedApiKey}
+          onSetApiKey={setUserProvidedApiKey}
+          onClearApiKey={clearUserProvidedApiKey}
+        />
+
+        {children}
+      </div>
     </EventProvider>
   );
 };

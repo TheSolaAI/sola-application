@@ -9,7 +9,6 @@ import { useChatRoomHandler } from '@/store/ChatRoomHandler';
 import { SessionProvider } from '@/providers/SessionProvider';
 import PageLoading from '@/components/common/PageLoading';
 import { ChatNavigationHandler } from '@/providers/ChatNavigationHandler';
-import useThemeManager from '@/store/ThemeManager';
 
 export default function DashboardLayout({
   children,

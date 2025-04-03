@@ -1,6 +1,6 @@
 // app/api/openai/create-realtime-session/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/db';
+import { prisma } from '@/lib/prisma';
 import { authenticatePrivyUser } from '@/lib/server/authenticatePrivyUser';
 import { SESSIONS_PER_TIER } from '@/config/constants';
 
