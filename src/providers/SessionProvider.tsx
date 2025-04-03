@@ -78,7 +78,6 @@ export const SessionProvider: FC<SessionProviderProps> = ({ children }) => {
    * Runs every time the current chat room changes and loads the chat messages of the room
    */
   useEffect(() => {
-    // don't fetch when a new chat room is created or when the user is in dummy room
     if (!currentChatRoom || (!previousChatRoom && isNewRoomCreated)) return;
     // load the messages of the room asynchronously
     initChatMessageHandler();
@@ -97,14 +96,11 @@ export const SessionProvider: FC<SessionProviderProps> = ({ children }) => {
       if (!ready) return;
 
       try {
-        // Check if user has sessions available
         const hasSessionsAvailable = await checkSessionAvailability();
 
         if (hasSessionsAvailable || getUserProvidedApiKey()) {
-          // If sessions are available or user has provided their own key, try to connect
           await establishConnection();
         } else {
-          // Show verification modal if no sessions are available
           setShowVerifyHoldersPopup(true);
         }
       } catch (error) {
@@ -123,12 +119,6 @@ export const SessionProvider: FC<SessionProviderProps> = ({ children }) => {
     try {
       const result = await verifyUserTierStatus();
       setTierVerificationResult(result);
-
-      // If verification succeeded and user now has sessions, close modal and connect
-      if (result.success && sessionStatus !== 'no_sessions_left') {
-        setShowVerifyHoldersPopup(false);
-        await establishConnection();
-      }
     } catch (error) {
       console.error('Error verifying tier:', error);
       toast.error('Failed to verify tier');

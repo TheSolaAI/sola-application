@@ -54,34 +54,29 @@ export default function SessionVerificationModal({
     }
   }, [userProvidedApiKey]);
 
-  // Status management for button states
   useEffect(() => {
     setIsVerifying(sessionStatus === 'checking');
     setIsConnecting(sessionStatus === 'connecting');
   }, [sessionStatus]);
 
-  // Handle tier verification
   const handleVerifyTier = async () => {
     setIsVerifying(true);
     await onVerifyTier();
     setIsVerifying(false);
   };
 
-  // Handle connection
   const handleConnect = async () => {
     setIsConnecting(true);
     await onConnect();
     setIsConnecting(false);
   };
 
-  // Handle API key submission
   const handleSaveApiKey = () => {
     if (apiKey.trim()) {
       onSetApiKey(apiKey.trim());
     }
   };
 
-  // Handle API key clearing
   const handleClearApiKey = () => {
     setApiKey('');
     onClearApiKey();

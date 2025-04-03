@@ -65,6 +65,7 @@ export const SessionControls = () => {
     sessionStatus === 'idle' ||
     sessionStatus === 'connecting';
 
+  console.log(isConnectedAndOpen, isErrorState, sessionStatus);
   return (
     <div className="relative flex items-center justify-center w-full h-full mb-10">
       {/* Input Controls */}

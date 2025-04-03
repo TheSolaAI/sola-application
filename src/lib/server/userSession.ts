@@ -360,6 +360,19 @@ export const verifyUserTier = async (privyId: string, accessToken: string) => {
   }
 };
 
+export const recordSessionUsage = async (
+  privyId: string,
+  sessionId: string
+) => {
+  return prisma.userSessions.create({
+    data: {
+      privy_id: privyId,
+      session_id: sessionId,
+      session_created_at: new Date(),
+    },
+  });
+};
+
 export const calculateUserTier = async (totalSolaBalance: number) => {
   for (const [tier, threshold] of TIER_THRESHOLDS) {
     if (totalSolaBalance >= threshold) return tier;

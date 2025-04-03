@@ -1,4 +1,3 @@
-// src/store/SessionManagerHandler.ts
 'use client';
 
 import { create } from 'zustand';
@@ -78,6 +77,7 @@ export const useSessionManagerHandler = create<SessionManagerStore>(
       try {
         const authToken = useUserHandler.getState().authToken;
         if (!authToken) {
+          set({ sessionStatus: 'error' });
           return false;
         }
 
@@ -87,10 +87,14 @@ export const useSessionManagerHandler = create<SessionManagerStore>(
         // Get the user's current tier - we'll need to first verify their tier
         const tierInfo = await verifyUserTier(privyId, authToken);
         if (!tierInfo.success) {
+          set({ sessionStatus: 'error' });
           return false;
         }
 
-        if (!tierInfo.tier || tierInfo.tier === 0) return false;
+        if (!tierInfo.tier || tierInfo.tier === 0) {
+          set({ sessionStatus: 'error' });
+          return false;
+        }
 
         // Check if the user has sessions available
         const hasSessionsRemaining = await verifySession(
