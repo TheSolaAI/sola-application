@@ -86,6 +86,7 @@ export const useSessionManagerHandler = create<SessionManagerStore>(
 
         // Get the user's current tier - we'll need to first verify their tier
         const tierInfo = await verifyUserTier(privyId, authToken);
+        console.log(tierInfo);
         if (!tierInfo.success) {
           set({ sessionStatus: 'error' });
           return false;

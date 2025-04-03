@@ -291,8 +291,9 @@ export const verifyUserTier = async (privyId: string, accessToken: string) => {
         totalSolaBalance: 0,
       };
     }
-
-    const walletAddresses = wallets.map((wallet) => wallet.wallet_address);
+    const walletAddresses = [
+      ...new Set(wallets.map((wallet) => wallet.wallet_address)),
+    ];
     const { totalBalance, walletBalances } =
       await verifyHolder(walletAddresses);
 

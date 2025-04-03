@@ -120,7 +120,7 @@ export default function SessionVerificationModal({
                   </p>
                   <p className="text-secText text-sm">
                     Verify your SOLA token holdings to unlock additional
-                    sessions, or enter your OpenAI API key to continue.
+                    sessions.
                   </p>
                 </div>
               </div>
