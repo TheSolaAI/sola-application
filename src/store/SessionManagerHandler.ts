@@ -9,6 +9,9 @@ import {
   verifyUserTier,
 } from '@/lib/server/userSession';
 
+/**
+ * SessionStatus type defines the different states a session can be in.
+ */
 export type SessionStatus =
   | 'idle'
   | 'checking'
@@ -17,22 +20,37 @@ export type SessionStatus =
   | 'connected'
   | 'error';
 
+/**
+ * Interface for the Session Manager store.
+ */
 interface SessionManagerStore {
-  // State
+  /** Indicates whether the verification popup is visible */
   showVerifyHoldersPopup: boolean;
+  /** Represents the current session status */
   sessionStatus: SessionStatus;
 
-  // State setters
+  /** Sets the visibility of the verification popup */
   setShowVerifyHoldersPopup: (show: boolean) => void;
+  /** Sets the current session status */
   setSessionStatus: (status: SessionStatus) => void;
 
-  // Local storage API key management
+  /** Retrieves the user-provided API key from local storage */
   getUserProvidedApiKey: () => string | null;
+  /** Stores the provided API key in local storage */
   setUserProvidedApiKey: (key: string) => void;
+  /** Removes the API key from local storage */
   clearUserProvidedApiKey: () => void;
 
-  // Network requests - now using server functions
+  /**
+   * Checks if the user has an available session.
+   * It validates the auth token, verifies the user tier, and checks session availability.
+   */
   checkSessionAvailability: () => Promise<boolean>;
+
+  /**
+   * Verifies the user's tier status.
+   * It returns an object containing success, tier level, total balance, and an optional message.
+   */
   verifyUserTierStatus: () => Promise<{
     success: boolean;
     tier: number;
@@ -41,20 +59,24 @@ interface SessionManagerStore {
   }>;
 }
 
-// LocalStorage key constant
+/**
+ * Local storage key for saving the user provided API key.
+ */
 const LOCAL_STORAGE_API_KEY = 'sola_user_openai_key';
 
+/**
+ * Zustand store for managing session-related state and actions.
+ * This includes handling UI state, local storage management for API keys,
+ * and verifying session and user tier statuses via server functions.
+ */
 export const useSessionManagerHandler = create<SessionManagerStore>(
   (set, get) => ({
-    // Initial state
     showVerifyHoldersPopup: false,
     sessionStatus: 'idle',
 
-    // State setters
     setShowVerifyHoldersPopup: (show) => set({ showVerifyHoldersPopup: show }),
     setSessionStatus: (status) => set({ sessionStatus: status }),
 
-    // LocalStorage functions
     getUserProvidedApiKey: () => {
       if (typeof window === 'undefined') return null;
       return localStorage.getItem(LOCAL_STORAGE_API_KEY);
@@ -70,39 +92,32 @@ export const useSessionManagerHandler = create<SessionManagerStore>(
       localStorage.removeItem(LOCAL_STORAGE_API_KEY);
     },
 
-    // Using server functions instead of API calls
     checkSessionAvailability: async () => {
       set({ sessionStatus: 'checking' });
-
       try {
+        // Retrieve the authentication token from the user handler
         const authToken = useUserHandler.getState().authToken;
         if (!authToken) {
           set({ sessionStatus: 'error' });
           return false;
         }
 
-        // Extract Privy ID from auth token
+        // Extract the user's Privy ID and verify tier information
         const privyId = await extractUserPrivyId(authToken);
-
-        // Get the user's current tier - we'll need to first verify their tier
         const tierInfo = await verifyUserTier(privyId, authToken);
         console.log(tierInfo);
-        if (!tierInfo.success) {
+
+        // If tier verification fails or the tier is zero, report error
+        if (!tierInfo.success || !tierInfo.tier || tierInfo.tier === 0) {
           set({ sessionStatus: 'error' });
           return false;
         }
 
-        if (!tierInfo.tier || tierInfo.tier === 0) {
-          set({ sessionStatus: 'error' });
-          return false;
-        }
-
-        // Check if the user has sessions available
+        // Check if the user has any remaining sessions based on tier info
         const hasSessionsRemaining = await verifySession(
           privyId,
           tierInfo.tier
         );
-
         if (hasSessionsRemaining) {
           return true;
         } else {
@@ -119,6 +134,7 @@ export const useSessionManagerHandler = create<SessionManagerStore>(
 
     verifyUserTierStatus: async () => {
       try {
+        // Retrieve the authentication token from the user handler
         const authToken = useUserHandler.getState().authToken;
         if (!authToken) {
           return {
@@ -129,16 +145,11 @@ export const useSessionManagerHandler = create<SessionManagerStore>(
           };
         }
 
-        // Extract Privy ID from auth token
+        // Extract the user's Privy ID and verify tier information
         const privyId = await extractUserPrivyId(authToken);
-
-        // Call the server function to verify tier
         const tierInfo = await verifyUserTier(privyId, authToken);
-
         if (tierInfo.success) {
-          // If verification was successful, check session availability
           const hasSessionsAvailable = await get().checkSessionAvailability();
-
           return {
             success: true,
             tier: tierInfo.tier || 0,

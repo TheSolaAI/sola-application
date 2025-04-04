@@ -47,6 +47,7 @@ export async function GET(req: NextRequest) {
     }
 
     const hasSessionsAvailable = await verifySession(privyId, tierInfo.tier);
+    console.log(hasSessionsAvailable);
     if (!hasSessionsAvailable) {
       return NextResponse.json(
         {

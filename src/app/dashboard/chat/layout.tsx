@@ -8,10 +8,8 @@ import SessionControls from '@/app/dashboard/chat/_components/SessionControls';
 import InfoText from '@/app/dashboard/chat/_components/InfoText';
 import { useChatMessageHandler } from '@/store/ChatMessageHandler';
 import { ScaleLoader } from 'react-spinners';
-import React, { useState } from 'react';
+import React from 'react';
 import { useChatRoomHandler } from '@/store/ChatRoomHandler';
-import { useSessionManager } from '@/hooks/useSessionManager';
-import { useSessionManagerHandler } from '@/store/SessionManagerHandler';
 
 export default function ChatLayout({
   children,
@@ -26,12 +24,6 @@ export default function ChatLayout({
   const { theme } = useThemeManager();
   const { isPWA, keyboardHeight } = useKeyboardHeight();
   const { state } = useChatMessageHandler();
-
-  /**
-   * Session Management
-   */
-  const { establishConnection } = useSessionManager();
-  const { sessionStatus } = useSessionManagerHandler();
 
   /**
    * Local State

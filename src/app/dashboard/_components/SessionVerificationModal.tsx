@@ -85,13 +85,13 @@ export default function SessionVerificationModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+    <div className="fixed max-h-screen inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
       <AnimatePresence>
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.95 }}
-          className={`relative w-full max-w-md bg-background border border-border rounded-xl shadow-xl overflow-hidden`}
+          className={`relative w-full max-w-md max-h-[80%] bg-background border border-border rounded-xl shadow-xl overflow-y-auto overflow-x-hidden`}
         >
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b border-border">
@@ -199,7 +199,7 @@ export default function SessionVerificationModal({
                 className="w-full p-4 text-left flex items-center justify-between bg-sec_background hover:bg-surface transition-colors"
               >
                 <span className="text-textColor font-medium">
-                  Use your own OpenAI API key
+                  Wanna try before purchasing $SOLA ?
                 </span>
                 {showApiKeyOption ? (
                   <LuArrowUp className="w-4 h-4" />
@@ -223,8 +223,9 @@ export default function SessionVerificationModal({
                           <LuInfo className="w-4 h-4 flex-shrink-0 mt-0.5" />
                           <div>
                             <p className="mb-2">
-                              SOLA AI is in early access development. Keys are
-                              stored locally and never sent to our servers.
+                              SOLA AI is in early access development. So we want
+                              every one the try the vesion of Voice Assistant
+                              that we are building.
                             </p>
                             <p>
                               Note: SOLA uses multiple AI providers, not just
@@ -236,7 +237,8 @@ export default function SessionVerificationModal({
 
                       <div className="mb-4">
                         <label className="block text-secText text-sm mb-1">
-                          OpenAI API Key
+                          OpenAI API Key (This key is stored on your local
+                          browser)
                         </label>
                         <div className="flex">
                           <input

@@ -3,9 +3,9 @@ export const SOLA_TOKEN_ADDRESS =
 
 export const TIER_THRESHOLDS = [
   [4, 10_000_000],
-  [3, 5_000_000],
-  [2, 1_000_000],
-  [1, 500_000],
+  [3, 400_000],
+  [2, 300_000],
+  [1, 100_000],
 ];
 
 export const SESSIONS_PER_TIER: { [key: number]: number } = {
