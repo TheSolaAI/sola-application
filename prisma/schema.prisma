@@ -1,0 +1,28 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model UserTier {
+  id Int @id @default(autoincrement())
+  privy_id String @unique
+  tier Int @default(0)
+  total_sola_balance Float @default(0)
+  last_updated DateTime @default(now())
+  updated_count Int @default(0)
+
+  @@index([privy_id])
+}
+
+model UserSessions {
+  id Int @id @default(autoincrement())
+  privy_id String
+  session_id String
+  session_created_at DateTime @default(now())
+
+  @@index([privy_id, session_created_at])
+}

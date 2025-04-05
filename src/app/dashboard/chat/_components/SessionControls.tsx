@@ -1,89 +1,47 @@
 'use client';
-import React, { useState, useEffect } from 'react';
-import {
-  LuMic,
-  LuMicOff,
-  LuSend,
-  LuRefreshCw,
-  LuTriangleAlert,
-} from 'react-icons/lu';
+import React, { useState } from 'react';
+import { LuMic, LuMicOff, LuSend, LuRefreshCw } from 'react-icons/lu';
 import { useSessionHandler } from '@/store/SessionHandler';
 import { useChatMessageHandler } from '@/store/ChatMessageHandler';
 import { toast } from 'sonner';
-
-const LOADING_QUOTES = [
-  'Connecting SOLA...',
-  'Waking Up your Assistant...',
-  'Summoning SOLA AI...',
-  'Charging brain cells...',
-] as const;
-
-const ERROR_MESSAGES = [
-  'Connection lost. Please reconnect.',
-  'Session error occurred. Try reconnecting.',
-  'Unable to reach SOLA AI. Please reconnect.',
-  'Session timeout. Reconnect to continue chatting.',
-] as const;
+import { useSessionManager } from '@/hooks/useSessionManager';
+import { useSessionManagerHandler } from '@/store/SessionManagerHandler';
 
 export const SessionControls = () => {
-  /**
-   * Global States
-   */
-  const { muted, setMuted, state, sendTextMessage, initSessionHandler } =
-    useSessionHandler();
+  const { muted, setMuted, state, sendTextMessage } = useSessionHandler();
   const { addMessage } = useChatMessageHandler();
-
-  /**
-   * Local States
-   */
-  const [loadingQuoteIndex, setLoadingQuoteIndex] = useState(
-    Math.floor(Math.random() * LOADING_QUOTES.length)
-  );
-  const [currentQuote, setCurrentQuote] = useState(
-    LOADING_QUOTES[loadingQuoteIndex]
-  );
-  const [errorMessage, setErrorMessage] = useState(
-    ERROR_MESSAGES[Math.floor(Math.random() * ERROR_MESSAGES.length)]
-  );
-
-  /**
-   * Refs
-   */
+  const { establishConnection } = useSessionManager();
+  const { setShowVerifyHoldersPopup, sessionStatus, showVerifyHoldersPopup } =
+    useSessionManagerHandler();
+  const [isConnecting, setIsConnecting] = useState(false);
   const inputRef = React.useRef<HTMLInputElement>(null);
 
-  // Cycle through loading quotes
-  useEffect(() => {
-    if (state === 'loading') {
-      const interval = setInterval(() => {
-        setLoadingQuoteIndex((prevIndex) => {
-          const newIndex = (prevIndex + 1) % LOADING_QUOTES.length;
-          setCurrentQuote(LOADING_QUOTES[newIndex]);
-          return newIndex;
-        });
-      }, 2000);
-
-      return () => clearInterval(interval);
-    }
-  }, [state]);
-
   const handleReconnect = async () => {
+    setIsConnecting(true);
     try {
-      await initSessionHandler();
-      toast.success('Reconnecting to SOLA AI...');
+      const hasConnected = await establishConnection();
+      if (!hasConnected) {
+        console.log('triggered');
+        setShowVerifyHoldersPopup(true);
+        console.log(showVerifyHoldersPopup);
+      }
     } catch (error) {
       toast.error('Failed to reconnect. Please try again.');
       console.error('Reconnection error:', error);
+    } finally {
+      setIsConnecting(false);
     }
   };
 
   const sendMessageToAI = async () => {
-    if (inputRef.current?.value === '') return;
-    // if (credits <= 0) {
-    //   toast.warning('Refuel your credits to keep going!');
-    //   return;
-    // }
+    if (!inputRef.current?.value) return;
 
-    await sendTextMessage(inputRef.current?.value || '');
+    if (state === 'error' || state === 'idle') {
+      toast.error('Connection lost. Please reconnect first.');
+      return;
+    }
+
+    await sendTextMessage(inputRef.current.value);
 
     addMessage({
       id: 0,
@@ -91,129 +49,76 @@ export const SessionControls = () => {
         type: 'user_audio_chat',
         response_id: 'Text-Input-0',
         sender: 'user',
-        text: inputRef.current?.value || '',
+        text: inputRef.current.value,
       },
       createdAt: new Date().toISOString(),
     });
 
-    inputRef.current!.value = '';
+    inputRef.current.value = '';
   };
 
+  const isConnectedAndOpen = sessionStatus === 'connected';
+  const isErrorState =
+    sessionStatus === 'error' ||
+    state === 'idle' ||
+    state === 'error' ||
+    sessionStatus === 'idle' ||
+    sessionStatus === 'connecting';
+
+  console.log(isConnectedAndOpen, isErrorState, sessionStatus);
   return (
     <div className="relative flex items-center justify-center w-full h-full mb-10">
-      {/* Loading Pill */}
-      <div
-        className={`
-          absolute flex items-center justify-center w-full h-full
-          transition-all duration-500 ease-in-out
-          ${state === 'loading' ? 'opacity-100' : 'opacity-0 pointer-events-none'}
-        `}
-      >
-        <div className="flex items-center gap-2 bg-sec_background py-4 px-6 rounded-full text-base text-textColor">
-          {currentQuote}
-        </div>
-      </div>
-
       {/* Input Controls */}
       <div
-        className={`
-          absolute flex items-center justify-center w-full h-full gap-2 px-2
-          transition-all duration-500 ease-in-out
-          ${state === 'open' ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}
-        `}
+        className={`absolute flex items-center justify-center w-full h-full gap-2 px-2 transition-all duration-500 ease-in-out ${isConnectedAndOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}
       >
         <div className="relative flex-1 max-w-full sm:max-w-[600px]">
           <input
             ref={inputRef}
             type="text"
             placeholder="Start Chatting..."
-            className="
-              bg-sec_background rounded-full p-4 pr-16
-              flex text-textColor w-full
-              border border-transparent focus:border-primaryDark
-              focus:outline-none transition-all duration-200
-            "
-            onKeyUp={(e) => {
-              if (e.key === 'Enter') {
-                sendMessageToAI();
-              }
-            }}
+            className="bg-sec_background rounded-full p-4 pr-16 flex text-textColor w-full border border-transparent focus:border-primaryDark focus:outline-none transition-all duration-200"
+            onKeyUp={(e) => e.key === 'Enter' && sendMessageToAI()}
           />
           <button
-            onClick={() => {
-              sendMessageToAI();
-            }}
-            className="
-              absolute right-2 top-1/2 -translate-y-1/2
-              rounded-full p-3 w-12 h-12 bg-sec_background text-textColor
-              flex items-center justify-center
-            "
+            onClick={sendMessageToAI}
+            className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-3 w-12 h-12 bg-sec_background text-textColor flex items-center justify-center"
           >
             <LuSend height={16} />
           </button>
         </div>
         <button
-          onClick={() => {
-            // if (credits <= 0 && muted) {
-            //   toast.warning('Refuel your credits to keep going!');
-            //   return;
-            // }
-            setMuted(!muted);
-          }}
-          className="
-            rounded-full flex justify-center items-center
-            p-4 w-14 h-14 bg-primaryDark text-textColorContrast
-          "
+          onClick={() => setMuted(!muted)}
+          className="rounded-full flex justify-center items-center p-4 w-14 h-14 bg-primaryDark text-textColorContrast"
         >
           {muted ? <LuMicOff height={16} /> : <LuMic height={16} />}
         </button>
       </div>
 
-      {/* Error State */}
+      {/* Error or loading State */}
       <div
-        className={`
-          absolute flex items-center justify-center w-full h-full
-          transition-all duration-500 ease-in-out flex-col gap-4
-          ${state === 'error' ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}
-        `}
-      >
-        <div className="flex items-center gap-2 bg-red-500/10 text-red-500 py-4 px-6 rounded-full text-base">
-          <LuTriangleAlert size={18} />
-          {errorMessage}
-        </div>
-        <button
-          className="
-            flex items-center gap-2 bg-primaryDark text-textColorContrast cursor-pointer
-            py-4 px-6 rounded-full text-base
-            hover:bg-primary transition-colors duration-200
-          "
-          onClick={handleReconnect}
-        >
-          <LuRefreshCw size={16} />
-          Reconnect Session
-        </button>
-      </div>
-
-      {/* Reconnect Button for Idle State */}
-      <div
-        className={`
-          absolute flex items-center justify-center w-full h-full
-          transition-all duration-500 ease-in-out
-          ${state === 'idle' ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}
-        `}
+        className={`absolute flex items-center justify-center w-full h-full transition-all duration-500 ease-in-out flex-col gap-4 ${isErrorState ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}
       >
         <button
-          className="
-            flex items-center gap-2 bg-primaryDark text-textColorContrast cursor-pointer
-            py-4 px-6 rounded-full text-base
-            hover:bg-primary transition-colors duration-200
-          "
+          className="flex items-center gap-2 bg-primaryDark text-textColorContrast cursor-pointer py-4 px-6 rounded-full text-base hover:bg-primary transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
           onClick={handleReconnect}
+          disabled={isConnecting}
         >
-          <LuRefreshCw size={16} />
-          Reconnect Session
+          {isConnecting ? (
+            <>
+              <LuRefreshCw size={16} className="animate-spin" />
+              Connecting...
+            </>
+          ) : (
+            <>
+              <LuRefreshCw size={16} />
+              Reconnect Session
+            </>
+          )}
         </button>
       </div>
     </div>
   );
 };
+
+export default SessionControls;

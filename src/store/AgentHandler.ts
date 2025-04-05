@@ -78,6 +78,8 @@ const OnChainHandler = registerAgent({
     'Agent to perform token swapping and token transfers (Send Tokens).',
   logo: FaWallet,
   tools: [
+    { name: 'resolveSnsName', propsType: 'token_address_result' },
+    { name: 'TokenAddress', propsType: 'token_address_result' },
     { name: 'swapTokens', propsType: 'swap' },
     { name: 'transferSolTx', propsType: 'transaction_message' },
     { name: 'transferSpl', propsType: 'transaction_message' },

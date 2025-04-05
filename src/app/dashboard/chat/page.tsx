@@ -40,6 +40,7 @@ export default function NewChat() {
    * Global State
    */
   const { currentChatRoom, setCurrentChatRoom } = useChatRoomHandler();
+  const { state } = useChatMessageHandler();
 
   useEffect(() => {
     if (!currentChatRoom) {
@@ -80,8 +81,8 @@ export default function NewChat() {
 
   return (
     <div className="absolute inset-0 flex flex-col items-center justify-center p-4 z-10">
-      {useChatRoomHandler.getState().state !== 'loading' &&
-        useChatMessageHandler.getState().state !== 'loading' && (
+      {state !== 'loading' &&
+        useChatRoomHandler.getState().state !== 'loading' && (
           <>
             {/* Logo and Title */}
             <div className="flex flex-col items-center mb-8">

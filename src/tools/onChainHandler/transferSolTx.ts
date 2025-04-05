@@ -11,7 +11,7 @@ import { useWalletHandler } from '@/store/WalletHandler';
 export const transferSolTx = registerTool({
   name: 'transferSolTx',
   description:
-    'Call this function when the user wants to send SOL (Solana) to a recipient using either a wallet address or a .sol domain. Do not modify or autocorrect .sol domains, as they are arbitrary and may not have meaningful words.',
+    'Send SOL (native Solana) to a recipient wallet address. This tool expects a valid Solana wallet address, not a .sol domain.',
   propsType: 'transaction_message',
   cost: 0.00005,
   implementation: transferSolTxFunction,
@@ -22,24 +22,33 @@ export const transferSolTx = registerTool({
       quantity: {
         type: 'number',
         description:
-          'Amount of SOL (Solana) to transfer. This value should be in SOL, not lamports.',
+          'Amount of SOL (Solana) to transfer. Must be greater than zero. This value should be in SOL, not lamports.',
       },
-      address: {
+      recipientAddress: {
         type: 'string',
-        description: 'Recipient wallet address or a .sol domain.',
+        description:
+          'Recipient wallet address. Must be a valid Solana address, not a .sol domain.',
       },
     },
-    required: ['quantity', 'address'],
+    required: ['quantity', 'recipientAddress'],
   },
 });
 
 async function transferSolTxFunction(
   args: {
     quantity: number;
-    address: string;
+    recipientAddress: string;
   },
   response_id: string
 ): Promise<ToolResult<'transaction_message'>> {
+  // Input validation
+  if (args.quantity <= 0) {
+    return {
+      status: 'error',
+      response: 'Transfer amount must be greater than zero.',
+    };
+  }
+
   const currentWallet = useWalletHandler.getState().currentWallet;
 
   if (currentWallet === null) {
@@ -63,9 +72,27 @@ async function transferSolTxFunction(
 
   try {
     const senderAddress = currentWallet.address;
-    const recipientAddress = args.address;
+    const recipientAddress = args.recipientAddress;
+
+    // Validate the recipient address is a valid public key
+    try {
+      new PublicKey(recipientAddress);
+    } catch (err) {
+      console.log(err);
+      return {
+        status: 'error',
+        response: `Invalid recipient address: "${recipientAddress}" is not a valid Solana address.`,
+      };
+    }
+
+    // Format recipient for display
+    const recipientDisplay =
+      recipientAddress.length > 10
+        ? `${recipientAddress.substring(0, 6)}...${recipientAddress.substring(recipientAddress.length - 4)}`
+        : recipientAddress;
+
     // Convert SOL to lamports (1 SOL = 1,000,000,000 lamports)
-    const lamports = args.quantity * 1_000_000_000;
+    const lamports = Math.floor(args.quantity * 1_000_000_000);
 
     // Create transaction
     const transaction = new Transaction().add(
@@ -76,7 +103,14 @@ async function transferSolTxFunction(
       })
     );
 
+    // Get recent blockhash
     const blockhashRes = await fetch('/api/wallet/blockhash');
+    if (!blockhashRes.ok) {
+      return {
+        status: 'error',
+        response: `Transfer failed: Failed to fetch recent blockhash. Ask the user to try again later.`,
+      };
+    }
     const { blockhash } = await blockhashRes.json();
     transaction.recentBlockhash = blockhash;
     transaction.feePayer = new PublicKey(senderAddress);
@@ -115,8 +149,23 @@ async function transferSolTxFunction(
     const sendRes = await fetch('/api/wallet/sendTransaction', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ serializedTransaction: serializedTx }),
+      body: JSON.stringify({
+        serializedTransaction: serializedTx,
+        options: {
+          skipPreflight: false,
+          maxRetries: 3,
+        },
+      }),
     });
+
+    if (!sendRes.ok) {
+      const errorData = await sendRes.json();
+      console.log(errorData);
+      return {
+        status: 'error',
+        response: `Transfer failed: Failed to send transaction to the blockchain.`,
+      };
+    }
 
     const { txid } = await sendRes.json();
 
@@ -125,22 +174,26 @@ async function transferSolTxFunction(
       sender: 'system',
       type: 'transaction_message',
       data: {
-        title: `Transfer ${args.quantity} SOL to ${recipientAddress}`,
-        link: txid,
-        status: 'success',
+        title: `Transfer ${args.quantity} SOL`,
+        status: 'pending',
+        link: `https://solscan.io/tx/${txid}`,
+        amount: args.quantity,
+        recipient: recipientDisplay,
+        txid: txid,
+        tokenSymbol: 'SOL',
       },
     };
 
     return {
       status: 'success',
-      response: `Successfully sent ${args.quantity} SOL to ${recipientAddress}`,
+      response: `Successfully initiated transfer of ${args.quantity} SOL to ${recipientDisplay}. The transaction has been submitted to the network and will be processed shortly.`,
       props: data,
     };
   } catch (error) {
     console.error('Transfer error:', error);
     return {
       status: 'error',
-      response: `Transfer failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      response: `Transfer failed: ${error instanceof Error ? error.message : 'Unknown error'}. Please check your SOL balance and try again.`,
     };
   }
 }

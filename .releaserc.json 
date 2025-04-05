@@ -6,7 +6,8 @@
       {
         "preset": "angular",
         "releaseRules": [
-          { "type": "feat", "release": "minor" },
+          { "type": "bump", "release": "minor" },
+          { "type": "feat", "release": "patch" },
           { "type": "fix", "release": "patch" },
           { "type": "docs", "release": "patch" },
           { "type": "style", "release": "patch" },

@@ -2,16 +2,15 @@ import { NextResponse } from 'next/server';
 import {
   createTransferInstruction,
   getAssociatedTokenAddress,
-  getOrCreateAssociatedTokenAccount,
+  createAssociatedTokenAccountInstruction,
+  getAccount,
 } from '@solana/spl-token';
 import {
   Connection,
-  Keypair,
   ParsedAccountData,
   PublicKey,
   Transaction,
 } from '@solana/web3.js';
-import bs58 from 'bs58';
 
 interface PrepareTransferRequest {
   senderAddress: string;
@@ -34,75 +33,114 @@ export async function POST(req: Request) {
       );
     }
 
-    const rpc = process.env.SOLANA_RPC_URL;
-    const solaAtaPrivateKey = process.env.VITE_ATA_PRIV_KEY;
+    // Get RPC URL from environment or use default
+    const rpc =
+      process.env.SOLANA_RPC_URL || 'https://api.mainnet-beta.solana.com';
 
-    if (!rpc || !solaAtaPrivateKey) {
+    console.log('Using RPC URL:', rpc);
+
+    // Create connection with better options
+    const connection = new Connection(rpc, {
+      commitment: 'confirmed',
+      disableRetryOnRateLimit: false,
+    });
+
+    // Convert addresses to PublicKeys with error handling
+    let senderPubkey: PublicKey;
+    let recipientPubkey: PublicKey;
+    let mintPubkey: PublicKey;
+
+    try {
+      senderPubkey = new PublicKey(senderAddress);
+      recipientPubkey = new PublicKey(recipientAddress);
+      mintPubkey = new PublicKey(tokenMint);
+    } catch (err) {
       return NextResponse.json(
-        { error: 'Server configuration error' },
-        { status: 500 }
-      );
-    }
-
-    // Create connection
-    const connection = new Connection(rpc);
-
-    // Decode the private key (securely on the server side)
-    const decodedKey = bs58.decode(solaAtaPrivateKey);
-    const keypairSeed = new Uint8Array(
-      decodedKey.buffer,
-      decodedKey.byteOffset,
-      decodedKey.byteLength / Uint8Array.BYTES_PER_ELEMENT
-    );
-    const solaPayer = Keypair.fromSecretKey(keypairSeed);
-
-    // Get the source token account
-    const sourceAccount = await getAssociatedTokenAddress(
-      new PublicKey(tokenMint),
-      new PublicKey(senderAddress)
-    );
-
-    // Get or create the destination token account
-    const destinationAccount = await getOrCreateAssociatedTokenAccount(
-      connection,
-      solaPayer,
-      new PublicKey(tokenMint),
-      new PublicKey(recipientAddress)
-    );
-
-    // Get token decimals
-    const info = await connection.getParsedAccountInfo(
-      new PublicKey(tokenMint)
-    );
-
-    if (!info.value) {
-      return NextResponse.json(
-        { error: 'Token info not found' },
+        { error: 'Invalid public key format' },
         { status: 400 }
       );
     }
 
-    const decimals = (info.value.data as ParsedAccountData).parsed.info
-      .decimals as number;
+    // Get token info and decimals
+    let decimals: number;
+    let tokenSymbol: string | null = null;
+    let tokenName: string | null = null;
 
-    // Calculate the amount with decimals
-    const adjustedAmount = amount * Math.pow(10, decimals);
+    try {
+      const info = await connection.getParsedAccountInfo(mintPubkey);
 
-    // Create a transfer instruction
-    const transferInstruction = createTransferInstruction(
-      sourceAccount,
-      destinationAccount.address,
-      new PublicKey(senderAddress),
-      adjustedAmount
+      if (!info.value) {
+        return NextResponse.json({ error: 'Token not found' }, { status: 404 });
+      }
+
+      const parsedData = info.value.data as ParsedAccountData;
+      decimals = parsedData.parsed.info.decimals;
+
+      // Get additional token info if available
+      tokenSymbol = parsedData.parsed.info.symbol || null;
+      tokenName = parsedData.parsed.info.name || null;
+    } catch (err) {
+      console.error('Error fetching token info:', err);
+      return NextResponse.json(
+        { error: 'Failed to get token information', details: String(err) },
+        { status: 500 }
+      );
+    }
+
+    // Get source token account
+    const sourceAccount = await getAssociatedTokenAddress(
+      mintPubkey,
+      senderPubkey
     );
 
-    // Create a transaction
-    const transaction = new Transaction().add(transferInstruction);
+    // Calculate adjusted amount with proper rounding
+    const adjustedAmount = Math.floor(amount * Math.pow(10, decimals));
+
+    // Create new transaction
+    const transaction = new Transaction();
+
+    // Get destination token account address
+    const destinationAccount = await getAssociatedTokenAddress(
+      mintPubkey,
+      recipientPubkey
+    );
+
+    // Check if destination token account exists
+    let destinationAccountExists = false;
+    try {
+      await getAccount(connection, destinationAccount);
+      destinationAccountExists = true;
+    } catch (err) {
+      // Account doesn't exist, we need to create it
+      destinationAccountExists = false;
+    }
+
+    // If the account doesn't exist, add instruction to create it
+    if (!destinationAccountExists) {
+      transaction.add(
+        createAssociatedTokenAccountInstruction(
+          senderPubkey, // Payer (user will pay, not server)
+          destinationAccount,
+          recipientPubkey,
+          mintPubkey
+        )
+      );
+    }
+
+    // Add transfer instruction
+    transaction.add(
+      createTransferInstruction(
+        sourceAccount,
+        destinationAccount,
+        senderPubkey,
+        adjustedAmount
+      )
+    );
 
     // Get a recent blockhash
     const { blockhash } = await connection.getLatestBlockhash();
     transaction.recentBlockhash = blockhash;
-    transaction.feePayer = new PublicKey(senderAddress);
+    transaction.feePayer = senderPubkey;
 
     // Serialize the transaction
     const serializedTransaction = transaction
@@ -112,12 +150,17 @@ export async function POST(req: Request) {
       })
       .toString('base64');
 
-    // Return the serialized transaction
+    // Return the serialized transaction with token details
     return NextResponse.json({
       serializedTransaction,
-      destinationAddress: destinationAccount.address.toString(),
+      tokenDetails: {
+        symbol: tokenSymbol,
+        name: tokenName,
+        decimals,
+        address: tokenMint,
+      },
+      destinationAddress: destinationAccount.toString(),
       sourceAddress: sourceAccount.toString(),
-      decimals,
       adjustedAmount,
     });
   } catch (error) {
