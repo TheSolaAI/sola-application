@@ -7,7 +7,6 @@ import { toast } from 'sonner';
 import { useUserHandler } from '@/store/UserHandler';
 import { EventProvider } from '@/providers/EventProvider';
 import { useLayoutContext } from '@/providers/LayoutProvider';
-import { initializeTools } from '@/lib/initTools';
 
 interface SessionProviderProps {
   children: ReactNode;
@@ -129,7 +128,6 @@ export const SessionProvider: FC<SessionProviderProps> = ({ children }) => {
       if (audioTrack) {
         audioTrack.enabled = !muted;
       }
-      console.log('Muted:', audioTrack);
     }
   }, [muted]);
 
@@ -142,12 +140,6 @@ export const SessionProvider: FC<SessionProviderProps> = ({ children }) => {
     // load the messages of the room asynchronously
     initChatMessageHandler();
   }, [currentChatRoom]);
-
-  // Initialize tools when the component mounts
-  useEffect(() => {
-    initializeTools();
-    console.log('Tools initialized in SessionProvider');
-  }, []);
 
   return (
     <EventProvider>

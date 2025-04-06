@@ -4,19 +4,19 @@
  * on Dexscreener.
  */
 import { FC } from 'react';
-import { ChatItemProps, TokenDataChatContent } from '@/types/chatItem';
 import BaseGridChatItem from '@/components/messages/general/BaseGridChatItem';
 import { LuExternalLink } from 'react-icons/lu';
 import { formatNumber } from '@/utils/formatNumber';
 import { useLayoutContext } from '@/providers/LayoutProvider';
 import { TokenDataDashboard } from '@/app/dashboard/_components/dashboards/tokenDataDashboard/TokenDataDashboard';
 import Image from 'next/image';
+import { TokenDataResponse } from '@/types/response';
 
-export const TokenDataMessageItem: FC<ChatItemProps<TokenDataChatContent>> = ({
-  props,
-}) => {
-  const { data } = props;
+interface TokenDataCardProps {
+  props: TokenDataResponse;
+}
 
+export const TokenDataMessageItem: FC<TokenDataCardProps> = ({ props }) => {
   /**
    * Global State
    */
@@ -41,7 +41,7 @@ export const TokenDataMessageItem: FC<ChatItemProps<TokenDataChatContent>> = ({
           <div className="flex justify-between items-start">
             <div className="flex gap-4 items-center">
               <Image
-                src={data.logoURI}
+                src={props.logoURI}
                 alt="coin logo"
                 height={40}
                 width={40}
@@ -49,21 +49,21 @@ export const TokenDataMessageItem: FC<ChatItemProps<TokenDataChatContent>> = ({
               />
               <div>
                 <h3 className="truncate text-sm font-medium">
-                  {data.name || 'Unknown'}
+                  {props.name || 'Unknown'}
                 </h3>
                 <p className="mt-1 text-xs font-medium">
-                  ${Number(data.price).toFixed(7)}
+                  ${Number(props.price).toFixed(7)}
                 </p>
                 <p
                   className={`text-xs font-medium ${
-                    Number(data.priceChange24hPercent) > 0
+                    Number(props.priceChange24hPercent) > 0
                       ? 'text-green-500'
-                      : Number(data.priceChange24hPercent) < 0
+                      : Number(props.priceChange24hPercent) < 0
                         ? 'text-red-500'
                         : 'text-bodydark2'
                   }`}
                 >
-                  {Number(data.priceChange24hPercent).toFixed(2) || 'Unknown'}%
+                  {Number(props.priceChange24hPercent).toFixed(2) || 'Unknown'}%
                 </p>
               </div>
             </div>
@@ -71,7 +71,7 @@ export const TokenDataMessageItem: FC<ChatItemProps<TokenDataChatContent>> = ({
               onClick={(e) => {
                 e.stopPropagation();
                 window.open(
-                  `https://dexscreener.com/solana/${data.address}`,
+                  `https://dexscreener.com/solana/${props.address}`,
                   '_blank'
                 );
               }}
@@ -83,10 +83,10 @@ export const TokenDataMessageItem: FC<ChatItemProps<TokenDataChatContent>> = ({
 
           <div className="flex flex-row gap-2 text-sm mt-2">
             {[
-              { label: 'MC', value: data.marketCap },
+              { label: 'MC', value: props.marketCap },
               {
                 label: '24H_Vol',
-                value: data.vBuy24hUSD + data.vSell24hUSD,
+                value: props.vBuy24hUSD + props.vSell24hUSD,
               },
             ].map(({ label, value }, i) => (
               <p key={i}>

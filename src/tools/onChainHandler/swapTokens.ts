@@ -1,164 +1,132 @@
-'use client';
+import { z } from 'zod';
+import { SwapParams, SwapResponse } from '@/types/jupiter';
+import { Tool } from 'ai';
+import { ToolContext, ToolResult } from '@/types/tool';
+import { ApiClient, createServerApiClient } from '@/lib/ApiClient';
+import { API_URLS } from '@/config/api_urls';
+import { VersionedTransaction } from '@solana/web3.js';
 
-import { registerTool } from '@/lib/registry/toolRegistry';
-import { SwapParams } from '@/types/jupiter';
-import { swapTx } from '@/lib/solana/swapTx';
-import { SwapChatContent } from '@/types/chatItem';
-import { SwapChatItem } from '@/components/messages/SwapMessageItem';
-import { useChatMessageHandler } from '@/store/ChatMessageHandler';
-import { ToolResult } from '@/types/tool';
-import { useWalletHandler } from '@/store/WalletHandler';
-
-export const swapTokens = registerTool({
-  name: 'swapTokens',
-  description:
-    'Use this function when the user wants to swap one token for another at market price. The user may specify the amount of tokenA (in tokens or USD) or the amount of tokenB to receive. Do NOT use this for limit orders.',
-  propsType: 'swap',
-  cost: 0.00005,
-  implementation: swapTokensFunction,
-  component: SwapChatItem,
-  customParameters: {
-    type: 'object',
-    properties: {
-      swapType: {
-        type: 'string',
-        enum: ['EXACT_IN', 'EXACT_OUT', 'EXACT_DOLLAR'],
-        description:
-          'The type of swap: EXACT_IN specifies the amount of tokenA being swapped, EXACT_OUT specifies the amount of tokenB to receive, and EXACT_DOLLAR specifies the dollar amount to be swapped.',
-      },
-      quantity: {
-        type: 'number',
-        description:
-          'The amount for the swap. If swapType is EXACT_IN, this is the amount of tokenA. If swapType is EXACT_OUT, this is the amount of tokenB. If swapType is EXACT_DOLLAR, this is the dollar amount to swap.',
-      },
-      tokenA: {
-        type: 'string',
-        description: 'The token that the user wants to swap from.',
-      },
-      tokenB: {
-        type: 'string',
-        description: 'The token that the user wants to receive.',
-      },
-    },
-    required: ['swapType', 'quantity', 'tokenA', 'tokenB'],
-  },
+const Parameters = z.object({
+  inputTokenAddress: z.string().describe('Token Address to swap from'),
+  outputTokenAddress: z.string().describe('Token Address to swap to'),
+  amount: z
+    .number()
+    .describe(
+      'The amount for the swap. If swapType is EXACT_IN, this is the amount of tokenA. If swapType is EXACT_OUT, this is the amount of tokenB. If swapType is EXACT_DOLLAR, this is the dollar amount to swap. Must be greater than 0.'
+    ),
+  swapType: z
+    .enum(['EXACT_IN', 'EXACT_OUT', 'EXACT_DOLLAR'])
+    .optional()
+    .default('EXACT_IN')
+    .describe(
+      'The type of swap: EXACT_IN specifies the amount of tokenA being swapped, EXACT_OUT specifies the amount of tokenB to receive, and EXACT_DOLLAR specifies the dollar amount to be swapped'
+    ),
 });
 
-async function swapTokensFunction(
-  args: {
-    swapType: 'EXACT_IN' | 'EXACT_OUT' | 'EXACT_DOLLAR';
-    quantity: number;
-    tokenA: string;
-    tokenB: string;
-  },
-  response_id: string
-): Promise<ToolResult<'swap'>> {
-  useChatMessageHandler.getState().setCurrentMessage({
-    content: {
-      type: 'loader_message',
-      text: `OnChain Handler: Preparing Token Swap...`,
-      response_id: 'temp',
-      sender: 'system',
+export function createSwapTokensTool(context: ToolContext) {
+  const swapTokensTool: Tool<typeof Parameters, ToolResult> = {
+    id: 'token.swap' as const,
+    description:
+      'Swaps a specified amount of one token for another token using Jupiter. Use this for all token swap operations except limit orders.',
+    parameters: Parameters,
+    execute: async (params) => {
+      const { inputTokenAddress, outputTokenAddress, amount, swapType } =
+        params;
+
+      if (!context.authToken) {
+        return {
+          success: false,
+          error: 'No auth token provided',
+          data: undefined,
+        };
+      }
+
+      if (!context.publicKey) {
+        return {
+          success: false,
+          error: 'No public key provided',
+          data: undefined,
+        };
+      }
+
+      const serverApiClient = createServerApiClient(context.authToken);
+
+      const swapParams: SwapParams = {
+        input_mint: inputTokenAddress,
+        output_mint: outputTokenAddress,
+        amount,
+        swap_mode: swapType,
+        public_key: context.publicKey,
+        priority_fee_needed: false,
+      };
+
+      try {
+        const response = await serverApiClient.post<SwapResponse>(
+          API_URLS.WALLET.JUPITER.SWAP,
+          swapParams,
+          'wallet'
+        );
+
+        if (ApiClient.isApiError(response)) {
+          return {
+            success: false,
+            error: 'Failed to create swap transaction',
+            data: undefined,
+          };
+        }
+
+        if (!response.data.transaction) {
+          return {
+            success: false,
+            error: 'Unable to prepare swap. Make sure you have enough funds.',
+            data: undefined,
+          };
+        }
+
+        try {
+          const transactionBuffer = Buffer.from(
+            response.data.transaction,
+            'base64'
+          );
+          const transaction =
+            VersionedTransaction.deserialize(transactionBuffer);
+
+          return {
+            success: true,
+            data: {
+              type: 'swap_tokens',
+              transaction: response.data.transaction,
+              details: {
+                input_mint: inputTokenAddress,
+                output_mint: outputTokenAddress,
+                amount,
+                outAmount: response.data.outAmount,
+                priorityFee: response.data.priorityFee,
+                versionedTransaction: transaction,
+                params: swapParams,
+              },
+              response_id: 'temp',
+              sender: 'system',
+              timestamp: new Date().toISOString(),
+            },
+            error: undefined,
+          };
+        } catch (error) {
+          return {
+            success: false,
+            error: 'Error processing transaction data',
+            data: undefined,
+          };
+        }
+      } catch (error) {
+        return {
+          success: false,
+          error: 'Unable to prepare swap transaction',
+          data: undefined,
+        };
+      }
     },
-    id: 0,
-    createdAt: new Date().toISOString(),
-  });
-
-  const wallet = useWalletHandler.getState().currentWallet;
-  if (wallet === null) {
-    return {
-      status: 'error',
-      response:
-        'No wallet connected. Ask the user to connect wallet before performing swap.',
-    };
-  }
-
-  const input_mint = args.tokenA.length > 35 ? args.tokenA : `$${args.tokenA}`;
-  const output_mint = args.tokenB.length > 35 ? args.tokenB : `$${args.tokenB}`;
-
-  const params: SwapParams = {
-    swap_mode: args.swapType,
-    amount: args.quantity,
-    input_mint: input_mint,
-    output_mint: output_mint,
-    public_key: wallet.address,
-    priority_fee_needed: false,
   };
 
-  try {
-    const swap_res = await swapTx(params);
-    if (!swap_res) {
-      return {
-        status: 'error',
-        response: 'Swap transaction creation failed',
-      };
-    }
-
-    useChatMessageHandler.getState().setCurrentMessage({
-      content: {
-        type: 'loader_message',
-        text: `OnChain Handler: Waiting for wallet signature...`,
-        response_id: 'temp',
-        sender: 'system',
-      },
-      id: 0,
-      createdAt: new Date().toISOString(),
-    });
-
-    const signedTransaction = await wallet.signTransaction(
-      swap_res.transaction
-    );
-    const serializedTx = Buffer.from(signedTransaction.serialize()).toString(
-      'base64'
-    );
-
-    useChatMessageHandler.getState().setCurrentMessage({
-      content: {
-        type: 'loader_message',
-        text: `OnChain Handler: Submitting transaction...`,
-        response_id: 'temp',
-        sender: 'system',
-      },
-      id: 0,
-      createdAt: new Date().toISOString(),
-    });
-
-    const sendRes = await fetch('/api/wallet/sendTransaction', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ serializedTransaction: serializedTx }),
-    });
-
-    const { txid } = await sendRes.json();
-
-    const data: SwapChatContent = {
-      response_id: response_id,
-      sender: 'system',
-      type: 'swap',
-      data: {
-        swap_mode: args.swapType,
-        amount: args.quantity,
-        output_amount: swap_res.outAmount,
-        input_mint: input_mint,
-        output_mint: output_mint,
-        public_key: wallet.address,
-        priority_fee_needed: false,
-      },
-      txn: txid,
-      status: 'pending',
-      timestamp: new Date().toISOString(),
-    };
-
-    return {
-      status: 'success',
-      response: `Swap for ${args.quantity} ${args.tokenA} to ${swap_res.outAmount} ${args.tokenB} has been submitted.`,
-      props: data,
-    };
-  } catch (error) {
-    console.error('Swap error:', error);
-    return {
-      status: 'error',
-      response: `Swap failed`,
-    };
-  }
+  return swapTokensTool;
 }

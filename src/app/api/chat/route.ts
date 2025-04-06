@@ -1,99 +1,89 @@
+import { Message, generateText } from 'ai';
 import {
-  appendResponseMessages,
-  createDataStreamResponse,
-  Message,
-  smoothStream,
-  streamText,
-  Tool,
-} from 'ai';
+  getToolHandlerPrimeDirective,
+  getToolsFromToolset,
+  toolhandlerModel,
+  ToolsetSlug,
+} from '@/config/ai';
+import { API_URLS } from '@/config/api_urls';
 import {
-  availableTools,
-  getRequiredTools,
-  mainAiModel,
-} from '@/lib/ai/agentsConfig';
+  ChatMessageResponseWrapper,
+  ChatMessagesResponse,
+} from '@/types/response';
 
 export async function POST(req: Request) {
   try {
     const {
-      aiPrompt,
-      userPublicKey,
-      requiredTools,
+      walletPublicKey,
+      requiredToolSet,
       message,
+      currentRoomID,
     }: {
-      aiPrompt: string;
-      userPublicKey: string;
-      requiredTools: string[];
-      message: Array<Message>;
+      walletPublicKey: string;
+      requiredToolSet: ToolsetSlug;
+      message: Message;
+      currentRoomID: string;
     } = await req.json();
 
-    const systemPrompt = [
-      aiPrompt,
-      `User Solana wallet public key: ${userPublicKey}`,
-    ].join('\n\n');
+    // Fetch previous messages
+    const previousMessagesResponse = await fetch(
+      process.env.NEXT_PUBLIC_AUTH_SERVICE_URL +
+        API_URLS.CHAT_ROOMS +
+        currentRoomID +
+        '/messages/?limit=6',
+      {
+        headers: {
+          Authorization: req.headers.get('authorization') || '',
+        },
+      }
+    );
+    const previousMessages: ChatMessagesResponse =
+      await previousMessagesResponse.json();
 
-    console.log(aiPrompt, userPublicKey, requiredTools, message, systemPrompt);
+    // Get tools for the specific toolset
+    const tools = getToolsFromToolset(requiredToolSet, {
+      authToken: req.headers.get('authorization')?.replace('Bearer ', '') || '',
+      publicKey: walletPublicKey,
+    });
 
-    return createDataStreamResponse({
-      execute: (dataStream) => {
-        if (dataStream.onError) {
-          dataStream.onError((error: unknown) => {
-            console.error(error);
-          });
-        }
-
-        const tools = requiredTools
-          ? getRequiredTools(requiredTools)
-          : availableTools;
-
-        const result = streamText({
-          model: mainAiModel,
-          system: systemPrompt,
-          tools: tools as Record<string, Tool<any, any>>,
-          experimental_toolCallStreaming: true,
-          experimental_telemetry: {
-            isEnabled: true,
-            functionId: 'stream-text',
-          },
-          experimental_transform: smoothStream(),
-          maxSteps: 8,
-          messages: message,
-          async onFinish({ response }) {
-            console.log(response);
-            try {
-              const responseMessages = appendResponseMessages({
-                messages: [{ id: '', content: '', role: 'system' }],
-                responseMessages: response.messages,
-              }).filter(
-                (message) =>
-                  message.content !== '' || (message.parts || []).length !== 0
-              );
-
-              const now = new Date();
-              responseMessages.forEach((message, index) => {
-                if (message.createdAt) {
-                  message.createdAt = new Date(
-                    message.createdAt.getTime() + index
-                  );
-                } else {
-                  message.createdAt = new Date(now.getTime() + index);
-                }
-              });
-              //TODO: add implementation add the message to db from here.
-              //TODO: add implementation to calculate token usage.
-            } catch (error) {
-              console.error(error);
-            }
-          },
-        });
-        result.mergeIntoDataStream(dataStream);
+    const parsedPreviousMessages = previousMessages.results
+      .map((msg) => chatItemToMessage(msg))
+      .filter((msg): msg is Message => msg !== null);
+    // console.log(parsedPreviousMessages);
+    const response = await generateText({
+      model: toolhandlerModel,
+      system: getToolHandlerPrimeDirective(walletPublicKey),
+      messages: [message],
+      tools: tools,
+      toolChoice: 'required',
+      maxSteps: 3,
+      experimental_telemetry: {
+        isEnabled: true,
       },
-      onError: (error) => {
-        console.error(error);
-        return 'An error occurred';
-      },
+    });
+    console.log(response);
+    // return tool call data
+    return new Response(JSON.stringify(response.toolResults), {
+      headers: { 'Content-Type': 'application/json' },
     });
   } catch (error) {
     console.error('Error in route [chat/route]', error);
     return new Response('Internal Server Error', { status: 500 });
   }
 }
+
+/**
+ * Duplicated Function for server side processing
+ */
+const chatItemToMessage = (
+  item: ChatMessageResponseWrapper
+): Message | null => {
+  try {
+    // Parse the JSON string
+    const parsedContent = JSON.parse(item.message);
+    return parsedContent as Message;
+  } catch (error) {
+    console.error('Error parsing chat item content:', error);
+    return null;
+  }
+};

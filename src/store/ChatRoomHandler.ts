@@ -52,7 +52,6 @@ export const useChatRoomHandler = create<ChatRoomHandler>((set, get) => {
     setState: (state: 'idle' | 'loading' | 'error'): void => set({ state }),
 
     setCurrentChatRoom: async (room: ChatRoom | null): Promise<void> => {
-      console.log(room);
       set({
         previousChatRoom: get().currentChatRoom,
         currentChatRoom: room,

@@ -8,7 +8,10 @@ import Image from 'next/image';
 import { GoatIndexTokenData } from '@/types/goatIndex';
 
 interface AiProjectsChatItemProps {
-  props: { data: GoatIndexTokenData[] };
+  props: {
+    category: string;
+    projects: GoatIndexTokenData[];
+  };
 }
 
 export const AiProjects = ({ props }: AiProjectsChatItemProps) => {
@@ -21,7 +24,7 @@ export const AiProjects = ({ props }: AiProjectsChatItemProps) => {
   return (
     <>
       <BaseGridChatItem col={2}>
-        {props.data?.slice(0, 6).map((token, index) => (
+        {props.projects.slice(0, 6).map((token, index) => (
           <div
             key={index}
             className="group relative overflow-hidden block rounded-xl text-secText bg-sec_background p-3 shadow-sm w-full transition-all duration-300 ease-in-out hover:bg-surface cursor-pointer hover:shadow-lg"

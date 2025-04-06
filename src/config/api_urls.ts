@@ -9,6 +9,27 @@ export const API_URLS = {
   },
   CHAT_ROOMS: 'chatrooms/',
   SESSION: 'data/session/create',
+  DATA: {
+    NFT: {
+      SYMBOL: 'data/nft/symbol',
+      TOP_NFT: 'data/nft/top',
+    },
+  },
+  WALLET: {
+    LIMIT_ORDER: {
+      CREATE: 'api/wallet/jup/limit-order/create',
+      SHOW: 'api/wallet/jup/limit-order/show',
+    },
+    BLOCKHASH: 'api/wallet/blockhash',
+    LULO: {
+      ASSETS: 'api/wallet/lulo/assets',
+      DEPOSIT: 'api/wallet/lulo/deposit',
+      WITHDRAW: 'api/wallet/lulo/withdraw',
+    },
+    JUPITER: {
+      SWAP: 'api/wallet/jup/swap',
+    },
+  },
 };
 
 export const GOAT_INDEX_API_URL = 'https://loadbalance.goatindex.ai/';

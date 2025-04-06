@@ -126,7 +126,6 @@ const ThemeHandler: StateCreator<ThemeStore> = (set, get) => {
         initialized: true,
       });
 
-      console.log('Theme initialized:', initialTheme.name);
     },
 
     populateCustomThemes: (customThemes: Theme[]) => {

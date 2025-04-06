@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 
 export async function GET() {
-  console.log(process.env.OPENAI_API_KEY);
   const key = process.env.OPENAI_API_KEY!;
   try {
     const response = await fetch(

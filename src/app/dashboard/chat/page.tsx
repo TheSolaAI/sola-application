@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useMemo } from 'react';
 import { useSessionHandler } from '@/store/SessionHandler';
-import { useAgentHandler } from '@/store/AgentHandler';
 import { useChatRoomHandler } from '@/store/ChatRoomHandler';
 import { useChatMessageHandler } from '@/store/ChatMessageHandler';
 
@@ -49,7 +48,6 @@ export default function NewChat() {
 
   // Memoize store selectors
   const sendTextMessage = useSessionHandler((state) => state.sendTextMessage);
-  const agents = useAgentHandler((state) => state.agents);
 
   // Memoize click handler
   const handleTileClick = useCallback(
@@ -59,24 +57,24 @@ export default function NewChat() {
     [sendTextMessage]
   );
 
-  const agentElements = useMemo(
-    () =>
-      agents.map((agent) => {
-        const Icon = agent.logo;
-        return (
-          <div
-            key={agent.slug}
-            className="flex items-center gap-2 bg-sec_background rounded-2xl px-3 py-2"
-          >
-            <Icon className="w-4 h-4 md:w-5 md:h-5 text-secText" />
-            <span className="text-xs md:text-sm font-medium text-secText">
-              {agent.name}
-            </span>
-          </div>
-        );
-      }),
-    [agents]
-  );
+  // const agentElements = useMemo(
+  //   () =>
+  //     agents.map((agent) => {
+  //       const Icon = agent.logo;
+  //       return (
+  //         <div
+  //           key={agent.slug}
+  //           className="flex items-center gap-2 bg-sec_background rounded-2xl px-3 py-2"
+  //         >
+  //           <Icon className="w-4 h-4 md:w-5 md:h-5 text-secText" />
+  //           <span className="text-xs md:text-sm font-medium text-secText">
+  //             {agent.name}
+  //           </span>
+  //         </div>
+  //       );
+  //     }),
+  //   [agents]
+  // );
 
   return (
     <div className="absolute inset-0 flex flex-col items-center justify-center p-4 z-10">
@@ -112,9 +110,6 @@ export default function NewChat() {
             </div>
 
             {/* Available Agents */}
-            <div className="flex flex-wrap gap-2 p-2 w-full justify-center mt-3">
-              {agentElements}
-            </div>
           </>
         )}
     </div>

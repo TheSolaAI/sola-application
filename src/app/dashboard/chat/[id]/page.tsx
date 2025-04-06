@@ -1,15 +1,15 @@
 'use client';
 import useThemeManager from '@/store/ThemeManager';
 import { hexToRgb } from '@/utils/hexToRGB';
-import React, { ReactNode, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useChatMessageHandler } from '@/store/ChatMessageHandler';
 import { useParams } from 'next/navigation';
 import { useChatRoomHandler } from '@/store/ChatRoomHandler';
-import { LuArrowDown } from 'react-icons/lu';
-import { useChat } from '@ai-sdk/react';
-import { Message } from 'ai';
 import { SimpleMessageChatItem } from '@/components/messages/SimpleMessageChatItem';
-import { getParticularTool } from '@/lib/ai/agentsConfig';
+import { AiProjects } from '@/components/messages/AiProjects';
+import { ToolResult } from '@/types/tool';
+import { TokenDataMessageItem } from '@/components/messages/TokenDataMessageItem';
+import { LuloChatItem } from '@/components/messages/LuloMessageItem';
 
 export default function Chat() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -21,16 +21,9 @@ export default function Chat() {
    * Global State
    */
   const { theme } = useThemeManager();
-  const { currentChatItem, initChatMessageHandler } = useChatMessageHandler();
+  const { currentChatItem, initChatMessageHandler, messages } =
+    useChatMessageHandler();
   const { rooms, setCurrentChatRoom, currentChatRoom } = useChatRoomHandler();
-  const { messages, addToolResult } = useChat({
-    id: id as string,
-    maxSteps: 8,
-    sendExtraMessageFields: true,
-    initialMessages: useChatMessageHandler.getState().messages,
-  });
-
-  console.log(messages);
 
   /**
    * Local State
@@ -51,14 +44,13 @@ export default function Chat() {
       const currentRoom = rooms.find((room) => room.id === roomId);
 
       if (currentRoom) {
-        console.log('id page executed', currentChatRoom, id, rooms.length);
         setCurrentChatRoom(currentRoom).then(() => {
           // Initialize messages for this chat room
           initChatMessageHandler();
         });
       }
     }
-  }, [id, rooms, setCurrentChatRoom, initChatMessageHandler]);
+  }, [id, rooms, currentChatRoom, initChatMessageHandler, setCurrentChatRoom]);
 
   // Function to handle smooth scrolling to bottom
   const scrollToBottom = () => {
@@ -103,22 +95,16 @@ export default function Chat() {
 
   const renderToolResult = (
     toolName: string,
-    args: any,
-    result: any
+    args: ToolResult
   ): React.ReactNode => {
-    const tool = getParticularTool(toolName);
-
-    if (!tool || !tool.implementation) {
-      console.warn(`Tool ${toolName} not found or has no implementation`);
-      return null;
-    }
-
-    try {
-      // Make sure the implementation returns a React component
-      return tool.implementation(result);
-    } catch (error) {
-      console.error(`Error rendering tool ${toolName}:`, error);
-      return <div className="text-red-500">Error rendering tool result</div>;
+    console.log('renderToolResult', toolName, args);
+    switch (toolName) {
+      case 'trendingAiProjects':
+        return <AiProjects props={args.data} />;
+      case 'depositLuloTool':
+        return <LuloChatItem props={args.data} />;
+      case 'createGetTokenDataTool':
+        return <TokenDataMessageItem props={args.data} />;
     }
   };
 
@@ -158,14 +144,12 @@ export default function Chat() {
                           );
                         case 'tool-invocation':
                           if (part.toolInvocation.state === 'result') {
-                            // Return the component, don't just call the function
                             return (
                               <React.Fragment
                                 key={`tool-${messageIndex}-${partIndex}`}
                               >
                                 {renderToolResult(
                                   part.toolInvocation.toolName,
-                                  part.toolInvocation.args,
                                   part.toolInvocation.result
                                 )}
                               </React.Fragment>

@@ -17,7 +17,6 @@ export const ChatNavigationHandler = () => {
     // 3. The room ID hasn't actually changed
     // 4. The chat is new chat
     if (!currentChatRoom) return;
-    console.log(currentChatRoom);
 
     const currentRoomId = currentChatRoom.id;
     if (prevRoomIdRef.current === currentRoomId) return;
@@ -30,7 +29,6 @@ export const ChatNavigationHandler = () => {
 
     // Navigate to the chat room
     if (currentRoomId) {
-      console.log(`Navigating to chat room: ${currentRoomId}`);
       router.push(targetPath);
     }
   }, [currentChatRoom, pathname, router]);

@@ -80,7 +80,6 @@ export function usePwaStatus(): PWAStatus {
         setInstallationState('installed');
         setIsInstallPromptAvailable(false);
         setDeferredPrompt(null);
-        console.log('PWA was installed');
       });
 
       return () => {

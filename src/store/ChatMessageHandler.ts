@@ -158,7 +158,6 @@ export const useChatMessageHandler = create<ChatMessageHandler>((set, get) => {
             },
           ],
         } as Message;
-        console.log(updatedMessage.content);
         set({ currentChatItem: updatedMessage });
       }
     },

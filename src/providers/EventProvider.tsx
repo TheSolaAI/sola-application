@@ -4,22 +4,46 @@ import { useSessionHandler } from '@/store/SessionHandler';
 import { useChatMessageHandler } from '@/store/ChatMessageHandler';
 import { useCreditHandler } from '@/store/CreditHandler';
 import { useChatRoomHandler } from '@/store/ChatRoomHandler';
-import { toolsHandlerPrompt } from '@/lib/ai/agentsConfig';
 import { useWalletHandler } from '@/store/WalletHandler';
 import { Message } from 'ai';
-import { TOOL_NAMES } from '@/lib/constants';
-import { useUserHandler } from '@/store/UserHandler';
+import { toast } from 'sonner';
+import { ApiClient, apiClient } from '@/lib/ApiClient';
+import { signingRequiredTools, TOOLSET_SLUGS } from '../config/ai';
+import { ToolCallResult } from '@/types/tool';
+import { VersionedTransaction } from '@solana/web3.js';
 
 interface EventProviderProps {
   children: ReactNode;
 }
 
-export type ToolName = (typeof TOOL_NAMES)[number];
-export interface RealtimeOutputArgsTyped {
-  required_tools: ToolName;
-  original_request: string;
+interface TransactionDetails {
+  transaction: string; // base64 encoded transaction
+  details: {
+    amount: number;
+    input_mint: string;
+    output_mint: string;
+    limit_price?: number;
+    action?: 'BUY' | 'SELL';
+    priority_fee_needed: boolean;
+    [key: string]: any;
+  };
+  type: string;
+  response_id: string;
+  sender: string;
+  timestamp: string;
 }
 
+interface SendTransactionResult {
+  success: boolean;
+  txid?: string;
+  error?: string;
+  transactionDetails?: TransactionDetails;
+}
+
+export interface RealtimeOutputArgsTyped {
+  toolset: typeof TOOLSET_SLUGS;
+  original_request: string;
+}
 export const EventProvider: FC<EventProviderProps> = ({ children }) => {
   /**
    * Global State
@@ -40,6 +64,7 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
       if (dataStream === null) return;
       dataStream.onmessage = async (event) => {
         const eventData = JSON.parse(event.data);
+        console.log(eventData);
         if (eventData.type === 'session.created') {
           // update the session with our latest tools, voice and emotion
           updateSession('all');
@@ -133,26 +158,20 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
           if (eventData.response.output) {
             for (const output of eventData.response.output) {
               // check if the output is a function call. If it is a message call then ignore
-              if (output.type === 'function_call') {
-                console.log(output);
-                // Check the tools this agent has access to
-                const toolName = output.name;
-
+              if (
+                output.type === 'function_call' &&
+                output.name === 'getRequiredToolset'
+              ) {
                 try {
-                  // Parse the arguments as JSON
                   const args = JSON.parse(
                     output.arguments
                   ) as RealtimeOutputArgsTyped;
-                  console.log('Tool call args: ', args);
-
-                  const userWallet = useWalletHandler.getState().currentWallet;
-                  const userPublicKey = userWallet?.address || '';
-
-                  // Get context from previous messages (top 8-10)
-                  const previousMessages = useChatMessageHandler
-                    .getState()
-                    .getTopMessages(8);
-
+                  const walletPublicKey =
+                    useWalletHandler.getState().currentWallet?.address;
+                  if (!walletPublicKey) {
+                    toast.error('Please connect your wallet');
+                    return;
+                  }
                   // Create a message object for the current request
                   const currentMessage: Message = {
                     id: `msg_${Date.now()}`,
@@ -161,51 +180,91 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
                     createdAt: new Date(),
                   };
 
-                  // Combine previous messages with the current message for context
-                  const messages =
-                    previousMessages.length > 0
-                      ? [...previousMessages, currentMessage]
-                      : [currentMessage]; // Handle case with no previous messages
-
-                  // Get user emotion and name for prompt personalization
-                  const aiEmotion = useSessionHandler.getState().aiEmotion;
-                  const userName = useUserHandler.getState().name || 'User';
-
-                  // Add the current user message to the chat history
-                  await useChatMessageHandler
-                    .getState()
-                    .addMessage(currentMessage);
-
-                  // Call our API endpoint
-                  const response = await fetch('/api/chat', {
-                    method: 'POST',
-                    headers: {
-                      'Content-Type': 'application/json',
+                  // process the tool handling on the server
+                  const response = await apiClient.post(
+                    '/api/chat',
+                    {
+                      walletPublicKey,
+                      requiredToolSet: args.toolset,
+                      message: currentMessage,
+                      currentRoomID:
+                        useChatRoomHandler.getState().currentChatRoom?.id,
                     },
-                    body: JSON.stringify({
-                      aiPrompt: toolsHandlerPrompt,
-                      userPublicKey,
-                      requiredTools: [args.required_tools],
-                      message: messages,
-                    }),
-                  });
-
-                  if (!response.ok) {
+                    'local'
+                  );
+                  if (ApiClient.isApiResponse<ToolCallResult[]>(response)) {
+                  } else {
+                    toast.error('Failed to process the request');
                     sendFunctionCallResponseMessage(
                       'Request processing unsuccessful',
                       output.call_id
                     );
-                  } else {
-                    sendFunctionCallResponseMessage(
-                      'Request processed successfully',
-                      output.call_id
-                    );
+                    return;
                   }
-
+                  console.log(response.data);
+                  // TODO: Handle the response from the server
+                  // check if this is a tool call that needs to be signed on the client side
+                  if (
+                    signingRequiredTools.find(
+                      (tool) => tool === response.data[0].toolName
+                    )
+                  ) {
+                    // this is a tool call that needs to be signed on the client side
+                    const signedResult = await signAndSendTransaction({
+                      type: response.data[0].type,
+                      response_id: response.data[0].result.data.response_id,
+                      sender: response.data[0].result.data.sender,
+                      timestamp: response.data[0].result.data.timestamp,
+                      details: {
+                        ...response.data[0].result.data.details,
+                      },
+                      transaction: response.data[0].result.data.transaction,
+                    });
+                    if (signedResult.success) {
+                      toast.success(
+                        `Transaction sent successfully: ${signedResult.txid}`
+                      );
+                      sendFunctionCallResponseMessage(
+                        `Transaction sent successfully: ${signedResult.txid}`,
+                        output.call_id
+                      );
+                    } else {
+                      toast.error(signedResult.error);
+                      sendFunctionCallResponseMessage(
+                        `Error occurred: ${signedResult.error}`,
+                        output.call_id
+                      );
+                    }
+                  }
+                  useChatMessageHandler.getState().addMessage(currentMessage);
+                  // add the tools response also to the chat
+                  useChatMessageHandler.getState().addMessage({
+                    id: response.data[0].toolCallId,
+                    role: 'assistant',
+                    content: JSON.stringify(response.data[0].result),
+                    createdAt: new Date(),
+                    parts: [
+                      {
+                        type: 'tool-invocation',
+                        toolInvocation: {
+                          state: 'result',
+                          result: response.data[0].result,
+                          toolName: response.data[0].toolName,
+                          toolCallId: response.data[0].toolCallId,
+                        },
+                      },
+                    ],
+                  } as Message);
+                  sendFunctionCallResponseMessage(
+                    'Provide a brief summary of the following output: ' +
+                      JSON.stringify(response.data[0].result),
+                    output.call_id
+                  );
                   // Clear any current chat item
                   useChatMessageHandler.getState().setCurrentMessage(null);
                 } catch (error) {
-                  console.error(`Error with function call ${toolName}:`, error);
+                  console.error(error);
+                  toast.error('Failed to process the request');
                   sendFunctionCallResponseMessage(
                     `Error occurred: ${error}`,
                     output.call_id
@@ -222,3 +281,65 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
 
   return <div>{children}</div>;
 };
+
+export async function signAndSendTransaction(
+  transactionDetails: TransactionDetails
+): Promise<SendTransactionResult> {
+  try {
+    // Get the current wallet from the zustand store
+    const currentWallet = useWalletHandler.getState().currentWallet;
+
+    if (!currentWallet) {
+      return {
+        success: false,
+        error: 'No wallet connected',
+        transactionDetails,
+      };
+    }
+
+    // Decode the base64 transaction
+    const transactionBuffer = Buffer.from(
+      transactionDetails.transaction,
+      'base64'
+    );
+    const transaction = VersionedTransaction.deserialize(transactionBuffer);
+
+    // Sign the transaction with the wallet
+    const signedTransaction = await currentWallet.signTransaction(transaction);
+    const rawTransaction = signedTransaction.serialize();
+
+    // Send the signed transaction to your backend API
+    const response = await fetch('/api/send-transaction', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        serializedTransaction: Buffer.from(rawTransaction).toString('base64'),
+        options: {
+          skipPreflight: true,
+          maxRetries: 10,
+        },
+      }),
+    });
+
+    const responseData = await response.json();
+
+    if (!response.ok || responseData.status === 'error') {
+      throw new Error(responseData.message || 'Failed to send transaction');
+    }
+
+    return {
+      success: true,
+      txid: responseData.txid,
+      transactionDetails,
+    };
+  } catch (error) {
+    console.error('Error signing and sending transaction:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error occurred',
+      transactionDetails,
+    };
+  }
+}

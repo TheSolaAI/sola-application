@@ -140,7 +140,6 @@ export const useWalletHandler = create<WalletHandler>((set, get) => {
         },
       }));
     } catch (error) {
-      console.log(error);
       toast.error('Error Fetching Wallet Assets');
     }
   };
@@ -179,8 +178,6 @@ export const useWalletHandler = create<WalletHandler>((set, get) => {
       if (get().currentWallet) {
         get().stopMonitoring();
       }
-
-      console.log('set current wallet called', wallet);
 
       if (wallet && wallet.walletClientType === 'phantom-embedded') {
         set({ status: 'updating' });
@@ -290,7 +287,6 @@ export const useWalletHandler = create<WalletHandler>((set, get) => {
     initWalletManager: async () => {
       // Initialize Phantom wallet first
       await get().initPhantomWallet();
-      console.log('initWalletManager called');
       const defaultWalletAddress = localStorage.getItem('defaultWallet');
       if (defaultWalletAddress) {
         const wallet = get().wallets.find(

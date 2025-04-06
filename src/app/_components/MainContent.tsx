@@ -15,11 +15,9 @@ export default function MainContent() {
   const { authenticated, ready } = usePrivy();
   const { login } = useLogin({
     onComplete: (params) => {
-      console.log(params);
       router.push('/dashboard/chat');
     },
     onError: (error) => {
-      console.log(error);
       toast.error('Login failed. Please try again later.');
     },
   });

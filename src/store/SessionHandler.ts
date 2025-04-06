@@ -6,10 +6,9 @@ import { API_URLS } from '@/config/api_urls';
 import { toast } from 'sonner';
 import { AIVoice } from '@/config/ai';
 import { useChatRoomHandler } from '@/store/ChatRoomHandler';
-import { useAgentHandler } from '@/store/AgentHandler';
 import { useUserHandler } from '@/store/UserHandler';
-import { getRequiredTools } from '@/tools';
-import { getRealtimeModelConfig } from '@/lib/ai/agentsConfig';
+import { getRealtimePrimeDirective } from '@/config/ai';
+import { getRequiredToolset } from '@/tools/toolsetChooser';
 
 interface SessionHandler {
   state: 'idle' | 'loading' | 'open' | 'error'; // the state of the session handler
@@ -152,10 +151,9 @@ export const useSessionHandler = create<SessionHandler>((set, get) => {
       };
 
       if (update_type === 'all') {
-        const tools = [getRequiredTools];
         updateParams.session = {
           modalities: ['text', 'audio'],
-          instructions: getRealtimeModelConfig(
+          instructions: getRealtimePrimeDirective(
             get().aiEmotion,
             useUserHandler.getState().name
           ),
@@ -163,7 +161,7 @@ export const useSessionHandler = create<SessionHandler>((set, get) => {
           input_audio_transcription: {
             model: 'whisper-1',
           },
-          tools: tools,
+          tools: [getRequiredToolset],
           tool_choice: 'auto',
           temperature: 0.6,
         };
@@ -173,14 +171,14 @@ export const useSessionHandler = create<SessionHandler>((set, get) => {
         };
       } else if (update_type === 'emotion') {
         updateParams.session = {
-          instructions: getRealtimeModelConfig(
+          instructions: getRealtimePrimeDirective(
             get().aiEmotion,
             useUserHandler.getState().name
           ),
         };
       } else if (update_type === 'name') {
         updateParams.session = {
-          instructions: getRealtimeModelConfig(
+          instructions: getRealtimePrimeDirective(
             get().aiEmotion,
             useUserHandler.getState().name
           ),
