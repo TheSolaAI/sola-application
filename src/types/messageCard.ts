@@ -71,7 +71,7 @@ export interface TransactionCard {
   recipient?: string;
 
   // Additional metadata
-  type?: 'transfer' | 'swap' | 'stake' | 'unstake' | 'other';
+  type?: 'transfer' | 'swap' | 'stake' | 'unstake' | 'other' | 'buy' | 'sell';
   errorMessage?: string;
   confirmations?: number;
 }
