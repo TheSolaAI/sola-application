@@ -8,7 +8,7 @@ import { useWalletHandler } from '@/store/WalletHandler';
 import { Message } from 'ai';
 import { toast } from 'sonner';
 import { ApiClient, apiClient } from '@/lib/ApiClient';
-import { signingRequiredTools, TOOLSET_SLUGS } from '../config/ai';
+import { signingRequiredTools, TOOLSET_SLUGS } from '@/config/ai';
 import { ToolCallResult } from '@/types/tool';
 import { VersionedTransaction } from '@solana/web3.js';
 
@@ -64,7 +64,7 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
       if (dataStream === null) return;
       dataStream.onmessage = async (event) => {
         const eventData = JSON.parse(event.data);
-        console.log(eventData);
+        // console.log(eventData);
         if (eventData.type === 'session.created') {
           // update the session with our latest tools, voice and emotion
           updateSession('all');
@@ -90,10 +90,19 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
           eventData.type ===
           'conversation.item.input_audio_transcription.completed'
         ) {
+          useChatMessageHandler
+            .getState()
+            .addMessage({
+              id: eventData.event_id,
+              content: eventData.transcript,
+              role: 'data',
+            })
+            .catch(() => toast.error('failed to add message'));
         } else if (
           eventData.type === 'response.audio_transcript.delta' ||
           eventData.type === 'response.text.delta'
         ) {
+          console.log(eventData);
           // a part of the audio response transcript has been received
           if (useChatMessageHandler.getState().currentChatItem !== null) {
             // We are still receiving delta events for the current message so we keep appending to it
@@ -201,7 +210,7 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
                     );
                     return;
                   }
-                  console.log(response.data);
+                  // console.log(response.data);
                   // TODO: Handle the response from the server
                   // check if this is a tool call that needs to be signed on the client side
                   if (

@@ -10,6 +10,7 @@ import { AiProjects } from '@/components/messages/AiProjects';
 import { ToolResult } from '@/types/tool';
 import { TokenDataMessageItem } from '@/components/messages/TokenDataMessageItem';
 import { LuloChatItem } from '@/components/messages/LuloMessageItem';
+import UserInput from '@/components/messages/UserInput';
 
 export default function Chat() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -21,9 +22,12 @@ export default function Chat() {
    * Global State
    */
   const { theme } = useThemeManager();
+  // As you see we have a custom implementation of messages in the app, the task is the port this to the vercel ai sdk format.
   const { currentChatItem, initChatMessageHandler, messages } =
     useChatMessageHandler();
   const { rooms, setCurrentChatRoom, currentChatRoom } = useChatRoomHandler();
+
+  console.log(messages);
 
   /**
    * Local State
@@ -130,6 +134,20 @@ export default function Chat() {
         >
           <div className="w-full sm:w-[60%] mx-auto pb-32 mt-10">
             {messages.map((message, messageIndex) => {
+              {
+                /* logic to handle the users input */
+              }
+              if (message.role === 'user' || message.role === 'data') {
+                return (
+                  <div key={`message-${messageIndex}`}>
+                    <UserInput
+                      text={message.content}
+                      transcript={message.role === 'data'}
+                    />
+                  </div>
+                );
+              }
+
               return (
                 <div key={`message-${messageIndex}`}>
                   {message.parts &&
@@ -164,7 +182,11 @@ export default function Chat() {
                 </div>
               );
             })}
+            {currentChatItem && (
+              <SimpleMessageChatItem text={currentChatItem.content} />
+            )}
           </div>
+
           {/* This empty div is used as a reference for scrolling to the bottom */}
           <div ref={messagesEndRef} />
         </div>
