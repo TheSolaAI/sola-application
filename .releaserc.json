@@ -22,8 +22,10 @@
           { "type": "deps", "release": "patch" }
         ],
         "parserOpts": {
-          "headerPattern": "^(\\w+):\\s(:\\w+:)\\s(.+)$",
-          "headerCorrespondence": ["type", "gitmoji", "subject"]
+          "headerPattern": "^(\\w+):\\s(:\\w+:)\\s(.+?)(?:\\s\\(#\\d+\\))?$",
+          "headerCorrespondence": ["type", "gitmoji", "subject"],
+          "mergePattern": "^Merge pull request #(\\d+) from (.*)$",
+          "mergeCorrespondence": ["id", "source"]
         }
       }
     ],
