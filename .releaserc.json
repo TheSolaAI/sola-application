@@ -43,10 +43,11 @@
       }
     ],
     [
-      "@semantic-release/git",
+      "semantic-release-github-pullrequest",
       {
         "assets": ["package.json", "CHANGELOG.md"],
-        "message": "chore: :bookmark: ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
+        "pullrequestTitle": "chore: :bookmark: Release ${nextRelease.version}",
+        "pullrequestDescription": "${nextRelease.notes}"
       }
     ],
     "@semantic-release/github"
