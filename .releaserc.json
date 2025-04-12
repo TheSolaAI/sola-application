@@ -47,7 +47,8 @@
       {
         "assets": ["package.json", "CHANGELOG.md"],
         "pullrequestTitle": "chore: :bookmark: Release ${nextRelease.version}",
-        "pullrequestDescription": "${nextRelease.notes}"
+        "pullrequestDescription": "${nextRelease.notes}",
+        "branch": "release/${nextRelease.version}"
       }
     ],
     "@semantic-release/github"
