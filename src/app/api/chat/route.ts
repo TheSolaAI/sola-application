@@ -49,11 +49,20 @@ export async function POST(req: Request) {
     const parsedPreviousMessages = previousMessages.results
       .map((msg) => chatItemToMessage(msg))
       .filter((msg): msg is Message => msg !== null);
-    // console.log(parsedPreviousMessages);
+    console.log(parsedPreviousMessages);
+
+    const messageAlreadyExists = parsedPreviousMessages.some(
+      (msg) => msg.id === message.id
+    );
+
+    const allMessages = messageAlreadyExists
+      ? parsedPreviousMessages
+      : [...parsedPreviousMessages, message];
+
     const response = await generateText({
       model: toolhandlerModel,
       system: getToolHandlerPrimeDirective(walletPublicKey),
-      messages: [message],
+      messages: allMessages,
       tools: tools,
       toolChoice: 'required',
       maxSteps: 3,

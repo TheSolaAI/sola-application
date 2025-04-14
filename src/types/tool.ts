@@ -31,6 +31,7 @@ export interface ToolCallResult {
   toolName: string;
   toolCallId: string;
   result: ToolResult;
+  args: any;
 }
 
 /**

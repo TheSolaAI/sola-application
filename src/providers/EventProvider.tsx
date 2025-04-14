@@ -102,7 +102,6 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
           eventData.type === 'response.audio_transcript.delta' ||
           eventData.type === 'response.text.delta'
         ) {
-          console.log(eventData);
           // a part of the audio response transcript has been received
           if (useChatMessageHandler.getState().currentChatItem !== null) {
             // We are still receiving delta events for the current message so we keep appending to it
@@ -201,6 +200,7 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
                     },
                     'local'
                   );
+
                   if (ApiClient.isApiResponse<ToolCallResult[]>(response)) {
                   } else {
                     toast.error('Failed to process the request');
@@ -210,7 +210,6 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
                     );
                     return;
                   }
-                  // console.log(response.data);
                   // TODO: Handle the response from the server
                   // check if this is a tool call that needs to be signed on the client side
                   if (
@@ -260,6 +259,7 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
                           result: response.data[0].result,
                           toolName: response.data[0].toolName,
                           toolCallId: response.data[0].toolCallId,
+                          args: response.data[0].args,
                         },
                       },
                     ],
@@ -268,6 +268,14 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
                     'Provide a brief summary of the following output: ' +
                       JSON.stringify(response.data[0].result),
                     output.call_id
+                  );
+
+                  console.log(
+                    'response from server,',
+                    response.data[0].result,
+                    response.data[0].toolName,
+                    response.data[0].toolCallId,
+                    response.data[0].args
                   );
                   // Clear any current chat item
                   useChatMessageHandler.getState().setCurrentMessage(null);
