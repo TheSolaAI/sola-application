@@ -25,6 +25,7 @@ export async function POST(req: Request) {
       currentRoomID: string;
     } = await req.json();
 
+    console.log('tool sets',requiredToolSet)
     // Fetch previous messages
     const previousMessagesResponse = await fetch(
       process.env.NEXT_PUBLIC_AUTH_SERVICE_URL +
@@ -45,6 +46,7 @@ export async function POST(req: Request) {
       authToken: req.headers.get('authorization')?.replace('Bearer ', '') || '',
       publicKey: walletPublicKey,
     });
+    console.log('tools',tools);
 
     const parsedPreviousMessages = previousMessages.results
       .map((msg) => chatItemToMessage(msg))

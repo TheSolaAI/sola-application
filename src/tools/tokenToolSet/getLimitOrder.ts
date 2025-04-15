@@ -1,4 +1,3 @@
-'use client';
 import { API_URLS } from '@/config/api_urls';
 import { ApiClient, createServerApiClient } from '@/lib/ApiClient';
 import { ShowLimitOrderResponse } from '@/types/jupiter';
