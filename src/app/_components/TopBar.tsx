@@ -7,8 +7,6 @@ import Image from 'next/image';
 import useThemeManager from '@/store/ThemeManager';
 import useIsMobile from '@/utils/isMobile';
 import Link from 'next/link';
-import 'react-awesome-button/dist/styles.css';
-import PushableButton from '@/components/common/PushableButton';
 
 interface TopBarProps {
   isMobileLogin: boolean;

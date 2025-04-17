@@ -51,9 +51,27 @@ export interface AiTranscription {
 }
 
 export interface TransactionCard {
+  // Basic information (existing fields)
   title: string;
   status: 'pending' | 'success' | 'failed';
   link: string;
+
+  txid?: string;
+  timestamp?: string;
+
+  // Token information
+  tokenSymbol?: string;
+  tokenAddress?: string;
+  amount?: number;
+
+  // Transaction participants
+  sender?: string;
+  recipient?: string;
+
+  // Additional metadata
+  type?: 'transfer' | 'swap' | 'stake' | 'unstake' | 'other';
+  errorMessage?: string;
+  confirmations?: number;
 }
 
 export type SingleCard = {

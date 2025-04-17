@@ -4,13 +4,14 @@ import OnboardingHeader from '@/app/_components/onboarding/OnboardingHeader';
 import BackgroundPattern from '@/app/_components/onboarding/BackgroundPatterns';
 import Hero from '@/app/_components/onboarding/Hero';
 import BentoGrid from '@/app/_components/onboarding/BentoGrid';
-import { useLogin } from '@privy-io/react-auth';
+import { useLogin, usePrivy } from '@privy-io/react-auth';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import useIsMobile from '@/utils/isMobile';
 import { usePwaStatus } from '@/hooks/usePwaStatus';
 import { useState, useEffect } from 'react';
 import { AnimatePresence } from 'framer-motion';
+import Footer from './_components/onboarding/Footer';
 
 export default function Home() {
   const router = useRouter();
@@ -28,6 +29,8 @@ export default function Home() {
       toast.error('Login failed. Please try again later.');
     },
   });
+  const { ready, authenticated } = usePrivy();
+  const disabled = !ready || authenticated;
 
   // Ensure mobile view state is reset when device type changes
   useEffect(() => {
@@ -39,11 +42,12 @@ export default function Home() {
   return (
     <div className="relative isolate bg-gradient-to-b from-gray-950 to-black min-h-screen w-full overflow-x-hidden">
       <BackgroundPattern />
-      <OnboardingHeader login={login} />
+      <OnboardingHeader login={login} disabled={disabled} />
       <main className="isolate">
         <AnimatePresence mode="wait">
           <Hero
             login={login}
+            disabled={disabled}
             isMobile={isMobile}
             showMobileView={showMobileView}
             setShowMobileView={setShowMobileView}
@@ -53,6 +57,7 @@ export default function Home() {
         </AnimatePresence>
         <BentoGrid />
       </main>
+      <Footer />
     </div>
   );
 }

@@ -51,4 +51,3 @@ export type LuloTransaction = {
   transaction: string;
   status: 'pending' | 'completed' | 'failed';
 };
-

@@ -35,7 +35,7 @@ interface SessionHandler {
   initSessionHandler: () => Promise<string | null>;
 
   setPeerConnection: (peerConnection: RTCPeerConnection | null) => void; // sets the peer connection
-  setDataStream: (dataStream: RTCDataChannel) => void; // sets the data stream
+  setDataStream: (dataStream: RTCDataChannel | null) => void; // sets the data stream
   setMediaStream: (mediaStream: MediaStream | null) => void; // sets the media stream
 
   setAiVoice: (aiVoice: AIVoice) => void; // sets the voice of the AI
@@ -51,21 +51,6 @@ interface SessionHandler {
    * @param muted
    */
   setMuted: (muted: boolean) => void;
-
-  /**
-   * Instructs the AI to provide a response to the user. This is used when direct responses are required
-   * rather than function call responses. Status affects the tone of the response from the AI.
-   *
-   * @param message The message to send to the AI
-   * @param status The status of the message
-   */
-  getResponse: ({
-    message,
-    status,
-  }: {
-    message: string;
-    status: 'error' | 'success' | 'neutral';
-  }) => void;
 
   /**
    * Use this function to send an user typed message to the AI
@@ -87,7 +72,7 @@ interface SessionHandler {
 
 export const useSessionHandler = create<SessionHandler>((set, get) => {
   return {
-    state: 'loading',
+    state: 'open',
     peerConnection: null,
     dataStream: null,
     aiVoice: 'sage',
@@ -118,7 +103,7 @@ export const useSessionHandler = create<SessionHandler>((set, get) => {
       }
     },
 
-    setDataStream: (dataStream: RTCDataChannel): void => {
+    setDataStream: (dataStream: RTCDataChannel | null): void => {
       set({ dataStream });
     },
 
@@ -187,34 +172,6 @@ export const useSessionHandler = create<SessionHandler>((set, get) => {
 
       // send the event across the data stream
       get().dataStream?.send(JSON.stringify(updateParams));
-    },
-
-    getResponse: ({
-      message,
-      status,
-    }: {
-      message: string;
-      status: 'error' | 'success' | 'neutral';
-    }): void => {
-      if (get().dataStream && get().dataStream?.readyState === 'open') {
-        const emotion =
-          status === 'success'
-            ? 'highly energetic and cheerfully enthusiastic'
-            : status === 'error'
-              ? 'confused and concerned but still helpful'
-              : 'normal and neutral';
-        const response = {
-          type: 'response.create',
-          response: {
-            modalities: ['text', 'audio'],
-            instructions:
-              message + '. Please be ' + emotion + ' in your response',
-          },
-        };
-        get().dataStream?.send(JSON.stringify(response));
-      } else {
-        toast.error('Failed to send message. Reload the page');
-      }
     },
 
     sendTextMessage: async (message: string): Promise<void> => {

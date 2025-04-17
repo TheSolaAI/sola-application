@@ -1,13 +1,15 @@
-'use client'
+'use client';
 import { FC } from 'react';
 import { Dropdown } from '@/components/common/DropDown';
-import { usePrivy } from '@privy-io/react-auth';
+import { useLogout } from '@privy-io/react-auth';
 import { useSessionHandler } from '@/store/SessionHandler';
 import { useLayoutContext } from '@/providers/LayoutProvider';
 import { FaGithub } from 'react-icons/fa';
 import { IoSettings } from 'react-icons/io5';
 import { SiGoogledocs } from 'react-icons/si';
 import { MdOutlineLogout } from 'react-icons/md';
+import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
 
 interface ProfileDropDownProps {
   isOpen: boolean;
@@ -23,18 +25,49 @@ export const ProfileDropDown: FC<ProfileDropDownProps> = ({
   /**
    * Global State
    */
-  const { setMediaStream, setPeerConnection, setMuted } = useSessionHandler();
+  const {
+    mediaStream,
+    setMediaStream,
+    peerConnection,
+    setPeerConnection,
+    dataStream,
+    setDataStream,
+    setMuted,
+  } = useSessionHandler();
   const { settingsIsOpen, setSettingsIsOpen } = useLayoutContext();
+  const router = useRouter();
 
   /**
    * State Management
    */
-  const { logout } = usePrivy();
+  const { logout } = useLogout({
+    onSuccess: () => {
+      router.push('/');
+      toast.success('successfully logged out');
+    },
+  });
 
   const logoutHandler = () => {
-    // TODO: Close the session and datastream to OpenAI
-    setMediaStream(null);
-    setPeerConnection(null);
+    if (dataStream) {
+      dataStream.close();
+      setDataStream(null);
+    }
+
+    // 2. Stop all tracks in the media stream
+    if (mediaStream) {
+      console.log('Stopping media stream tracks...');
+      mediaStream.getTracks().forEach((track) => {
+        track.stop();
+      });
+      setMediaStream(null);
+    }
+
+    // 3. Close the peer connection
+    if (peerConnection) {
+      console.log('Closing peer connection...');
+      peerConnection.close();
+      setPeerConnection(null);
+    }
     setMuted(true);
     logout();
   };
@@ -66,7 +99,7 @@ export const ProfileDropDown: FC<ProfileDropDownProps> = ({
             window.open(
               'https://docs.solaai.xyz/',
               '_blank',
-              'noopener,noreferrer',
+              'noopener,noreferrer'
             );
           }}
         >
@@ -79,7 +112,7 @@ export const ProfileDropDown: FC<ProfileDropDownProps> = ({
             window.open(
               'https://github.com/TheSolaAI/sola-application',
               '_blank',
-              'noopener,noreferrer',
+              'noopener,noreferrer'
             );
           }}
         >

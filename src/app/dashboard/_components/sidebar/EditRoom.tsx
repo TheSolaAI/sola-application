@@ -1,8 +1,8 @@
-'use client'
+'use client';
 import React, { useState } from 'react';
-import { LuSave , LuTrash2 } from "react-icons/lu";
+import { LuSave, LuTrash2 } from 'react-icons/lu';
 import { useChatRoomHandler } from '@/store/ChatRoomHandler';
-import {Dropdown} from "@/components/common/DropDown";
+import { Dropdown } from '@/components/common/DropDown';
 
 interface EditRoomContentProps {
   onClose: () => void;

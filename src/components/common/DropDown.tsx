@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import React, { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 
@@ -14,7 +14,17 @@ interface DropdownProps {
   horizontalAlignment?: 'left' | 'right' | 'auto';
 }
 
-export const Dropdown: React.FC<DropdownProps> = ({ isOpen, onClose, anchorEl, title, mobileTitle, children, width = 'auto', direction, horizontalAlignment = 'auto', }) => {
+export const Dropdown: React.FC<DropdownProps> = ({
+  isOpen,
+  onClose,
+  anchorEl,
+  title,
+  mobileTitle,
+  children,
+  width = 'auto',
+  direction,
+  horizontalAlignment = 'auto',
+}) => {
   const popupRef = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState({
     top: 0,
@@ -67,7 +77,8 @@ export const Dropdown: React.FC<DropdownProps> = ({ isOpen, onClose, anchorEl, t
       setFinalHorizontalAlignment(alignment);
 
       // Apply width based on the width prop
-      const calculatedWidth = width === 'component' ? anchorRect.width : popupWidth;
+      const calculatedWidth =
+        width === 'component' ? anchorRect.width : popupWidth;
 
       setPosition({
         top: direction === 'down' ? anchorRect.bottom + window.scrollY + 10 : 0, // 10px spacing
@@ -157,7 +168,7 @@ export const Dropdown: React.FC<DropdownProps> = ({ isOpen, onClose, anchorEl, t
           top: position.top ? `${position.top}px` : 'auto',
           bottom: position.bottom ? `${position.bottom}px` : 'auto',
           left: position.left ? `${position.left}px` : 'auto',
-          width: width === 'component' ? `${position.width}px` : 'auto'
+          width: width === 'component' ? `${position.width}px` : 'auto',
         }}
       >
         {title && (

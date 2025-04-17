@@ -9,6 +9,7 @@ import { motion } from 'framer-motion';
 
 interface OnboardingHeaderProps {
   login: () => void;
+  disabled: boolean;
 }
 
 const navigation = [
@@ -17,7 +18,10 @@ const navigation = [
   { name: 'Explore SOLA Ecosystem', href: 'https://solaai.xyz/' },
 ];
 
-export default function OnboardingHeader({ login }: OnboardingHeaderProps) {
+export default function OnboardingHeader({
+  login,
+  disabled,
+}: OnboardingHeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
@@ -85,6 +89,7 @@ export default function OnboardingHeader({ login }: OnboardingHeaderProps) {
         >
           <motion.button
             onClick={() => login()}
+            disabled={disabled}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             className="text-sm/6 font-semibold text-gray-300 hover:text-white transition-colors duration-200"
