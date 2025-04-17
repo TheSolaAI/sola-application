@@ -7,7 +7,7 @@ import {
 import { getTokenToolSet, tokenToolSet } from '@/tools/tokenToolSet';
 import { getLuloToolSet, luloToolSet } from '@/tools/luloToolSet';
 import { getNftToolSet, nftToolSet } from '@/tools/nftToolSet';
-import { getOnChainToolSet, onChainToolSet } from '@/tools/onChainHandler';
+import { getOnChainToolSet, onChainToolSet } from '@/tools/onChainToolSet';
 
 export const toolhandlerModel = openai('gpt-4o');
 

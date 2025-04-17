@@ -2,6 +2,10 @@ import { ToolContext, ToolSet, ToolSetDescription } from '@/types/tool';
 import { createGetTokenDataTool } from './getTokenData';
 import { createLimitOrderTool } from './limitOrder';
 import { createGetLimitOrderTool } from './getLimitOrder';
+import { createBubblemapTool } from './bubblemaps';
+import { createTokenAddressTool } from './tokenAddress';
+import { create } from 'domain';
+import { createTopHoldersTool } from './topHolders';
 
 export const tokenToolSet: ToolSetDescription = {
   slug: 'token',
@@ -17,6 +21,9 @@ export const getTokenToolSet = (context: ToolContext): ToolSet => {
       getTokenDataTool: createGetTokenDataTool(context),
       createLimitOrderTool: createLimitOrderTool(context),
       getLimitOrderTool: createGetLimitOrderTool(context),
+      bubblemapTool: createBubblemapTool(context),
+      tokenAddressTool: createTokenAddressTool(context),
+      topHoldersTool: createTopHoldersTool(context),
     },
   };
 };

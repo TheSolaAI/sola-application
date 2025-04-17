@@ -11,6 +11,9 @@ import { ToolResult } from '@/types/tool';
 import { TokenDataMessageItem } from '@/components/messages/TokenDataMessageItem';
 import { LuloChatItem } from '@/components/messages/LuloMessageItem';
 import UserInput from '@/components/messages/UserInput';
+import { BubbleMapChatItem } from '@/components/messages/BubbleMapCardItem';
+import { TokenAddressResultItem } from '@/components/messages/TokenAddressResultItem';
+import { TopHoldersMessageItem } from '@/components/messages/TopHoldersMessageItem';
 
 export default function Chat() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -26,8 +29,6 @@ export default function Chat() {
   const { currentChatItem, initChatMessageHandler, messages } =
     useChatMessageHandler();
   const { rooms, setCurrentChatRoom, currentChatRoom } = useChatRoomHandler();
-
-  console.log(messages);
 
   /**
    * Local State
@@ -103,12 +104,20 @@ export default function Chat() {
   ): React.ReactNode => {
     console.log('renderToolResult', toolName, args);
     switch (toolName) {
+      case 'tokenAddressTool':
+        return <TokenAddressResultItem props={args.data} />;
       case 'trendingAiProjects':
         return <AiProjects props={args.data} />;
       case 'depositLuloTool':
         return <LuloChatItem props={args.data} />;
       case 'createGetTokenDataTool':
         return <TokenDataMessageItem props={args.data} />;
+      case 'bubblemapTool':
+        return <BubbleMapChatItem props={args.data} />;
+      case 'topHoldersTool':
+        return <TopHoldersMessageItem props={args.data} />;
+      case 'resolveSnsNameTool':
+        return <TokenAddressResultItem props={args.data} />;
     }
   };
 
