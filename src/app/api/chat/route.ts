@@ -25,7 +25,7 @@ export async function POST(req: Request) {
       currentRoomID: string;
     } = await req.json();
 
-    console.log('tool sets',requiredToolSet)
+    console.log('tool sets', requiredToolSet);
     // Fetch previous messages
     const previousMessagesResponse = await fetch(
       process.env.NEXT_PUBLIC_AUTH_SERVICE_URL +
@@ -46,12 +46,11 @@ export async function POST(req: Request) {
       authToken: req.headers.get('authorization')?.replace('Bearer ', '') || '',
       publicKey: walletPublicKey,
     });
-    console.log('tools',tools);
+    console.log('tools', tools);
 
     const parsedPreviousMessages = previousMessages.results
       .map((msg) => chatItemToMessage(msg))
       .filter((msg): msg is Message => msg !== null);
-    console.log(parsedPreviousMessages);
 
     const messageAlreadyExists = parsedPreviousMessages.some(
       (msg) => msg.id === message.id
@@ -72,7 +71,7 @@ export async function POST(req: Request) {
         isEnabled: true,
       },
     });
-    console.log(response);
+
     // return tool call data
     return new Response(JSON.stringify(response.toolResults), {
       headers: { 'Content-Type': 'application/json' },

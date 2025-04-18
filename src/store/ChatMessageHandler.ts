@@ -15,6 +15,8 @@ interface ChatMessageHandler {
   state: 'idle' | 'loading' | 'error';
   messages: Message[];
   currentChatItem: Message | null;
+  loadingMessage: string | null;
+  showMessageSkeleton: boolean;
   next: string | null;
 
   initChatMessageHandler: () => Promise<void>;
@@ -24,6 +26,8 @@ interface ChatMessageHandler {
 
   setCurrentMessage: (message: Message | null) => void;
   updateCurrentMessage: (delta: string) => void;
+  setLoadingMessage: (message: string | null) => void;
+  setShowMessageSkeleton: (show: boolean) => void;
   commitCurrentChat: () => Promise<void>;
 }
 
@@ -33,6 +37,8 @@ export const useChatMessageHandler = create<ChatMessageHandler>((set, get) => {
     next: null,
     messages: [],
     currentChatItem: null,
+    loadingMessage: null,
+    showMessageSkeleton: false,
 
     initChatMessageHandler: async () => {
       const currentRoomID = useChatRoomHandler.getState().currentChatRoom?.id;
@@ -144,6 +150,14 @@ export const useChatMessageHandler = create<ChatMessageHandler>((set, get) => {
 
     setCurrentMessage: (message: Message | null) => {
       set({ currentChatItem: message });
+    },
+
+    setLoadingMessage: (message: string | null) => {
+      set({ loadingMessage: message });
+    },
+
+    setShowMessageSkeleton: (show: boolean) => {
+      set({ showMessageSkeleton: show });
     },
 
     updateCurrentMessage: (delta: string) => {

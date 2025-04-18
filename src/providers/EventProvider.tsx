@@ -102,35 +102,15 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
           eventData.type === 'response.audio_transcript.delta' ||
           eventData.type === 'response.text.delta'
         ) {
-          // a part of the audio response transcript has been received
-          if (useChatMessageHandler.getState().currentChatItem !== null) {
-            // We are still receiving delta events for the current message so we keep appending to it
-            useChatMessageHandler
-              .getState()
-              .updateCurrentMessage(eventData.delta);
-          } else {
-            // this is a new message so create a new one
-            useChatMessageHandler.getState().setCurrentMessage({
-              id: eventData.response_id,
-              role: 'assistant',
-              parts: [{ type: 'text', text: eventData.delta }],
-              content: eventData.delta,
-            });
-          }
+          useChatMessageHandler.getState().setShowMessageSkeleton(true);
         } else if (
           eventData.type === 'response.audio_transcript.done' ||
           eventData.type === 'response.text.done'
         ) {
-          // check if the current message matches with this response
-          if (
-            useChatMessageHandler.getState().currentChatItem === null ||
-            eventData.response_id ===
-              useChatMessageHandler.getState().currentChatItem?.id
-          ) {
-            // this is the final event for the current message so we commit it
-            useChatMessageHandler.getState().commitCurrentChat();
-          }
+          useChatMessageHandler.getState().setShowMessageSkeleton(false);
+          useChatMessageHandler.getState().addMessage(eventData.text);
         } else if (eventData.type === 'response.done') {
+          useChatMessageHandler.getState().setShowMessageSkeleton(false);
           // handle credit calculation
           if (eventData.response.usage) {
             let cachedTokens,
@@ -171,6 +151,9 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
                 output.name === 'getRequiredToolset'
               ) {
                 try {
+                  useChatMessageHandler
+                    .getState()
+                    .setLoadingMessage('Processing Your Query');
                   const args = JSON.parse(
                     output.arguments
                   ) as RealtimeOutputArgsTyped;
@@ -203,6 +186,7 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
 
                   if (ApiClient.isApiResponse<ToolCallResult[]>(response)) {
                   } else {
+                    useChatMessageHandler.getState().setLoadingMessage(null);
                     toast.error('Failed to process the request');
                     sendFunctionCallResponseMessage(
                       'Request processing unsuccessful',
@@ -244,6 +228,7 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
                       );
                     }
                   }
+                  useChatMessageHandler.getState().setLoadingMessage(null);
                   useChatMessageHandler.getState().addMessage(currentMessage);
                   // add the tools response also to the chat
                   useChatMessageHandler.getState().addMessage({
@@ -265,7 +250,7 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
                     ],
                   } as Message);
                   sendFunctionCallResponseMessage(
-                    'Provide a brief summary of the following output: ' +
+                    'Provide a small summary of the following output: ' +
                       JSON.stringify(response.data[0].result),
                     output.call_id
                   );
@@ -280,6 +265,7 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
                   // Clear any current chat item
                   useChatMessageHandler.getState().setCurrentMessage(null);
                 } catch (error) {
+                  useChatMessageHandler.getState().setLoadingMessage(null);
                   console.error(error);
                   toast.error('Failed to process the request');
                   sendFunctionCallResponseMessage(
@@ -343,6 +329,7 @@ export async function signAndSendTransaction(
     const responseData = await response.json();
 
     if (!response.ok || responseData.status === 'error') {
+      useChatMessageHandler.getState().setLoadingMessage(null);
       throw new Error(responseData.message || 'Failed to send transaction');
     }
 

@@ -157,9 +157,8 @@ module.exports = {
       },
       keyframes: {
         waveEffect: {
-          '0%': { opacity: '0.8' },
-          '50%': { opacity: '1.2' },
-          '100%': { opacity: '0.8' },
+          '0%, 100%': { color: 'var(--base-color, rgba(255, 255, 255, 0.5))' },
+          '50%': { color: 'var(--highlight-color, rgba(255, 255, 255, 1))' },
         },
         wave: {
           '0%, 100%': { transform: 'translateY(10%)' },
@@ -182,6 +181,8 @@ module.exports = {
         },
       },
       animation: {
+        'wave-effect':
+          'waveEffect var(--wave-duration, 2s) infinite ease-in-out',
         wave: 'waveEffect 3s infinite ease-in-out',
         'ping-once': 'ping 5s cubic-bezier(0, 0, 0.2, 1)',
         rotating: 'rotating 30s linear infinite',

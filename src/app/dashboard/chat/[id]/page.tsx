@@ -14,6 +14,8 @@ import UserInput from '@/components/messages/UserInput';
 import { BubbleMapChatItem } from '@/components/messages/BubbleMapCardItem';
 import { TokenAddressResultItem } from '@/components/messages/TokenAddressResultItem';
 import { TopHoldersMessageItem } from '@/components/messages/TopHoldersMessageItem';
+import WaveText from '../_components/WaveText';
+import SkeletonWave from '@/components/common/SkeletonWave';
 
 export default function Chat() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -102,7 +104,6 @@ export default function Chat() {
     toolName: string,
     args: ToolResult
   ): React.ReactNode => {
-    console.log('renderToolResult', toolName, args);
     switch (toolName) {
       case 'tokenAddressTool':
         return <TokenAddressResultItem props={args.data} />;
@@ -193,6 +194,14 @@ export default function Chat() {
             })}
             {currentChatItem && (
               <SimpleMessageChatItem text={currentChatItem.content} />
+            )}
+            {useChatMessageHandler.getState().loadingMessage && (
+              <WaveText
+                message={useChatMessageHandler.getState().loadingMessage || ''}
+              />
+            )}
+            {useChatMessageHandler.getState().showMessageSkeleton && (
+              <SkeletonWave />
             )}
           </div>
 
