@@ -60,6 +60,8 @@ export async function POST(req: Request) {
       ? parsedPreviousMessages
       : [...parsedPreviousMessages, message];
 
+    console.log('all messages', allMessages);
+
     const response = await generateText({
       model: toolhandlerModel,
       system: getToolHandlerPrimeDirective(walletPublicKey),

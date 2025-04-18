@@ -64,7 +64,7 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
       if (dataStream === null) return;
       dataStream.onmessage = async (event) => {
         const eventData = JSON.parse(event.data);
-        // console.log(eventData);
+        console.log(eventData);
         if (eventData.type === 'session.created') {
           // update the session with our latest tools, voice and emotion
           updateSession('all');
@@ -87,28 +87,42 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
         } else if (eventData.type === 'input_audio_buffer.speech_stopped') {
           useSessionHandler.getState().setIsUserSpeaking(false);
         } else if (
-          eventData.type ===
-          'conversation.item.input_audio_transcription.completed'
-        ) {
-          useChatMessageHandler
-            .getState()
-            .addMessage({
-              id: eventData.event_id,
-              content: eventData.transcript,
-              role: 'data',
-            })
-            .catch(() => toast.error('failed to add message'));
-        } else if (
           eventData.type === 'response.audio_transcript.delta' ||
           eventData.type === 'response.text.delta'
         ) {
           useChatMessageHandler.getState().setShowMessageSkeleton(true);
-        } else if (
-          eventData.type === 'response.audio_transcript.done' ||
-          eventData.type === 'response.text.done'
-        ) {
+        } else if (eventData.type === 'response.audio_transcript.done') {
           useChatMessageHandler.getState().setShowMessageSkeleton(false);
-          useChatMessageHandler.getState().addMessage(eventData.text);
+          useChatMessageHandler
+            .getState()
+            .addMessage({
+              id: eventData.event_id,
+              content: eventData.transcript || '',
+              role: 'assistant',
+              parts: [
+                {
+                  type: 'text',
+                  text: eventData.transcript || '',
+                },
+              ],
+            })
+            .catch(() => toast.error('failed to add message'));
+        } else if (eventData.type === 'response.text.done') {
+          useChatMessageHandler.getState().setShowMessageSkeleton(false);
+          useChatMessageHandler
+            .getState()
+            .addMessage({
+              id: eventData.event_id,
+              content: eventData.text || '',
+              role: 'assistant',
+              parts: [
+                {
+                  type: 'text',
+                  text: eventData.text || '',
+                },
+              ],
+            })
+            .catch(() => toast.error('failed to add message'));
         } else if (eventData.type === 'response.done') {
           useChatMessageHandler.getState().setShowMessageSkeleton(false);
           // handle credit calculation
@@ -171,6 +185,8 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
                     createdAt: new Date(),
                   };
 
+                  useChatMessageHandler.getState().addMessage(currentMessage);
+
                   // process the tool handling on the server
                   const response = await apiClient.post(
                     '/api/chat',
@@ -229,12 +245,12 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
                     }
                   }
                   useChatMessageHandler.getState().setLoadingMessage(null);
-                  useChatMessageHandler.getState().addMessage(currentMessage);
+
                   // add the tools response also to the chat
                   useChatMessageHandler.getState().addMessage({
                     id: response.data[0].toolCallId,
                     role: 'assistant',
-                    content: JSON.stringify(response.data[0].result),
+                    content: JSON.stringify(response.data[0].result) || '',
                     createdAt: new Date(),
                     parts: [
                       {
@@ -249,9 +265,13 @@ export const EventProvider: FC<EventProviderProps> = ({ children }) => {
                       },
                     ],
                   } as Message);
+                  // sendFunctionCallResponseMessage(
+                  //   'Provide a small summary of the following output: ' +
+                  //     JSON.stringify(response.data[0].result),
+                  //   output.call_id
+                  // );
                   sendFunctionCallResponseMessage(
-                    'Provide a small summary of the following output: ' +
-                      JSON.stringify(response.data[0].result),
+                    'The request was processed successfully, ask want the user wants to do next',
                     output.call_id
                   );
 

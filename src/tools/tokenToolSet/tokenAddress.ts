@@ -38,6 +38,8 @@ export function createTokenAddressTool(context: ToolContext) {
         // Clean up the token symbol
         const tokenSymbol = params.token_symbol.trim();
 
+        console.log('Token symbol:', tokenSymbol);
+
         // Add $ prefix if not already present (for the API)
         const apiSymbol = tokenSymbol.startsWith('$')
           ? tokenSymbol
@@ -64,23 +66,21 @@ export function createTokenAddressTool(context: ToolContext) {
           if (response.ok) {
             const data = await response.json();
 
-            // Validate response structure
-            if (data && data.token_address) {
-              return {
+            console.log('Token address found:', data.token_address, data);
+            return {
+              success: true,
+              data: {
+                type: 'token_address_result',
+                symbol: displaySymbol,
+                tokenAddress: data.token_address,
+                source: 'Data Service',
                 success: true,
-                data: {
-                  type: 'token_address_result',
-                  symbol: displaySymbol,
-                  tokenAddress: data.token_address,
-                  source: 'Data Service',
-                  success: true,
-                  response_id: 'temp',
-                  sender: 'system',
-                  timestamp: new Date().toISOString(),
-                },
-                error: undefined,
-              };
-            }
+                response_id: 'temp',
+                sender: 'system',
+                timestamp: new Date().toISOString(),
+              },
+              error: undefined,
+            };
           }
         } catch (err) {
           console.error('Error with primary token lookup method:', err);
@@ -139,7 +139,7 @@ async function getTokenAddressFromTicker(
     );
 
     if (!response.ok) {
-      throw new Error(`DexScreener API returned ${response.status}`);
+      return null;
     }
 
     const data = await response.json();
