@@ -68,7 +68,7 @@ export async function POST(req: Request) {
       messages: allMessages,
       tools: tools,
       toolChoice: 'required',
-      maxSteps: 3,
+      maxSteps: 8,
       experimental_telemetry: {
         isEnabled: true,
       },

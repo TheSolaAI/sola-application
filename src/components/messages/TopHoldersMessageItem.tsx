@@ -1,19 +1,23 @@
 'use client';
 
 import { FC } from 'react';
-import { TopHoldersChatContent } from '@/types/chatItem';
 import { LuExternalLink } from 'react-icons/lu';
 import { formatNumber } from '@/utils/formatNumber';
+import { TopHolder } from '@/types/messageCard';
 
 interface TopHoldersChatItemProps {
-  props: TopHoldersChatContent;
+  props: { details: TopHolder[] };
 }
 
 export const TopHoldersMessageItem: FC<TopHoldersChatItemProps> = ({
   props,
 }) => {
+  if (!props || !props.details) {
+    return null;
+  }
+
   // Calculate the total amount held by all displayed holders
-  const totalAmount = props.data.reduce(
+  const totalAmount = props.details.reduce(
     (sum, holder) => sum + holder.amount,
     0
   );
@@ -24,7 +28,7 @@ export const TopHoldersMessageItem: FC<TopHoldersChatItemProps> = ({
   };
 
   // Determine if we have a high concentration (more than 50% held by top 3)
-  const top3Total = props.data
+  const top3Total = props.details
     .slice(0, 3)
     .reduce((sum, holder) => sum + holder.amount, 0);
   const highConcentration = top3Total / totalAmount > 0.5;
@@ -81,7 +85,7 @@ export const TopHoldersMessageItem: FC<TopHoldersChatItemProps> = ({
               </tr>
             </thead>
             <tbody>
-              {props.data.map((holder, index) => {
+              {props.details.map((holder, index) => {
                 const percentage = parseFloat(
                   calculatePercentage(holder.amount)
                 );
@@ -168,8 +172,8 @@ export const TopHoldersMessageItem: FC<TopHoldersChatItemProps> = ({
             <div className="flex items-center">
               <div className="h-2 w-2 rounded-full bg-primary mr-2"></div>
               <span>
-                {props.data.filter((h) => h.insider).length > 0
-                  ? `${props.data.filter((h) => h.insider).length} insider wallets identified`
+                {props.details.filter((h) => h.insider).length > 0
+                  ? `${props.details.filter((h) => h.insider).length} insider wallets identified`
                   : 'No insider wallets identified'}
               </span>
             </div>

@@ -1,4 +1,3 @@
-import { ApiClient, apiClient } from '@/lib/ApiClient';
 import { TopHolder } from '@/types/messageCard';
 
 interface TopHoldersResponse {
@@ -6,16 +5,30 @@ interface TopHoldersResponse {
 }
 
 export async function getTopHoldersHandler(
-  token: string
+  token: string,
+  authToken: string
 ): Promise<TopHolder[] | null> {
-  const resp = await apiClient.get<TopHoldersResponse>(
-    '/data/token/top_holders?token_address=' + token,
-    undefined,
-    'data'
-  );
-  if (ApiClient.isApiError(resp)) {
-    console.error('Error during getTopHoldersHandler:', resp.errors);
+  try {
+    const res = await fetch(
+      `https://data-stream-service.solaai.tech/data/token/top_holders?token_address=${token}`,
+      {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    if (!res.ok) {
+      console.error('Failed to fetch top holders:', await res.text());
+      return null;
+    }
+
+    const json: TopHoldersResponse = await res.json();
+    return json.topHolders;
+  } catch (error) {
+    console.error('Error in getTopHoldersHandler:', error);
     return null;
   }
-  return resp.data.topHolders;
 }

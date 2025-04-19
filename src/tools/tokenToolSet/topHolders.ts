@@ -19,7 +19,20 @@ export function createTopHoldersTool(context: ToolContext) {
     parameters: Parameters,
     execute: async (params) => {
       try {
-        const topHolders = await getTopHoldersHandler(params.token_address);
+        console.log('Top holders tool executed with params:', params);
+
+        if (!context.authToken) {
+          return {
+            success: false,
+            error: 'No auth token provided',
+            data: undefined,
+          };
+        }
+
+        const topHolders = await getTopHoldersHandler(
+          params.token_address,
+          context.authToken
+        );
 
         if (!topHolders) {
           return {
@@ -33,11 +46,7 @@ export function createTopHoldersTool(context: ToolContext) {
         return {
           success: true,
           data: {
-            type: 'top_holders',
             details: topHolders,
-            response_id: 'temp',
-            sender: 'system',
-            timestamp: new Date().toISOString(),
           },
           error: undefined,
         };
