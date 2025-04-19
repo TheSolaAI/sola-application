@@ -2,14 +2,12 @@
 import React, { useState } from 'react';
 import { LuMic, LuMicOff, LuSend, LuRefreshCw } from 'react-icons/lu';
 import { useSessionHandler } from '@/store/SessionHandler';
-import { useChatMessageHandler } from '@/store/ChatMessageHandler';
 import { toast } from 'sonner';
 import { useSessionManager } from '@/hooks/useSessionManager';
 import { useSessionManagerHandler } from '@/store/SessionManagerHandler';
 
 export const SessionControls = () => {
   const { muted, setMuted, state, sendTextMessage } = useSessionHandler();
-  const { addMessage } = useChatMessageHandler();
   const { establishConnection } = useSessionManager();
   const { setShowVerifyHoldersPopup, sessionStatus, showVerifyHoldersPopup } =
     useSessionManagerHandler();
@@ -42,12 +40,6 @@ export const SessionControls = () => {
     }
 
     await sendTextMessage(inputRef.current.value);
-
-    addMessage({
-      content: inputRef.current?.value || '',
-      role: 'user',
-      id: Math.random().toString(),
-    });
 
     inputRef.current.value = '';
   };

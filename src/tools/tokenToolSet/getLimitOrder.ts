@@ -1,5 +1,4 @@
 import { API_URLS } from '@/config/api_urls';
-import { ApiClient, createServerApiClient } from '@/lib/ApiClient';
 import { ShowLimitOrderResponse } from '@/types/jupiter';
 import { ToolContext, ToolResult } from '@/types/tool';
 import { Tool } from 'ai';
@@ -13,6 +12,8 @@ export function createGetLimitOrderTool(context: ToolContext) {
     description: 'Get the active limit orders of the user.',
     parameters: Parameters,
     execute: async (_params) => {
+      console.log('getLimitOrderTool', context);
+
       if (!context.publicKey) {
         return {
           success: false,
@@ -27,22 +28,41 @@ export function createGetLimitOrderTool(context: ToolContext) {
           data: undefined,
         };
       }
-      const apiClient = createServerApiClient(context.authToken);
-      const response = await apiClient.get<ShowLimitOrderResponse>(
-        API_URLS.WALLET.LIMIT_ORDER.SHOW + '?address=' + context.publicKey,
-        undefined,
-        'wallet'
-      );
-      if (ApiClient.isApiResponse<ShowLimitOrderResponse>(response)) {
+
+      try {
+        const res = await fetch(
+          `https://wallet-service.solaai.tech/api/wallet/jup/limit-order/show?address=${context.publicKey}`,
+          {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${context.authToken}`,
+            },
+          }
+        );
+
+        console.log('getLimitOrderTool response', res);
+
+        if (!res.ok) {
+          const errText = await res.json();
+          return {
+            success: false,
+            error: `API error: ${res.status} - ${errText}`,
+            data: undefined,
+          };
+        }
+
+        const json: ShowLimitOrderResponse = await res.json();
+
         return {
           success: true,
           error: undefined,
-          data: response.data,
+          data: json,
         };
-      } else {
+      } catch (err) {
         return {
           success: false,
-          error: 'Failed to get limit order',
+          error: `Fetch error: ${String(err)}`,
           data: undefined,
         };
       }

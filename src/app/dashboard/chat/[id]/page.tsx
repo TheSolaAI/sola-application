@@ -105,7 +105,7 @@ export default function Chat() {
     args: ToolResult
   ): React.ReactNode => {
     switch (toolName) {
-      case 'tokenAddressTool':
+      case '  ':
         return <TokenAddressResultItem props={args.data} />;
       case 'trendingAiProjects':
         return <AiProjects props={args.data} />;

@@ -1,24 +1,20 @@
 'use client';
 
 import { FC } from 'react';
-import { ShowLimitOrdersChatContent } from '@/types/chatItem';
 import BaseGridChatItem from '@/components/messages/general/BaseGridChatItem';
 import { tokenList } from '@/config/tokenMapping';
-import { cancelLimitOrderHandler } from '@/lib/solana/limitOrderTx';
-import { useWalletHandler } from '@/store/WalletHandler';
-import { BorderGlowButton } from '@/app/dashboard/_components/dashboards/BorderGlowButton';
+import { ShowLimitOrderResponse } from '@/types/jupiter';
 
 interface ShowLimitOrdersChatItemProps {
-  props: ShowLimitOrdersChatContent;
+  props: ShowLimitOrderResponse;
 }
 
 export const ShowLimitOrdersChatItem: FC<ShowLimitOrdersChatItemProps> = ({
   props,
 }) => {
-  const wallet = useWalletHandler.getState().currentWallet;
   return (
     <BaseGridChatItem col={3}>
-      {props.data.orders.map((order, lIndex) => {
+      {props.orders.map((order, lIndex) => {
         const inputToken = Object.values(tokenList).find(
           (v) => v.MINT === order.input_mint
         );
@@ -74,20 +70,6 @@ export const ShowLimitOrdersChatItem: FC<ShowLimitOrdersChatItemProps> = ({
                   {order.output_mint.slice(-3)}
                 </p>
               </div>
-            </div>
-
-            <div className="mt-4 flex justify-center">
-              <span
-                className="w-full"
-                onClick={() => {
-                  cancelLimitOrderHandler({
-                    order_id: [order.order_id],
-                    public_key: wallet,
-                  });
-                }}
-              >
-                <BorderGlowButton text="Cancel Order" />
-              </span>
             </div>
           </div>
         );
