@@ -15,7 +15,7 @@ import React from 'react';
 import { useWalletHandler } from '@/store/WalletHandler';
 import useKeyboardHeight from '@/hooks/useKeyboardHeight';
 import { toast } from 'sonner';
-import { UIMessage } from 'ai';
+import { generateId, UIMessage } from 'ai';
 import { ToolResult } from '@/types/tool';
 import { TokenAddressResultItem } from '@/components/messages/TokenAddressResultItem';
 import { AiProjects } from '@/components/messages/AiProjects';
@@ -134,23 +134,23 @@ export default function Chat() {
     }
   };
 
-  // Handler for direct AI responses (for fallback responses without tool calls)
-  const handleAddAIResponse = async (responseText: string) => {
+  // TODO: Add voice message
+  const handleAddAIResponse = (responseText: string) => {
     try {
-      // First ensure the latest user message is in the chat
-      // (This is needed because when using the toolset determination endpoint
-      // directly, the message might not be in useChat's state yet)
       const latestUserMsg = messages.findLast((m) => m.role === 'user');
 
       if (!latestUserMsg) {
         console.warn('No user message found to respond to');
       }
 
-      // Now add the AI response
-      await append({
-        role: 'assistant',
-        content: responseText,
-      });
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        {
+          id: generateId(),
+          role: 'assistant',
+          content: responseText,
+        },
+      ]);
 
       setLoadingMessage(null);
     } catch (error) {
@@ -158,6 +158,17 @@ export default function Chat() {
       toast.error('Failed to process response');
       setLoadingMessage(null);
     }
+  };
+
+  const handleAddUserMessage = (userMessage: Message) => {
+    setMessages((prevMessages) => [
+      ...prevMessages,
+      {
+        id: generateId(),
+        role: 'user',
+        content: userMessage.content,
+      },
+    ]);
   };
 
   // Render message or tool result based on content type
@@ -309,6 +320,7 @@ export default function Chat() {
         <SessionControls
           onSendMessage={handleSendMessage}
           onAddAIResponse={handleAddAIResponse}
+          onAddUserMessage={handleAddUserMessage}
           isProcessing={isLoading}
           messages={messages}
         />

@@ -8,7 +8,9 @@ import {
 import { z } from 'zod';
 
 const ToolsetSelectionSchema = z.object({
-  selectedToolset: z.enum(TOOLSET_SLUGS as unknown as [string, ...string[]]),
+  selectedToolset: z.array(
+    z.enum(TOOLSET_SLUGS as unknown as [string, ...string[]])
+  ),
   fallbackResponse: z
     .string()
     .describe(
@@ -34,14 +36,12 @@ export async function POST(req: Request) {
     // Combine previous messages with current message
     const allMessages = [...previousMessages, message];
 
-    let selectedToolset: ToolsetSlug = 'token';
+    let selectedToolset: ToolsetSlug[] = ['token'];
     let fallbackResponse: string | undefined;
 
     try {
-      console.log('Selecting toolset with AI model...');
-
-      // Create a specialized system prompt for toolset selection
       const toolsetSelectionPrompt = getRealtimePrimeDirective(walletPublicKey);
+      console.log('All messages:', allMessages);
 
       const toolsetSelectionResult = await generateObject({
         model: toolsetSelectionModel,
@@ -66,6 +66,13 @@ export async function POST(req: Request) {
       console.error('Error selecting toolset with AI:', error);
       console.log('Using default toolset:', selectedToolset);
     }
+
+    console.log(
+      'Selected toolset:',
+      selectedToolset,
+      'Fallback response:',
+      fallbackResponse
+    );
 
     return new Response(
       JSON.stringify({

@@ -15,13 +15,15 @@ import { useChatRoomHandler } from '@/store/ChatRoomHandler';
 import { useChatMessageHandler } from '@/store/ChatMessageHandler';
 import { useUserHandler } from '@/store/UserHandler';
 import { useWalletHandler } from '@/store/WalletHandler';
-import { UIMessage, generateId } from 'ai';
+import { Message, UIMessage, generateId } from 'ai';
 
 interface SessionControlsProps {
   // Function to add message to useChat hook
   onSendMessage: (message: string) => void;
   // Function to add AI response directly to messages (for fallback responses)
   onAddAIResponse: (message: string) => void;
+
+  onAddUserMessage: (message: Message) => void;
   // Flag to indicate if the chat is currently processing
   isProcessing: boolean;
   // Current messages in useChat
@@ -31,6 +33,7 @@ interface SessionControlsProps {
 const SessionControls: React.FC<SessionControlsProps> = ({
   onSendMessage,
   onAddAIResponse,
+  onAddUserMessage,
   isProcessing,
   messages = [],
 }) => {
@@ -79,7 +82,7 @@ const SessionControls: React.FC<SessionControlsProps> = ({
       content: messageContent,
       role: 'user',
       createdAt: new Date(),
-    };
+    } as Message;
 
     // Get previous messages for context (up to 5 previous messages)
     const previousMessages = messages.slice(-5).map((msg) => ({
@@ -122,6 +125,7 @@ const SessionControls: React.FC<SessionControlsProps> = ({
         );
 
         // Add AI response directly to messages without calling chat API
+        onAddUserMessage(currentMessage);
         onAddAIResponse(toolsetData.fallbackResponse);
         setLoadingMessage(null);
         setIsToolsetProcessing(false);
