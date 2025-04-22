@@ -1,4 +1,4 @@
-import { Message, generateObject } from 'ai';
+import { UIMessage, generateObject } from 'ai';
 import {
   getRealtimePrimeDirective,
   TOOLSET_SLUGS,
@@ -25,8 +25,8 @@ export async function POST(req: Request) {
       previousMessages = [],
     }: {
       walletPublicKey: string;
-      message: Message;
-      previousMessages: Message[];
+      message: UIMessage;
+      previousMessages: UIMessage[];
     } = await req.json();
 
     console.log('Processing toolset selection for message:', message.content);

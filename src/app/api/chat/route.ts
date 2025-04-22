@@ -1,10 +1,11 @@
-import { Message, streamText } from 'ai';
+import { streamText, UIMessage } from 'ai';
 import {
   getToolHandlerPrimeDirective,
   getToolsFromToolset,
   toolhandlerModel,
   ToolsetSlug,
 } from '@/config/ai';
+import { cookies } from 'next/headers';
 
 export async function POST(req: Request) {
   try {
@@ -17,10 +18,13 @@ export async function POST(req: Request) {
     }: {
       walletPublicKey: string;
       selectedToolset: ToolsetSlug;
-      message: Message;
-      previousMessages: Message[];
+      message: UIMessage;
+      previousMessages: UIMessage[];
       currentRoomID: string;
     } = await req.json();
+
+    const cookieStore = cookies();
+    const accessToken = (await cookieStore).get('privy-token')?.value;
 
     console.log('Processing request with toolset:', selectedToolset);
     console.log('Chat room ID:', currentRoomID);
@@ -30,7 +34,7 @@ export async function POST(req: Request) {
 
     // Get tools for the selected toolset
     const tools = getToolsFromToolset(selectedToolset, {
-      authToken: req.headers.get('authorization')?.replace('Bearer ', '') || '',
+      authToken: accessToken,
       publicKey: walletPublicKey,
     });
     console.log('Tools loaded for toolset:', selectedToolset);
@@ -47,11 +51,54 @@ export async function POST(req: Request) {
       experimental_telemetry: {
         isEnabled: true,
       },
+      onStepFinish: (stepResult) => {
+        console.log('Step finished:', stepResult.text);
+        // TODO: Handle sending the message to the database
+
+        // try {
+
+        // } catch (error) {
+
+        // }
+      },
     });
 
     return result.toDataStreamResponse();
   } catch (error) {
     console.error('Error in route [chat]:', error);
     return new Response('Internal Server Error', { status: 500 });
+  }
+}
+
+async function storeMessageInDB(
+  roomId: string,
+  messageJson: string,
+  authToken: string
+): Promise<any> {
+  try {
+    const response = await fetch(
+      `https://user-service.solaai.tech/api/v1/chatrooms/${roomId}/messages/`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: authToken,
+        },
+        body: JSON.stringify({
+          message: messageJson,
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(
+        `Failed to store message: ${response.status} ${response.statusText}`
+      );
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error storing message:', error);
+    throw error;
   }
 }

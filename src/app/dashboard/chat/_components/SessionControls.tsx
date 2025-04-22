@@ -15,21 +15,37 @@ import { useChatRoomHandler } from '@/store/ChatRoomHandler';
 import { useChatMessageHandler } from '@/store/ChatMessageHandler';
 import { useUserHandler } from '@/store/UserHandler';
 import { useWalletHandler } from '@/store/WalletHandler';
-import { generateId } from 'ai';
+import { UIMessage, generateId } from 'ai';
 
-export const SessionControls = () => {
+interface SessionControlsProps {
+  // Function to add message to useChat hook
+  onSendMessage: (message: string) => void;
+  // Function to add AI response directly to messages (for fallback responses)
+  onAddAIResponse: (message: string) => void;
+  // Flag to indicate if the chat is currently processing
+  isProcessing: boolean;
+  // Current messages in useChat
+  messages?: UIMessage[];
+}
+
+const SessionControls: React.FC<SessionControlsProps> = ({
+  onSendMessage,
+  onAddAIResponse,
+  isProcessing,
+  messages = [],
+}) => {
   const { state } = useSessionHandler();
   const { establishConnection } = useSessionManager();
   const { setShowVerifyHoldersPopup, sessionStatus } =
     useSessionManagerHandler();
   const { createChatRoom, currentChatRoom } = useChatRoomHandler();
-  const { setLoadingMessage, addMessage } = useChatMessageHandler();
+  const { setLoadingMessage } = useChatMessageHandler();
   const { currentWallet } = useWalletHandler();
 
   const [isConnecting, setIsConnecting] = useState(false);
   const [inputText, setInputText] = useState('');
   const [isUploading, setIsUploading] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [isToolsetProcessing, setIsToolsetProcessing] = useState(false);
 
   const { isRecording, recordingTime, startRecording, stopRecording } =
     useAudioRecorder();
@@ -50,7 +66,8 @@ export const SessionControls = () => {
     }
   };
 
-  const callChatAPI = async (messageContent: string, messageId: string) => {
+  // Process the message through toolset determination and chat API
+  const processMessage = async (messageContent: string) => {
     if (!currentWallet?.address) {
       toast.error('Please connect your wallet');
       return;
@@ -58,16 +75,21 @@ export const SessionControls = () => {
 
     // Create message object for current message
     const currentMessage = {
-      id: messageId,
+      id: generateId(),
       content: messageContent,
       role: 'user',
       createdAt: new Date(),
     };
 
-    // Get previous messages (e.g., last 5 messages)
-    const previousMessages = useChatMessageHandler.getState().getTopMessages(5);
+    // Get previous messages for context (up to 5 previous messages)
+    const previousMessages = messages.slice(-5).map((msg) => ({
+      id: msg.id,
+      content: msg.content,
+      role: msg.role,
+      createdAt: new Date(),
+    }));
 
-    setIsProcessing(true);
+    setIsToolsetProcessing(true);
     setLoadingMessage('Processing your request...');
 
     try {
@@ -98,60 +120,22 @@ export const SessionControls = () => {
           'Direct response (no toolset needed):',
           toolsetData.fallbackResponse
         );
-        // TODO: Handle the direct response case
-        // For now, just display as a regular message
+
+        // Add AI response directly to messages without calling chat API
+        onAddAIResponse(toolsetData.fallbackResponse);
         setLoadingMessage(null);
-
-        // Add the AI response to UI with the fallback response
-        await addMessage({
-          id: generateId(),
-          content: toolsetData.fallbackResponse,
-          role: 'assistant',
-        });
-
-        setIsProcessing(false);
+        setIsToolsetProcessing(false);
         return;
       }
 
-      // Step 2: Call the chat API with the selected toolset
-      const chatResponse = await fetch('/api/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${useUserHandler.getState().authToken}`,
-        },
-        body: JSON.stringify({
-          walletPublicKey: currentWallet.address,
-          selectedToolset: toolsetData.selectedToolset,
-          message: currentMessage,
-          previousMessages: previousMessages,
-          currentRoomID: currentChatRoom?.id,
-        }),
-      });
-
-      if (!chatResponse.ok) {
-        throw new Error('Failed to process request with AI');
-      }
-
-      // Response processing is handled by EventProvider
-      console.log(
-        'Chat API call successful with toolset:',
-        toolsetData.selectedToolset
-      );
+      // Step 2: We have a toolset, so let the useChat hook handle it
+      // This will trigger the /api/chat endpoint via useChat
+      onSendMessage(messageContent);
     } catch (error) {
-      console.error('Error in chat flow:', error);
+      console.error('Error in message processing flow:', error);
       toast.error('Failed to process your request');
-
-      // Add error message to the UI
-      await addMessage({
-        id: generateId(),
-        content:
-          "I'm sorry, I couldn't process your request. Please try again.",
-        role: 'assistant',
-      });
-    } finally {
       setLoadingMessage(null);
-      setIsProcessing(false);
+      setIsToolsetProcessing(false);
     }
   };
 
@@ -169,13 +153,8 @@ export const SessionControls = () => {
       await createChatRoom({ name: 'New Chat' });
     }
 
-    const id = generateId();
-
-    // Add the message to UI
-    await addMessage({ id: id, content: inputText, role: 'user' });
-
-    // Call the API directly and don't process the response here
-    await callChatAPI(inputText, id);
+    // Process the message with toolset determination
+    await processMessage(inputText);
 
     // Clear input
     setInputText('');
@@ -223,23 +202,16 @@ export const SessionControls = () => {
           throw new Error(data.error || 'Transcription failed');
         }
 
-        // Clear speech processing message
-        setLoadingMessage(null);
-
         // Process the transcribed text
-        const transcribedText = data.text.trim() as string;
+        const transcribedText = data.text.trim();
         if (transcribedText) {
           toast.success('Audio transcribed successfully!');
 
-          const id = generateId();
-
-          // Add the message to UI
-          await addMessage({ id: id, content: transcribedText, role: 'user' });
-
-          // Call the API directly
-          await callChatAPI(transcribedText, id);
+          // Process the message with toolset determination
+          await processMessage(transcribedText);
         } else {
           toast.warning('No speech detected');
+          setLoadingMessage(null);
         }
       } catch (error) {
         console.error('Speech processing error:', error);
@@ -266,8 +238,8 @@ export const SessionControls = () => {
     sessionStatus === 'idle' ||
     sessionStatus === 'connecting';
 
-  // Disable controls during processing
-  const isDisabled = isUploading || isProcessing;
+  // Disable controls during any processing state
+  const isDisabled = isUploading || isProcessing || isToolsetProcessing;
 
   return (
     <div className="relative flex items-center justify-center w-full h-full mb-10">
@@ -292,7 +264,7 @@ export const SessionControls = () => {
             disabled={isDisabled || !inputText.trim()}
             className={`absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-3 w-12 h-12 bg-sec_background text-textColor flex items-center justify-center hover:bg-primaryDark hover:text-textColorContrast transition-colors ${isDisabled || !inputText.trim() ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
-            {isProcessing ? (
+            {isDisabled ? (
               <LuRefreshCw size={16} className="animate-spin" />
             ) : (
               <LuSend size={16} />
