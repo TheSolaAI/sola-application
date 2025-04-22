@@ -19,7 +19,7 @@ import { Message, UIMessage, generateId } from 'ai';
 
 interface SessionControlsProps {
   // Function to add message to useChat hook
-  onSendMessage: (message: string) => void;
+  onSendMessage: (message: string, requiredToolSets: string[]) => void;
   // Function to add AI response directly to messages (for fallback responses)
   onAddAIResponse: (message: string) => void;
 
@@ -118,13 +118,12 @@ const SessionControls: React.FC<SessionControlsProps> = ({
       console.log('Toolset determination result:', toolsetData);
 
       // If fallbackResponse is provided, no toolset is needed
-      if (toolsetData.fallbackResponse) {
+      if (toolsetData.selectedToolset.length === 0) {
         console.log(
           'Direct response (no toolset needed):',
           toolsetData.fallbackResponse
         );
 
-        // Add AI response directly to messages without calling chat API
         onAddUserMessage(currentMessage);
         onAddAIResponse(toolsetData.fallbackResponse);
         setLoadingMessage(null);
@@ -132,9 +131,7 @@ const SessionControls: React.FC<SessionControlsProps> = ({
         return;
       }
 
-      // Step 2: We have a toolset, so let the useChat hook handle it
-      // This will trigger the /api/chat endpoint via useChat
-      onSendMessage(messageContent);
+      onSendMessage(messageContent, toolsetData.selectedToolset);
     } catch (error) {
       console.error('Error in message processing flow:', error);
       toast.error('Failed to process your request');
@@ -143,7 +140,6 @@ const SessionControls: React.FC<SessionControlsProps> = ({
     }
   };
 
-  // Handle text input submission
   const sendMessageToAI = async () => {
     if (!inputText.trim()) return;
 

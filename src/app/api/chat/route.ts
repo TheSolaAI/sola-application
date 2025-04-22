@@ -1,4 +1,4 @@
-import { streamText, UIMessage } from 'ai';
+import { streamText, Tool, UIMessage } from 'ai';
 import {
   getToolHandlerPrimeDirective,
   getToolsFromToolset,
@@ -11,40 +11,45 @@ export async function POST(req: Request) {
   try {
     const {
       walletPublicKey,
-      selectedToolset,
-      message,
-      previousMessages = [],
+      messages,
       currentRoomID,
+      requiredToolSets,
     }: {
       walletPublicKey: string;
-      selectedToolset: ToolsetSlug;
-      message: UIMessage;
-      previousMessages: UIMessage[];
+      messages: UIMessage[];
       currentRoomID: string;
+      requiredToolSets: ToolsetSlug[];
     } = await req.json();
 
     const cookieStore = cookies();
     const accessToken = (await cookieStore).get('privy-token')?.value;
 
-    console.log('Processing request with toolset:', selectedToolset);
+    console.log('Processing request with toolset:', requiredToolSets);
     console.log('Chat room ID:', currentRoomID);
 
-    // Use the provided previous messages and current message
-    const allMessages = [...previousMessages, message];
+    let tools: Record<string, Tool<any, any>> = {};
 
-    // Get tools for the selected toolset
-    const tools = getToolsFromToolset(selectedToolset, {
-      authToken: accessToken,
-      publicKey: walletPublicKey,
-    });
-    console.log('Tools loaded for toolset:', selectedToolset);
+    for (const selectedToolset of requiredToolSets) {
+      console.log('Loading tools for toolset:', selectedToolset);
+      const newTools = getToolsFromToolset(selectedToolset, {
+        authToken: accessToken,
+        publicKey: walletPublicKey,
+      });
 
-    console.log('Processing with main AI model...');
+      tools = {
+        ...tools,
+        ...newTools,
+      };
+
+      console.log('Tools loaded for toolset:', selectedToolset);
+    }
+
+    console.log('All tools loaded:', tools);
 
     const result = streamText({
       model: toolhandlerModel,
       system: getToolHandlerPrimeDirective(walletPublicKey),
-      messages: allMessages,
+      messages: messages,
       tools: tools,
       toolChoice: 'required',
       maxSteps: 8,

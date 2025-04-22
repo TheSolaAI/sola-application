@@ -61,8 +61,6 @@ export default function Chat() {
     },
   });
 
-  console.log('Chat messages:', messages, dbMessages);
-
   // Set current room based on URL parameter
   useEffect(() => {
     if (!currentChatRoom && id && rooms.length > 0) {
@@ -118,12 +116,18 @@ export default function Chat() {
     }
   }, [messages]);
 
-  const handleSendMessage = async (text: string) => {
+  const handleSendMessage = async (text: string, toolsets: string[]) => {
+    console.log('Sending message:', text);
+    console.log('Toolsets:', toolsets);
+
     try {
-      await append({
-        role: 'user',
-        content: text,
-      });
+      await append(
+        {
+          role: 'user',
+          content: text,
+        },
+        { body: { requiredToolSets: toolsets } }
+      );
 
       // Set loading message
       setLoadingMessage('Processing your request...');
