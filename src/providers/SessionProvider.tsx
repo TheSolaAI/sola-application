@@ -5,7 +5,6 @@ import { useChatMessageHandler } from '@/store/ChatMessageHandler';
 import { useSessionHandler } from '@/store/SessionHandler';
 import { toast } from 'sonner';
 import { useUserHandler } from '@/store/UserHandler';
-import { EventProvider } from '@/providers/EventProvider';
 import { useSessionManager } from '@/hooks/useSessionManager';
 import SessionVerificationModal from '@/app/dashboard/_components/SessionVerificationModal';
 import { useSessionManagerHandler } from '@/store/SessionManagerHandler';
@@ -134,23 +133,21 @@ export const SessionProvider: FC<SessionProviderProps> = ({ children }) => {
   };
 
   return (
-    <EventProvider>
-      <div className="overflow-y-auto">
-        {/* Session Verification Modal */}
-        <SessionVerificationModal
-          isOpen={showVerifyHoldersCard}
-          onClose={() => setShowVerifyHoldersPopup(false)}
-          sessionStatus={sessionStatus}
-          onVerifyTier={handleVerifyTier}
-          onConnect={handleConnect}
-          tierVerificationResult={tierVerificationResult}
-          userProvidedApiKey={getUserProvidedApiKey}
-          onSetApiKey={setUserProvidedApiKey}
-          onClearApiKey={clearUserProvidedApiKey}
-        />
+    <div className="overflow-y-auto">
+      {/* Session Verification Modal */}
+      <SessionVerificationModal
+        isOpen={showVerifyHoldersCard}
+        onClose={() => setShowVerifyHoldersPopup(false)}
+        sessionStatus={sessionStatus}
+        onVerifyTier={handleVerifyTier}
+        onConnect={handleConnect}
+        tierVerificationResult={tierVerificationResult}
+        userProvidedApiKey={getUserProvidedApiKey}
+        onSetApiKey={setUserProvidedApiKey}
+        onClearApiKey={clearUserProvidedApiKey}
+      />
 
-        {children}
-      </div>
-    </EventProvider>
+      {children}
+    </div>
   );
 };

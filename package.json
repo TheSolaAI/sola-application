@@ -28,6 +28,7 @@
     "axios-retry": "^4.5.0",
     "framer-motion": "^12.4.10",
     "next": "15.2.1",
+    "openai": "^4.95.1",
     "prisma": "^6.5.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

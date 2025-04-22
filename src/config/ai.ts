@@ -10,6 +10,7 @@ import { getNftToolSet, nftToolSet } from '@/tools/nftToolSet';
 import { getOnChainToolSet, onChainToolSet } from '@/tools/onChainToolSet';
 
 export const toolhandlerModel = openai('gpt-4o');
+export const toolsetSelectionModel = openai('gpt-4o-mini');
 
 /**
  * This contains the generic definition of the toolsets without the encapsulated context
@@ -49,10 +50,7 @@ export const getToolsFromToolset = (
 
 export const signingRequiredTools = ['createLimitOrderTool'];
 
-export const getRealtimePrimeDirective = (
-  emotion: string,
-  userName: string
-) => {
+export const getRealtimePrimeDirective = (userWallet: string) => {
   const formattedToolsets = Object.entries(availableToolsetsDescription)
     .map(
       ([toolsetSlug, toolset]) =>
@@ -96,8 +94,7 @@ Common knowledge:
 
 
 User-Configured Personality:
-  - ${emotion}
-  - Call the user by their name which is ${userName}
+  - User Wallet Address ${userWallet}
 
 Realtime knowledge:
 - { approximateCurrentTime: ${new Date().toISOString()}}

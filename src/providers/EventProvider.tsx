@@ -1,8 +1,6 @@
 'use client';
 import { FC, ReactNode, useEffect } from 'react';
-import { useSessionHandler } from '@/store/SessionHandler';
 import { useChatMessageHandler } from '@/store/ChatMessageHandler';
-import { useCreditHandler } from '@/store/CreditHandler';
 import { useChatRoomHandler } from '@/store/ChatRoomHandler';
 import { useWalletHandler } from '@/store/WalletHandler';
 import { Message } from 'ai';
@@ -11,6 +9,7 @@ import { ApiClient, apiClient } from '@/lib/ApiClient';
 import { signingRequiredTools, TOOLSET_SLUGS } from '@/config/ai';
 import { ToolCallResult } from '@/types/tool';
 import { VersionedTransaction } from '@solana/web3.js';
+import { useSessionHandler } from '@/store/SessionHandler';
 
 interface EventProviderProps {
   children: ReactNode;
@@ -40,269 +39,165 @@ interface SendTransactionResult {
   transactionDetails?: TransactionDetails;
 }
 
-export interface RealtimeOutputArgsTyped {
-  toolset: typeof TOOLSET_SLUGS;
-  original_request: string;
-}
 export const EventProvider: FC<EventProviderProps> = ({ children }) => {
   /**
    * Global State
    */
-  const { dataStream, updateSession, sendFunctionCallResponseMessage } =
-    useSessionHandler();
-  const { createChatRoom, state } = useChatRoomHandler();
-  const { calculateCreditUsage } = useCreditHandler();
+  const { createChatRoom } = useChatRoomHandler();
+  const { setLoadingMessage } = useChatMessageHandler();
 
   /**
-   * The direct api access is used in all these classes to prevent asynchronous
-   * calls to the api. This is because the api calls are not dependent on the
-   * state of the component and are only dependent on the data stream. This also
-   * prevents re-renders
+   * Process a user message through the orchestration system
+   * This replaces the old realtime model-based system
    */
-  useEffect(() => {
-    const handleEvents = async () => {
-      if (dataStream === null) return;
-      dataStream.onmessage = async (event) => {
-        const eventData = JSON.parse(event.data);
-        console.log(eventData);
-        if (eventData.type === 'session.created') {
-          // update the session with our latest tools, voice and emotion
-          updateSession('all');
-          // set that the session is now open to receive messages
-          useSessionHandler.getState().state = 'open';
-        } else if (
-          eventData.type === 'error' &&
-          eventData.error.type === 'session_expired'
-        ) {
-          // our session has expired so we set the state of the session to idle
-          useSessionHandler.getState().state = 'idle';
-        } else if (eventData.type === 'input_audio_buffer.speech_started') {
-          useSessionHandler.getState().setIsUserSpeaking(true);
-          if (
-            !useChatRoomHandler.getState().currentChatRoom &&
-            state === 'idle'
-          ) {
-            createChatRoom({ name: 'New Chat' });
-          }
-        } else if (eventData.type === 'input_audio_buffer.speech_stopped') {
-          useSessionHandler.getState().setIsUserSpeaking(false);
-        } else if (
-          eventData.type === 'response.audio_transcript.delta' ||
-          eventData.type === 'response.text.delta'
-        ) {
-          useChatMessageHandler.getState().setShowMessageSkeleton(true);
-        } else if (eventData.type === 'response.audio_transcript.done') {
-          useChatMessageHandler.getState().setShowMessageSkeleton(false);
-          useChatMessageHandler
-            .getState()
-            .addMessage({
-              id: eventData.event_id,
-              content: eventData.transcript || '',
-              role: 'assistant',
-              parts: [
-                {
-                  type: 'text',
-                  text: eventData.transcript || '',
-                },
-              ],
-            })
-            .catch(() => toast.error('failed to add message'));
-        } else if (eventData.type === 'response.text.done') {
-          useChatMessageHandler.getState().setShowMessageSkeleton(false);
-          useChatMessageHandler
-            .getState()
-            .addMessage({
-              id: eventData.event_id,
-              content: eventData.text || '',
-              role: 'assistant',
-              parts: [
-                {
-                  type: 'text',
-                  text: eventData.text || '',
-                },
-              ],
-            })
-            .catch(() => toast.error('failed to add message'));
-        } else if (eventData.type === 'response.done') {
-          useChatMessageHandler.getState().setShowMessageSkeleton(false);
-          // handle credit calculation
-          if (eventData.response.usage) {
-            let cachedTokens,
-              textInputTokens,
-              audioInputTokens,
-              outputTextTokens,
-              outputAudioTokens = 0;
-            if (eventData.response.usage.input_token_details) {
-              cachedTokens =
-                eventData.response.usage.input_token_details.cached_tokens;
-              textInputTokens =
-                eventData.response.usage.input_token_details.text_tokens;
-              audioInputTokens =
-                eventData.response.usage.input_token_details.audio_tokens;
-            }
-            if (eventData.response.usage.output_token_details) {
-              outputTextTokens =
-                eventData.response.usage.output_token_details.text_tokens;
-              outputAudioTokens =
-                eventData.response.usage.output_token_details.audio_tokens;
-            }
+  const processUserMessage = async (message: string): Promise<void> => {
+    try {
+      // Create a chat room if needed
+      const currentChatRoom = useChatRoomHandler.getState().currentChatRoom;
+      if (!currentChatRoom) {
+        await createChatRoom({ name: 'New Chat' });
+      }
 
-            calculateCreditUsage(
-              textInputTokens,
-              audioInputTokens,
-              cachedTokens,
-              outputTextTokens,
-              outputAudioTokens
+      // Set loading state
+      setLoadingMessage('Processing your request...');
+
+      // Create a message object for the current request
+      const currentMessage: Message = {
+        id: `msg_${Date.now()}`,
+        role: 'user',
+        content: message,
+        createdAt: new Date(),
+      };
+
+      // Add the message to the local state
+      await useChatMessageHandler.getState().addMessage(currentMessage);
+
+      // Get current wallet address
+      const walletPublicKey =
+        useWalletHandler.getState().currentWallet?.address;
+      if (!walletPublicKey) {
+        setLoadingMessage(null);
+        toast.error('Please connect your wallet');
+        return;
+      }
+
+      // Process with integrated GPT toolset selection and tool handling
+      setLoadingMessage('Analyzing your request...');
+      const response = await apiClient.post(
+        '/api/chat',
+        {
+          walletPublicKey,
+          message: currentMessage,
+          currentRoomID: useChatRoomHandler.getState().currentChatRoom?.id,
+        },
+        'local'
+      );
+
+      if (!ApiClient.isApiResponse(response)) {
+        setLoadingMessage(null);
+        toast.error('Failed to process the request');
+        return;
+      }
+
+      // Handle selected toolset (for informational purposes)
+      const selectedToolset = response.data.selectedToolset;
+      console.log(`Request processed using toolset: ${selectedToolset}`);
+
+      // Handle the tool response
+      const toolResults = response.data.toolResults;
+
+      if (toolResults && toolResults.length > 0 && toolResults[0].result) {
+        // Get the first tool result
+        const toolResult = toolResults[0];
+
+        // Check if this is a tool call that needs to be signed on the client side
+        if (signingRequiredTools.includes(toolResult.toolName)) {
+          // This is a tool call that needs to be signed on the client side
+          setLoadingMessage('Preparing transaction...');
+          const signedResult = await signAndSendTransaction({
+            type: toolResult.type,
+            response_id: toolResult.result.data.response_id,
+            sender: toolResult.result.data.sender,
+            timestamp: toolResult.result.data.timestamp,
+            details: {
+              ...toolResult.result.data.details,
+            },
+            transaction: toolResult.result.data.transaction,
+          });
+
+          if (signedResult.success) {
+            toast.success(
+              `Transaction sent successfully: ${signedResult.txid}`
             );
-          }
-
-          // handle the function calls
-          if (eventData.response.output) {
-            for (const output of eventData.response.output) {
-              // check if the output is a function call. If it is a message call then ignore
-              if (
-                output.type === 'function_call' &&
-                output.name === 'getRequiredToolset'
-              ) {
-                try {
-                  useChatMessageHandler
-                    .getState()
-                    .setLoadingMessage('Processing Your Query');
-                  const args = JSON.parse(
-                    output.arguments
-                  ) as RealtimeOutputArgsTyped;
-                  const walletPublicKey =
-                    useWalletHandler.getState().currentWallet?.address;
-                  if (!walletPublicKey) {
-                    toast.error('Please connect your wallet');
-                    return;
-                  }
-                  // Create a message object for the current request
-                  const currentMessage: Message = {
-                    id: `msg_${Date.now()}`,
-                    role: 'user',
-                    content: args.original_request,
-                    createdAt: new Date(),
-                  };
-
-                  useChatMessageHandler.getState().addMessage(currentMessage);
-
-                  // process the tool handling on the server
-                  const response = await apiClient.post(
-                    '/api/chat',
-                    {
-                      walletPublicKey,
-                      requiredToolSet: args.toolset,
-                      message: currentMessage,
-                      currentRoomID:
-                        useChatRoomHandler.getState().currentChatRoom?.id,
-                    },
-                    'local'
-                  );
-
-                  if (ApiClient.isApiResponse<ToolCallResult[]>(response)) {
-                  } else {
-                    useChatMessageHandler.getState().setLoadingMessage(null);
-                    toast.error('Failed to process the request');
-                    sendFunctionCallResponseMessage(
-                      'Request processing unsuccessful',
-                      output.call_id
-                    );
-                    return;
-                  }
-                  // TODO: Handle the response from the server
-                  // check if this is a tool call that needs to be signed on the client side
-                  if (
-                    signingRequiredTools.find(
-                      (tool) => tool === response.data[0].toolName
-                    )
-                  ) {
-                    // this is a tool call that needs to be signed on the client side
-                    const signedResult = await signAndSendTransaction({
-                      type: response.data[0].type,
-                      response_id: response.data[0].result.data.response_id,
-                      sender: response.data[0].result.data.sender,
-                      timestamp: response.data[0].result.data.timestamp,
-                      details: {
-                        ...response.data[0].result.data.details,
-                      },
-                      transaction: response.data[0].result.data.transaction,
-                    });
-                    if (signedResult.success) {
-                      toast.success(
-                        `Transaction sent successfully: ${signedResult.txid}`
-                      );
-                      sendFunctionCallResponseMessage(
-                        `Transaction sent successfully: ${signedResult.txid}`,
-                        output.call_id
-                      );
-                    } else {
-                      toast.error(signedResult.error);
-                      sendFunctionCallResponseMessage(
-                        `Error occurred: ${signedResult.error}`,
-                        output.call_id
-                      );
-                    }
-                  }
-                  useChatMessageHandler.getState().setLoadingMessage(null);
-
-                  // add the tools response also to the chat
-                  useChatMessageHandler.getState().addMessage({
-                    id: response.data[0].toolCallId,
-                    role: 'assistant',
-                    content: JSON.stringify(response.data[0].result) || '',
-                    createdAt: new Date(),
-                    parts: [
-                      {
-                        type: 'tool-invocation',
-                        toolInvocation: {
-                          state: 'result',
-                          result: response.data[0].result,
-                          toolName: response.data[0].toolName,
-                          toolCallId: response.data[0].toolCallId,
-                          args: response.data[0].args,
-                        },
-                      },
-                    ],
-                  } as Message);
-                  // sendFunctionCallResponseMessage(
-                  //   'Provide a small summary of the following output: ' +
-                  //     JSON.stringify(response.data[0].result),
-                  //   output.call_id
-                  // );
-                  sendFunctionCallResponseMessage(
-                    'The request was processed successfully, ask want the user wants to do next',
-                    output.call_id
-                  );
-
-                  console.log(
-                    'response from server,',
-                    response.data[0].result,
-                    response.data[0].toolName,
-                    response.data[0].toolCallId,
-                    response.data[0].args
-                  );
-                  // Clear any current chat item
-                  useChatMessageHandler.getState().setCurrentMessage(null);
-                } catch (error) {
-                  useChatMessageHandler.getState().setLoadingMessage(null);
-                  console.error(error);
-                  toast.error('Failed to process the request');
-                  sendFunctionCallResponseMessage(
-                    `Error occurred: ${error}`,
-                    output.call_id
-                  );
-                }
-              }
-            }
+          } else {
+            toast.error(signedResult.error);
           }
         }
-      };
-    };
-    handleEvents();
-  }, [dataStream]);
 
-  return <div>{children}</div>;
+        // Add the tools response to the chat
+        await useChatMessageHandler.getState().addMessage({
+          id: toolResult.toolCallId,
+          role: 'assistant',
+          content: JSON.stringify(toolResult.result) || '',
+          createdAt: new Date(),
+          parts: [
+            {
+              type: 'tool-invocation',
+              toolInvocation: {
+                state: 'result',
+                result: toolResult.result,
+                toolName: toolResult.toolName,
+                toolCallId: toolResult.toolCallId,
+                args: toolResult.args,
+              },
+            },
+          ],
+        } as Message);
+
+        // Add a more user-friendly summary message
+        await useChatMessageHandler.getState().addMessage({
+          id: `summary_${Date.now()}`,
+          role: 'assistant',
+          content: `I've processed your request using the ${selectedToolset} toolset. Is there anything else you'd like to know?`,
+          createdAt: new Date(),
+        });
+      } else {
+        // If no tool results, add a fallback message
+        await useChatMessageHandler.getState().addMessage({
+          id: `fallback_${Date.now()}`,
+          role: 'assistant',
+          content:
+            "I wasn't able to process your request with the available tools. Could you try rephrasing or be more specific?",
+          createdAt: new Date(),
+        });
+      }
+
+      // Clear loading state
+      setLoadingMessage(null);
+    } catch (error) {
+      console.error('Error processing message:', error);
+      setLoadingMessage(null);
+      toast.error('Failed to process your request');
+    }
+  };
+
+  // Expose the processUserMessage function to the global state
+  useEffect(() => {
+    // Register the message processor with the session handler
+    const originalSendTextMessage =
+      useSessionHandler.getState().sendTextMessage;
+    useSessionHandler.getState().sendTextMessage = async (message: string) => {
+      // Skip the original implementation and use our new processor
+      await processUserMessage(message);
+    };
+
+    // Restore original function on cleanup
+    return () => {
+      useSessionHandler.getState().sendTextMessage = originalSendTextMessage;
+    };
+  }, []);
+
+  return <>{children}</>;
 };
 
 export async function signAndSendTransaction(
@@ -332,7 +227,7 @@ export async function signAndSendTransaction(
     const rawTransaction = signedTransaction.serialize();
 
     // Send the signed transaction to your backend API
-    const response = await fetch('/api/send-transaction', {
+    const response = await fetch('/api/wallet/sendTransaction', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
