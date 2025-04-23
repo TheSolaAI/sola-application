@@ -1,6 +1,11 @@
-import { UIMessage, generateObject } from 'ai';
+import {
+  UIMessage,
+  generateObject,
+  experimental_generateSpeech as generateSpeech,
+} from 'ai';
 import {
   getRealtimePrimeDirective,
+  textToSpeechModel,
   TOOLSET_SLUGS,
   toolsetSelectionModel,
   ToolsetSlug,
@@ -38,6 +43,7 @@ export async function POST(req: Request) {
 
     let selectedToolset: ToolsetSlug[] = ['token'];
     let fallbackResponse: string | undefined;
+    let audioData: string | undefined;
 
     try {
       const toolsetSelectionPrompt = getRealtimePrimeDirective(walletPublicKey);
@@ -55,12 +61,20 @@ export async function POST(req: Request) {
       selectedToolset = toolsetSelectionResult.object.selectedToolset;
       fallbackResponse = toolsetSelectionResult.object.fallbackResponse;
 
-      if (fallbackResponse) {
+      if (fallbackResponse && selectedToolset.length === 0) {
         console.log(
           'Fallback response detected (no toolset required):',
           fallbackResponse
         );
-        // TODO: Handle direct response generation (voice/text) without using a toolset
+
+        const audio = await generateSpeech({
+          model: textToSpeechModel,
+          text: fallbackResponse,
+          voice: 'sage',
+          outputFormat: 'wav',
+        });
+
+        audioData = audio.audio.base64;
       }
     } catch (error) {
       console.error('Error selecting toolset with AI:', error);
@@ -78,6 +92,7 @@ export async function POST(req: Request) {
       JSON.stringify({
         selectedToolset,
         fallbackResponse,
+        audioData,
         needsToolset: !fallbackResponse,
       }),
       {

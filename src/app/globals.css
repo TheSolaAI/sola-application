@@ -65,3 +65,48 @@
   scrollbar-width: thin; /* "auto" or "thin" */
   scrollbar-color: rgb(var(--color-primary)) rgb(var(--color-sec_background)); /* thumb and track color */
 }
+
+/* Add this to your global.css or equivalent CSS file */
+
+@keyframes pulse-input {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(98, 124, 255, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgba(98, 124, 255, 0.2);
+  }
+}
+
+.input-pulse-animation {
+  animation: pulse-input 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
+}
+
+.audio-button-pulse {
+  position: relative;
+}
+
+.audio-button-pulse::before {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  background: transparent;
+  border: 2px solid rgba(114, 137, 253, 0.5);
+  animation: pulse-input 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
+  z-index: -1;
+}
+
+.message-pulse {
+  position: relative;
+}
+
+.message-pulse::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 16px;
+  background: transparent;
+  border: 1px solid rgba(114, 137, 253, 0.5);
+  animation: pulse-input 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
+  z-index: -1;
+}

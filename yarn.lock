@@ -8,22 +8,12 @@
   integrity sha512-/3DDPKHqqIqxUULp8yP4zODUY1i+2xvVWsv8A79xGWdCAG+8sb0hRh0Rk2QyOJUnnbyPUAZYcpBuRe3nS2OIUg==
 
 "@ai-sdk/openai@^1.3.0":
-  version "1.3.0"
-  resolved "https://registry.yarnpkg.com/@ai-sdk/openai/-/openai-1.3.0.tgz#c4de8d80251290b246f33bed9c13c779e5a07dda"
-  integrity sha512-zKKacGH8AyUjC63GizDpts+Nf8qAEtvAtO5O/AfVML8pIrtNWsbF+U3nT6mM8Oqvkp9X7ivuc4hCurivMFlJ6Q==
+  version "1.3.16"
+  resolved "https://registry.yarnpkg.com/@ai-sdk/openai/-/openai-1.3.16.tgz#73d95c6cdf8b5383b3121eb12fc9b01e25649a1d"
+  integrity sha512-pjtiBKt1GgaSKZryTbM3tqgoegJwgAUlp1+X5uN6T+VPnI4FLSymV65tyloWzDlyqZmi9HXnnSRPu76VoL5D5g==
   dependencies:
-    "@ai-sdk/provider" "1.1.0"
-    "@ai-sdk/provider-utils" "2.2.0"
-
-"@ai-sdk/provider-utils@2.2.0":
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/@ai-sdk/provider-utils/-/provider-utils-2.2.0.tgz#cf123935dbbe1ac346c7955713d50f8f8e3287f1"
-  integrity sha512-RX5BnDSqudjvZjwwpROcxVQElyX7rUn/xImBgaZLXekSGqq8f7/tefqDcQiRbDZjuCd4CVIfhrK8y/Pta8cPfQ==
-  dependencies:
-    "@ai-sdk/provider" "1.1.0"
-    eventsource-parser "^3.0.0"
-    nanoid "^3.3.8"
-    secure-json-parse "^2.7.0"
+    "@ai-sdk/provider" "1.1.3"
+    "@ai-sdk/provider-utils" "2.2.7"
 
 "@ai-sdk/provider-utils@2.2.7":
   version "2.2.7"
@@ -33,13 +23,6 @@
     "@ai-sdk/provider" "1.1.3"
     nanoid "^3.3.8"
     secure-json-parse "^2.7.0"
-
-"@ai-sdk/provider@1.1.0":
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/@ai-sdk/provider/-/provider-1.1.0.tgz#a9e8bc5ea820a7e4df0abad008f80c8bda44d035"
-  integrity sha512-0M+qjp+clUD0R1E5eWQFhxEvWLNaOtGQRUaBn8CUABnSKredagq92hUS9VjOzGsTm37xLfpaxl97AVtbeOsHew==
-  dependencies:
-    json-schema "^0.4.0"
 
 "@ai-sdk/provider@1.1.3":
   version "1.1.3"
@@ -6059,11 +6042,6 @@ events@3.3.0, events@^3.3.0:
   version "3.3.0"
   resolved "https://registry.yarnpkg.com/events/-/events-3.3.0.tgz#31a95ad0a924e2d2c419a813aeb2c4e878ea7400"
   integrity sha512-mQw+2fkQbALzQ7V0MY0IqdnXNOeTtP4r0lN9z7AAawCXgqea7bDii20AYrIBrFd/Hx0M2Ocz6S111CaFkUcb0Q==
-
-eventsource-parser@^3.0.0:
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/eventsource-parser/-/eventsource-parser-3.0.1.tgz#5e358dba9a55ba64ca90da883c4ca35bd82467bd"
-  integrity sha512-VARTJ9CYeuQYb0pZEPbzi740OWFgpHe7AYJ2WFZVnUDUQp5Dk2yJUgF36YsZ81cOyxT0QxmXD2EQpapAouzWVA==
 
 execa@^5.0.0, execa@^5.1.1:
   version "5.1.1"

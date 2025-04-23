@@ -156,6 +156,38 @@ module.exports = {
         75: '18.75rem',
       },
       keyframes: {
+        'pulse-opacity': {
+          '0%, 100%': { opacity: '0.6' },
+          '50%': { opacity: '0.9' },
+        },
+        'pulse-opacity-slow': {
+          '0%, 100%': { opacity: '0.4' },
+          '50%': { opacity: '0.7' },
+        },
+        'pulse-opacity-slower': {
+          '0%, 100%': { opacity: '0.2' },
+          '50%': { opacity: '0.4' },
+        },
+        'pulse-radius': {
+          '0%, 100%': { r: '42' },
+          '50%': { r: '44' },
+        },
+        'pulse-radius-slow': {
+          '0%, 100%': { r: '48' },
+          '50%': { r: '52' },
+        },
+        'pulse-radius-slower': {
+          '0%, 100%': { r: '56' },
+          '50%': { r: '62' },
+        },
+        'pulse-slow': {
+          '0%, 100%': { opacity: '0.4', transform: 'scale(1)' },
+          '50%': { opacity: '0.7', transform: 'scale(1.03)' },
+        },
+        'pulse-slower': {
+          '0%, 100%': { opacity: '0.2', transform: 'scale(1)' },
+          '50%': { opacity: '0.5', transform: 'scale(1.05)' },
+        },
         waveEffect: {
           '0%, 100%': { color: 'var(--base-color, rgba(255, 255, 255, 0.5))' },
           '50%': { color: 'var(--highlight-color, rgba(255, 255, 255, 1))' },
@@ -181,6 +213,14 @@ module.exports = {
         },
       },
       animation: {
+        'pulse-opacity': 'pulse-opacity 1.2s ease-in-out infinite',
+        'pulse-opacity-slow': 'pulse-opacity-slow 1.5s ease-in-out infinite',
+        'pulse-opacity-slower': 'pulse-opacity-slower 2s ease-in-out infinite',
+        'pulse-radius': 'pulse-radius 1.2s ease-in-out infinite',
+        'pulse-radius-slow': 'pulse-radius-slow 1.5s ease-in-out infinite',
+        'pulse-radius-slower': 'pulse-radius-slower 2s ease-in-out infinite',
+        'pulse-slow': 'pulse-slow 2s ease-in-out infinite',
+        'pulse-slower': 'pulse-slower 3s ease-in-out infinite',
         'wave-effect':
           'waveEffect var(--wave-duration, 2s) infinite ease-in-out',
         wave: 'waveEffect 3s infinite ease-in-out',

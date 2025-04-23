@@ -11,6 +11,7 @@ import { getOnChainToolSet, onChainToolSet } from '@/tools/onChainToolSet';
 
 export const toolhandlerModel = openai('gpt-4o');
 export const toolsetSelectionModel = openai('gpt-4o-mini');
+export const textToSpeechModel = openai.speech('gpt-4o-mini-tts');
 
 /**
  * This contains the generic definition of the toolsets without the encapsulated context
