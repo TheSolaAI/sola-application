@@ -52,12 +52,12 @@ export async function POST(req: Request) {
       messages: messages,
       tools: tools,
       toolChoice: 'required',
-      maxSteps: 8,
+      maxSteps: 3,
       experimental_telemetry: {
         isEnabled: true,
       },
       onStepFinish: (stepResult) => {
-        console.log('Step finished:', stepResult.text);
+        console.log('Step finished:', stepResult);
         // TODO: Handle sending the message to the database
 
         // try {

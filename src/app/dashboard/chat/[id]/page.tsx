@@ -24,6 +24,8 @@ import { TokenDataMessageItem } from '@/components/messages/TokenDataMessageItem
 import { BubbleMapChatItem } from '@/components/messages/BubbleMapCardItem';
 import { TopHoldersMessageItem } from '@/components/messages/TopHoldersMessageItem';
 import { useUserHandler } from '@/store/UserHandler';
+import ReasoningMessageItem from '@/components/messages/ReasoningMessageItem';
+import SourceMessageItem from '@/components/messages/SourceMessageItem';
 
 export default function Chat() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -244,6 +246,75 @@ export default function Chat() {
     }
   };
 
+  const handleSendMessage = async (text: string, toolsets: string[]) => {
+    console.log('Sending message:', text);
+    console.log('Toolsets:', toolsets);
+
+    // Stop any playing audio
+    stopAudio();
+
+    try {
+      await append(
+        {
+          role: 'user',
+          content: text,
+        },
+        { body: { requiredToolSets: toolsets } }
+      );
+
+      // Set loading message
+      setLoadingMessage('Processing your request...');
+    } catch (error) {
+      console.error('Error sending message:', error);
+      toast.error('Failed to send message');
+      setLoadingMessage(null);
+    }
+  };
+
+  // Handle AI Response
+  const handleAddAIResponse = (responseText: string) => {
+    try {
+      const latestUserMsg = messages.findLast((m) => m.role === 'user');
+
+      if (!latestUserMsg) {
+        console.warn('No user message found to respond to');
+      }
+
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        {
+          id: generateId(),
+          role: 'assistant',
+          content: responseText,
+          parts: [
+            {
+              type: 'text',
+              text: responseText,
+            },
+          ],
+        },
+      ]);
+
+      setLoadingMessage(null);
+    } catch (error) {
+      console.error('Error adding AI response:', error);
+      toast.error('Failed to process response');
+      setLoadingMessage(null);
+    }
+  };
+
+  const handleAddUserMessage = (userMessage: Message) => {
+    setMessages((prevMessages) => [
+      ...prevMessages,
+      {
+        id: generateId(),
+        role: 'user',
+        content: userMessage.content,
+        parts: [{ type: 'text', text: userMessage.content }],
+      },
+    ]);
+  };
+
   // Set current room based on URL parameter
   useEffect(() => {
     if (!currentChatRoom && id && rooms.length > 0) {
@@ -299,86 +370,38 @@ export default function Chat() {
     }
   }, [messages]);
 
-  const handleSendMessage = async (text: string, toolsets: string[]) => {
-    console.log('Sending message:', text);
-    console.log('Toolsets:', toolsets);
-
-    // Stop any playing audio
-    stopAudio();
-
-    try {
-      await append(
-        {
-          role: 'user',
-          content: text,
-        },
-        { body: { requiredToolSets: toolsets } }
-      );
-
-      // Set loading message
-      setLoadingMessage('Processing your request...');
-    } catch (error) {
-      console.error('Error sending message:', error);
-      toast.error('Failed to send message');
-      setLoadingMessage(null);
-    }
-  };
-
-  // Handle AI Response
-  const handleAddAIResponse = (responseText: string) => {
-    try {
-      const latestUserMsg = messages.findLast((m) => m.role === 'user');
-
-      if (!latestUserMsg) {
-        console.warn('No user message found to respond to');
-      }
-
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        {
-          id: generateId(),
-          role: 'assistant',
-          content: responseText,
-        },
-      ]);
-
-      setLoadingMessage(null);
-    } catch (error) {
-      console.error('Error adding AI response:', error);
-      toast.error('Failed to process response');
-      setLoadingMessage(null);
-    }
-  };
-
-  const handleAddUserMessage = (userMessage: Message) => {
-    setMessages((prevMessages) => [
-      ...prevMessages,
-      {
-        id: generateId(),
-        role: 'user',
-        content: userMessage.content,
-      },
-    ]);
-  };
-
   // Render message or tool result based on content type
   const renderMessageContent = (message: UIMessage) => {
-    // Handle user messages
-    if (message.role === 'user' || message.role === 'data') {
-      return (
-        <UserInput
-          text={message.content}
-          transcript={message.role === 'data'}
-        />
-      );
+    const role = message.role;
+    if (message.role === 'user') {
+      return <UserInput text={message.content} transcript={true} />;
     }
 
     // Handle assistant messages with parts (tool results)
     if (message.parts) {
       return message.parts.map((part, partIndex) => {
         if (part.type === 'text') {
-          return (
+          return role === 'user' ? (
+            <UserInput text={message.content} transcript={true} />
+          ) : (
             <SimpleMessageChatItem key={`text-${partIndex}`} text={part.text} />
+          );
+        } else if (part.type === 'reasoning') {
+          return (
+            <ReasoningMessageItem
+              key={`reasoning-${message.id}`}
+              reasoning={part.reasoning}
+            />
+          );
+        } else if (part.type === 'source') {
+          return (
+            <SourceMessageItem
+              key={`source-${message.id}`}
+              sourceType={part.source.sourceType}
+              id={part.source.id}
+              url={part.source.url}
+              title={part.source.title}
+            />
           );
         } else if (
           part.type === 'tool-invocation' &&
@@ -391,6 +414,13 @@ export default function Chat() {
                 part.toolInvocation.result
               )}
             </React.Fragment>
+          );
+        } else if (part.type === 'step-start') {
+          return (
+            <div
+              key={`step-start-${generateId()}`}
+              className="h-px flex-grow opacity-30"
+            ></div>
           );
         }
         return null;

@@ -12,7 +12,7 @@ export const SimpleMessageChatItem: FC<SimpleMessageChatItemProps> = ({
 }) => {
   return (
     <BaseChatItem>
-      <div className="text-textColor">
+      <div className="text-textColor bg-sec_background px-4 py-3 rounded-r-xl rounded-tl-xl">
         <MarkDownRenderer content={text} />
       </div>
     </BaseChatItem>
