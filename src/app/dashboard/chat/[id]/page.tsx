@@ -23,6 +23,7 @@ import { LuloChatItem } from '@/components/messages/LuloMessageItem';
 import { TokenDataMessageItem } from '@/components/messages/TokenDataMessageItem';
 import { BubbleMapChatItem } from '@/components/messages/BubbleMapCardItem';
 import { TopHoldersMessageItem } from '@/components/messages/TopHoldersMessageItem';
+import { useUserHandler } from '@/store/UserHandler';
 
 export default function Chat() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -42,6 +43,10 @@ export default function Chat() {
   } = useChatMessageHandler();
   const { isPWA, keyboardHeight } = useKeyboardHeight();
 
+  // Audio playback states
+  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
   /**
    * Local State
    */
@@ -60,6 +65,184 @@ export default function Chat() {
       console.error('Chat error:', error);
     },
   });
+
+  // Initialize audio element
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      audioRef.current = new Audio();
+
+      audioRef.current.onplay = () => setIsAudioPlaying(true);
+      audioRef.current.onended = () => setIsAudioPlaying(false);
+      audioRef.current.onpause = () => setIsAudioPlaying(false);
+
+      // Clean up on component unmount
+      return () => {
+        if (audioRef.current) {
+          audioRef.current.pause();
+          audioRef.current.src = '';
+        }
+      };
+    }
+  }, []);
+
+  // Stop audio when chat ID changes
+  useEffect(() => {
+    stopAudio();
+  }, [id]);
+
+  // Convert base64 to Blob
+  const base64ToBlob = (base64: string, mimeType: string) => {
+    const byteCharacters = atob(base64);
+    const byteArrays = [];
+
+    for (let i = 0; i < byteCharacters.length; i += 512) {
+      const slice = byteCharacters.slice(i, i + 512);
+
+      const byteNumbers = new Array(slice.length);
+      for (let j = 0; j < slice.length; j++) {
+        byteNumbers[j] = slice.charCodeAt(j);
+      }
+
+      const byteArray = new Uint8Array(byteNumbers);
+      byteArrays.push(byteArray);
+    }
+
+    return new Blob(byteArrays, { type: mimeType });
+  };
+
+  // Function to play audio from base64 data
+  const playAudio = (base64Audio: string) => {
+    if (!audioRef.current) return;
+
+    // Stop any currently playing audio
+    stopAudio();
+
+    const audioBlob = base64ToBlob(base64Audio, 'audio/wav');
+    const audioUrl = URL.createObjectURL(audioBlob);
+
+    audioRef.current.src = audioUrl;
+    audioRef.current.play().catch((err) => {
+      console.error('Error playing audio:', err);
+      toast.error('Could not play audio response');
+    });
+  };
+
+  // Function to stop audio playback
+  const stopAudio = () => {
+    if (audioRef.current && !audioRef.current.paused) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      setIsAudioPlaying(false);
+    }
+  };
+
+  // Stop audio when user interacts
+  const handleUserInteraction = () => {
+    if (isAudioPlaying) {
+      stopAudio();
+    }
+  };
+
+  // Check for a pending message from localStorage
+  useEffect(() => {
+    const pendingMessage = localStorage.getItem('pending_message');
+
+    if (pendingMessage) {
+      localStorage.removeItem('pending_message');
+
+      // Process the message
+      setLoadingMessage('Processing your request...');
+
+      processMessage(pendingMessage)
+        .then(() => {
+          // Message sent successfully
+          console.log('Initial message processed');
+        })
+        .catch((err) => {
+          console.error('Error processing initial message:', err);
+          toast.error('Failed to process your message');
+        })
+        .finally(() => {
+          setLoadingMessage(null);
+        });
+    }
+  }, [id]);
+
+  // Process the message through toolset determination and chat API
+  const processMessage = async (messageContent: string) => {
+    // Stop any playing audio when user sends a new message
+    handleUserInteraction();
+
+    if (!useWalletHandler.getState().currentWallet?.address) {
+      toast.error('Please connect your wallet');
+      return;
+    }
+
+    // Create message object for current message
+    const currentMessage = {
+      id: generateId(),
+      content: messageContent,
+      role: 'user',
+      createdAt: new Date(),
+    } as Message;
+
+    // Get previous messages for context (up to 5 previous messages)
+    const previousMessages = messages.slice(-5).map((msg) => ({
+      id: msg.id,
+      content: msg.content,
+      role: msg.role,
+      createdAt: new Date(),
+    }));
+
+    setLoadingMessage('Processing your request...');
+
+    try {
+      // Step 1: First determine the required toolset
+      const toolsetResponse = await fetch('/api/get-required-toolsets', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${useUserHandler.getState().authToken}`,
+        },
+        body: JSON.stringify({
+          walletPublicKey: useWalletHandler.getState().currentWallet?.address,
+          message: currentMessage,
+          previousMessages: previousMessages,
+        }),
+      });
+
+      if (!toolsetResponse.ok) {
+        throw new Error('Failed to determine required toolset');
+      }
+
+      const toolsetData = await toolsetResponse.json();
+      console.log('Toolset determination result:', toolsetData);
+
+      // If fallbackResponse is provided, no toolset is needed
+      if (toolsetData.selectedToolset.length === 0) {
+        console.log(
+          'Direct response (no toolset needed):',
+          toolsetData.fallbackResponse
+        );
+
+        handleAddUserMessage(currentMessage);
+        handleAddAIResponse(toolsetData.fallbackResponse);
+
+        if (toolsetData.audioData) {
+          playAudio(toolsetData.audioData);
+        }
+
+        setLoadingMessage(null);
+        return;
+      }
+
+      await handleSendMessage(messageContent, toolsetData.selectedToolset);
+    } catch (error) {
+      console.error('Error in message processing flow:', error);
+      toast.error('Failed to process your request');
+      setLoadingMessage(null);
+    }
+  };
 
   // Set current room based on URL parameter
   useEffect(() => {
@@ -120,6 +303,9 @@ export default function Chat() {
     console.log('Sending message:', text);
     console.log('Toolsets:', toolsets);
 
+    // Stop any playing audio
+    stopAudio();
+
     try {
       await append(
         {
@@ -138,7 +324,7 @@ export default function Chat() {
     }
   };
 
-  // TODO: Add voice message
+  // Handle AI Response
   const handleAddAIResponse = (responseText: string) => {
     try {
       const latestUserMsg = messages.findLast((m) => m.role === 'user');
@@ -234,6 +420,8 @@ export default function Chat() {
         return <TopHoldersMessageItem props={args.data} />;
       case 'resolveSnsNameTool':
         return <TokenAddressResultItem props={args.data} />;
+      default:
+        return <SimpleMessageChatItem text={JSON.stringify(args.data)} />;
     }
   };
 
@@ -322,11 +510,10 @@ export default function Chat() {
         }}
       >
         <SessionControls
-          onSendMessage={handleSendMessage}
-          onAddAIResponse={handleAddAIResponse}
-          onAddUserMessage={handleAddUserMessage}
+          onSendMessage={processMessage}
           isProcessing={isLoading}
-          messages={messages}
+          onUserInteraction={handleUserInteraction}
+          isAudioPlaying={isAudioPlaying}
         />
       </div>
     </div>
