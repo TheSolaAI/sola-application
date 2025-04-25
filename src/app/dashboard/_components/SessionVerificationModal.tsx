@@ -1,85 +1,64 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   LuX,
-  LuArrowDown,
-  LuArrowUp,
   LuRefreshCw,
   LuTriangleAlert,
-  LuInfo,
-  LuExternalLink,
+  LuChevronDown,
+  LuCheck,
 } from 'react-icons/lu';
 import { SiSolana } from 'react-icons/si';
-import { SessionStatus } from '@/store/SessionManagerHandler';
+import { useAppSelector } from '@/redux/hook';
+import { UserTiers } from '@/config/tierMapping';
 
 interface SessionVerificationModalProps {
   isOpen: boolean;
   onClose: () => void;
-  sessionStatus: SessionStatus;
-  onVerifyTier: () => Promise<void>;
-  onConnect: () => Promise<void>;
+  onVerifyTier: () => Promise<void | {
+    success: boolean;
+    tier: number;
+    totalSolaBalance: number;
+    message?: string;
+  } | null>;
   tierVerificationResult: {
     success: boolean;
     tier: number;
     totalSolaBalance: number;
     message?: string;
   } | null;
-  userProvidedApiKey: () => string | null;
-  onSetApiKey: (key: string) => void;
-  onClearApiKey: () => void;
 }
 
 export default function SessionVerificationModal({
   isOpen,
   onClose,
-  sessionStatus,
   onVerifyTier,
-  onConnect,
   tierVerificationResult,
-  userProvidedApiKey,
-  onSetApiKey,
-  onClearApiKey,
 }: SessionVerificationModalProps) {
-  const [apiKey, setApiKey] = useState('');
-  const [showApiKeyOption, setShowApiKeyOption] = useState(false);
+  const tierFromRedux = useAppSelector((state) => state.tier.userTier);
   const [isVerifying, setIsVerifying] = useState(false);
-  const [isConnecting, setIsConnecting] = useState(false);
+  const [showTierDropdown, setShowTierDropdown] = useState(false);
 
-  // Set initial API key from props
-  useEffect(() => {
-    if (userProvidedApiKey) {
-      setApiKey(userProvidedApiKey() || '');
-    }
-  }, [userProvidedApiKey]);
+  // Updated to use either Redux state or prop-passed state
+  const displayResult = tierFromRedux || tierVerificationResult;
 
-  useEffect(() => {
-    setIsVerifying(sessionStatus === 'checking');
-    setIsConnecting(sessionStatus === 'connecting');
-  }, [sessionStatus]);
-
+  // Updated handleVerifyTier function
   const handleVerifyTier = async () => {
-    setIsVerifying(true);
-    await onVerifyTier();
-    setIsVerifying(false);
-  };
-
-  const handleConnect = async () => {
-    setIsConnecting(true);
-    await onConnect();
-    setIsConnecting(false);
-  };
-
-  const handleSaveApiKey = () => {
-    if (apiKey.trim()) {
-      onSetApiKey(apiKey.trim());
+    try {
+      setIsVerifying(true);
+      await onVerifyTier();
+      // No need to manually update state here as Redux will handle it
+    } catch (error) {
+      console.error('Error during tier verification:', error);
+    } finally {
+      setIsVerifying(false);
     }
   };
 
-  const handleClearApiKey = () => {
-    setApiKey('');
-    onClearApiKey();
+  // Format number with commas
+  const formatNumber = (num: number) => {
+    return num.toLocaleString();
   };
 
   if (!isOpen) return null;
@@ -91,19 +70,21 @@ export default function SessionVerificationModal({
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.95 }}
-          className={`relative w-full max-w-md max-h-[80%] bg-background border border-border rounded-xl shadow-xl overflow-y-auto overflow-x-hidden`}
+          className={`relative w-full max-w-md max-h-[85%] bg-background border border-border rounded-xl shadow-xl overflow-y-auto overflow-x-hidden`}
         >
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b border-border">
             <h2 className="text-lg font-semibold text-textColor">
-              Session Verification
+              Holders Verification
             </h2>
-            <button
-              onClick={onClose}
-              className="p-1 rounded-full hover:bg-surface text-secText"
-            >
-              <LuX className="w-5 h-5" />
-            </button>
+            {displayResult && displayResult.tier > 0 && (
+              <button
+                onClick={onClose}
+                className="p-1 rounded-full hover:bg-surface text-secText"
+              >
+                <LuX className="w-5 h-5" />
+              </button>
+            )}
           </div>
 
           {/* Body */}
@@ -126,6 +107,72 @@ export default function SessionVerificationModal({
               </div>
             </div>
 
+            {/* Tier Information Dropdown */}
+            <div className="bg-sec_background p-4 rounded-lg">
+              <div
+                onClick={() => setShowTierDropdown(!showTierDropdown)}
+                className="flex justify-between items-center cursor-pointer"
+              >
+                <h3 className="text-textColor font-medium">Available Tiers</h3>
+                <motion.div
+                  animate={{ rotate: showTierDropdown ? 180 : 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <LuChevronDown className="text-secText" />
+                </motion.div>
+              </div>
+
+              <AnimatePresence>
+                {showTierDropdown && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="mt-3 border-t border-border pt-3 space-y-2">
+                      {UserTiers.filter((tier) => tier.id > 0).map((tier) => (
+                        <div
+                          key={tier.id}
+                          className={`p-3 rounded-lg ${
+                            displayResult && displayResult.tier === tier.id
+                              ? 'bg-primary/10 border border-primary/30'
+                              : 'bg-surface'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              {displayResult &&
+                                displayResult.tier === tier.id && (
+                                  <LuCheck className="text-primary" />
+                                )}
+                              <span className="font-medium text-textColor">
+                                Tier {tier.id}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="mt-1 flex items-center text-xs text-secText">
+                            <SiSolana className="w-3 h-3 mr-1 text-primary" />
+                            <span>
+                              {formatNumber(tier.minTokens)}+ SOLA required
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+
+                      <div className="text-xs text-secText mt-2">
+                        <p className="italic">
+                          Higher tiers provide more daily usage and enhanced
+                          features.
+                        </p>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
             {/* Verify holders section */}
             <div className="bg-sec_background p-4 rounded-lg">
               <h3 className="text-textColor font-medium flex items-center gap-2 mb-3">
@@ -134,44 +181,41 @@ export default function SessionVerificationModal({
               </h3>
               <p className="text-secText text-sm mb-4">
                 Verify your SOLA token holdings to determine your tier and
-                session allocation.
+                feature limits.
               </p>
 
-              {/* Verification result */}
-              {tierVerificationResult && (
+              {/* Verification result - now uses the combined displayResult */}
+              {displayResult && (
                 <div
                   className={`mb-4 p-3 rounded-lg text-sm ${
-                    tierVerificationResult.success
+                    displayResult.success
                       ? 'bg-primary/10 text-textColor'
                       : 'bg-red-500/10 text-red-500'
                   }`}
                 >
-                  {tierVerificationResult.success ? (
+                  {displayResult.success ? (
                     <div className="space-y-2">
                       <p>Verification successful!</p>
                       <div className="flex justify-between items-center">
                         <span>SOLA Balance:</span>
                         <span className="font-semibold">
-                          {tierVerificationResult.totalSolaBalance.toLocaleString()}{' '}
-                          SOLA
+                          {displayResult.totalSolaBalance.toLocaleString()} SOLA
                         </span>
                       </div>
                       <div className="flex justify-between items-center">
                         <span>Current Tier:</span>
                         <span className="font-semibold">
-                          Tier {tierVerificationResult.tier}
+                          Tier {displayResult.tier}
                         </span>
                       </div>
-                      {tierVerificationResult.message && (
+                      {displayResult.message && (
                         <p className="text-primary mt-2">
-                          {tierVerificationResult.message}
+                          {displayResult.message}
                         </p>
                       )}
                     </div>
                   ) : (
-                    <p>
-                      {tierVerificationResult.message || 'Verification failed'}
-                    </p>
+                    <p>{displayResult.message || 'Verification failed'}</p>
                   )}
                 </div>
               )}
@@ -191,120 +235,6 @@ export default function SessionVerificationModal({
                 )}
               </button>
             </div>
-
-            {/* OpenAI key section (collapsible) */}
-            <div className="border border-border rounded-lg overflow-hidden">
-              <button
-                onClick={() => setShowApiKeyOption(!showApiKeyOption)}
-                className="w-full p-4 text-left flex items-center justify-between bg-sec_background hover:bg-surface transition-colors"
-              >
-                <span className="text-textColor font-medium">
-                  Wanna try before purchasing $SOLA ?
-                </span>
-                {showApiKeyOption ? (
-                  <LuArrowUp className="w-4 h-4" />
-                ) : (
-                  <LuArrowDown className="w-4 h-4" />
-                )}
-              </button>
-
-              <AnimatePresence>
-                {showApiKeyOption && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                    className="overflow-hidden"
-                  >
-                    <div className="p-4 border-t border-border bg-surface">
-                      <div className="bg-primary/10 p-3 rounded-lg mb-4 text-sm text-secText">
-                        <div className="flex gap-2">
-                          <LuInfo className="w-4 h-4 flex-shrink-0 mt-0.5" />
-                          <div>
-                            <p className="mb-2">
-                              SOLA AI is in early access development. So we want
-                              every one the try the vesion of Voice Assistant
-                              that we are building.
-                            </p>
-                            <p>
-                              Note: SOLA uses multiple AI providers, not just
-                              OpenAI.
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="mb-4">
-                        <label className="block text-secText text-sm mb-1">
-                          OpenAI API Key (This key is stored on your local
-                          browser)
-                        </label>
-                        <div className="flex">
-                          <input
-                            type="password"
-                            value={apiKey}
-                            onChange={(e) => setApiKey(e.target.value)}
-                            placeholder="sk-..."
-                            className="flex-1 p-2 rounded-l-md bg-background border border-border focus:outline-none focus:border-primary text-textColor"
-                          />
-                          {apiKey && (
-                            <button
-                              onClick={handleClearApiKey}
-                              className="px-2 bg-red-500/10 text-red-500 rounded-r-md border border-l-0 border-border"
-                            >
-                              <LuX className="w-4 h-4" />
-                            </button>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="flex justify-between gap-2">
-                        <a
-                          href="https://platform.openai.com/api-keys"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-primary text-sm flex items-center gap-1 hover:underline"
-                        >
-                          Get an API key
-                          <LuExternalLink className="w-3 h-3" />
-                        </a>
-                        <button
-                          onClick={handleSaveApiKey}
-                          disabled={!apiKey.trim()}
-                          className="px-4 py-1 bg-primary text-textColorContrast rounded-md disabled:opacity-50 text-sm"
-                        >
-                          Save Key
-                        </button>
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          </div>
-
-          {/* Footer */}
-          <div className="p-4 border-t border-border bg-sec_background/50">
-            <button
-              onClick={handleConnect}
-              disabled={
-                isConnecting ||
-                (sessionStatus !== 'connected' &&
-                  !userProvidedApiKey &&
-                  !tierVerificationResult?.success)
-              }
-              className="w-full py-3 px-4 bg-primary hover:bg-primaryDark text-textColorContrast rounded-lg flex items-center justify-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isConnecting ? (
-                <>
-                  <LuRefreshCw className="w-4 h-4 animate-spin" />
-                  Connecting...
-                </>
-              ) : (
-                'Connect Session'
-              )}
-            </button>
           </div>
         </motion.div>
       </AnimatePresence>

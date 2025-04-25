@@ -15,3 +15,5 @@ export const SESSIONS_PER_TIER: { [key: number]: number } = {
   3: 30, // Tier 3
   4: 50, // Tier 4
 };
+
+export const TIME_WINDOW_HOURS = 6;

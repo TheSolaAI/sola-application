@@ -1,7 +1,7 @@
 'use server';
 
-import { SESSIONS_PER_TIER, TIER_THRESHOLDS } from '@/config/constants';
 import { SOLA_TOKEN_ADDRESS } from '@/config/constants';
+import { getUserTier } from '@/config/tierMapping';
 import { prisma } from '@/lib/prisma';
 import { PrivyClient } from '@privy-io/server-auth';
 import axios from 'axios';
@@ -25,30 +25,6 @@ export const extractUserPrivyId = async (accessToken: string) => {
     process.env.PRIVY_VERIFICATION_KEY
   );
   return verifiedClaims.userId;
-};
-
-/**
- * Checks if a user can create a new session based on their tier.
- * @param privyId The user's Privy ID.
- * @param tierId The user's tier.
- * @returns True if the user has available sessions; otherwise, false.
- */
-export const verifySession = async (
-  privyId: string,
-  tierId: number
-): Promise<boolean> => {
-  const totalAllowedSessions = SESSIONS_PER_TIER[tierId];
-  const sixHoursAgo = new Date();
-  sixHoursAgo.setHours(sixHoursAgo.getHours() - 6);
-
-  const sessionCount = await prisma.userSessions.count({
-    where: {
-      privy_id: privyId,
-      session_created_at: { gte: sixHoursAgo },
-    },
-  });
-
-  return sessionCount < totalAllowedSessions;
 };
 
 /**
@@ -245,7 +221,7 @@ export const verifyUserTier = async (privyId: string, accessToken: string) => {
     ];
     const { totalBalance, walletBalances } =
       await verifyHolder(walletAddresses);
-    const calculatedTier = await calculateUserTier(totalBalance);
+    const calculatedTier = getUserTier(totalBalance);
 
     let userTier;
     let updated = false;
@@ -259,21 +235,21 @@ export const verifyUserTier = async (privyId: string, accessToken: string) => {
       userTier = await prisma.userTier.create({
         data: {
           privy_id: privyId,
-          tier: calculatedTier,
+          tier: calculatedTier.id,
           total_sola_balance: totalBalance,
           last_updated: new Date(),
         },
       });
       updated = true;
     } else if (
-      userTier.tier !== calculatedTier ||
+      userTier.tier !== calculatedTier.id ||
       Math.abs(userTier.total_sola_balance - totalBalance) > 0.001
     ) {
       previousTier = userTier.tier;
       userTier = await prisma.userTier.update({
         where: { privy_id: privyId },
         data: {
-          tier: calculatedTier,
+          tier: calculatedTier.id,
           total_sola_balance: totalBalance,
           last_updated: new Date(),
           updated_count: { increment: 1 },
@@ -284,13 +260,11 @@ export const verifyUserTier = async (privyId: string, accessToken: string) => {
 
     return {
       success: true,
-      tier: calculatedTier,
+      tier: calculatedTier.id,
       totalSolaBalance: totalBalance,
       walletBalances,
-      tierThresholds: TIER_THRESHOLDS,
       previousTier: updated ? previousTier : undefined,
       updated,
-      sessionsAllowed: SESSIONS_PER_TIER[calculatedTier] || 0,
     };
   } catch (error) {
     console.log(error);
@@ -301,35 +275,4 @@ export const verifyUserTier = async (privyId: string, accessToken: string) => {
       totalSolaBalance: 0,
     };
   }
-};
-
-/**
- * Records a user's session usage.
- * @param privyId The user's Privy ID.
- * @param sessionId The session identifier.
- * @returns The created session record.
- */
-export const recordSessionUsage = async (
-  privyId: string,
-  sessionId: string
-) => {
-  return prisma.userSessions.create({
-    data: {
-      privy_id: privyId,
-      session_id: sessionId,
-      session_created_at: new Date(),
-    },
-  });
-};
-
-/**
- * Calculates the user's tier based on their total SOLA balance.
- * @param totalSolaBalance The total SOLA token balance.
- * @returns The calculated tier.
- */
-export const calculateUserTier = async (totalSolaBalance: number) => {
-  for (const [tier, threshold] of TIER_THRESHOLDS) {
-    if (totalSolaBalance >= threshold) return tier;
-  }
-  return 0;
 };

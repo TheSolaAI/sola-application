@@ -1,4 +1,4 @@
-import { streamText, Tool, UIMessage } from 'ai';
+import { generateId, Message, streamText, Tool } from 'ai';
 import {
   getToolHandlerPrimeDirective,
   getToolsFromToolset,
@@ -6,104 +6,237 @@ import {
   ToolsetSlug,
 } from '@/config/ai';
 import { cookies } from 'next/headers';
+import { extractUserPrivyId } from '@/lib/server/userSession';
+import { NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
 
+/**
+ * Handles POST requests for chat processing with tools
+ */
 export async function POST(req: Request) {
   try {
-    const {
-      walletPublicKey,
-      messages,
-      currentRoomID,
-      requiredToolSets,
-    }: {
-      walletPublicKey: string;
-      messages: UIMessage[];
-      currentRoomID: string;
-      requiredToolSets: ToolsetSlug[];
-    } = await req.json();
+    const { walletPublicKey, messages, currentRoomID, requiredToolSets } =
+      await req.json();
 
     const cookieStore = cookies();
     const accessToken = (await cookieStore).get('privy-token')?.value;
-
-    console.log('Processing request with toolset:', requiredToolSets);
-    console.log('Chat room ID:', currentRoomID);
-
-    let tools: Record<string, Tool<any, any>> = {};
-
-    for (const selectedToolset of requiredToolSets) {
-      console.log('Loading tools for toolset:', selectedToolset);
-      const newTools = getToolsFromToolset(selectedToolset, {
-        authToken: accessToken,
-        publicKey: walletPublicKey,
-      });
-
-      tools = {
-        ...tools,
-        ...newTools,
-      };
-
-      console.log('Tools loaded for toolset:', selectedToolset);
+    if (!accessToken) {
+      return new Response('Unauthorized', { status: 401 });
     }
 
-    console.log('All tools loaded:', tools);
+    let privyId: string;
 
+    try {
+      privyId = await extractUserPrivyId(accessToken);
+    } catch (error) {
+      console.error('Error validating token:', error);
+      return NextResponse.json(
+        { error: 'Invalid or expired authentication token' },
+        { status: 401 }
+      );
+    }
+
+    if (!privyId) {
+      return NextResponse.json(
+        { error: 'Failed to extract user ID from token' },
+        { status: 401 }
+      );
+    }
+
+    const tools = loadToolsFromToolsets(
+      requiredToolSets,
+      accessToken,
+      walletPublicKey
+    );
     const result = streamText({
       model: toolhandlerModel,
       system: getToolHandlerPrimeDirective(walletPublicKey),
-      messages: messages,
-      tools: tools,
-      toolChoice: 'required',
-      maxSteps: 3,
-      experimental_telemetry: {
-        isEnabled: true,
-      },
-      onStepFinish: (stepResult) => {
-        console.log('Step finished:', stepResult);
-        // TODO: Handle sending the message to the database
+      messages,
+      tools,
+      toolChoice: 'auto',
+      maxSteps: 8,
+      experimental_telemetry: { isEnabled: true },
+      onFinish: async ({ text, toolResults, usage }) => {
+        const tokensUsed = usage.totalTokens;
+        const usdConsumed = (tokensUsed / 1_000_000) * 8;
 
-        // try {
-
-        // } catch (error) {
-
-        // }
+        try {
+          await prisma.usageRecord.create({
+            data: {
+              privy_id: privyId,
+              tokensUsed,
+              usdConsumed,
+              modelName: 'gpt-4.1',
+            },
+          });
+        } catch (err) {
+          console.error('Error: logging usage:', err);
+        }
+        await handleStreamCompletion(
+          text,
+          toolResults,
+          currentRoomID,
+          accessToken
+        );
       },
     });
 
     return result.toDataStreamResponse();
   } catch (error) {
-    console.error('Error in route [chat]:', error);
+    console.error(
+      `ERROR: Chat processing failed - ${error instanceof Error ? error.message : 'Unknown error'}`
+    );
     return new Response('Internal Server Error', { status: 500 });
   }
 }
 
+/**
+ * Loads tools from specified toolsets
+ */
+function loadToolsFromToolsets(
+  toolsets: ToolsetSlug[],
+  accessToken: string,
+  walletPublicKey: string
+): Record<string, Tool<any, any>> {
+  console.log(`INFO: Loading toolsets [${toolsets.join(', ')}]`);
+
+  const allTools: Record<string, Tool<any, any>> = {};
+
+  for (const toolset of toolsets) {
+    const toolsetTools = getToolsFromToolset(toolset, {
+      authToken: accessToken,
+      publicKey: walletPublicKey,
+    });
+
+    Object.assign(allTools, toolsetTools);
+  }
+
+  return allTools;
+}
+
+/**
+ * Handles the completion of a stream, storing tool results and final text
+ */
+async function handleStreamCompletion(
+  text: string,
+  toolResults: Array<{
+    toolName: string;
+    toolCallId: string;
+    result: any;
+    args: any;
+  }>,
+  roomId: string,
+  accessToken: string
+) {
+  console.log(`INFO: Stream completed with ${toolResults.length} tool results`);
+
+  for (const toolResult of toolResults) {
+    try {
+      await storeToolResultMessage(toolResult, roomId, accessToken);
+    } catch (error) {
+      console.error(
+        `ERROR: Failed to store result for ${toolResult.toolName} - ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
+    }
+  }
+
+  if (text?.trim()) {
+    try {
+      await storeTextMessage(text, roomId, accessToken);
+    } catch (error) {
+      console.error(
+        `ERROR: Failed to store final text message - ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
+    }
+  }
+}
+
+/**
+ * Creates and stores a tool result message
+ */
+async function storeToolResultMessage(
+  toolResult: {
+    toolName: string;
+    toolCallId: string;
+    result: any;
+    args: any;
+  },
+  roomId: string,
+  accessToken: string
+) {
+  const message: Message = {
+    id: generateId(),
+    role: 'assistant',
+    content: JSON.stringify(toolResult.result),
+    createdAt: new Date(),
+    parts: [
+      {
+        type: 'tool-invocation',
+        toolInvocation: {
+          state: 'result',
+          result: toolResult.result,
+          toolName: toolResult.toolName,
+          toolCallId: toolResult.toolCallId,
+          args: toolResult.args,
+        },
+      },
+    ],
+  };
+
+  await storeMessageInDB(roomId, JSON.stringify(message), accessToken);
+}
+
+/**
+ * Creates and stores a text message
+ */
+async function storeTextMessage(
+  text: string,
+  roomId: string,
+  accessToken: string
+) {
+  const message: Message = {
+    id: generateId(),
+    role: 'assistant',
+    content: text,
+    createdAt: new Date(),
+    parts: [
+      {
+        type: 'text',
+        text,
+      },
+    ],
+  };
+
+  await storeMessageInDB(roomId, JSON.stringify(message), accessToken);
+}
+
+/**
+ * Stores a message in the database
+ */
 async function storeMessageInDB(
   roomId: string,
   messageJson: string,
   authToken: string
 ): Promise<any> {
-  try {
-    const response = await fetch(
-      `https://user-service.solaai.tech/api/v1/chatrooms/${roomId}/messages/`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: authToken,
-        },
-        body: JSON.stringify({
-          message: messageJson,
-        }),
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error(
-        `Failed to store message: ${response.status} ${response.statusText}`
-      );
+  const response = await fetch(
+    `https://user-service.solaai.tech/api/v1/chatrooms/${roomId}/messages/`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${authToken}`,
+      },
+      body: JSON.stringify({
+        message: messageJson,
+      }),
     }
+  );
 
-    return await response.json();
-  } catch (error) {
-    console.error('Error storing message:', error);
-    throw error;
+  if (!response.ok) {
+    throw new Error(
+      `Failed to store message: ${response.status} ${response.statusText}`
+    );
   }
+
+  return await response.json();
 }

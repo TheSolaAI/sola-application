@@ -210,6 +210,7 @@ export default function Chat() {
           walletPublicKey: useWalletHandler.getState().currentWallet?.address,
           message: currentMessage,
           previousMessages: previousMessages,
+          currentRoomID: id,
         }),
       });
 

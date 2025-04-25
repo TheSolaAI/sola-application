@@ -9,8 +9,8 @@ import { getLuloToolSet, luloToolSet } from '@/tools/luloToolSet';
 import { getNftToolSet, nftToolSet } from '@/tools/nftToolSet';
 import { getOnChainToolSet, onChainToolSet } from '@/tools/onChainToolSet';
 
-export const toolhandlerModel = openai('gpt-4o');
-export const toolsetSelectionModel = openai('gpt-4o-mini');
+export const toolhandlerModel = openai('gpt-4.1');
+export const toolsetSelectionModel = openai('gpt-4.1-mini');
 export const textToSpeechModel = openai.speech('gpt-4o-mini-tts');
 
 /**

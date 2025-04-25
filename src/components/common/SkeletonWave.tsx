@@ -38,13 +38,13 @@ const SkeletonWave: React.FC<SkeletonWaveProps> = ({
   useDarkVariant = false,
 }) => {
   // Default line widths if not provided
-  const defaultLineWidths = ['85%', '100%', '75%'];
+  const defaultLineWidths = ['80%', '80%', '80%'];
 
   // Determine which color variable to use
   const colorVar = useDarkVariant ? '--color-primaryDark' : '--color-primary';
 
   return (
-    <div className={`flex flex-col space-y-3 ${className}`}>
+    <div className={`flex flex-col space-y-3 p-2 ${className}`}>
       {Array.from({ length: lines }).map((_, index) => {
         const width =
           lineWidths?.[index] ||

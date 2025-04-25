@@ -8,8 +8,6 @@ import {
 } from 'react-icons/lu';
 import { useSessionHandler } from '@/store/SessionHandler';
 import { toast } from 'sonner';
-import { useSessionManager } from '@/hooks/useSessionManager';
-import { useSessionManagerHandler } from '@/store/SessionManagerHandler';
 import { useAudioRecorder } from '@/hooks/useAudioRecorder';
 import { useChatRoomHandler } from '@/store/ChatRoomHandler';
 import { useChatMessageHandler } from '@/store/ChatMessageHandler';
@@ -33,13 +31,8 @@ const SessionControls: React.FC<SessionControlsProps> = ({
   isAudioPlaying,
 }) => {
   const { state } = useSessionHandler();
-  const { establishConnection } = useSessionManager();
-  const { setShowVerifyHoldersPopup, sessionStatus } =
-    useSessionManagerHandler();
   const { createChatRoom, currentChatRoom } = useChatRoomHandler();
   const { setLoadingMessage } = useChatMessageHandler();
-
-  const [isConnecting, setIsConnecting] = useState(false);
   const [inputText, setInputText] = useState('');
   const [isUploading, setIsUploading] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
@@ -50,22 +43,6 @@ const SessionControls: React.FC<SessionControlsProps> = ({
   const { isRecording, recordingTime, startRecording, stopRecording } =
     useAudioRecorder();
 
-  // Reconnect to session
-  const handleReconnect = async () => {
-    setIsConnecting(true);
-    try {
-      const hasConnected = await establishConnection();
-      if (!hasConnected) {
-        setShowVerifyHoldersPopup(true);
-      }
-    } catch (error) {
-      toast.error('Failed to reconnect. Please try again.');
-      console.error('Reconnection error:', error);
-    } finally {
-      setIsConnecting(false);
-    }
-  };
-
   const sendMessageToAI = async () => {
     if (!inputText.trim()) return;
 
@@ -74,15 +51,10 @@ const SessionControls: React.FC<SessionControlsProps> = ({
       return;
     }
 
-    // Ensure we have a chat room
-    if (!currentChatRoom) {
-      await createChatRoom({ name: 'New Chat' });
-    }
-
     // Stop any audio playing
     onUserInteraction();
 
-    // Process the message
+    setIsUploading(true);
     try {
       await onSendMessage(inputText);
 
@@ -92,6 +64,7 @@ const SessionControls: React.FC<SessionControlsProps> = ({
       console.error('Error sending message:', error);
       toast.error('Failed to send message');
     }
+    setIsUploading(false);
   };
 
   // Start recording when button is pressed
@@ -175,14 +148,6 @@ const SessionControls: React.FC<SessionControlsProps> = ({
     }
   };
 
-  const isConnectedAndOpen = sessionStatus === 'connected';
-  const isErrorState =
-    sessionStatus === 'error' ||
-    state === 'idle' ||
-    state === 'error' ||
-    sessionStatus === 'idle' ||
-    sessionStatus === 'connecting';
-
   // Disable controls during any processing state
   const isDisabled = isUploading || isProcessing;
 
@@ -190,7 +155,7 @@ const SessionControls: React.FC<SessionControlsProps> = ({
     <div className="relative flex items-center justify-center w-full h-full mb-10">
       {/* Input Controls */}
       <div
-        className={`absolute flex items-center justify-center w-full h-full gap-2 px-2 transition-all duration-500 ease-in-out ${isConnectedAndOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}
+        className={`absolute flex items-center justify-center w-full h-full gap-2 px-2 transition-all duration-500 ease-in-out opacity-100 translate-y-0`}
       >
         {/* Input Field with Pulse Effect */}
         <div className="relative flex-1 max-w-full sm:max-w-[600px]">
@@ -261,29 +226,6 @@ const SessionControls: React.FC<SessionControlsProps> = ({
             )}
           </button>
         </div>
-      </div>
-
-      {/* Error or loading State */}
-      <div
-        className={`absolute flex items-center justify-center w-full h-full transition-all duration-500 ease-in-out flex-col gap-4 ${isErrorState ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}
-      >
-        <button
-          className="flex items-center gap-2 bg-primaryDark text-textColorContrast cursor-pointer py-4 px-6 rounded-full text-base hover:bg-primary transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-          onClick={handleReconnect}
-          disabled={isConnecting}
-        >
-          {isConnecting ? (
-            <>
-              <LuRefreshCw size={16} className="animate-spin" />
-              Connecting...
-            </>
-          ) : (
-            <>
-              <LuRefreshCw size={16} />
-              Reconnect Session
-            </>
-          )}
-        </button>
       </div>
     </div>
   );

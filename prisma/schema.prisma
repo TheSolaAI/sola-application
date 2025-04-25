@@ -8,21 +8,26 @@ datasource db {
 }
 
 model UserTier {
-  id Int @id @default(autoincrement())
-  privy_id String @unique
-  tier Int @default(0)
-  total_sola_balance Float @default(0)
-  last_updated DateTime @default(now())
-  updated_count Int @default(0)
+  id                 Int           @id @default(autoincrement())
+  privy_id           String        @unique
+  tier               Int           @default(0)
+  total_sola_balance Float         @default(0)
+  last_updated       DateTime      @default(now())
+  updated_count      Int           @default(0)
+  usageRecords       UsageRecord[]
 
   @@index([privy_id])
 }
 
-model UserSessions {
-  id Int @id @default(autoincrement())
-  privy_id String
-  session_id String
-  session_created_at DateTime @default(now())
+model UsageRecord {
+  id          Int       @id @default(autoincrement())
+  privy_id    String
+  tokensUsed  Float
+  usdConsumed Float
+  usedAt      DateTime  @default(now())
+  modelName   String
+  userTierId  Int?
+  UserTier    UserTier? @relation(fields: [userTierId], references: [id])
 
-  @@index([privy_id, session_created_at])
+  @@index([privy_id, usedAt])
 }

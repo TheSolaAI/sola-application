@@ -9,6 +9,8 @@ import { useChatRoomHandler } from '@/store/ChatRoomHandler';
 import { SessionProvider } from '@/providers/SessionProvider';
 import PageLoading from '@/components/common/PageLoading';
 import { ChatNavigationHandler } from '@/providers/ChatNavigationHandler';
+import { Provider } from 'react-redux';
+import { store } from '@/redux/store';
 
 export default function DashboardLayout({
   children,
@@ -40,13 +42,15 @@ export default function DashboardLayout({
   }
 
   return (
-    <WalletProvider isAuthenticated={authenticated && ready}>
-      <LayoutProvider>
-        <MasterLayout>
-          <ChatNavigationHandler />
-          <SessionProvider>{children}</SessionProvider>
-        </MasterLayout>
-      </LayoutProvider>
-    </WalletProvider>
+    <Provider store={store}>
+      <WalletProvider isAuthenticated={authenticated && ready}>
+        <LayoutProvider>
+          <MasterLayout>
+            <ChatNavigationHandler />
+            <SessionProvider>{children}</SessionProvider>
+          </MasterLayout>
+        </LayoutProvider>
+      </WalletProvider>
+    </Provider>
   );
 }
