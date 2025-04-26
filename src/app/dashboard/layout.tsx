@@ -2,7 +2,7 @@
 import { WalletProvider } from '@/providers/WalletProvider';
 import { usePrivy } from '@privy-io/react-auth';
 import { useUserHandler } from '@/store/UserHandler';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { LayoutProvider } from '@/providers/LayoutProvider';
 import MasterLayout from '@/app/dashboard/_components/MasterLayout';
 import { useChatRoomHandler } from '@/store/ChatRoomHandler';
@@ -23,6 +23,7 @@ export default function DashboardLayout({
   const { authenticated, ready } = usePrivy();
   const { login } = useUserHandler();
   const { initRoomHandler } = useChatRoomHandler();
+  const [isInitializing, setIsInitializing] = useState(true);
 
   /**
    * Add any code here that needs to run when the user has completed authentication
@@ -30,14 +31,17 @@ export default function DashboardLayout({
   useEffect(() => {
     const init = async () => {
       if (authenticated && ready) {
-        await login(); // check function documentation for more details
-        initRoomHandler();
+        setIsInitializing(true);
+        await login();
+        await initRoomHandler();
+        setIsInitializing(false);
       }
     };
     init();
   }, [authenticated, ready, login, initRoomHandler]);
 
-  if (!ready) {
+  // Show loading when either Privy is not ready or we're still initializing
+  if (!ready || isInitializing) {
     return <PageLoading />;
   }
 

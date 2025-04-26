@@ -1,6 +1,6 @@
 'use client';
 
-import React, { ReactNode, useCallback } from 'react';
+import React, { ReactNode, useCallback, useMemo } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useLayoutContext } from '@/providers/LayoutProvider';
 import { Sidebar } from '@/app/dashboard/_components/sidebar/SideBar';
@@ -30,26 +30,36 @@ const MasterLayout: React.FC<MasterLayoutProps> = ({ children }) => {
 
   const isMobile = useIsMobile();
 
-  // Memoize content display logic to prevent unnecessary re-renders
+  const mainContentVariants = useMemo(
+    () => ({
+      expanded: {
+        width: '100%',
+        transition: { duration: 0.3, ease: [0.4, 0.0, 0.2, 1] },
+      },
+      collapsed: {
+        width: dashboardOpen ? '25%' : '75%',
+        transition: { duration: 0.3, ease: [0.4, 0.0, 0.2, 1] },
+      },
+    }),
+    [dashboardOpen]
+  );
+
   const renderMainContent = useCallback(() => {
     if (isMobile && (walletLensOpen || dashboardOpen)) {
       return null;
     }
 
     return (
-      <motion.main
-        layout
-        transition={{ duration: 0.3, ease: 'easeInOut' }}
-        className={`
-          transition-all duration-300
-          ${dashboardOpen ? 'w-[25%]' : 'w-full'} 
-          sm:rounded-2xl bg-background overflow-hidden
-        `}
+      <motion.div
+        variants={mainContentVariants}
+        initial={false}
+        animate={walletLensOpen ? 'collapsed' : 'expanded'}
+        className="sm:rounded-2xl bg-background overflow-hidden"
       >
         {children}
-      </motion.main>
+      </motion.div>
     );
-  }, [isMobile, walletLensOpen, dashboardOpen, children]);
+  }, [isMobile, walletLensOpen, dashboardOpen, children, mainContentVariants]);
 
   return (
     <>
@@ -62,10 +72,10 @@ const MasterLayout: React.FC<MasterLayoutProps> = ({ children }) => {
         />
 
         {/* Main Content Area */}
-        <AnimatePresence mode="wait">{renderMainContent()}</AnimatePresence>
+        {renderMainContent()}
 
-        {/* Dashboard Container with AnimatePresence */}
-        <AnimatePresence>
+        {/* Dashboard Container*/}
+        <AnimatePresence mode="wait">
           {dashboardOpen && (
             <DashBoardContainer
               visible={dashboardOpen}
@@ -76,8 +86,8 @@ const MasterLayout: React.FC<MasterLayoutProps> = ({ children }) => {
           )}
         </AnimatePresence>
 
-        {/* Wallet Lens Sidebar with AnimatePresence */}
-        <AnimatePresence>
+        {/* Wallet Lens Sidebar*/}
+        <AnimatePresence mode="wait">
           {walletLensOpen && (
             <WalletLensSideBar
               setVisible={handleWalletLensOpen}

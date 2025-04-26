@@ -26,6 +26,7 @@ import { TopHoldersMessageItem } from '@/components/messages/TopHoldersMessageIt
 import { useUserHandler } from '@/store/UserHandler';
 import ReasoningMessageItem from '@/components/messages/ReasoningMessageItem';
 import SourceMessageItem from '@/components/messages/SourceMessageItem';
+import InfoText from '../_components/InfoText';
 
 export default function Chat() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -546,6 +547,7 @@ export default function Chat() {
           onUserInteraction={handleUserInteraction}
           isAudioPlaying={isAudioPlaying}
         />
+        <InfoText />
       </div>
     </div>
   );

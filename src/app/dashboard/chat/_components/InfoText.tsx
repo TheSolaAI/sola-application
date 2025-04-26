@@ -88,7 +88,7 @@ const InfoText: React.FC = () => {
               </div>
 
               <div className="text-xs text-secText mt-1 pt-2 border-t border-border">
-                <span className="font-medium">Last Updated:</span> March 2025
+                <span className="font-medium">Last Updated:</span> April 2025
               </div>
             </div>
 
