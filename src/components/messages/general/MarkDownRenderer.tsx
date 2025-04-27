@@ -16,6 +16,13 @@ const MarkdownRenderer = ({ content }: { content: string }) => {
    */
   const { theme } = useThemeManager();
 
+  const markdownContent =
+    typeof content === 'string'
+      ? content
+      : typeof content === 'object'
+        ? JSON.stringify(content)
+        : String(content);
+
   return (
     <div className="prose prose-slate dark:prose-invert max-w-none">
       <ReactMarkdown
@@ -99,7 +106,7 @@ const MarkdownRenderer = ({ content }: { content: string }) => {
           ),
         }}
       >
-        {content}
+        {markdownContent}
       </ReactMarkdown>
     </div>
   );

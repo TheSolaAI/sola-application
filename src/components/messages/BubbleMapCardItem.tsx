@@ -1,15 +1,18 @@
 'use client';
 
 import { FC } from 'react';
-import { BubbleMapChatContent } from '@/types/chatItem';
 import { LuExternalLink } from 'react-icons/lu';
 
 interface BubbleMapChatItemProps {
-  props: BubbleMapChatContent;
+  props: { token: string };
 }
 
 export const BubbleMapChatItem: FC<BubbleMapChatItemProps> = ({ props }) => {
-  const tokenAddress = props.data.token;
+  if (!props || !props.token) {
+    return null;
+  }
+
+  const tokenAddress = props.token;
   const shortenedAddress = `${tokenAddress.slice(0, 6)}...${tokenAddress.slice(-4)}`;
 
   return (
@@ -34,7 +37,7 @@ export const BubbleMapChatItem: FC<BubbleMapChatItemProps> = ({ props }) => {
         {/* Bubblemap iframe */}
         <div className="relative">
           <iframe
-            src={`https://app.bubblemaps.io/sol/token/${props.data.token}`}
+            src={`https://app.bubblemaps.io/sol/token/${props.token}`}
             className="w-full min-h-94 rounded-b-lg"
             title="Token Bubblemap Visualization"
           />

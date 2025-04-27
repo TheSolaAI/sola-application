@@ -44,7 +44,6 @@ export const GoatIndexDashboard: FC<GoatIndexDashboardProps> = ({
           undefined,
           'goatIndex'
         );
-        console.log(response);
 
         if (ApiClient.isApiError(response)) {
           console.error(response);

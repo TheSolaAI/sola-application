@@ -4,8 +4,6 @@ import { useLayoutContext } from '@/providers/LayoutProvider';
 import useKeyboardHeight from '@/hooks/useKeyboardHeight';
 import useThemeManager from '@/store/ThemeManager';
 import { hexToRgb } from '@/utils/hexToRGB';
-import SessionControls from '@/app/dashboard/chat/_components/SessionControls';
-import InfoText from '@/app/dashboard/chat/_components/InfoText';
 import { useChatMessageHandler } from '@/store/ChatMessageHandler';
 import { ScaleLoader } from 'react-spinners';
 import React from 'react';
@@ -64,10 +62,7 @@ export default function ChatLayout({
             transparent 80%)`,
           transition: 'background 0.1s linear',
         }}
-      >
-        <SessionControls />
-        <InfoText />
-      </div>
+      ></div>
     </div>
   );
 }

@@ -11,23 +11,23 @@ import { FcGlobe } from 'react-icons/fc';
 import { FaCoins, FaDiscord, FaXTwitter } from 'react-icons/fa6';
 
 interface TokenSummaryCardProps {
-  name: string;
-  address: string;
-  logoURI: string;
-  price: number;
-  symbol: string;
-  priceChange24hPercent: number;
-  extensions: TokenExtensions;
+  name?: string;
+  address?: string;
+  logoURI?: string;
+  price?: number;
+  symbol?: string;
+  priceChange24hPercent?: number;
+  extensions?: TokenExtensions | null;
 }
 
 export const TokenSummaryCard: FC<TokenSummaryCardProps> = ({
-  name,
-  address,
-  logoURI,
-  price,
-  symbol,
-  priceChange24hPercent,
-  extensions,
+  name = 'Unknown Token',
+  address = '',
+  logoURI = '',
+  price = 0,
+  symbol = '',
+  priceChange24hPercent = 0,
+  extensions = null,
 }) => {
   // Global State
   const { theme } = useThemeManager();
@@ -35,56 +35,64 @@ export const TokenSummaryCard: FC<TokenSummaryCardProps> = ({
   return (
     <div className="bg-baseBackground rounded-xl w-full flex flex-col p-4">
       <div className="flex flex-row gap-x-4 items-start overflow-x-auto">
-        <img src={logoURI} alt="token" className="w-20 h-20 rounded-xl" />
+        {logoURI && (
+          <img src={logoURI} alt="token" className="w-20 h-20 rounded-xl" />
+        )}
         <div className="flex flex-col w-full">
           <div className="flex flex-row w-full justify-between">
             <h1 className="text-3xl font-semibold text-textColor">
-              {name} ({symbol})
+              {name} {symbol && `(${symbol})`}
             </h1>
-            <Pill
-              text={address}
-              color={theme.sec_background}
-              textColor={theme.secText}
-              icon={<FiCopy size={18} />}
-              hoverable={true}
-              onClick={() => {
-                navigator.clipboard.writeText(address);
-                toast.success('Address copied to clipboard');
-              }}
-            />
+            {address && (
+              <Pill
+                text={address}
+                color={theme.sec_background}
+                textColor={theme.secText}
+                icon={<FiCopy size={18} />}
+                hoverable={true}
+                onClick={() => {
+                  navigator.clipboard.writeText(address);
+                  toast.success('Address copied to clipboard');
+                }}
+              />
+            )}
           </div>
           {/* Price Section */}
           <div className="flex flex-row items-center">
             <h1
               className="text-2xl font-semibold text-textColor mr-2"
-              style={{ color: priceChange24hPercent > 0 ? 'green' : 'red' }}
+              style={{
+                color: (priceChange24hPercent || 0) > 0 ? 'green' : 'red',
+              }}
             >
               ${price}
             </h1>
             {priceChange24hPercent !== 0 && (
               <div
                 className="flex items-center"
-                style={{ color: priceChange24hPercent > 0 ? 'green' : 'red' }}
+                style={{
+                  color: (priceChange24hPercent || 0) > 0 ? 'green' : 'red',
+                }}
               >
-                {priceChange24hPercent > 0 ? (
+                {(priceChange24hPercent || 0) > 0 ? (
                   <LuTrendingUp size={18} />
                 ) : (
                   <LuTrendingDown size={18} />
                 )}
                 <span className="ml-1">
-                  {priceChange24hPercent > 0 ? '+' : ''}
-                  {priceChange24hPercent.toFixed(2)}%
+                  {(priceChange24hPercent || 0) > 0 ? '+' : ''}
+                  {priceChange24hPercent}%
                 </span>
               </div>
             )}
           </div>
           {/* Description if exists */}
-          {extensions.description && (
+          {extensions?.description && (
             <p className="text-secText mt-1">{extensions.description}</p>
           )}
           {/* Social Section */}
           <div className="flex flex-row gap-x-2 mt-2">
-            {extensions.website && (
+            {extensions?.website && (
               <Pill
                 text="Website"
                 color={theme.sec_background}
@@ -94,7 +102,7 @@ export const TokenSummaryCard: FC<TokenSummaryCardProps> = ({
                 onClick={() => window.open(extensions.website, '_blank')}
               />
             )}
-            {extensions.coingeckoId && (
+            {extensions?.coingeckoId && (
               <Pill
                 text="Coingecko"
                 color={theme.sec_background}
@@ -109,17 +117,17 @@ export const TokenSummaryCard: FC<TokenSummaryCardProps> = ({
                 }
               />
             )}
-            {extensions.telegram && (
+            {extensions?.telegram && (
               <Pill
                 text="Telegram"
                 color={theme.sec_background}
                 textColor={theme.secText}
                 icon={<FcGlobe size={22} />}
                 hoverable={true}
-                onClick={() => window.open(extensions.telegram!, '_blank')}
+                onClick={() => window.open(extensions.telegram || '', '_blank')}
               />
             )}
-            {extensions.twitter && (
+            {extensions?.twitter && (
               <Pill
                 text="Twitter"
                 color={theme.sec_background}
@@ -129,7 +137,7 @@ export const TokenSummaryCard: FC<TokenSummaryCardProps> = ({
                 onClick={() => window.open(extensions.twitter, '_blank')}
               />
             )}
-            {extensions.discord && (
+            {extensions?.discord && (
               <Pill
                 text="Discord"
                 color={theme.sec_background}

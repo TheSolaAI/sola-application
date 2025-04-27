@@ -62,7 +62,6 @@ export const useUserHandler = create<UserHandler>((set) => {
     isNewUser: false,
     setIsNewUser: (isNewUser: boolean) => {
       set({ isNewUser: isNewUser });
-      console.log('setUserName', isNewUser);
     },
     authToken: null,
     ready: false,
@@ -83,7 +82,6 @@ export const useUserHandler = create<UserHandler>((set) => {
     updateAuthToken: async (): Promise<boolean> => {
       // get the latest auth token from privy
       const authToken = await getAccessToken();
-      console.log('authToken', authToken);
       if (!authToken) {
         toast.error('Something Went Wrong. Please Login Again');
         return false;

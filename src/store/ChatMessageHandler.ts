@@ -9,96 +9,40 @@ import {
   ChatMessagesResponse,
 } from '@/types/response';
 import { API_URLS } from '@/config/api_urls';
-import {
-  ChatContentType,
-  ChatItem,
-  InProgressChatContent,
-  LoaderMessageChatContent,
-  SimpleMessageChatContent,
-} from '@/types/chatItem';
-import { RegisteredTool, ToolPropsType } from '@/types/tool';
-import { generateUniqueId } from '@/utils/randomID';
-import { MessageQueue, SerializedQueue } from '@/lib/MessageQueue';
+import { Message } from 'ai';
 
 interface ChatMessageHandler {
   state: 'idle' | 'loading' | 'error';
-  messages: ChatItem<ChatContentType>[];
-  messageQueueData: SerializedQueue<ChatItem<ChatContentType>>;
-  currentChatItem: ChatItem<
-    InProgressChatContent | LoaderMessageChatContent
-  > | null;
+  messages: Message[];
+  currentChatItem: Message | null;
+  loadingMessage: string | null;
+  showMessageSkeleton: boolean;
   next: string | null;
 
   initChatMessageHandler: () => Promise<void>;
   getNextMessages: () => Promise<void>;
-  addMessage: (message: ChatItem<ChatContentType>) => Promise<void>;
-  setCurrentChatItem: (
-    messageUpdater: ChatItem<
-      LoaderMessageChatContent | InProgressChatContent
-    > | null
-  ) => void;
-  updateCurrentChatItem: (delta: string) => void;
-  commitCurrentChatItem: () => Promise<void>;
+  addMessage: (message: Message) => Promise<void>;
+  getTopMessages: (count: number) => Array<Message>;
 
-  enqueueMessage: (message: ChatItem<ChatContentType>) => void;
-  dequeueMessage: () => ChatItem<ChatContentType> | undefined;
-  getQueueSize: () => number;
-  clearQueue: () => void;
+  setCurrentMessage: (message: Message | null) => void;
+  updateCurrentMessage: (delta: string) => void;
+  setLoadingMessage: (message: string | null) => void;
+  setShowMessageSkeleton: (show: boolean) => void;
+  commitCurrentChat: () => Promise<void>;
 }
 
 export const useChatMessageHandler = create<ChatMessageHandler>((set, get) => {
-  const emptyQueue = MessageQueue.createEmpty<ChatItem<ChatContentType>>();
-
   return {
     state: 'idle',
     next: null,
     messages: [],
-    messageQueueData: emptyQueue,
     currentChatItem: null,
-
-    enqueueMessage: (message: ChatItem<ChatContentType>): void => {
-      try {
-        const queue = MessageQueue.fromSerialized<ChatItem<ChatContentType>>(
-          get().messageQueueData
-        );
-        queue.enqueue(message);
-        set({ messageQueueData: queue.serialize() });
-      } catch (error) {
-        console.error('Error enqueuing message:', error);
-        const newQueue = new MessageQueue<ChatItem<ChatContentType>>();
-        newQueue.enqueue(message);
-        set({ messageQueueData: newQueue.serialize() });
-      }
-    },
-
-    dequeueMessage: (): ChatItem<ChatContentType> | undefined => {
-      const queue = MessageQueue.fromSerialized<ChatItem<ChatContentType>>(
-        get().messageQueueData
-      );
-      const message = queue.dequeue();
-      set({ messageQueueData: queue.serialize() });
-      return message;
-    },
-
-    getQueueSize: (): number => {
-      const queue = MessageQueue.fromSerialized<ChatItem<ChatContentType>>(
-        get().messageQueueData
-      );
-      return queue.size();
-    },
-
-    clearQueue: (): void => {
-      const queue = MessageQueue.fromSerialized<ChatItem<ChatContentType>>(
-        get().messageQueueData
-      );
-      queue.clear();
-      set({ messageQueueData: queue.serialize() });
-    },
+    loadingMessage: null,
+    showMessageSkeleton: false,
 
     initChatMessageHandler: async () => {
       const currentRoomID = useChatRoomHandler.getState().currentChatRoom?.id;
       if (!currentRoomID) {
-        toast.success('New Chat Created');
         set({ messages: [], currentChatItem: null });
         return;
       }
@@ -111,20 +55,14 @@ export const useChatMessageHandler = create<ChatMessageHandler>((set, get) => {
       );
       if (ApiClient.isApiResponse<ChatMessagesResponse>(response)) {
         set({ state: 'idle' });
-        const messages: ChatItem<ChatContentType>[] = response.data.results
-          .reduce(
-            (
-              acc: ChatItem<ChatContentType>[],
-              message: ChatMessageResponseWrapper
-            ) => {
-              const item = parseChatItemContent(message);
-              if (item) {
-                acc.push(item);
-              }
-              return acc;
-            },
-            []
-          )
+        const messages: Message[] = response.data.results
+          .reduce((acc: Message[], message: ChatMessageResponseWrapper) => {
+            const item = parseChatItemContent(message);
+            if (item) {
+              acc.push(item);
+            }
+            return acc;
+          }, [])
           .reverse();
         set({ messages, state: 'idle', next: response.data.next });
       } else {
@@ -145,20 +83,15 @@ export const useChatMessageHandler = create<ChatMessageHandler>((set, get) => {
       );
       if (ApiClient.isApiResponse<ChatMessagesResponse>(response)) {
         set({ state: 'idle' });
-        const messages: ChatItem<ChatContentType>[] =
-          response.data.results.reduce(
-            (
-              acc: ChatItem<ChatContentType>[],
-              message: ChatMessageResponseWrapper
-            ) => {
-              const item = parseChatItemContent(message);
-              if (item) {
-                acc.push(item);
-              }
-              return acc;
-            },
-            []
-          );
+        const messages: Message[] = response.data.results
+          .reduce((acc: Message[], message: ChatMessageResponseWrapper) => {
+            const item = parseChatItemContent(message);
+            if (item) {
+              acc.push(item);
+            }
+            return acc;
+          }, [])
+          .reverse();
         set({
           messages: [...get().messages, ...messages],
           state: 'idle',
@@ -170,12 +103,7 @@ export const useChatMessageHandler = create<ChatMessageHandler>((set, get) => {
       }
     },
 
-    addMessage: async (chatItem: ChatItem<ChatContentType>) => {
-      if (useChatRoomHandler.getState().isCreatingRoom) {
-        get().enqueueMessage(chatItem);
-        return;
-      }
-
+    addMessage: async (message: Message) => {
       const currentRoomID = useChatRoomHandler.getState().currentChatRoom?.id;
 
       if (currentRoomID === undefined) {
@@ -188,14 +116,14 @@ export const useChatMessageHandler = create<ChatMessageHandler>((set, get) => {
           if (newRoom) {
             const response = await apiClient.post(
               API_URLS.CHAT_ROOMS + newRoom.id + '/messages/',
-              { message: JSON.stringify(chatItem.content) },
+              { message: JSON.stringify(message) },
               'auth'
             );
 
             if (ApiClient.isApiError(response)) {
               toast.error('Failed to Save Message, Reload the Page');
             }
-            set({ messages: [chatItem] });
+            set({ messages: [message] });
           }
         } catch (error) {
           console.error('Error creating chat room:', error);
@@ -206,158 +134,71 @@ export const useChatMessageHandler = create<ChatMessageHandler>((set, get) => {
       } else {
         const response = await apiClient.post(
           API_URLS.CHAT_ROOMS + currentRoomID + '/messages/',
-          { message: JSON.stringify(chatItem.content) },
+          { message: JSON.stringify(message) },
           'auth'
         );
         if (ApiClient.isApiError(response)) {
           toast.error('Failed to Save Message, Reload the Page');
         }
-        set({ messages: [...get().messages, chatItem] });
-      }
-
-      try {
-        const queue = MessageQueue.fromSerialized<ChatItem<ChatContentType>>(
-          get().messageQueueData
-        );
-        if (!queue.isEmpty()) {
-          const queueMessages = queue.toArray();
-          get().clearQueue();
-
-          for (const message of queueMessages) {
-            console.log('Processing queued message:', message);
-            try {
-              const response = await apiClient.post(
-                API_URLS.CHAT_ROOMS +
-                  useChatRoomHandler.getState().currentChatRoom?.id +
-                  '/messages/',
-                { message: JSON.stringify(message.content) },
-                'auth'
-              );
-              if (ApiClient.isApiError(response)) {
-                toast.error('Failed to save queued message');
-              }
-              set({ messages: [...get().messages, message] });
-            } catch (error) {
-              console.error('Error processing queued message:', error);
-            }
-          }
-        }
-      } catch (error) {
-        console.error('Error processing message queue:', error);
+        set({ messages: [...get().messages, message] });
       }
     },
 
-    setCurrentChatItem: (
-      message: ChatItem<InProgressChatContent | LoaderMessageChatContent> | null
-    ) => {
+    getTopMessages: (count: number): Array<Message> => {
+      return [...get().messages].reverse().slice(0, count);
+    },
+
+    setCurrentMessage: (message: Message | null) => {
       set({ currentChatItem: message });
     },
 
-    updateCurrentChatItem: (delta: string) => {
+    setLoadingMessage: (message: string | null) => {
+      set({ loadingMessage: message });
+    },
+
+    setShowMessageSkeleton: (show: boolean) => {
+      set({ showMessageSkeleton: show });
+    },
+
+    updateCurrentMessage: (delta: string) => {
       if (get().currentChatItem) {
-        set({
-          currentChatItem: {
-            ...get().currentChatItem!,
-            content: {
-              ...get().currentChatItem!.content,
-              text: get().currentChatItem!.content.text + delta,
+        const updatedMessage = {
+          ...get().currentChatItem,
+          content: get().currentChatItem!.content + delta,
+          parts: [
+            {
+              type: 'text',
+              text: get().currentChatItem!.content + delta,
             },
-          },
-        });
-      } else {
-        set({
-          currentChatItem: {
-            id: 0,
-            createdAt: new Date().toISOString(),
-            content: {
-              type: 'in_progress_message',
-              response_id: '',
-              sender: 'user',
-              text: delta,
-            },
-          },
-        });
+          ],
+        } as Message;
+        set({ currentChatItem: updatedMessage });
       }
     },
 
-    commitCurrentChatItem: async () => {
+    commitCurrentChat: async () => {
       if (get().currentChatItem) {
-        const converted: ChatItem<SimpleMessageChatContent> = {
-          id: get().currentChatItem!.id,
-          content: {
-            type: 'simple_message',
-            response_id: get().currentChatItem!.content.response_id,
-            sender: get().currentChatItem!.content.sender,
-            text: get().currentChatItem!.content.text,
-          },
-          createdAt: get().currentChatItem!.createdAt,
-        };
-        await get().addMessage(converted);
-        set({
-          currentChatItem: null,
-        });
+        await get().addMessage(get().currentChatItem!);
+        set({ currentChatItem: null });
       }
     },
   };
 });
 
 /**
- * Improved parser that doesn't need manual type guards for each content type
+ * Parses a ChatMessageResponseWrapper from the server to our local Message type
+ * @param item The message wrapper from the API
+ * @returns A valid Message object or null if parsing fails
  */
-const parseChatItemContent = (item: ChatMessageResponseWrapper) => {
+export const parseChatItemContent = (
+  item: ChatMessageResponseWrapper
+): Message | null => {
   try {
+    // Parse the JSON string
     const parsedContent = JSON.parse(item.message);
-
-    // Validate that the content has a valid type property
-    if (typeof parsedContent.type !== 'string') {
-      console.error(
-        'Invalid message format - missing type property',
-        parsedContent
-      );
-      return null;
-    }
-
-    // Simple check to ensure the type property exists - we can trust it's valid
-    // because our tools now validate with Zod
-    return createChatItem(item, parsedContent);
+    return parsedContent as Message;
   } catch (error) {
     console.error('Error parsing chat item content:', error);
     return null;
   }
 };
-
-/**
- * Creates a typed ChatItem from the raw message wrapper
- */
-function createChatItem<T extends ChatContentType>(
-  wrapper: ChatMessageResponseWrapper,
-  parsedMessage: T
-): ChatItem<T> {
-  return {
-    id: wrapper.id,
-    content: parsedMessage,
-    createdAt: wrapper.created_at,
-  };
-}
-
-/**
- * Creates a chat item from a tool execution result
- */
-export function createChatItemFromTool(
-  tool: RegisteredTool<ToolPropsType>,
-  data: any
-): ChatItem<ChatContentType> {
-  // All tools now have a properly typed propsType
-  const propsType = tool.representation?.props_type;
-
-  if (!propsType) {
-    console.error('Tool is missing props_type');
-  }
-
-  // Create a generic chat item with the data properly typed
-  return {
-    id: generateUniqueId(),
-    content: data, // the data from our Zod-validated tools
-    createdAt: new Date().toISOString(),
-  };
-}

@@ -23,11 +23,12 @@ const eslintConfig = [
       prettier: prettierPlugin,
     },
     rules: {
-      'prettier/prettier': 'warn', // Enforce Prettier formatting
-      'react-hooks/rules-of-hooks': 'warn', // Enforce correct hook usage
-      'react-hooks/exhaustive-deps': 'warn', // Warn on missing dependencies in useEffect
-      '@typescript-eslint/no-unused-vars': 'warn', // Warn on unused variables in TypeScript
-      'react/react-in-jsx-scope': 'off', // Not needed for Next.js
+      'prettier/prettier': 'warn',
+      'react-hooks/rules-of-hooks': 'warn',
+      'react-hooks/exhaustive-deps': 'warn',
+      '@typescript-eslint/no-unused-vars': 'warn',
+      'react/react-in-jsx-scope': 'off',
+      '@typescript-eslint/no-explicit-any': 'off',
     },
   },
 ];

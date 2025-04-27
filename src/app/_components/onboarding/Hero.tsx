@@ -30,7 +30,6 @@ export default function Hero({
 
   const handleInstall = async () => {
     const outcome = await promptInstall();
-    console.log('Installation outcome:', outcome);
   };
 
   return (

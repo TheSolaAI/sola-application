@@ -58,9 +58,9 @@ export const WalletPicker: FC<WalletPickerProps> = ({
       <div className="flex gap-y-3 flex-col px-2 pb-2">
         {wallets.map((wallet) => (
           <div
-            key={wallet.walletClientType}
-            className={`flex items-center justify-between w-full p-4 bg-surface rounded-xl gap-x-4 ${
-              currentWallet?.walletClientType === wallet.walletClientType
+            key={wallet.address}
+            className={`flex items-center justify-between w-full p-4 bg-surface rounded-xl gap-x-4 cursor-pointer ${
+              currentWallet?.address === wallet.address
                 ? 'border-[1.5px] border-primaryDark'
                 : ''
             }`}

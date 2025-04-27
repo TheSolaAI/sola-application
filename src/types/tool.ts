@@ -1,61 +1,43 @@
-// src/types/tool.ts
-import { z } from 'zod';
-import { FC } from 'react';
-import { ChatContentType } from './chatItem';
+import { Tool } from 'ai';
 
-// Schema registry type
-export type SchemaRegistry = {
-  [K in keyof typeof ToolPropsTypeMap]: z.ZodTypeAny;
-};
+/**
+ * The Tool type is defined inside vercel's SDK
+ */
 
-// Map prop types to content types
-export const ToolPropsTypeMap = {
-  token_data: 'TokenDataChatContent',
-  top_holders: 'TopHoldersChatContent',
-  bubble_map: 'BubbleMapChatContent',
-  rug_check: 'RugCheckChatContent',
-  token_address_result: 'TokenAddressResultChatContent',
-  create_limit_order: 'LimitOrderChatContent',
-  get_limit_order: 'ShowLimitOrdersChatContent',
-  ai_projects_classification: 'AiProjectsChatContent',
-  nft_collection_data: 'NFTCollectionChatContent',
-  get_trending_nfts: 'GetTrendingNFTSChatContent',
-  user_lulo_data: 'LuloChatContent',
-  swap: 'SwapChatContent',
-  get_lst_data: 'ShowLSTDataChatContent',
-  market_data: 'MarketDataChatContent',
-  transaction_message: 'TransactionChatContent',
-  agent_swap: 'AgentSwapChatContent',
-} as const;
+export interface ToolSetDescription {
+  slug: string;
+  name: string;
+  description: string;
+}
 
-export type ToolPropsType = keyof typeof ToolPropsTypeMap;
+export interface ToolSet extends ToolSetDescription {
+  tools: Record<string, Tool<any, any>>;
+}
 
-// Strong typed tool result
-export type ToolResult<T extends ToolPropsType> = {
-  status: 'success' | 'error';
-  response: string;
-  props?: Extract<ChatContentType, { type: T }>;
-};
+/**
+ * This is used inside a tool to signify the result of the tool call
+ */
+export interface ToolResult {
+  success: boolean;
+  data?: any;
+  error?: string;
+}
 
-// Use this when creating your tools
-export type RegisteredTool<T extends ToolPropsType> = {
-  abstraction: {
-    type: 'function';
-    name: string;
-    description: string;
-    parameters: any;
-  };
-  cost?: number;
-  implementation: (
-    args: any,
-    response_id: string
-  ) => Promise<{
-    status: 'success' | 'error';
-    response: string;
-    props?: Extract<ChatContentType, { type: T }>;
-  }>;
-  representation?: {
-    props_type: T;
-    component: FC<{ props: Extract<ChatContentType, { type: T }> }>;
-  };
-};
+/**
+ * An Array of these are returned after the tool call
+ */
+export interface ToolCallResult {
+  type: 'tool-result';
+  toolName: string;
+  toolCallId: string;
+  result: ToolResult;
+  args: any;
+}
+
+/**
+ * Provides Extra context to the tool. Not All Props are garunted to be present
+ */
+export interface ToolContext {
+  authToken?: string;
+  publicKey?: string;
+}

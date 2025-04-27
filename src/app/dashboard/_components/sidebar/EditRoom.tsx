@@ -28,7 +28,6 @@ const EditRoomContent: React.FC<EditRoomContentProps> = ({
    * Update the name of the selected chat room
    */
   const handleNameSubmit = () => {
-    console.log('Name submitted');
     updateChatRoom({
       id: roodID,
       name: name,
@@ -42,10 +41,8 @@ const EditRoomContent: React.FC<EditRoomContentProps> = ({
    */
   const handleDelete = () => {
     if (showDeleteConfirm) {
-      console.log('Delete confirmed');
       deleteChatRoom(roodID);
       if (roodID === currentChatRoom?.id) {
-        console.log('creating new room');
         createChatRoom({ name: 'New Chat' }).then((room) => {
           if (room) setCurrentChatRoom(room);
         });

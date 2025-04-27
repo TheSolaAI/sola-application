@@ -174,7 +174,6 @@ export class ConnectedPhantomWallet implements ConnectedSolanaWallet {
 
   //TODO: Implement a component to render the funding screen. like a QR or similar
   async fund(fundWalletConfig?: SolanaFundingConfig): Promise<void> {
-    console.log(fundWalletConfig);
   }
 
   /*

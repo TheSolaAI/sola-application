@@ -18,6 +18,8 @@ export const TokenAddressResultItem: FC<TokenAddressResultItemProps> = ({
     }
   };
 
+  console.log('TokenAddressResultItem', props);
+
   return (
     <div className="flex my-1 justify-start max-w-[100%] md:max-w-[80%] transition-opacity duration-500">
       <div className="overflow-hidden rounded-xl bg-sec_background border border-border shadow-lg w-full">

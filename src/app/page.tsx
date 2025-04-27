@@ -22,7 +22,6 @@ export default function Home() {
   // Initialize login functionality
   const { login } = useLogin({
     onComplete: (params) => {
-      console.log(params);
       router.push('/dashboard/chat');
     },
     onError: (error) => {
