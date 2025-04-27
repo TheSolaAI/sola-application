@@ -93,6 +93,7 @@ export function createTransferSplTool(context: ToolContext) {
               timestamp: new Date().toISOString(),
             },
             error: undefined,
+            signAndSend: true,
           };
         } catch (error) {
           return {

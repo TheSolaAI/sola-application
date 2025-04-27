@@ -10,6 +10,7 @@ import { extractUserPrivyId } from '@/lib/server/userSession';
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { openai } from '@ai-sdk/openai';
+import { z } from 'zod';
 
 /**
  * Handles POST requests for chat processing with tools
@@ -53,7 +54,21 @@ export async function POST(req: Request) {
       model: toolhandlerModel,
       system: getToolHandlerPrimeDirective(walletPublicKey),
       messages,
-      tools: { web_search_preview: openai.tools.webSearchPreview(), ...tools },
+      tools: {
+        web_search_preview: openai.tools.webSearchPreview(),
+        sign_and_send_tx: {
+          description:
+            'Ask the user to sign the transaction and send it to blockchain',
+          parameters: z.object({
+            transactionHash: z
+              .string()
+              .describe(
+                'Transaction hash to be signed and sent to the blockchain by the user'
+              ),
+          }),
+        },
+        ...tools,
+      },
       toolChoice: 'auto',
       maxSteps: 8,
       experimental_telemetry: { isEnabled: true },

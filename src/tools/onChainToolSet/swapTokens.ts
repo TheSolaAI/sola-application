@@ -16,8 +16,6 @@ const Parameters = z.object({
     ),
   swapType: z
     .enum(['EXACT_IN', 'EXACT_OUT', 'EXACT_DOLLAR'])
-    .optional()
-    .default('EXACT_IN')
     .describe(
       'The type of swap: EXACT_IN specifies the amount of tokenA being swapped, EXACT_OUT specifies the amount of tokenB to receive, and EXACT_DOLLAR specifies the dollar amount to be swapped'
     ),
@@ -110,6 +108,7 @@ export function createSwapTokensTool(context: ToolContext) {
               timestamp: new Date().toISOString(),
             },
             error: undefined,
+            signAndSend: true,
           };
         } catch (error) {
           return {

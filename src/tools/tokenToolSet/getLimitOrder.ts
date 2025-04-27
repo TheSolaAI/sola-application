@@ -1,4 +1,3 @@
-import { API_URLS } from '@/config/api_urls';
 import { ShowLimitOrderResponse } from '@/types/jupiter';
 import { ToolContext, ToolResult } from '@/types/tool';
 import { Tool } from 'ai';
@@ -58,6 +57,7 @@ export function createGetLimitOrderTool(context: ToolContext) {
           success: true,
           error: undefined,
           data: json,
+          textResponse: false,
         };
       } catch (err) {
         return {

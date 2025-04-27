@@ -49,6 +49,7 @@ export function createTopHoldersTool(context: ToolContext) {
             details: topHolders,
           },
           error: undefined,
+          textResponse: false,
         };
       } catch (error) {
         console.error('Error getting top holders:', error);

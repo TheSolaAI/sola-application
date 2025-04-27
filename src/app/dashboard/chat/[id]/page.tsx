@@ -27,6 +27,10 @@ import { useUserHandler } from '@/store/UserHandler';
 import ReasoningMessageItem from '@/components/messages/ReasoningMessageItem';
 import SourceMessageItem from '@/components/messages/SourceMessageItem';
 import InfoText from '../_components/InfoText';
+import { VersionedTransaction } from '@solana/web3.js';
+import { ShowLimitOrdersChatItem } from '@/components/messages/ShowLimitOrderChatItem';
+import { CreateLimitOrderChatItem } from '@/components/messages/CreateLimitOrderMessageItem';
+import { NFTCollectionMessageItem } from '@/components/messages/NFTCollectionCardItem';
 
 export default function Chat() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -63,6 +67,71 @@ export default function Chat() {
     body: {
       walletPublicKey: useWalletHandler.getState().currentWallet?.address,
       currentRoomID: id,
+    },
+    maxSteps: 5,
+    async onToolCall({ toolCall }) {
+      if (toolCall.toolName === 'sign_and_send_tx') {
+        interface TransactionArgs {
+          transactionHash: string;
+        }
+        try {
+          const { transactionHash } = toolCall.args as TransactionArgs;
+          const currentWallet = useWalletHandler.getState().currentWallet;
+
+          if (!currentWallet) {
+            return {
+              success: false,
+              error: 'No wallet connected',
+            };
+          }
+
+          // Decode the base64 transaction
+          const transactionBuffer = Buffer.from(transactionHash, 'base64');
+          const transaction =
+            VersionedTransaction.deserialize(transactionBuffer);
+
+          // Sign the transaction with the wallet
+          const signedTransaction =
+            await currentWallet.signTransaction(transaction);
+          const rawTransaction = signedTransaction.serialize();
+
+          // Send the signed transaction to backend API
+          const response = await fetch('/api/wallet/sendTransaction', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              serializedTransaction:
+                Buffer.from(rawTransaction).toString('base64'),
+              options: {
+                skipPreflight: true,
+                maxRetries: 10,
+              },
+            }),
+          });
+
+          const responseData = await response.json();
+
+          if (!response.ok) {
+            return {
+              success: false,
+              error: 'Transaction failed',
+              message: responseData,
+            };
+          }
+
+          return {
+            success: true,
+            message: responseData,
+          };
+        } catch (error) {
+          return {
+            success: false,
+            error: `Transaction processing error: ${error || 'Unknown error'}`,
+          };
+        }
+      }
     },
     onError: (error) => {
       console.error('Chat error:', error);
@@ -240,7 +309,7 @@ export default function Chat() {
       console.log('Toolset determination result:', toolsetData);
 
       // If fallbackResponse is provided, no toolset is needed
-      if (toolsetData.selectedToolset.length === 0) {
+      if (toolsetData.selectedToolset.length === 0 || toolsetData.audioData) {
         console.log(
           'Direct response (no toolset needed):',
           toolsetData.fallbackResponse
@@ -458,6 +527,10 @@ export default function Chat() {
     switch (toolName) {
       case 'tokenAddressTool':
         return <TokenAddressResultItem props={args.data} />;
+      case 'getLimitOrderTool':
+        return <ShowLimitOrdersChatItem props={args.data} />;
+      case 'createLimitOrderTool':
+        return <CreateLimitOrderChatItem props={args.data} />;
       case 'trendingAiProjects':
         return <AiProjects props={args.data} />;
       case 'depositLuloTool':
@@ -470,6 +543,10 @@ export default function Chat() {
         return <TopHoldersMessageItem props={args.data} />;
       case 'resolveSnsNameTool':
         return <TokenAddressResultItem props={args.data} />;
+      case 'getNFTPrice':
+        return <NFTCollectionMessageItem props={args.data} />;
+      case 'getTrendingNFTs':
+        return <NFTCollectionMessageItem props={args.data} />;
       default:
         return <SimpleMessageChatItem text={JSON.stringify(args.data)} />;
     }

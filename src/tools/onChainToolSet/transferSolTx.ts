@@ -97,6 +97,7 @@ export function createTransferSolTool(context: ToolContext) {
             timestamp: new Date().toISOString(),
           },
           error: undefined,
+          signAndSend: true,
         };
       } catch (error) {
         return {

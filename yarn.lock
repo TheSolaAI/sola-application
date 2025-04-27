@@ -2986,6 +2986,16 @@
   resolved "https://registry.yarnpkg.com/@sindresorhus/merge-streams/-/merge-streams-4.0.0.tgz#abb11d99aeb6d27f1b563c38147a72d50058e339"
   integrity sha512-tlqY9xq5ukxTUZBmoOp+m61cqwQD5pHJtFY3Mn8CA8ps6yghLH/Hw8UPdqg4OLmFW3IFlcXnQNmo/dh8HzXYIQ==
 
+"@sola-labs/ai-kit@^0.1.3":
+  version "0.1.3"
+  resolved "https://registry.yarnpkg.com/@sola-labs/ai-kit/-/ai-kit-0.1.3.tgz#18a5fac0f042c4be6f2a2ca4ea49997ef0e5312c"
+  integrity sha512-WpARl/2bvp/rSpFdgZirrvzU77Yk/XoDlPfKkIrWxfQze51i2wispxLTGoHJuJr90RF+9Jv31gt0z/xhcOm+Kg==
+  dependencies:
+    "@solana/web3.js" "^1.98.2"
+    axios "^1.9.0"
+    axios-retry "^4.5.0"
+    zod "^3.24.3"
+
 "@solana/buffer-layout-utils@^0.2.0":
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/@solana/buffer-layout-utils/-/buffer-layout-utils-0.2.0.tgz#b45a6cab3293a2eb7597cceb474f229889d875ca"
@@ -3016,6 +3026,13 @@
   integrity sha512-bauxqMfSs8EHD0JKESaNmNuNvkvHSuN3bbWAF5RjOfDu2PugxHrvRebmYauvSumZ3cTfQ4HJJX6PG5rN852qyQ==
   dependencies:
     "@solana/errors" "2.0.0-rc.1"
+
+"@solana/codecs-core@2.1.0":
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/@solana/codecs-core/-/codecs-core-2.1.0.tgz#79ac28fbcde4a09d88f4360777ceeb30ec14e3f1"
+  integrity sha512-SR7pKtmJBg2mhmkel2NeHA1pz06QeQXdMv8WJoIR9m8F/hw80K/612uaYbwTt2nkK0jg/Qn/rNSd7EcJ4SBGjw==
+  dependencies:
+    "@solana/errors" "2.1.0"
 
 "@solana/codecs-data-structures@2.0.0-preview.2":
   version "2.0.0-preview.2"
@@ -3050,6 +3067,14 @@
   dependencies:
     "@solana/codecs-core" "2.0.0-rc.1"
     "@solana/errors" "2.0.0-rc.1"
+
+"@solana/codecs-numbers@^2.1.0":
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/@solana/codecs-numbers/-/codecs-numbers-2.1.0.tgz#f6a1a9009ace56238d8d9478dd5d375b09c6342a"
+  integrity sha512-XMu4yw5iCgQnMKsxSWPPOrGgtaohmupN3eyAtYv3K3C/MJEc5V90h74k5B1GUCiHvcrdUDO9RclNjD9lgbjFag==
+  dependencies:
+    "@solana/codecs-core" "2.1.0"
+    "@solana/errors" "2.1.0"
 
 "@solana/codecs-strings@2.0.0-preview.2":
   version "2.0.0-preview.2"
@@ -3106,6 +3131,14 @@
   dependencies:
     chalk "^5.3.0"
     commander "^12.1.0"
+
+"@solana/errors@2.1.0":
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/@solana/errors/-/errors-2.1.0.tgz#1a139965fcb8bec610cc1c6194d53d169f4b5852"
+  integrity sha512-l+GxAv0Ar4d3c3PlZdA9G++wFYZREEbbRyAFP8+n8HSg0vudCuzogh/13io6hYuUhG/9Ve8ARZNamhV7UScKNw==
+  dependencies:
+    chalk "^5.3.0"
+    commander "^13.1.0"
 
 "@solana/options@2.0.0-preview.2":
   version "2.0.0-preview.2"
@@ -3245,6 +3278,27 @@
     "@solana/buffer-layout" "^4.0.1"
     agentkeepalive "^4.5.0"
     bigint-buffer "^1.1.5"
+    bn.js "^5.2.1"
+    borsh "^0.7.0"
+    bs58 "^4.0.1"
+    buffer "6.0.3"
+    fast-stable-stringify "^1.0.0"
+    jayson "^4.1.1"
+    node-fetch "^2.7.0"
+    rpc-websockets "^9.0.2"
+    superstruct "^2.0.2"
+
+"@solana/web3.js@^1.98.2":
+  version "1.98.2"
+  resolved "https://registry.yarnpkg.com/@solana/web3.js/-/web3.js-1.98.2.tgz#45167a5cfb64436944bf4dc1e8be8482bd6d4c14"
+  integrity sha512-BqVwEG+TaG2yCkBMbD3C4hdpustR4FpuUFRPUmqRZYYlPI9Hg4XMWxHWOWRzHE9Lkc9NDjzXFX7lDXSgzC7R1A==
+  dependencies:
+    "@babel/runtime" "^7.25.0"
+    "@noble/curves" "^1.4.2"
+    "@noble/hashes" "^1.4.0"
+    "@solana/buffer-layout" "^4.0.1"
+    "@solana/codecs-numbers" "^2.1.0"
+    agentkeepalive "^4.5.0"
     bn.js "^5.2.1"
     borsh "^0.7.0"
     bs58 "^4.0.1"
@@ -4397,6 +4451,15 @@ axios@^1.8.2:
   version "1.8.2"
   resolved "https://registry.yarnpkg.com/axios/-/axios-1.8.2.tgz#fabe06e241dfe83071d4edfbcaa7b1c3a40f7979"
   integrity sha512-ls4GYBm5aig9vWx8AWDSGLpnpDQRtWAfrjU+EuytuODrFBkqesN2RkOQCBzrA1RQNHw1SmRMSDDDSwzNAYQ6Rg==
+  dependencies:
+    follow-redirects "^1.15.6"
+    form-data "^4.0.0"
+    proxy-from-env "^1.1.0"
+
+axios@^1.9.0:
+  version "1.9.0"
+  resolved "https://registry.yarnpkg.com/axios/-/axios-1.9.0.tgz#25534e3b72b54540077d33046f77e3b8d7081901"
+  integrity sha512-re4CqKTJaURpzbLHtIi6XpDv20/CnpXOtjRY5/CU32L8gU8ek9UIivcfvSWvmKEngmVbrUtPpdDwWDWL7DNHvg==
   dependencies:
     follow-redirects "^1.15.6"
     form-data "^4.0.0"
@@ -12687,6 +12750,11 @@ zod@^3.21.4, zod@^3.22.4, zod@^3.24.2:
   version "3.24.2"
   resolved "https://registry.yarnpkg.com/zod/-/zod-3.24.2.tgz#8efa74126287c675e92f46871cfc8d15c34372b3"
   integrity sha512-lY7CDW43ECgW9u1TcT3IoXHflywfVqDYze4waEz812jR/bZ8FHDsl7pFQoSZTz5N+2NqRXs8GBwnAwo3ZNxqhQ==
+
+zod@^3.24.3:
+  version "3.24.3"
+  resolved "https://registry.yarnpkg.com/zod/-/zod-3.24.3.tgz#1f40f750a05e477396da64438e0e1c0995dafd87"
+  integrity sha512-HhY1oqzWCQWuUqvBFnsyrtZRhyPeR7SUGv+C4+MsisMuVfSPx8HpwWqH8tRahSlt6M3PiFAcoeFhZAqIXTxoSg==
 
 zustand@^5.0.0, zustand@^5.0.3:
   version "5.0.3"
