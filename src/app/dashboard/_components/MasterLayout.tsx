@@ -37,7 +37,7 @@ const MasterLayout: React.FC<MasterLayoutProps> = ({ children }) => {
         transition: { duration: 0.3, ease: [0.4, 0.0, 0.2, 1] },
       },
       collapsed: {
-        width: dashboardOpen ? '25%' : '75%',
+        width: dashboardOpen ? '25%' : '80%',
         transition: { duration: 0.3, ease: [0.4, 0.0, 0.2, 1] },
       },
     }),
@@ -53,7 +53,7 @@ const MasterLayout: React.FC<MasterLayoutProps> = ({ children }) => {
       <motion.div
         variants={mainContentVariants}
         initial={false}
-        animate={walletLensOpen ? 'collapsed' : 'expanded'}
+        animate={walletLensOpen || dashboardOpen ? 'collapsed' : 'expanded'}
         className="sm:rounded-2xl bg-background overflow-hidden"
       >
         {children}

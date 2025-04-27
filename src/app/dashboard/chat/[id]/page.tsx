@@ -215,6 +215,23 @@ export default function Chat() {
         }),
       });
 
+      if (toolsetResponse.status === 403) {
+        toast.error(
+          'Usage limit exceeded. Please upgrade your tier for more requests.',
+          {
+            description:
+              "Based on your SOLA token holdings, you've reached your usage limit for this time period.",
+            duration: 5000,
+            action: {
+              label: 'Learn More',
+              onClick: () => window.open('https://docs.solaai.xyz/', '_blank'),
+            },
+          }
+        );
+        setLoadingMessage(null);
+        return;
+      }
+
       if (!toolsetResponse.ok) {
         throw new Error('Failed to determine required toolset');
       }
@@ -409,6 +426,7 @@ export default function Chat() {
           part.type === 'tool-invocation' &&
           part.toolInvocation.state === 'result'
         ) {
+          console.log('Tool invocation result:', part.toolInvocation);
           return (
             <React.Fragment key={`tool-${message.id}-${partIndex}`}>
               {renderToolResult(
@@ -438,13 +456,13 @@ export default function Chat() {
     args: ToolResult
   ): React.ReactNode => {
     switch (toolName) {
-      case '  ':
+      case 'tokenAddressTool':
         return <TokenAddressResultItem props={args.data} />;
       case 'trendingAiProjects':
         return <AiProjects props={args.data} />;
       case 'depositLuloTool':
         return <LuloChatItem props={args.data} />;
-      case 'createGetTokenDataTool':
+      case 'getTokenDataTool':
         return <TokenDataMessageItem props={args.data} />;
       case 'bubblemapTool':
         return <BubbleMapChatItem props={args.data} />;

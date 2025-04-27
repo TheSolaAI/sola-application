@@ -1,4 +1,4 @@
-import { generateId, Message, streamText, Tool } from 'ai';
+import { generateId, Message, smoothStream, streamText, Tool } from 'ai';
 import {
   getToolHandlerPrimeDirective,
   getToolsFromToolset,
@@ -9,6 +9,7 @@ import { cookies } from 'next/headers';
 import { extractUserPrivyId } from '@/lib/server/userSession';
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { openai } from '@ai-sdk/openai';
 
 /**
  * Handles POST requests for chat processing with tools
@@ -52,10 +53,14 @@ export async function POST(req: Request) {
       model: toolhandlerModel,
       system: getToolHandlerPrimeDirective(walletPublicKey),
       messages,
-      tools,
+      tools: { web_search_preview: openai.tools.webSearchPreview(), ...tools },
       toolChoice: 'auto',
       maxSteps: 8,
       experimental_telemetry: { isEnabled: true },
+      experimental_transform: smoothStream(),
+      onError({ error }) {
+        console.error(error);
+      },
       onFinish: async ({ text, toolResults, usage }) => {
         const tokensUsed = usage.totalTokens;
         const usdConsumed = (tokensUsed / 1_000_000) * 8;
@@ -80,7 +85,7 @@ export async function POST(req: Request) {
         );
       },
     });
-
+    // console.log(result)
     return result.toDataStreamResponse();
   } catch (error) {
     console.error(

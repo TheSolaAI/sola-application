@@ -8,8 +8,6 @@ export const createGetTokenDataTool = (context: ToolContext) => {
   const Parameters = z.object({
     token_address: z
       .string()
-      .min(1)
-      .max(100)
       .describe(
         'The exact token contract address, symbol, or name. For symbols provide the $ symbol (e.g., $SOL, $JUP, $BONK)'
       ),
@@ -50,6 +48,7 @@ export const createGetTokenDataTool = (context: ToolContext) => {
           return {
             success: true,
             data: response.data,
+            textResponse: false,
           };
         }
         // Handle invalid response
