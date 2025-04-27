@@ -8,13 +8,13 @@ import React, {
   useEffect,
   useCallback,
 } from 'react';
+import { useAppDispatch, useAppSelector } from '@/redux/hook';
+import { setSidebarOpen } from '@/redux/features/ui/sidebar';
 
 interface LayoutContextType {
   // Sidebar states
   sidebarOpen: boolean;
   setSidebarOpen: (open: boolean) => void;
-  canAutoClose: boolean;
-  setCanAutoClose: (autoClose: boolean) => void;
 
   // Wallet lens states
   walletLensOpen: boolean;
@@ -43,9 +43,16 @@ const LayoutContext = createContext<LayoutContextType | undefined>(undefined);
 export const LayoutProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  // Sidebar state
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [canAutoClose, setCanAutoClose] = useState(false);
+  const dispatch = useAppDispatch();
+
+  const sidebarOpen = useAppSelector((state) => state.sidebar.isOpen);
+
+  const dispatchSetSidebarOpen = useCallback(
+    (open: boolean) => {
+      dispatch(setSidebarOpen(open));
+    },
+    [dispatch]
+  );
 
   // Wallet lens state
   const [walletLensOpen, setWalletLensOpen] = useState(false);
@@ -73,25 +80,21 @@ export const LayoutProvider: React.FC<{ children: ReactNode }> = ({
     }
   }, []);
 
-  // Memoized handlers for better performance
   const handleWalletLensOpen = useCallback(
     (state: boolean) => {
       if (state) {
-        setSidebarOpen(false);
+        // Don't close the sidebar completely, just collapse it
+        dispatchSetSidebarOpen(false);
         setWalletLensOpen(true);
-        setCanAutoClose(true);
         // Close Dashboard if it's open
         if (dashboardOpen) {
           setDashboardOpen(false);
         }
       } else {
-        if (!canAutoClose) {
-          setSidebarOpen(true);
-        }
         setWalletLensOpen(false);
       }
     },
-    [canAutoClose, dashboardOpen]
+    [dashboardOpen, dispatchSetSidebarOpen]
   );
 
   /**
@@ -104,21 +107,18 @@ export const LayoutProvider: React.FC<{ children: ReactNode }> = ({
         if (walletLensOpen) {
           setWalletLensOpen(false);
         }
-        setSidebarOpen(false);
-        setCanAutoClose(true);
+        dispatchSetSidebarOpen(false);
         setDashboardOpen(true);
       } else {
         setDashboardOpen(false);
       }
     },
-    [walletLensOpen]
+    [walletLensOpen, dispatchSetSidebarOpen]
   );
 
   const value = {
     sidebarOpen,
-    setSidebarOpen,
-    canAutoClose,
-    setCanAutoClose,
+    setSidebarOpen: dispatchSetSidebarOpen,
     walletLensOpen,
     handleWalletLensOpen,
     audioIntensity,

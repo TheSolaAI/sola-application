@@ -17,8 +17,6 @@ const MasterLayout: React.FC<MasterLayoutProps> = ({ children }) => {
   const {
     sidebarOpen,
     setSidebarOpen,
-    canAutoClose,
-    setCanAutoClose,
     walletLensOpen,
     handleWalletLensOpen,
     dashboardOpen,
@@ -64,12 +62,7 @@ const MasterLayout: React.FC<MasterLayoutProps> = ({ children }) => {
   return (
     <>
       <div className="flex h-screen bg-baseBackground overflow-hidden sm:p-2">
-        <Sidebar
-          isOpen={sidebarOpen}
-          setIsOpen={setSidebarOpen}
-          canAutoClose={canAutoClose}
-          setCanAutoClose={setCanAutoClose}
-        />
+        <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
 
         {/* Main Content Area */}
         {renderMainContent()}

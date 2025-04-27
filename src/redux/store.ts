@@ -1,12 +1,35 @@
-import { configureStore } from '@reduxjs/toolkit';
+import { configureStore, combineReducers } from '@reduxjs/toolkit';
 import { tierSlice } from './features/user/tier';
+import sidebarReducer from './features/ui/sidebar';
+import { persistStore, persistReducer } from 'redux-persist';
+import storage from 'redux-persist/lib/storage'; // localStorage
+
+const rootReducer = combineReducers({
+  tier: tierSlice.reducer,
+  sidebar: sidebarReducer,
+});
+
+// persist options
+const persistConfig = {
+  key: 'root',
+  storage,
+  whitelist: ['sidebar'],
+};
+
+const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 export const store = configureStore({
-  reducer: {
-    tier: tierSlice.reducer,
-  },
-  middleware: (getDefaultMiddleware) => getDefaultMiddleware(),
+  reducer: persistedReducer,
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: {
+        ignoredActions: ['persist/PERSIST', 'persist/REHYDRATE'],
+      },
+    }),
 });
+
+// Create the persistor
+export const persistor = persistStore(store);
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
