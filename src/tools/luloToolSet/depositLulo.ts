@@ -8,7 +8,7 @@ import { API_URLS } from '@/config/api_urls';
 import { DepositParams, DepositResponse } from '@/types/lulo';
 
 const Parameters = z.object({
-  amount: z.number().positive(),
+  amount: z.number(),
   token: z.enum(['USDT', 'USDS', 'USDC']),
 });
 

@@ -61,6 +61,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/react-syntax-highlighter": "^15.5.13",
     "@typescript-eslint/eslint-plugin": "^8.26.0",
     "autoprefixer": "^10.4.20",
     "commitlint": "^19.8.0",

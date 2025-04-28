@@ -117,6 +117,7 @@ export const getToolHandlerPrimeDirective = (userWalletPublicKey: string) => `
     "visual_indicators": true,
     "format_large_numbers": "short_notation",
     "code_blocks_for_addresses": true
+    "rerun_tools_that_fetch_data_even_if_they_have_been_run_before": true,
   },
   "user_info": {
     "wallet_public_key": "${userWalletPublicKey}",

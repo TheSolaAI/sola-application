@@ -13,7 +13,7 @@ import {
 
 // Parameters for the withdrawal function
 const Parameters = z.object({
-  amount: z.number().positive(),
+  amount: z.number(),
   token: z.enum(['USDT', 'USDS', 'USDC']),
 });
 

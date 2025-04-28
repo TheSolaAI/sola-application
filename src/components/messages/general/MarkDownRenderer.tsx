@@ -8,8 +8,6 @@ import {
   a11yDark,
   oneDark,
 } from 'react-syntax-highlighter/dist/cjs/styles/prism';
-import Image from 'next/image';
-
 const MarkdownRenderer = ({ content }: { content: string }) => {
   /**
    * Global State

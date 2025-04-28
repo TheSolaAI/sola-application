@@ -7,7 +7,7 @@ import { TokenAddressResultItem } from '@/components/messages/TokenAddressResult
 import { ShowLimitOrdersChatItem } from '@/components/messages/ShowLimitOrderChatItem';
 import { CreateLimitOrderChatItem } from '@/components/messages/CreateLimitOrderMessageItem';
 import { AiProjects } from '@/components/messages/AiProjects';
-import { LuloChatItem } from '@/components/messages/LuloMessageItem';
+import { LuloAssetsMessageItem } from '@/components/messages/LuloAssetsMessageItem';
 import { TokenDataMessageItem } from '@/components/messages/TokenDataMessageItem';
 import { BubbleMapChatItem } from '@/components/messages/BubbleMapCardItem';
 import { TopHoldersMessageItem } from '@/components/messages/TopHoldersMessageItem';
@@ -30,23 +30,6 @@ export function renderMessageContent(message: UIMessage) {
           <UserInput text={message.content} transcript={true} />
         ) : (
           <SimpleMessageChatItem key={`text-${partIndex}`} text={part.text} />
-        );
-      } else if (part.type === 'reasoning') {
-        return (
-          <ReasoningMessageItem
-            key={`reasoning-${message.id}`}
-            reasoning={part.reasoning}
-          />
-        );
-      } else if (part.type === 'source') {
-        return (
-          <SourceMessageItem
-            key={`source-${message.id}`}
-            sourceType={part.source.sourceType}
-            id={part.source.id}
-            url={part.source.url}
-            title={part.source.title}
-          />
         );
       } else if (
         part.type === 'tool-invocation' &&
@@ -89,8 +72,8 @@ export function renderToolResult(
       return <CreateLimitOrderChatItem props={args.data} />;
     case 'trendingAiProjects':
       return <AiProjects props={args.data} />;
-    case 'depositLuloTool':
-      return <LuloChatItem props={args.data} />;
+    case 'getLuloAssetsTool':
+      return <LuloAssetsMessageItem props={args.data} />;
     case 'getTokenDataTool':
       return <TokenDataMessageItem props={args.data} />;
     case 'bubblemapTool':

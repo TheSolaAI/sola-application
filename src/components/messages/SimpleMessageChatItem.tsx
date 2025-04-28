@@ -1,6 +1,5 @@
 'use client';
 import { FC } from 'react';
-import BaseChatItem from '@/components/messages/general/BaseChatItem';
 import MarkDownRenderer from '@/components/messages/general/MarkDownRenderer';
 
 interface SimpleMessageChatItemProps {
@@ -11,10 +10,10 @@ export const SimpleMessageChatItem: FC<SimpleMessageChatItemProps> = ({
   text,
 }) => {
   return (
-    <BaseChatItem>
-      <div className="text-textColor bg-sec_background px-4 py-3 rounded-r-xl rounded-tl-xl">
+    <div className="my-5 max-w-[100%] md:max-w-[80%]">
+      <div className="text-textColor p-3 rounded-r-xl rounded-tl-2xl font-normal text-md">
         <MarkDownRenderer content={text} />
       </div>
-    </BaseChatItem>
+    </div>
   );
 };
