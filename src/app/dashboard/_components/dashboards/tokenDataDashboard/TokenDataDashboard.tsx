@@ -1,14 +1,11 @@
 'use client';
 
-import { FC, useEffect, useState } from 'react';
-import { toast } from 'sonner';
-import { getTopHoldersHandler } from '@/lib/solana/topHolders';
+import { FC, useEffect } from 'react';
 import { useLayoutContext } from '@/providers/LayoutProvider';
 import { TokenSummaryCard } from './TokenSummaryCard';
 import { TokenChartCard } from './TokenChartCard';
 import { TokenMetricsCard } from './TokenMetricsCard';
 import { TokenDataResponse } from '@/types/response';
-import { useUserHandler } from '@/store/UserHandler';
 
 interface TokenDataDashboardProps {
   tokenData: TokenDataResponse;
@@ -22,43 +19,9 @@ export const TokenDataDashboard: FC<TokenDataDashboardProps> = ({
    */
   const { setDashboardTitle } = useLayoutContext();
 
-  /**
-   * Local State
-   */
-  const [agentDetails, setAgentDetails] = useState<unknown | null>(null);
-
-  // Combined fetch for agent details, top holders, and token analysis
-  // useEffect(() => {
-  //   setAgentDetails(tokenData);
-  //   setDashboardTitle('Token Data Dashboard');
-
-  //   // If we have an address but no top holders, fetch them
-  //   if (tokenData.address) {
-  //     getTopHoldersHandler(
-  //       tokenData.address,
-  //       useUserHandler.getState().authToken || ''
-  //     )
-  //       .then((topHolders) => {
-  //         if (topHolders && topHolders.length > 0) {
-  //           setAgentDetails((prev: unknown) => {
-  //             if (!prev) return null;
-  //             return {
-  //               ...prev,
-  //               data: {
-  //                 ...prev.data,
-  //                 topHolders: topHolders,
-  //               },
-  //             };
-  //           });
-  //         } else {
-  //           toast.error('No top holders found');
-  //         }
-  //       })
-  //       .catch(() => {
-  //         toast.error('Error getting top holders');
-  //       });
-  //   }
-  // }, [tokenData]);
+  useEffect(() => {
+    setDashboardTitle('Token Data');
+  }, [setDashboardTitle]);
 
   return (
     <>

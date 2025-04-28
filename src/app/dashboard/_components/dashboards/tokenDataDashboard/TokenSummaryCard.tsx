@@ -9,6 +9,7 @@ import { FiCopy } from 'react-icons/fi';
 import { LuTrendingUp, LuTrendingDown } from 'react-icons/lu';
 import { FcGlobe } from 'react-icons/fc';
 import { FaCoins, FaDiscord, FaXTwitter } from 'react-icons/fa6';
+import Image from 'next/image';
 
 interface TokenSummaryCardProps {
   name?: string;
@@ -36,7 +37,7 @@ export const TokenSummaryCard: FC<TokenSummaryCardProps> = ({
     <div className="bg-baseBackground rounded-xl w-full flex flex-col p-4">
       <div className="flex flex-row gap-x-4 items-start overflow-x-auto">
         {logoURI && (
-          <img src={logoURI} alt="token" className="w-20 h-20 rounded-xl" />
+          <Image src={logoURI} alt="token" className="w-20 h-20 rounded-xl" />
         )}
         <div className="flex flex-col w-full">
           <div className="flex flex-row w-full justify-between">
