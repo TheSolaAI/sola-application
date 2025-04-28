@@ -47,17 +47,11 @@ export function createGetNFTPriceTool(context: ToolContext) {
         return {
           success: true,
           data: {
-            type: 'nft_collection_data',
-            details: {
-              symbol: nftData.symbol,
-              floor_price: nftData.floor_price,
-              volume_all: nftData.volume_all,
-              avg_price_24hr: nftData.avg_price_24hr,
-              listed_count: nftData.listed_count,
-            },
-            response_id: 'temp',
-            sender: 'system',
-            timestamp: new Date().toISOString(),
+            symbol: nftData.symbol,
+            floor_price: nftData.floor_price,
+            volume_all: nftData.volume_all,
+            avg_price_24hr: nftData.avg_price_24hr,
+            listed_count: nftData.listed_count,
           },
           error: undefined,
         };

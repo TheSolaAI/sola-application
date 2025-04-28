@@ -21,7 +21,6 @@ const MasterLayout: React.FC<MasterLayoutProps> = ({ children }) => {
     handleWalletLensOpen,
     dashboardOpen,
     dashboardLayoutContent,
-    handleDashboardOpen,
     settingsIsOpen,
     setSettingsIsOpen,
   } = useLayoutContext();
@@ -69,14 +68,7 @@ const MasterLayout: React.FC<MasterLayoutProps> = ({ children }) => {
 
         {/* Dashboard Container*/}
         <AnimatePresence mode="wait">
-          {dashboardOpen && (
-            <DashBoardContainer
-              visible={dashboardOpen}
-              setVisible={handleDashboardOpen}
-            >
-              {dashboardLayoutContent}
-            </DashBoardContainer>
-          )}
+          <DashBoardContainer>{dashboardLayoutContent}</DashBoardContainer>
         </AnimatePresence>
 
         {/* Wallet Lens Sidebar*/}

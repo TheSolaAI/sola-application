@@ -259,7 +259,7 @@ export const Sidebar: FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
 
                       return (
                         <div key={room.id} className="w-full">
-                          <button
+                          <div
                             onClick={() => handleRoomClick(room)}
                             className={`group transition-all duration-200 ease-in-out rounded-lg w-full p-[10px] flex justify-between items-center relative
                 ${isActive ? 'bg-primaryDark' : 'hover:bg-primary/20 active:bg-primary/30'}
@@ -281,7 +281,7 @@ export const Sidebar: FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
                             >
                               <LuEllipsis size={16} color={theme.textColor} />
                             </button>
-                          </button>
+                          </div>
 
                           {/* Edit Room Dropdown */}
                           {editingRoom === room.id && (

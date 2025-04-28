@@ -64,10 +64,10 @@ export const GoatIndexDashboard: FC<GoatIndexDashboardProps> = ({
 
   return (
     <MaskedRevealLoader isLoading={isLoading}>
-      <ProjectSummaryCard
-        tokenDetail={agentDetails?.data.agentDetail.tokenDetail}
-      />
-      <div className="bg-baseBackground rounded-xl w-full flex flex-col p-2 gap-y-2 mt-2">
+      <div className="flex flex-col items-center justify-center w-full h-full gap-y-4">
+        <ProjectSummaryCard
+          tokenDetail={agentDetails?.data.agentDetail.tokenDetail}
+        />
         <MetricsSummaryCard
           metrics={agentDetails?.data.agentDetail.metrics}
           priceData={agentDetails?.data.agentDetail.priceGraphs}
