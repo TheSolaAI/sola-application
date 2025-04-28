@@ -51,7 +51,7 @@ const MasterLayout: React.FC<MasterLayoutProps> = ({ children }) => {
         variants={mainContentVariants}
         initial={false}
         animate={walletLensOpen || dashboardOpen ? 'collapsed' : 'expanded'}
-        className="sm:rounded-2xl bg-background overflow-hidden"
+        className="sm:rounded-r-2xl bg-background overflow-hidden"
       >
         {children}
       </motion.div>

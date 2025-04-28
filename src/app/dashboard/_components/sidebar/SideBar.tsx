@@ -130,23 +130,23 @@ export const Sidebar: FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
       {/* Sidebar - on mobile it should be completely hidden when closed */}
       <div
         ref={sidebarRef}
-        className={`flex flex-col transition-all duration-300 ease-in-out z-40 h-full overflow-hidden
+        className={`flex flex-col transition-all duration-300 ease-in-out z-40 h-full overflow-hidden border-r-[1px] border-border
           ${
             isMobile
-              ? `fixed left-0 top-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'} w-64`
-              : `lg:static ${isOpen ? 'w-64' : 'w-14'}`
+              ? `fixed left-0 top-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'} w-80`
+              : `lg:static ${isOpen ? 'w-80' : 'w-20'}`
           }
           ${
             isOpen
-              ? 'bg-sec_background shadow-black/25 shadow-[0px_0px_15px_1px] rounded-xl p-4 pt-6'
+              ? 'bg-sec_background rounded-l-2xl p-3 pt-6'
               : isMobile
-                ? 'bg-sec_background shadow-black/25 shadow-[0px_0px_15px_1px] rounded-xl p-4 pt-6'
-                : 'bg-sec_background/80 shadow-black/15 shadow-[0px_0px_10px_1px] rounded-xl p-2 pt-6'
+                ? 'bg-sec_background rounded-xl p-4 pt-6'
+                : 'bg-sec_background rounded-l-2xl p-2 pt-6'
           }
         `}
       >
         <div className="relative flex flex-col h-full">
-          <div className="h-10 mb-8 relative">
+          <div className="h-10 mb-4 relative">
             {/* Expanded state header */}
             {showExpandedElements && (
               <div
@@ -177,14 +177,14 @@ export const Sidebar: FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
                 onClick={toggleSidebar}
                 onMouseEnter={() => setHoverMenuButton(true)}
                 onMouseLeave={() => setHoverMenuButton(false)}
-                className={`p-2 rounded-md transition-all duration-200 ${hoverMenuButton ? 'bg-primary/20' : 'hover:bg-background'} active:scale-95`}
+                className={`p-2 rounded-md transition-all duration-200 ${hoverMenuButton ? 'bg-primary' : 'hover:bg-background'} active:scale-95`}
               >
-                <LuMenu size={20} className="text-textColor" />
+                <LuMenu size={24} className="text-textColor" />
               </button>
             </div>
           </div>
 
-          <div className="h-10 mb-6 relative">
+          <div className="h-12 mb-6 relative">
             {/* Expanded state button */}
             {showExpandedElements && (
               <div
@@ -213,14 +213,14 @@ export const Sidebar: FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
               style={{ pointerEvents: !isOpen && !isMobile ? 'auto' : 'none' }}
             >
               <button
-                className="w-10 h-10 flex items-center justify-center rounded-xl bg-primary/10 hover:bg-primary/20 transition-all duration-300 active:scale-95"
+                className="w-12 h-12 flex items-center justify-center rounded-xl bg-primary/10 hover:bg-primary/20 transition-all duration-300 active:scale-95"
                 onClick={() => {
                   setCurrentChatRoom(null);
                   useChatMessageHandler.getState().messages = [];
                   router.push('/dashboard/chat');
                 }}
               >
-                <LuPlus size={20} className="text-textColor" />
+                <LuPlus size={24} className="text-textColor" />
               </button>
             </div>
           </div>
@@ -229,11 +229,11 @@ export const Sidebar: FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
             <>
               {/* Pump Terminal Header */}
               <div
-                className={`mb-4 px-2 ${isOpen ? 'opacity-100' : 'opacity-0'} transition-opacity duration-200`}
+                className={`mb-6 px-2 ${isOpen ? 'opacity-100' : 'opacity-0'} transition-opacity duration-200`}
               >
                 <div className="flex items-center gap-2 text-secText">
                   <BiSolidCapsule size={16} />
-                  <span className="text-sm whitespace-nowrap">
+                  <span className="text-sm whitespace-nowrap text-secText font-light">
                     Pump Terminal (Soon)
                   </span>
                 </div>
@@ -245,7 +245,7 @@ export const Sidebar: FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
               >
                 {/* Recents Header */}
                 <div className="flex items-center justify-between mb-2 px-2">
-                  <span className="text-secText text-xs font-medium">
+                  <span className="text-secText text-md font-medium">
                     Recents
                   </span>
                 </div>
@@ -262,7 +262,7 @@ export const Sidebar: FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
                           <div
                             onClick={() => handleRoomClick(room)}
                             className={`group transition-all duration-200 ease-in-out rounded-lg w-full p-[10px] flex justify-between items-center relative
-                ${isActive ? 'bg-primaryDark' : 'hover:bg-primary/20 active:bg-primary/30'}
+                ${isActive ? 'bg-baseBackground' : 'hover:bg-primary/20 active:bg-primary/30'}
               `}
                           >
                             <h1 className="text-textColor font-normal text-sm truncate flex-1 text-left">
@@ -313,9 +313,9 @@ export const Sidebar: FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
               <div
                 className={`absolute inset-0 ${isOpen ? 'opacity-100' : 'opacity-0'} transition-opacity duration-200`}
               >
-                <div className="flex flex-row justify-center items-center gap-5 bg-gradient-to-r from-primaryDark to-primary p-[10px] rounded-xl shadow-primaryDark truncate h-full">
+                <div className="flex flex-row justify-center items-center gap-3 bg-baseBackground border-border border-2 p-[10px] rounded-xl shadow-primaryDark truncate h-full">
                   <h1 className="font-semibold text-textColor">Tier:</h1>
-                  <h1 className="font-bold text-textColor text-sm">{tier}</h1>
+                  <h1 className="font-bold text-textColor text-xl">{tier}</h1>
                 </div>
               </div>
             )}
@@ -325,8 +325,8 @@ export const Sidebar: FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
               className={`absolute inset-0 flex justify-center items-center ${!isOpen && !isMobile ? 'opacity-100' : 'opacity-0'} transition-opacity duration-200`}
               style={{ pointerEvents: !isOpen && !isMobile ? 'auto' : 'none' }}
             >
-              <div className="w-9 h-9 rounded-full bg-primary/30 hover:bg-primary/40 flex items-center justify-center transition-colors">
-                <span className="text-xs font-bold text-textColor">{tier}</span>
+              <div className="w-12 h-12 rounded-full bg-primary/30 hover:bg-primary/40 flex items-center justify-center transition-colors">
+                <span className="text-sm font-bold text-textColor">{tier}</span>
               </div>
             </div>
           </div>
@@ -345,13 +345,6 @@ export const Sidebar: FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
                 >
                   <LuUser size={18} color={theme.textColor} />
                 </button>
-
-                <button
-                  onClick={() => router.push('/dashboard/chat')}
-                  className="text-secText hover:text-primaryDark transition-colors p-1 rounded-md hover:bg-background active:bg-primary/20"
-                >
-                  <span className="text-xs">Dashboard</span>
-                </button>
               </div>
             )}
 
@@ -363,9 +356,9 @@ export const Sidebar: FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
               <button
                 ref={!isOpen ? profileRef : undefined}
                 onClick={() => setProfileOpen(!profileOpen)}
-                className="w-9 h-9 rounded-full bg-surface hover:bg-surface/80 flex items-center justify-center transition-colors active:scale-95"
+                className="w-12 h-12 rounded-full bg-surface hover:bg-surface/80 flex items-center justify-center transition-colors active:scale-95"
               >
-                <LuUser size={16} color={theme.textColor} />
+                <LuUser size={20} color={theme.textColor} />
               </button>
             </div>
 
