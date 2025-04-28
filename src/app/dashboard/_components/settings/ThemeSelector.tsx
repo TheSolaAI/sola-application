@@ -44,7 +44,7 @@ const ThemeSelector: FC<ThemeSelectorProps> = ({
   const contextMenuRef = useRef(null);
 
   // Handle right-click on theme card
-  const handleContextMenu = (e, themeObj: Theme) => {
+  const handleContextMenu = (e: any, themeObj: Theme) => {
     // Only show context menu for custom themes
     const isCustomTheme = customThemes.some((ct) => ct.name === themeObj.name);
     if (!isCustomTheme) return;
@@ -91,8 +91,6 @@ const ThemeSelector: FC<ThemeSelectorProps> = ({
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-3 mt-3 p-1">
       {Object.entries(availableThemes).map(([name, themeObj]) => {
-        // Check if this is a custom theme
-        const isCustomTheme = customThemes.some((ct) => ct.name === name);
         return (
           <div
             key={name}

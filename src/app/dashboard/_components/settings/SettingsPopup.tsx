@@ -19,8 +19,6 @@ import {
   ThemeSettingsRef,
 } from '@/app/dashboard/_components/settings/ThemeSettings';
 import { WalletSettings } from '@/app/dashboard/_components/settings/WalletSettings';
-import { toast } from 'sonner';
-
 export const SettingsModal: FC<{ isOpen: boolean; onClose: () => void }> = ({
   isOpen,
   onClose,
