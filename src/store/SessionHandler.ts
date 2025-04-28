@@ -7,7 +7,7 @@ import { toast } from 'sonner';
 import { AIVoice } from '@/config/ai';
 import { useChatRoomHandler } from '@/store/ChatRoomHandler';
 import { useUserHandler } from '@/store/UserHandler';
-import { getRealtimePrimeDirective } from '@/config/ai';
+import { getToolSetSelectorPrimeDirective } from '@/config/ai';
 import { getRequiredToolset } from '@/tools/toolsetChooser';
 
 interface SessionHandler {
@@ -138,7 +138,7 @@ export const useSessionHandler = create<SessionHandler>((set, get) => {
       if (update_type === 'all') {
         updateParams.session = {
           modalities: ['text', 'audio'],
-          instructions: getRealtimePrimeDirective(
+          instructions: getToolSetSelectorPrimeDirective(
             get().aiEmotion,
             useUserHandler.getState().name
           ),
@@ -156,14 +156,14 @@ export const useSessionHandler = create<SessionHandler>((set, get) => {
         };
       } else if (update_type === 'emotion') {
         updateParams.session = {
-          instructions: getRealtimePrimeDirective(
+          instructions: getToolSetSelectorPrimeDirective(
             get().aiEmotion,
             useUserHandler.getState().name
           ),
         };
       } else if (update_type === 'name') {
         updateParams.session = {
-          instructions: getRealtimePrimeDirective(
+          instructions: getToolSetSelectorPrimeDirective(
             get().aiEmotion,
             useUserHandler.getState().name
           ),

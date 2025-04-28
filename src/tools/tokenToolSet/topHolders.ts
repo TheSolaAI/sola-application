@@ -19,8 +19,6 @@ export function createTopHoldersTool(context: ToolContext) {
     parameters: Parameters,
     execute: async (params) => {
       try {
-        console.log('Top holders tool executed with params:', params);
-
         if (!context.authToken) {
           return {
             success: false,

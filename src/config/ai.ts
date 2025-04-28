@@ -51,7 +51,7 @@ export const getToolsFromToolset = (
 
 export const signingRequiredTools = ['createLimitOrderTool'];
 
-export const getRealtimePrimeDirective = (userWallet: string) => {
+export const getToolSetSelectorPrimeDirective = (userWallet: string) => {
   const formattedToolsets = Object.entries(availableToolsetsDescription)
     .map(
       ([toolsetSlug, toolset]) =>
@@ -140,7 +140,7 @@ export const getToolHandlerPrimeDirective = (userWalletPublicKey: string) => `
 - Never attempt actions you are not equipped for; inform the user if something is unsupported.
 
 # Special Tool Triggers:
-- If a tool result has \`"textResponse": false\`, reply politely like: "Let me know if you need any further assistance. 👍"
+- If a tool result has \`"textResponse": false\`, do not respond with a text summary of the tool result. Instead end the conversation and wait for the user to ask for more information.
 - If a tool result has \`"signAndSend": true\`, trigger the \`sign_and_send_tx\` tool with the transaction hash.
 
 # Response Formatting:
