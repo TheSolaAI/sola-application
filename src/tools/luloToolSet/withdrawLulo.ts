@@ -3,7 +3,7 @@ import { Tool } from 'ai';
 import { ToolContext, ToolResult } from '@/types/tool';
 import { ApiClient, createServerApiClient } from '@/lib/ApiClient';
 import { VersionedTransaction } from '@solana/web3.js';
-import { tokenList } from '@/config/tokenMapping';
+import { TOKEN_LIST } from '@/config/tokenMapping';
 import { API_URLS } from '@/config/api_urls';
 import {
   WithdrawParams,
@@ -13,7 +13,7 @@ import {
 
 // Parameters for the withdrawal function
 const Parameters = z.object({
-  amount: z.number().positive(),
+  amount: z.number(),
   token: z.enum(['USDT', 'USDS', 'USDC']),
 });
 
@@ -45,7 +45,7 @@ export function createWithdrawLuloTool(context: ToolContext) {
       const withdrawParams: WithdrawParams = {
         owner: context.publicKey,
         withdrawAmount: amount,
-        mintAddress: tokenList[token].MINT,
+        mintAddress: TOKEN_LIST[token].MINT,
         withdrawAll: false,
       };
 

@@ -5,8 +5,7 @@
 import { create } from 'zustand';
 import { getAccessToken } from '@privy-io/react-auth';
 import { toast } from 'sonner';
-// import { useSettingsHandler } from './SettingsHandler.ts';
-
+import { useSettingsHandler } from '@/store/SettingsHandler';
 interface UserHandler {
   /**
    * true when the user is logging for the first time
@@ -98,7 +97,7 @@ export const useUserHandler = create<UserHandler>((set) => {
       }
       set({ authToken });
       // fetch the user settings from the settings handler
-      // await useSettingsHandler.getState().getSettings();
+      await useSettingsHandler.getState().getSettings();
       set({ ready: true });
       return true;
     },

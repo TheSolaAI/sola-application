@@ -17,7 +17,6 @@ import {
 import { formatNumber } from '@/utils/formatNumber';
 import { Pill } from '@/components/common/Pill';
 import { IoIosAnalytics } from 'react-icons/io';
-import { toast } from 'sonner';
 
 interface MetricsSummaryCardProps {
   metrics?: Metrics;
@@ -274,89 +273,24 @@ export const MetricsSummaryCard: FC<MetricsSummaryCardProps> = ({
   }, [activeChart, priceData, mindshareData, marketCapData]);
 
   return (
-    <div className="bg-background rounded-xl w-full flex flex-col p-3 sm:p-4">
-      <div className="flex flex-col lg:flex-row gap-4">
-        {/* Metrics Summary Column */}
-        <div className="flex flex-col gap-y-3 w-full lg:w-2/5">
-          <div className="flex flex-row gap-x-2 items-center">
-            <h1 className="text-textColor text-xl sm:text-2xl font-semibold">
-              Metrics
-            </h1>
+    <div className="flex my-1 justify-start w-full transition-opacity duration-500">
+      <div className="overflow-hidden rounded-xl bg-sec_background border border-border shadow-lg w-full">
+        {/* Header */}
+        <div className="px-4 py-3 border-b border-border flex flex-row justify-between items-center bg-primary/10">
+          <div className="flex items-center gap-2">
+            <h2 className="text-lg font-semibold text-textColor">
+              Market Metrics
+            </h2>
             {tokenSymbol && (
               <Pill
                 text={tokenSymbol}
-                icon={<IoIosAnalytics size={16} className="sm:text-lg" />}
-                color={theme.baseBackground}
+                icon={<IoIosAnalytics size={16} />}
+                color={theme.sec_background}
                 textColor={theme.secText}
               />
             )}
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-2 gap-2 sm:gap-3 flex-1">
-            <div className="bg-sec_background rounded-lg p-2 sm:p-3">
-              <p className="text-secText text-xs sm:text-sm">Price</p>
-              <p className="text-textColor text-lg sm:text-2xl font-bold truncate">
-                {metrics?.price ? formatNumber(metrics.price) : 'N/A'}
-              </p>
-            </div>
-
-            <div className="bg-sec_background rounded-lg p-2 sm:p-3">
-              <p className="text-secText text-xs sm:text-sm">Market Cap</p>
-              <p className="text-textColor text-lg sm:text-2xl font-bold truncate">
-                {metrics?.marketCap ? formatNumber(metrics.marketCap) : 'N/A'}
-              </p>
-            </div>
-
-            <div className="bg-sec_background rounded-lg p-2 sm:p-3">
-              <p className="text-secText text-xs sm:text-sm">Liquidity</p>
-              <p className="text-textColor text-lg sm:text-2xl font-bold truncate">
-                {metrics?.liquidity ? formatNumber(metrics.liquidity) : 'N/A'}
-              </p>
-            </div>
-
-            <div className="bg-sec_background rounded-lg p-2 sm:p-3">
-              <p className="text-secText text-xs sm:text-sm">24h Volume</p>
-              <p className="text-textColor text-lg sm:text-2xl font-bold truncate">
-                {metrics?.tradingVolume
-                  ? formatNumber(metrics.tradingVolume)
-                  : 'N/A'}
-              </p>
-            </div>
-
-            <div className="bg-sec_background rounded-lg p-2 sm:p-3">
-              <p className="text-secText text-xs sm:text-sm">Holders</p>
-              <p className="text-textColor text-lg sm:text-2xl font-bold truncate">
-                {metrics?.holders?.toLocaleString() || 'N/A'}
-              </p>
-            </div>
-
-            <div className="bg-sec_background rounded-lg p-2 sm:p-3">
-              <p className="text-secText text-xs sm:text-sm">Mind Share</p>
-              <p className="text-textColor text-lg sm:text-2xl font-bold truncate">{`${metrics?.mindShare?.toFixed(2) || 'N/A'}%`}</p>
-            </div>
-
-            <div className="bg-sec_background rounded-lg p-2 sm:p-3">
-              <p className="text-secText text-xs sm:text-sm">
-                Avg. Impressions
-              </p>
-              <p className="text-textColor text-lg sm:text-2xl font-bold truncate">
-                {metrics?.avgImpressions?.toLocaleString() || 'N/A'}
-              </p>
-            </div>
-
-            <div className="bg-sec_background rounded-lg p-2 sm:p-3">
-              <p className="text-secText text-xs sm:text-sm">
-                Social Followers
-              </p>
-              <p className="text-textColor text-lg sm:text-2xl font-bold truncate">
-                {metrics?.followers?.toLocaleString() || 'N/A'}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Chart Column */}
-        <div className="flex flex-col gap-y-3 w-full lg:w-3/5 mt-4 lg:mt-0">
           {/* Chart Tabs */}
           <div className="flex flex-row gap-2 flex-wrap">
             <Pill
@@ -404,140 +338,223 @@ export const MetricsSummaryCard: FC<MetricsSummaryCardProps> = ({
               hoverable={true}
             />
           </div>
+        </div>
 
-          {/* Chart Area */}
-          <div className="h-64 sm:h-80 lg:h-96" style={{ minHeight: '250px' }}>
-            {!hasData ? (
-              <div className="w-full h-full flex items-center justify-center text-secText">
-                No data available for this chart
+        {/* Content */}
+        <div className="p-4">
+          <div className="flex flex-col lg:flex-row gap-4">
+            {/* Metrics Grid */}
+            <div className="lg:w-2/5 flex flex-col gap-y-3">
+              <div className="text-xs uppercase tracking-wider text-secText mb-1">
+                Key Metrics
               </div>
-            ) : (
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={chartData}>
-                  <CartesianGrid
-                    strokeDasharray="4 4"
-                    stroke={theme.secText}
-                    opacity={0.5}
-                  />
-                  <XAxis
-                    dataKey="date"
-                    tickFormatter={formatDate}
-                    stroke={theme.secText}
-                    tick={{ fontSize: 10 }}
-                    tickCount={5}
-                    minTickGap={15}
-                  />
-                  <YAxis
-                    stroke={theme.secText}
-                    domain={
-                      activeChart === 'combined' ? [0, 100] : ['auto', 'auto']
-                    }
-                    tickFormatter={
-                      activeChart === 'combined'
-                        ? (value) => `${value}%`
-                        : undefined
-                    }
-                    tick={{ fontSize: 10 }}
-                    width={35}
-                  />
-                  <Tooltip content={<CustomTooltip />} />
 
-                  {/* Legend for combined view */}
-                  {activeChart === 'combined' && (
-                    <Legend
-                      wrapperStyle={{ fontSize: '10px', paddingTop: '5px' }}
-                      iconSize={8}
-                    />
-                  )}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-surface/30 rounded-lg p-3">
+                  <p className="text-secText text-xs">Price</p>
+                  <p className="text-textColor text-xl font-bold truncate">
+                    {metrics?.price ? formatNumber(metrics.price) : 'N/A'}
+                  </p>
+                </div>
 
-                  {/* Reference Lines */}
-                  {activeChart !== 'combined' && (
-                    <>
-                      <ReferenceLine
-                        y={referenceValues[activeChart].min}
-                        stroke="#FF5252"
-                        strokeDasharray="3 3"
-                        label={{
-                          value: `Min: ${formatReferenceLineLabel(
-                            referenceValues[activeChart].min,
-                            activeChart
-                          )}`,
-                          position: 'insideBottomLeft',
-                          fill: '#FF5252',
-                          fontSize: 9,
-                        }}
-                      />
-                      <ReferenceLine
-                        y={referenceValues[activeChart].max}
-                        stroke="#69F0AE"
-                        ifOverflow="extendDomain"
-                        strokeDasharray="3 3"
-                        yAxisId={0}
-                        label={{
-                          value: `Max: ${formatReferenceLineLabel(
-                            referenceValues[activeChart].max,
-                            activeChart
-                          )}`,
-                          position: 'insideTopLeft',
-                          fill: '#69F0AE',
-                          fontSize: 9,
-                        }}
-                      />
-                    </>
-                  )}
+                <div className="bg-surface/30 rounded-lg p-3">
+                  <p className="text-secText text-xs">Market Cap</p>
+                  <p className="text-textColor text-xl font-bold truncate">
+                    {metrics?.marketCap
+                      ? formatNumber(metrics.marketCap)
+                      : 'N/A'}
+                  </p>
+                </div>
 
-                  {/* Chart Lines */}
-                  {activeChart === 'combined' ? (
-                    <>
-                      <Line
-                        type="monotone"
-                        dataKey="price"
-                        name="Price"
-                        stroke={getChartColor('price')}
-                        activeDot={{ r: 6 }}
-                        strokeWidth={1.5}
-                        dot={{ r: 2 }}
-                        connectNulls={true}
-                      />
-                      <Line
-                        type="monotone"
-                        dataKey="mindshare"
-                        name="Mind Share"
-                        stroke={getChartColor('mindshare')}
-                        activeDot={{ r: 6 }}
-                        strokeWidth={1.5}
-                        dot={{ r: 2 }}
-                        connectNulls={true}
-                      />
-                      <Line
-                        type="monotone"
-                        dataKey="marketCap"
-                        name="Market Cap"
-                        stroke={getChartColor('marketCap')}
-                        activeDot={{ r: 6 }}
-                        strokeWidth={1.5}
-                        dot={{ r: 2 }}
-                        connectNulls={true}
-                      />
-                    </>
-                  ) : (
-                    <Line
-                      type="monotone"
-                      dataKey="value"
-                      name={
-                        activeChart.charAt(0).toUpperCase() +
-                        activeChart.slice(1)
-                      }
-                      stroke={getChartColor(activeChart)}
-                      activeDot={{ r: 6 }}
-                      strokeWidth={1.5}
-                      dot={{ r: 2 }}
-                      connectNulls={true}
-                    />
-                  )}
-                </LineChart>
-              </ResponsiveContainer>
-            )}
+                <div className="bg-surface/30 rounded-lg p-3">
+                  <p className="text-secText text-xs">Liquidity</p>
+                  <p className="text-textColor text-xl font-bold truncate">
+                    {metrics?.liquidity
+                      ? formatNumber(metrics.liquidity)
+                      : 'N/A'}
+                  </p>
+                </div>
+
+                <div className="bg-surface/30 rounded-lg p-3">
+                  <p className="text-secText text-xs">24h Volume</p>
+                  <p className="text-textColor text-xl font-bold truncate">
+                    {metrics?.tradingVolume
+                      ? formatNumber(metrics.tradingVolume)
+                      : 'N/A'}
+                  </p>
+                </div>
+
+                <div className="bg-surface/30 rounded-lg p-3">
+                  <p className="text-secText text-xs">Holders</p>
+                  <p className="text-textColor text-xl font-bold truncate">
+                    {metrics?.holders?.toLocaleString() || 'N/A'}
+                  </p>
+                </div>
+
+                <div className="bg-surface/30 rounded-lg p-3">
+                  <p className="text-secText text-xs">Mind Share</p>
+                  <p className="text-textColor text-xl font-bold truncate">{`${metrics?.mindShare?.toFixed(2) || 'N/A'}%`}</p>
+                </div>
+
+                <div className="bg-surface/30 rounded-lg p-3">
+                  <p className="text-secText text-xs">Avg. Impressions</p>
+                  <p className="text-textColor text-xl font-bold truncate">
+                    {metrics?.avgImpressions?.toLocaleString() || 'N/A'}
+                  </p>
+                </div>
+
+                <div className="bg-surface/30 rounded-lg p-3">
+                  <p className="text-secText text-xs">Social Followers</p>
+                  <p className="text-textColor text-xl font-bold truncate">
+                    {metrics?.followers?.toLocaleString() || 'N/A'}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Chart Area */}
+            <div className="lg:w-3/5">
+              <div className="h-80 w-full">
+                {!hasData ? (
+                  <div className="w-full h-full flex items-center justify-center text-secText bg-surface/30 rounded-lg">
+                    No data available for this chart
+                  </div>
+                ) : (
+                  <div className="bg-surface/30 rounded-lg p-3 h-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={chartData}>
+                        <CartesianGrid
+                          strokeDasharray="4 4"
+                          stroke={theme.secText}
+                          opacity={0.5}
+                        />
+                        <XAxis
+                          dataKey="date"
+                          tickFormatter={formatDate}
+                          stroke={theme.secText}
+                          tick={{ fontSize: 10 }}
+                          tickCount={5}
+                          minTickGap={15}
+                        />
+                        <YAxis
+                          stroke={theme.secText}
+                          domain={
+                            activeChart === 'combined'
+                              ? [0, 100]
+                              : ['auto', 'auto']
+                          }
+                          tickFormatter={
+                            activeChart === 'combined'
+                              ? (value) => `${value}%`
+                              : undefined
+                          }
+                          tick={{ fontSize: 10 }}
+                          width={35}
+                        />
+                        <Tooltip content={<CustomTooltip />} />
+
+                        {/* Legend for combined view */}
+                        {activeChart === 'combined' && (
+                          <Legend
+                            wrapperStyle={{
+                              fontSize: '10px',
+                              paddingTop: '5px',
+                            }}
+                            iconSize={8}
+                          />
+                        )}
+
+                        {/* Reference Lines */}
+                        {activeChart !== 'combined' && (
+                          <>
+                            <ReferenceLine
+                              y={referenceValues[activeChart].min}
+                              stroke="#FF5252"
+                              strokeDasharray="3 3"
+                              label={{
+                                value: `Min: ${formatReferenceLineLabel(
+                                  referenceValues[activeChart].min,
+                                  activeChart
+                                )}`,
+                                position: 'insideBottomLeft',
+                                fill: '#FF5252',
+                                fontSize: 9,
+                              }}
+                            />
+                            <ReferenceLine
+                              y={referenceValues[activeChart].max}
+                              stroke="#69F0AE"
+                              ifOverflow="extendDomain"
+                              strokeDasharray="3 3"
+                              yAxisId={0}
+                              label={{
+                                value: `Max: ${formatReferenceLineLabel(
+                                  referenceValues[activeChart].max,
+                                  activeChart
+                                )}`,
+                                position: 'insideTopLeft',
+                                fill: '#69F0AE',
+                                fontSize: 9,
+                              }}
+                            />
+                          </>
+                        )}
+
+                        {/* Chart Lines */}
+                        {activeChart === 'combined' ? (
+                          <>
+                            <Line
+                              type="monotone"
+                              dataKey="price"
+                              name="Price"
+                              stroke={getChartColor('price')}
+                              activeDot={{ r: 6 }}
+                              strokeWidth={1.5}
+                              dot={{ r: 2 }}
+                              connectNulls={true}
+                            />
+                            <Line
+                              type="monotone"
+                              dataKey="mindshare"
+                              name="Mind Share"
+                              stroke={getChartColor('mindshare')}
+                              activeDot={{ r: 6 }}
+                              strokeWidth={1.5}
+                              dot={{ r: 2 }}
+                              connectNulls={true}
+                            />
+                            <Line
+                              type="monotone"
+                              dataKey="marketCap"
+                              name="Market Cap"
+                              stroke={getChartColor('marketCap')}
+                              activeDot={{ r: 6 }}
+                              strokeWidth={1.5}
+                              dot={{ r: 2 }}
+                              connectNulls={true}
+                            />
+                          </>
+                        ) : (
+                          <Line
+                            type="monotone"
+                            dataKey="value"
+                            name={
+                              activeChart.charAt(0).toUpperCase() +
+                              activeChart.slice(1)
+                            }
+                            stroke={getChartColor(activeChart)}
+                            activeDot={{ r: 6 }}
+                            strokeWidth={1.5}
+                            dot={{ r: 2 }}
+                            connectNulls={true}
+                          />
+                        )}
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </div>

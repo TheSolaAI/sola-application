@@ -1,4 +1,4 @@
-import { forwardRef, useState } from 'react';
+import { forwardRef, useImperativeHandle, useState } from 'react';
 import {
   useSolanaWallets,
   usePrivy,
@@ -17,17 +17,13 @@ import {
 import { toast } from 'sonner';
 import { useFundWallet } from '@privy-io/react-auth/solana';
 import { TiTick } from 'react-icons/ti';
-
-interface WalletSettingsProps {}
+import Image from 'next/image';
 
 export interface WalletSettingsRef {
   onSubmit: () => void;
 }
 
-export const WalletSettings = forwardRef<
-  WalletSettingsRef,
-  WalletSettingsProps
->((_, ref) => {
+export const WalletSettings = forwardRef<WalletSettingsRef>((_, ref) => {
   const { wallets, exportWallet } = useSolanaWallets();
   const { ready, authenticated, user, connectWallet } = usePrivy();
   const { fundWallet } = useFundWallet();
@@ -91,6 +87,14 @@ export const WalletSettings = forwardRef<
 
   const handleConnectWallet = () => {
     connectWallet();
+  };
+
+  useImperativeHandle(ref, () => ({
+    onSubmit: handleSubmit,
+  }));
+
+  const handleSubmit = () => {
+    // Handle form submission if needed
   };
 
   if (!(ready && authenticated) || !user) {
@@ -199,10 +203,13 @@ export const WalletSettings = forwardRef<
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <img
-                      src={wallet.meta.icon}
+                    <Image
+                      src={
+                        wallet.meta.icon || '/images/default-wallet-icon.png'
+                      }
                       alt="wallet"
-                      className="w-8 h-8"
+                      width={30}
+                      height={30}
                     />
                     <p className="font-medium text-textColor">
                       {wallet.meta.name || 'External Wallet'}

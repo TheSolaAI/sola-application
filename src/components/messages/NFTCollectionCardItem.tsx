@@ -24,43 +24,40 @@
 'use client';
 
 import { FC } from 'react';
-import { NFTCollectionChatContent } from '@/types/chatItem';
 import BaseGridChatItem from '@/components/messages/general/BaseGridChatItem';
 import { formatNumber } from '@/utils/formatNumber';
+import { NFTCollection } from '@/types/nft';
 
 interface NFTCollectionChatItemProps {
-  props: NFTCollectionChatContent;
+  props: NFTCollection;
 }
 
 export const NFTCollectionMessageItem: FC<NFTCollectionChatItemProps> = ({
   props,
 }) => {
+  console.log('NFTCollectionChatItem', props);
   return (
     <BaseGridChatItem col={2}>
       <div
-        key={props.data.symbol}
+        key={props.symbol}
         className="group relative overflow-hidden block rounded-xl text-secText bg-sec_background p-3 w-full transition-all duration-300 ease-in-out hover:bg-surface hover:shadow-lg"
       >
         <div className="flex items-center gap-4">
           <img
-            src={props.data.image}
-            alt={props.data.symbol}
+            src={props.image}
+            alt={props.symbol}
             className="h-16 w-16 object-cover rounded-lg"
           />
           <div>
-            <p className="text-base font-medium">{props.data.symbol}</p>
-            <p className="text-base font-medium">
-              Floor: {props.data.floor_price}
-            </p>
-            <p className="text-sm font-small">
-              Listed: {props.data.listed_count}
-            </p>
+            <p className="text-base font-medium">{props.symbol}</p>
+            <p className="text-base font-medium">Floor: {props.floor_price}</p>
+            <p className="text-sm font-small">Listed: {props.listed_count}</p>
             <p className="text-sm font-small">
               Avg Floor (24hr):
-              {formatNumber(props.data.avg_price_24hr / 10 ** 9)}
+              {formatNumber(props.avg_price_24hr / 10 ** 9)}
             </p>
             <p className="text-sm font-small">
-              Total Volume: {formatNumber(props.data.volume_all / 10 ** 9)}
+              Total Volume: {formatNumber(props.volume_all / 10 ** 9)}
             </p>
           </div>
         </div>

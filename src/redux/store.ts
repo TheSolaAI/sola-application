@@ -1,19 +1,16 @@
 import { configureStore, combineReducers } from '@reduxjs/toolkit';
 import { tierSlice } from './features/user/tier';
-import sidebarReducer from './features/ui/sidebar';
 import { persistStore, persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage'; // localStorage
 
 const rootReducer = combineReducers({
   tier: tierSlice.reducer,
-  sidebar: sidebarReducer,
 });
 
 // persist options
 const persistConfig = {
   key: 'root',
   storage,
-  whitelist: ['sidebar'],
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

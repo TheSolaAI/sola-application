@@ -5,6 +5,7 @@ import { useWalletHandler } from '@/store/WalletHandler';
 import { titleCase } from '@/utils/titleCase';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
+import useIsMobile from '@/utils/isMobile';
 
 interface WalletLensButtonProps {
   onClick?: () => void;
@@ -18,6 +19,8 @@ const WalletLensButton = memo(function WalletLensButton({
   onClick,
 }: WalletLensButtonProps) {
   const { currentWallet } = useWalletHandler();
+
+  const isMobile = useIsMobile();
 
   // Animation variants
   const buttonVariants = {
@@ -52,7 +55,7 @@ const WalletLensButton = memo(function WalletLensButton({
           className="w-8 h-8 rounded-xl cursor-pointer"
           width={20}
           height={20}
-          onClick={handleSolscanClick}
+          onClick={isMobile ? undefined : handleSolscanClick}
         />
       ) : (
         <Image

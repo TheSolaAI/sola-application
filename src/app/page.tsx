@@ -18,7 +18,6 @@ export default function Home() {
   const isMobile = useIsMobile();
   const { isInstallPromptAvailable, promptInstall } = usePwaStatus();
   const [showMobileView, setShowMobileView] = useState(false);
-
   // Initialize login functionality
   const { login } = useLogin({
     onComplete: (params) => {

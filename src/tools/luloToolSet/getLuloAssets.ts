@@ -48,17 +48,13 @@ export function createGetLuloAssetsTool(context: ToolContext) {
         return {
           success: true,
           data: {
-            type: 'lulo_assets',
-            details: {
-              depositValue: assets.depositValue,
-              interestEarned: assets.interestEarned,
-              owner: context.publicKey,
-            },
-            response_id: 'temp',
-            sender: 'system',
-            timestamp: new Date().toISOString(),
+            depositValue: assets.depositValue,
+            interestEarned: assets.interestEarned,
+            tokenBalance: assets.tokenBalance,
+            totalValue: assets.totalValue,
           },
           error: undefined,
+          textResponse: false,
         };
       } catch (error) {
         return {
@@ -72,6 +68,7 @@ export function createGetLuloAssetsTool(context: ToolContext) {
 
   return getLuloAssetsTool;
 }
+
 async function getAssetsLulo(
   params: AssetsParams,
   authToken: string

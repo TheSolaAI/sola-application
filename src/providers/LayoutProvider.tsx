@@ -8,8 +8,6 @@ import React, {
   useEffect,
   useCallback,
 } from 'react';
-import { useAppDispatch, useAppSelector } from '@/redux/hook';
-import { setSidebarOpen } from '@/redux/features/ui/sidebar';
 
 interface LayoutContextType {
   // Sidebar states
@@ -31,9 +29,9 @@ interface LayoutContextType {
 
   // Dashboard states
   dashboardOpen: boolean;
+  handleDashboardOpen: (state: boolean) => void;
   dashboardLayoutContent: ReactNode | null;
   setDashboardLayoutContent: (content: ReactNode | null) => void;
-  handleDashboardOpen: (state: boolean) => void;
   dashboardTitle: string;
   setDashboardTitle: (title: string) => void;
 }
@@ -43,17 +41,6 @@ const LayoutContext = createContext<LayoutContextType | undefined>(undefined);
 export const LayoutProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const dispatch = useAppDispatch();
-
-  const sidebarOpen = useAppSelector((state) => state.sidebar.isOpen);
-
-  const dispatchSetSidebarOpen = useCallback(
-    (open: boolean) => {
-      dispatch(setSidebarOpen(open));
-    },
-    [dispatch]
-  );
-
   // Wallet lens state
   const [walletLensOpen, setWalletLensOpen] = useState(false);
 
@@ -70,6 +57,9 @@ export const LayoutProvider: React.FC<{ children: ReactNode }> = ({
     useState<ReactNode | null>(null);
   const [dashboardTitle, setDashboardTitle] = useState<string>('');
 
+  // Sidebar state
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   // Initialize audio element once on client
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -83,10 +73,8 @@ export const LayoutProvider: React.FC<{ children: ReactNode }> = ({
   const handleWalletLensOpen = useCallback(
     (state: boolean) => {
       if (state) {
-        // Don't close the sidebar completely, just collapse it
-        dispatchSetSidebarOpen(false);
+        setSidebarOpen(false);
         setWalletLensOpen(true);
-        // Close Dashboard if it's open
         if (dashboardOpen) {
           setDashboardOpen(false);
         }
@@ -94,7 +82,7 @@ export const LayoutProvider: React.FC<{ children: ReactNode }> = ({
         setWalletLensOpen(false);
       }
     },
-    [dashboardOpen, dispatchSetSidebarOpen]
+    [dashboardOpen]
   );
 
   /**
@@ -107,18 +95,18 @@ export const LayoutProvider: React.FC<{ children: ReactNode }> = ({
         if (walletLensOpen) {
           setWalletLensOpen(false);
         }
-        dispatchSetSidebarOpen(false);
+        setSidebarOpen(false);
         setDashboardOpen(true);
       } else {
         setDashboardOpen(false);
       }
     },
-    [walletLensOpen, dispatchSetSidebarOpen]
+    [walletLensOpen]
   );
 
   const value = {
     sidebarOpen,
-    setSidebarOpen: dispatchSetSidebarOpen,
+    setSidebarOpen,
     walletLensOpen,
     handleWalletLensOpen,
     audioIntensity,

@@ -1,8 +1,9 @@
 'use client';
 
-import { FC } from 'react';
+import { FC, useState, useEffect } from 'react';
 import { GithubAnalysis } from '@/types/goatIndex';
 import useThemeManager from '@/store/ThemeManager';
+import { MaskedRevealLoader } from '@/components/common/MaskedRevealLoader';
 import {
   ResponsiveContainer,
   RadarChart,
@@ -19,6 +20,13 @@ interface GithubSummaryCardProps {
 
 export const GithubSummaryCard: FC<GithubSummaryCardProps> = ({ stats }) => {
   const { theme } = useThemeManager();
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    if (stats) {
+      setLoading(false);
+    }
+  }, [stats]);
 
   /**
    * Some repositories may not have Github stats available, so in that case we return null.
@@ -87,75 +95,93 @@ export const GithubSummaryCard: FC<GithubSummaryCardProps> = ({ stats }) => {
   };
 
   return (
-    <div className="bg-background rounded-xl w-full flex flex-col p-4">
-      <div className="flex flex-col md:flex-row gap-4">
-        {/* GitHub Stats Summary Column */}
-        <div className="flex flex-col gap-y-3 md:w-2/5">
-          <h1 className="text-textColor text-2xl font-semibold">
+    <div className="flex my-1 justify-start w-full transition-opacity duration-500">
+      <div className="overflow-hidden rounded-xl bg-sec_background border border-border shadow-lg w-full">
+        {/* Header */}
+        <div className="px-4 py-3 border-b border-border flex justify-between items-center bg-primary/10">
+          <h2 className="text-lg font-semibold text-textColor flex items-center gap-2">
             GitHub Analysis
-          </h1>
-
-          <div className="grid grid-cols-2 gap-3 flex-1">
-            <div className="bg-sec_background rounded-lg p-3">
-              <p className="text-secText text-sm">Overall Score</p>
-              <p className="text-textColor text-2xl font-bold">
-                {stats.score ? `${stats.score}/100` : 'N/A'}
-              </p>
-            </div>
-
-            <div className="bg-sec_background rounded-lg p-3">
-              <p className="text-secText text-sm">Stars</p>
-              <p className="text-textColor text-2xl font-bold">
-                {stats.stars?.toLocaleString() || 'N/A'}
-              </p>
-            </div>
-
-            <div className="bg-sec_background rounded-lg p-3">
-              <p className="text-secText text-sm">Forks</p>
-              <p className="text-textColor text-2xl font-bold">
-                {stats.forks?.toLocaleString() || 'N/A'}
-              </p>
-            </div>
-
-            <div className="bg-sec_background rounded-lg p-3">
-              <p className="text-secText text-sm">Contributors</p>
-              <p className="text-textColor text-2xl font-bold">
-                {stats.contributors?.toLocaleString() || 'N/A'}
-              </p>
-            </div>
-
-            <div className="bg-sec_background rounded-lg p-3 col-span-2">
-              <p className="text-secText text-sm">Repository Age</p>
-              <p className="text-textColor text-2xl font-bold">
-                {stats.age || 'N/A'}
-              </p>
-            </div>
-          </div>
+          </h2>
+          <span className="text-xs text-secText bg-surface/50 px-2 py-1 rounded">
+            Score: {stats.score ? `${stats.score}/100` : 'N/A'}
+          </span>
         </div>
 
-        {/* Radar Chart Column */}
-        <div className="flex flex-col gap-y-3 md:w-3/5">
-          <h2 className="text-textColor text-lg font-semibold">
-            Repository Health Mindmap
-          </h2>
+        {/* Content */}
+        <div className="p-4">
+          <MaskedRevealLoader isLoading={loading}>
+            <div className="flex flex-col md:flex-row gap-4">
+              {/* GitHub Stats Summary Column */}
+              <div className="flex flex-col gap-y-3 md:w-2/5">
+                <div className="grid grid-cols-2 gap-3 flex-1">
+                  <div className="bg-background rounded-lg p-3">
+                    <p className="text-secText text-sm">Stars</p>
+                    <p className="text-textColor text-2xl font-bold">
+                      {stats.stars?.toLocaleString() || 'N/A'}
+                    </p>
+                  </div>
 
-          {/* Chart Area */}
-          <div className="flex-grow" style={{ minHeight: '346px' }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <RadarChart outerRadius="80%" data={getRadarData()}>
-                <PolarGrid stroke={theme.secText} opacity={0.5} />
-                <PolarAngleAxis dataKey="category" stroke={theme.secText} />
-                <PolarRadiusAxis domain={[0, 100]} stroke={theme.secText} />
-                <Radar
-                  name="Score"
-                  dataKey="value"
-                  stroke="#4CAF50"
-                  fill="#4CAF50"
-                  fillOpacity={0.6}
-                />
-                <Tooltip content={<CustomRadarTooltip />} />
-              </RadarChart>
-            </ResponsiveContainer>
+                  <div className="bg-background rounded-lg p-3">
+                    <p className="text-secText text-sm">Forks</p>
+                    <p className="text-textColor text-2xl font-bold">
+                      {stats.forks?.toLocaleString() || 'N/A'}
+                    </p>
+                  </div>
+
+                  <div className="bg-background rounded-lg p-3">
+                    <p className="text-secText text-sm">Contributors</p>
+                    <p className="text-textColor text-2xl font-bold">
+                      {stats.contributors?.toLocaleString() || 'N/A'}
+                    </p>
+                  </div>
+
+                  <div className="bg-background rounded-lg p-3">
+                    <p className="text-secText text-sm">Repository Age</p>
+                    <p className="text-textColor text-2xl font-bold">
+                      {stats.age || 'N/A'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Radar Chart Column */}
+              <div className="flex flex-col gap-y-3 md:w-3/5">
+                <div className="flex-grow" style={{ minHeight: '300px' }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <RadarChart outerRadius="80%" data={getRadarData()}>
+                      <PolarGrid stroke={theme.secText} opacity={0.5} />
+                      <PolarAngleAxis
+                        dataKey="category"
+                        stroke={theme.secText}
+                      />
+                      <PolarRadiusAxis
+                        domain={[0, 100]}
+                        stroke={theme.secText}
+                      />
+                      <Radar
+                        name="Score"
+                        dataKey="value"
+                        stroke="#4CAF50"
+                        fill="#4CAF50"
+                        fillOpacity={0.6}
+                      />
+                      <Tooltip content={<CustomRadarTooltip />} />
+                    </RadarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            </div>
+          </MaskedRevealLoader>
+        </div>
+
+        {/* Footer with explanation */}
+        <div className="px-4 py-3 bg-surface/20 border-t border-border">
+          <div className="text-xs text-secText">
+            <p>
+              Repository health analysis displays key metrics across multiple
+              dimensions. Higher scores indicate better quality and community
+              engagement.
+            </p>
           </div>
         </div>
       </div>

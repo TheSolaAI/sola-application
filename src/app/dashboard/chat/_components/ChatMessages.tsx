@@ -1,10 +1,10 @@
 import { useRef, useEffect } from 'react';
 import { useChat } from '@/providers/ChatContextProvider';
-import { renderMessageContent } from '@/utils/messageRenderer';
 import SkeletonWave from '@/components/common/SkeletonWave';
 import useThemeManager from '@/store/ThemeManager';
 import { hexToRgb } from '@/utils/hexToRGB';
 import { FaArrowAltCircleDown } from 'react-icons/fa';
+import { renderMessageContent } from '@/lib/messageRenderer';
 
 export default function ChatMessages() {
   const {
@@ -49,7 +49,7 @@ export default function ChatMessages() {
         ref={scrollableContainerRef}
         className="absolute inset-0 overflow-y-auto no-scrollbar messages-container"
       >
-        <div className="w-full sm:w-[60%] mx-auto pb-32 mt-10">
+        <div className="w-full sm:w-[80%] mx-auto pb-32 mt-10">
           {messages.map((message, index) => (
             <div key={`message-${message.id || index}`}>
               {renderMessageContent(message)}

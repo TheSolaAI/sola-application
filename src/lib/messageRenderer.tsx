@@ -7,13 +7,11 @@ import { TokenAddressResultItem } from '@/components/messages/TokenAddressResult
 import { ShowLimitOrdersChatItem } from '@/components/messages/ShowLimitOrderChatItem';
 import { CreateLimitOrderChatItem } from '@/components/messages/CreateLimitOrderMessageItem';
 import { AiProjects } from '@/components/messages/AiProjects';
-import { LuloChatItem } from '@/components/messages/LuloMessageItem';
+import { LuloAssetsMessageItem } from '@/components/messages/LuloAssetsMessageItem';
 import { TokenDataMessageItem } from '@/components/messages/TokenDataMessageItem';
 import { BubbleMapChatItem } from '@/components/messages/BubbleMapCardItem';
 import { TopHoldersMessageItem } from '@/components/messages/TopHoldersMessageItem';
 import { NFTCollectionMessageItem } from '@/components/messages/NFTCollectionCardItem';
-import ReasoningMessageItem from '@/components/messages/ReasoningMessageItem';
-import SourceMessageItem from '@/components/messages/SourceMessageItem';
 import { generateId } from 'ai';
 
 export function renderMessageContent(message: UIMessage) {
@@ -24,29 +22,22 @@ export function renderMessageContent(message: UIMessage) {
 
   // Handle assistant messages with parts (tool results)
   if (message.parts) {
+    // Check if the message has any tool invocations
+    const hasToolInvocations = message.parts.some(
+      (part) =>
+        part.type === 'tool-invocation' &&
+        part.toolInvocation.state === 'result'
+    );
+
     return message.parts.map((part, partIndex) => {
       if (part.type === 'text') {
+        // Skip rendering text parts if there are tool invocations in this message
+        if (hasToolInvocations) return null;
+
         return role === 'user' ? (
           <UserInput text={message.content} transcript={true} />
         ) : (
           <SimpleMessageChatItem key={`text-${partIndex}`} text={part.text} />
-        );
-      } else if (part.type === 'reasoning') {
-        return (
-          <ReasoningMessageItem
-            key={`reasoning-${message.id}`}
-            reasoning={part.reasoning}
-          />
-        );
-      } else if (part.type === 'source') {
-        return (
-          <SourceMessageItem
-            key={`source-${message.id}`}
-            sourceType={part.source.sourceType}
-            id={part.source.id}
-            url={part.source.url}
-            title={part.source.title}
-          />
         );
       } else if (
         part.type === 'tool-invocation' &&
@@ -89,8 +80,8 @@ export function renderToolResult(
       return <CreateLimitOrderChatItem props={args.data} />;
     case 'trendingAiProjects':
       return <AiProjects props={args.data} />;
-    case 'depositLuloTool':
-      return <LuloChatItem props={args.data} />;
+    case 'getLuloAssetsTool':
+      return <LuloAssetsMessageItem props={args.data} />;
     case 'getTokenDataTool':
       return <TokenDataMessageItem props={args.data} />;
     case 'bubblemapTool':

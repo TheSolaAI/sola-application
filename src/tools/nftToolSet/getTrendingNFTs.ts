@@ -3,7 +3,7 @@ import { Tool } from 'ai';
 import { ToolContext, ToolResult } from '@/types/tool';
 import { ApiClient, createServerApiClient } from '@/lib/ApiClient';
 import { API_URLS } from '@/config/api_urls';
-import { TrendingNFTCard } from '@/types/messageCard';
+import { TrendingNFT } from '@/types/nft';
 
 const Parameters = z.object({});
 
@@ -24,7 +24,7 @@ export function createGetTrendingNFTsTool(context: ToolContext) {
 
       try {
         const serverApiClient = createServerApiClient(context.authToken);
-        const response = await serverApiClient.get<TrendingNFTCard[]>(
+        const response = await serverApiClient.get<TrendingNFT[]>(
           API_URLS.DATA.NFT.TOP_NFT,
           undefined,
           'data'

@@ -1,11 +1,12 @@
 'use client';
 
+import { TokenAddressResult } from '@/types/token';
 import { FC } from 'react';
-import { TokenAddressResultChatContent } from '@/types/chatItem';
+
 import { LuExternalLink, LuCheck, LuX, LuCopy } from 'react-icons/lu';
 
 interface TokenAddressResultItemProps {
-  props: TokenAddressResultChatContent;
+  props: TokenAddressResult;
 }
 
 export const TokenAddressResultItem: FC<TokenAddressResultItemProps> = ({

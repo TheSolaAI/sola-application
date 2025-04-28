@@ -1,4 +1,4 @@
-export const tokenList = {
+export const TOKEN_LIST = {
   SOL: {
     MINT: 'So11111111111111111111111111111111111111112',
     DECIMALS: 9,
@@ -36,3 +36,6 @@ export const tokenList = {
     DECIMALS: 6,
   },
 };
+
+export const SOLA_TOKEN_ADDRESS =
+  'B5UsiUYcTD3PcQa8r2uXcVgRmDL8jUYuXPiYjrY7pump';

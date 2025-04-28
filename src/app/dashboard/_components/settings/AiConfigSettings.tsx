@@ -5,16 +5,11 @@ import { useSessionHandler } from '@/store/SessionHandler';
 import { toast } from 'sonner';
 import { useSettingsHandler } from '@/store/SettingsHandler';
 
-interface AIConfigSettingsProps {}
-
 export interface AIConfigSettingsRef {
   onSubmit: () => void;
 }
 
-export const AIConfigSettings = forwardRef<
-  AIConfigSettingsRef,
-  AIConfigSettingsProps
->((_, ref) => {
+export const AIConfigSettings = forwardRef<AIConfigSettingsRef>((_, ref) => {
   /**
    * Global State
    */

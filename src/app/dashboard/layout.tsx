@@ -8,9 +8,8 @@ import MasterLayout from '@/app/dashboard/_components/MasterLayout';
 import { useChatRoomHandler } from '@/store/ChatRoomHandler';
 import { SessionProvider } from '@/providers/SessionProvider';
 import PageLoading from '@/components/common/PageLoading';
-import { ChatNavigationHandler } from '@/providers/ChatNavigationHandler';
+import { ChatNavigationProvider } from '@/providers/ChatNavigationProvider';
 import ReduxProvider from '@/providers/ReduxProvider';
-
 export default function DashboardLayout({
   children,
 }: Readonly<{
@@ -49,7 +48,7 @@ export default function DashboardLayout({
       <WalletProvider isAuthenticated={authenticated && ready}>
         <LayoutProvider>
           <MasterLayout>
-            <ChatNavigationHandler />
+            <ChatNavigationProvider />
             <SessionProvider>{children}</SessionProvider>
           </MasterLayout>
         </LayoutProvider>

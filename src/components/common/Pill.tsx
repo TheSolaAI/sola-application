@@ -2,27 +2,48 @@
 
 import { FC } from 'react';
 
-export const Pill: FC<{
+interface PillProps {
   text?: string;
   color: string;
   textColor: string;
   icon?: React.ReactNode;
   onClick?: () => void;
   hoverable?: boolean;
-}> = ({ text, color, textColor, icon, onClick, hoverable = false }) => {
+  important?: boolean;
+}
+
+export const Pill: FC<PillProps> = ({
+  text,
+  color,
+  textColor,
+  icon,
+  onClick,
+  hoverable = false,
+  important = false,
+}) => {
+  // Determine hover and important classes
+  const hoverClass = hoverable
+    ? important
+      ? 'hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer'
+      : 'hover:opacity-90 hover:shadow-md transition-all duration-200 cursor-pointer'
+    : '';
+
+  const importantClass = important
+    ? 'border-[1px] font-semibold shadow-md'
+    : '';
+
   return (
-    <div
-      className={`rounded-full px-3 py-2 text-sm flex items-center gap-x-1 transition-all duration-200 ${
-        hoverable && onClick
-          ? 'hover:shadow-[0px_0px_15px_1px] hover:shadow-primaryDark cursor-pointer'
-          : ''
-      }`}
-      style={{ backgroundColor: color, color: textColor }}
+    <button
       onClick={onClick}
-      role={onClick ? 'button' : undefined}
+      className={`flex items-center gap-2 px-3 py-2 rounded-full text-sm ${importantClass} ${hoverClass} `}
+      style={{
+        backgroundColor: color,
+        color: textColor,
+        borderColor: important ? textColor : 'transparent',
+      }}
     >
-      {icon && icon}
-      <p className="text-base">{text}</p>
-    </div>
+      {icon && <span className="flex items-center">{icon}</span>}
+      {text && <span>{text}</span>}
+    </button>
   );
 };

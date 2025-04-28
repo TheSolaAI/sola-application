@@ -1,6 +1,5 @@
 import { prisma } from '@/lib/prisma';
-import { getUserTier } from '@/config/tierMapping'; // Adjust the path if necessary
-import { TIME_WINDOW_HOURS } from '@/config/constants';
+import { getUserTier, TIME_WINDOW_HOURS } from '@/config/tierMapping'; // Adjust the path if necessary
 
 export async function hasExceededUsageLimit(privyId: string): Promise<boolean> {
   const now = new Date();

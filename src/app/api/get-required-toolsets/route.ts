@@ -6,7 +6,7 @@ import {
   Message,
 } from 'ai';
 import {
-  getRealtimePrimeDirective,
+  getToolSetSelectorPrimeDirective,
   textToSpeechModel,
   TOOLSET_SLUGS,
   toolsetSelectionModel,
@@ -111,7 +111,8 @@ export async function POST(req: Request) {
     let audioData: string | undefined;
 
     try {
-      const toolsetSelectionPrompt = getRealtimePrimeDirective(walletPublicKey);
+      const toolsetSelectionPrompt =
+        getToolSetSelectorPrimeDirective(walletPublicKey);
 
       const toolsetSelectionResult = await generateObject({
         model: toolsetSelectionModel,

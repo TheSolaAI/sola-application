@@ -28,7 +28,6 @@ const SessionControls: React.FC<SessionControlsProps> = ({
   onSendMessage,
   isProcessing,
   onUserInteraction,
-  isAudioPlaying,
 }) => {
   const { state } = useSessionHandler();
   const { createChatRoom, currentChatRoom } = useChatRoomHandler();
@@ -130,7 +129,7 @@ const SessionControls: React.FC<SessionControlsProps> = ({
       // Process the transcribed text
       const transcribedText = data.text.trim();
       if (transcribedText) {
-        toast.success('Audio transcribed successfully!');
+        // toast.success('Audio transcribed successfully!');
 
         // Process the message using parent function
         await onSendMessage(transcribedText);
@@ -173,7 +172,7 @@ const SessionControls: React.FC<SessionControlsProps> = ({
               setIsFocused(true);
             }}
             onBlur={() => setIsFocused(false)}
-            className={`bg-sec_background rounded-full p-4 pr-16 flex text-textColor w-full border ${isFocused ? 'border-primaryDark' : 'border-transparent'} focus:border-primaryDark focus:outline-none transition-all duration-200 relative z-10 ${isDisabled ? 'opacity-70 cursor-not-allowed' : ''}`}
+            className={`bg-sec_background rounded-full p-4 pr-16 flex text-textColor w-full border shadow-xl  ${isFocused ? 'border-primaryDark' : 'border-transparent'} focus:border-primaryDark focus:outline-none transition-all duration-200 relative z-10 ${isDisabled ? 'opacity-70 cursor-not-allowed' : ''}`}
             onKeyUp={(e) =>
               !isDisabled && e.key === 'Enter' && sendMessageToAI()
             }
