@@ -25,3 +25,5 @@ export function getUserTier(balance: number): Tier {
     UserTiers[0]
   );
 }
+
+export const TIME_WINDOW_HOURS = 6;

@@ -3,7 +3,7 @@
 import { FC } from 'react';
 import { LuExternalLink } from 'react-icons/lu';
 import { formatNumber } from '@/utils/formatNumber';
-import { TopHolder } from '@/types/messageCard';
+import { TopHolder } from '@/types/token';
 
 interface TopHoldersChatItemProps {
   props: { details: TopHolder[] };

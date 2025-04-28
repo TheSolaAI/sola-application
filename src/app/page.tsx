@@ -12,15 +12,12 @@ import { usePwaStatus } from '@/hooks/usePwaStatus';
 import { useState, useEffect } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import Footer from './_components/onboarding/Footer';
-import { useSettingsHandler } from '@/store/SettingsHandler';
 
 export default function Home() {
   const router = useRouter();
   const isMobile = useIsMobile();
   const { isInstallPromptAvailable, promptInstall } = usePwaStatus();
   const [showMobileView, setShowMobileView] = useState(false);
-  const { getSettings } = useSettingsHandler();
-
   // Initialize login functionality
   const { login } = useLogin({
     onComplete: (params) => {

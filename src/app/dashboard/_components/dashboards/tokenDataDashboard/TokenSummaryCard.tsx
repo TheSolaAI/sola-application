@@ -1,7 +1,7 @@
 'use client';
 
 import { FC } from 'react';
-import { TokenExtensions } from '@/types/response';
+import { TokenExtensions } from '@/types/token';
 import { Pill } from '@/components/common/Pill';
 import useThemeManager from '@/store/ThemeManager';
 import { toast } from 'sonner';

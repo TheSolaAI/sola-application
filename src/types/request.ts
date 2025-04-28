@@ -1,4 +1,4 @@
-import { Theme } from '../models/ThemeManager';
+import { Theme } from '@/store/ThemeManager';
 
 export interface UpdateUserSettingsRequest {
   theme?: string;

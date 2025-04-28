@@ -5,7 +5,7 @@ import { useLayoutContext } from '@/providers/LayoutProvider';
 import { TokenSummaryCard } from './TokenSummaryCard';
 import { TokenChartCard } from './TokenChartCard';
 import { TokenMetricsCard } from './TokenMetricsCard';
-import { TokenDataResponse } from '@/types/response';
+import { TokenDataResponse } from '@/types/token';
 
 interface TokenDataDashboardProps {
   tokenData: TokenDataResponse;

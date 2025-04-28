@@ -1,7 +1,7 @@
 'use server';
 
-import { SOLA_TOKEN_ADDRESS } from '@/config/constants';
 import { getUserTier } from '@/config/tierMapping';
+import { SOLA_TOKEN_ADDRESS } from '@/config/tokenMapping';
 import { prisma } from '@/lib/prisma';
 import { PrivyClient } from '@privy-io/server-auth';
 import axios from 'axios';

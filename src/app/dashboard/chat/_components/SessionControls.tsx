@@ -28,7 +28,6 @@ const SessionControls: React.FC<SessionControlsProps> = ({
   onSendMessage,
   isProcessing,
   onUserInteraction,
-  isAudioPlaying,
 }) => {
   const { state } = useSessionHandler();
   const { createChatRoom, currentChatRoom } = useChatRoomHandler();

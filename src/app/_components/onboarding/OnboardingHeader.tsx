@@ -6,6 +6,7 @@ import { useState, Fragment } from 'react';
 import { HiBars3 } from 'react-icons/hi2';
 import SolaLogo from '@/components/common/SolaLogo';
 import { motion } from 'framer-motion';
+import { toast } from 'sonner';
 
 interface OnboardingHeaderProps {
   login: () => void;

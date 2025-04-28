@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useChatRoomHandler } from '@/store/ChatRoomHandler';
 
-export const ChatNavigationHandler = () => {
+export const ChatNavigationProvider = () => {
   const router = useRouter();
   const pathname = usePathname();
   const currentChatRoom = useChatRoomHandler.getState().currentChatRoom;

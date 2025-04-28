@@ -24,7 +24,7 @@ import {
 import { formatNumber } from '@/utils/formatNumber';
 import { Pill } from '@/components/common/Pill';
 import useThemeManager from '@/store/ThemeManager';
-import { TopHolder } from '@/types/messageCard';
+import { TopHolder } from '@/types/token';
 
 interface TokenCardProps {
   marketCap: number;

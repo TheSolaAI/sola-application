@@ -26,14 +26,16 @@
 
 'use client';
 
+// TODO: Fix after on chain actions are fixed
+
 import { FC } from 'react';
-import { ChatItemProps, TransactionChatContent } from '@/types/chatItem';
+import { TransactionChatContent } from '@/types/chatItem';
 import BaseMonoGridChatItem from '@/components/messages/general/BaseMonoGridChatItem';
 import Image from 'next/image';
 
-export const TransactionDataMessageItem: FC<
-  ChatItemProps<TransactionChatContent>
-> = ({ props }) => {
+export const TransactionDataMessageItem: FC<TransactionChatContent> = ({
+  props,
+}) => {
   return (
     <div>
       <BaseMonoGridChatItem>

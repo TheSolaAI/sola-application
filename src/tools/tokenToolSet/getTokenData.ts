@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { ApiClient, createServerApiClient } from '@/lib/ApiClient';
-import { TokenDataResponse } from '@/types/response';
+import { TokenDataResponse } from '@/types/token';
 import { ToolContext, ToolResult } from '@/types/tool';
 import { Tool } from 'ai';
 

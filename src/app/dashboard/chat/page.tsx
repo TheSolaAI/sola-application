@@ -6,9 +6,9 @@ import { useChatRoomHandler } from '@/store/ChatRoomHandler';
 import { toast } from 'sonner';
 import { RiSendPlaneFill, RiMicFill } from 'react-icons/ri';
 import { BiLoaderAlt } from 'react-icons/bi';
-import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
-import { Card } from '@/components/ui/Card';
+import { Button } from '@/components/common/Button';
+import { Input } from '@/components/common/Input';
+import { Card } from '@/components/common/Card';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useUserHandler } from '@/store/UserHandler';
 

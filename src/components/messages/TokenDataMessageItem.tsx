@@ -1,7 +1,7 @@
 'use client';
 
 import { FC } from 'react';
-import { TokenDataResponse } from '@/types/response';
+import { TokenDataResponse } from '@/types/token';
 import { useLayoutContext } from '@/providers/LayoutProvider';
 import { formatNumber } from '@/utils/formatNumber';
 import { FiCopy } from 'react-icons/fi';

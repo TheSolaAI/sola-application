@@ -1,10 +1,10 @@
 import { useRef, useEffect } from 'react';
 import { useChat } from '@/providers/ChatContextProvider';
-import { renderMessageContent } from '@/utils/messageRenderer';
 import SkeletonWave from '@/components/common/SkeletonWave';
 import useThemeManager from '@/store/ThemeManager';
 import { hexToRgb } from '@/utils/hexToRGB';
 import { FaArrowAltCircleDown } from 'react-icons/fa';
+import { renderMessageContent } from '@/lib/messageRenderer';
 
 export default function ChatMessages() {
   const {

@@ -2,7 +2,7 @@
 
 import { FC } from 'react';
 import BaseGridChatItem from '@/components/messages/general/BaseGridChatItem';
-import { tokenList } from '@/config/tokenMapping';
+import { TOKEN_LIST } from '@/config/tokenMapping';
 import { ShowLimitOrderResponse } from '@/types/jupiter';
 
 interface ShowLimitOrdersChatItemProps {
@@ -15,10 +15,10 @@ export const ShowLimitOrdersChatItem: FC<ShowLimitOrdersChatItemProps> = ({
   return (
     <BaseGridChatItem col={3}>
       {props.orders.map((order, lIndex) => {
-        const inputToken = Object.values(tokenList).find(
+        const inputToken = Object.values(TOKEN_LIST).find(
           (v) => v.MINT === order.input_mint
         );
-        const outputToken = Object.values(tokenList).find(
+        const outputToken = Object.values(TOKEN_LIST).find(
           (v) => v.MINT === order.output_mint
         );
 
