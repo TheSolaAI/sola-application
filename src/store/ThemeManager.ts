@@ -125,7 +125,6 @@ const ThemeHandler: StateCreator<ThemeStore> = (set, get) => {
         availableThemes: { ...defaultThemes },
         initialized: true,
       });
-
     },
 
     populateCustomThemes: (customThemes: Theme[]) => {
@@ -153,7 +152,7 @@ const ThemeHandler: StateCreator<ThemeStore> = (set, get) => {
 
     setTheme: (theme: Theme) => {
       // check if the theme exists just in case or default to the light theme
-      if (!get().availableThemes[theme.name]) {
+      if (!theme || !get().availableThemes[theme.name]) {
         theme = get().availableThemes['light'];
       }
       set({ theme });
@@ -186,7 +185,6 @@ const ThemeHandler: StateCreator<ThemeStore> = (set, get) => {
       const updatedThemes = { ...get().availableThemes };
       delete updatedThemes[theme.name];
       set({ availableThemes: updatedThemes });
-      // Additional server-side logic would go here
     },
   };
 };

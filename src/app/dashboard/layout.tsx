@@ -10,7 +10,6 @@ import { SessionProvider } from '@/providers/SessionProvider';
 import PageLoading from '@/components/common/PageLoading';
 import { ChatNavigationHandler } from '@/providers/ChatNavigationHandler';
 import ReduxProvider from '@/providers/ReduxProvider';
-
 export default function DashboardLayout({
   children,
 }: Readonly<{

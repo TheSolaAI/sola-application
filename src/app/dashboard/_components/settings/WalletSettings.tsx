@@ -208,7 +208,8 @@ export const WalletSettings = forwardRef<WalletSettingsRef>((_, ref) => {
                         wallet.meta.icon || '/images/default-wallet-icon.png'
                       }
                       alt="wallet"
-                      className="w-8 h-8"
+                      width={30}
+                      height={30}
                     />
                     <p className="font-medium text-textColor">
                       {wallet.meta.name || 'External Wallet'}

@@ -52,6 +52,7 @@ export const ThemeSettings = forwardRef<ThemeSettingsRef>((_, ref) => {
   const handleThemeChange = (themeName: string) => {
     setActiveTheme(availableThemes[themeName]);
     setTheme(availableThemes[themeName]);
+    updateSettings('theme');
     toast.success(`Theme changed to ${themeName}`);
   };
 

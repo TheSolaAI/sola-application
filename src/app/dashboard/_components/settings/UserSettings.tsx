@@ -192,13 +192,8 @@ export const UserSettings = forwardRef<UserSettingsRef>((_, ref) => {
           onChange={(e) => setName(e.target.value)}
           onBlur={() => {
             // save the name on blur
-            useUserHandler.getState().setUserName(name);
-            useUserHandler.getState().setProfilePic({
-              color: getAvatarColor(),
-              initials: getInitials(),
-            });
-            useSessionHandler.getState().updateSession('name');
-            useSettingsHandler.getState().updateSettings('name');
+            console.log('Name saved:', name);
+            handleSubmit();
           }}
         />
         <p className="text-xs text-secText mt-1">Maximum 30 characters</p>
