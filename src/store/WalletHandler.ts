@@ -285,8 +285,6 @@ export const useWalletHandler = create<WalletHandler>((set, get) => {
      * Initializes the wallet manager by loading the default wallet from localStorage.
      */
     initWalletManager: async () => {
-      // Initialize Phantom wallet first
-      await get().initPhantomWallet();
       const defaultWalletAddress = localStorage.getItem('defaultWallet');
       if (defaultWalletAddress) {
         const wallet = get().wallets.find(
