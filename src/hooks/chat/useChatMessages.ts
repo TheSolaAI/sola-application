@@ -204,6 +204,7 @@ export function useChatMessages(
     }
     try {
       const { transactionHash } = args as TransactionArgs;
+      console.log(transactionHash);
       const currentWallet = useWalletHandler.getState().currentWallet;
 
       if (!currentWallet) {

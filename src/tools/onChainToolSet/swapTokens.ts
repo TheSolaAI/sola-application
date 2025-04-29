@@ -83,23 +83,20 @@ export function createSwapTokensTool(context: ToolContext) {
 
         try {
           const transactionBuffer = Buffer.from(
-            response.data.transaction,
-            'base64'
-          );
-          const transaction =
-            VersionedTransaction.deserialize(transactionBuffer);
+            response.data.transaction
+          ).toString('base64');
 
           return {
             success: true,
             data: {
-              transaction: response.data.transaction,
+              transactionHash: transactionBuffer,
               details: {
                 input_mint: inputTokenAddress,
                 output_mint: outputTokenAddress,
                 amount,
                 outAmount: response.data.outAmount,
                 priorityFee: response.data.priorityFee,
-                versionedTransaction: transaction,
+                versionedTransaction: transactionBuffer,
                 params: swapParams,
               },
               response_id: 'temp',

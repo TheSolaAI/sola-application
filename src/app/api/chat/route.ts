@@ -9,8 +9,6 @@ import { cookies } from 'next/headers';
 import { extractUserPrivyId } from '@/lib/server/userSession';
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { openai } from '@ai-sdk/openai';
-import { z } from 'zod';
 import { getGeneralToolSet } from '@/tools/generalToolSet';
 
 /**
