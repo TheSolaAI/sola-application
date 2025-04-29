@@ -1,11 +1,17 @@
 import { z } from 'zod';
 import { Tool } from 'ai';
 import { ToolContext, ToolResult } from '@/types/tool';
-import { ApiClient, createServerApiClient } from '@/lib/ApiClient';
 import { VersionedTransaction } from '@solana/web3.js';
 import { TOKEN_LIST } from '@/config/tokenMapping';
 import { API_URLS } from '@/config/api_urls';
 import { DepositParams, DepositResponse } from '@/types/lulo';
+import { ApiClient, createServerApiClient } from '@/lib/ApiClient';
+
+const baseUrl =
+  process.env.NEXT_PUBLIC_BASE_URL ||
+  (typeof window !== 'undefined'
+    ? window.location.origin
+    : 'http://localhost:5173');
 
 const Parameters = z.object({
   amount: z.number(),
@@ -59,21 +65,24 @@ export function createDepositLuloTool(context: ToolContext) {
         const txResults = [];
 
         for (const transaction of transactions) {
-          const serverApiClient = createServerApiClient(context.authToken);
-          const blockhashRes = await serverApiClient.get(
-            API_URLS.WALLET.BLOCKHASH
-          );
+          // Get blockhash using fetch instead of API client
+          const blockhashRes = await fetch(`${baseUrl}/api/wallet/blockhash`, {
+            method: 'GET',
+            headers: {
+              Authorization: `Bearer ${context.authToken}`,
+            },
+          });
 
-          if (ApiClient.isApiError(blockhashRes)) {
+          if (!blockhashRes.ok) {
             return {
               success: false,
-              error: 'Failed to get recent blockhash',
+              error: `Failed to get recent blockhash: ${blockhashRes.status}`,
               data: undefined,
             };
           }
 
-          const { blockhash } = blockhashRes.data;
-          transaction.message.recentBlockhash = blockhash;
+          const blockhashData = await blockhashRes.json();
+          transaction.message.recentBlockhash = blockhashData.blockhash;
 
           // Since we can't directly sign transactions here, we'll return the transaction for signing
           const serializedTx = Buffer.from(transaction.serialize()).toString(
@@ -90,7 +99,6 @@ export function createDepositLuloTool(context: ToolContext) {
         return {
           success: true,
           data: {
-            type: 'lulo_deposit',
             transactions: txResults,
             details: {
               amount,
@@ -102,11 +110,14 @@ export function createDepositLuloTool(context: ToolContext) {
             timestamp: new Date().toISOString(),
           },
           error: undefined,
+          signAndSend: true,
         };
       } catch (error) {
         return {
           success: false,
-          error: 'Unable to prepare deposit transaction',
+          error: `Unable to prepare deposit transaction: ${
+            error instanceof Error ? error.message : 'Unknown error'
+          }`,
           data: undefined,
         };
       }

@@ -65,8 +65,6 @@ export function renderToolResult(
       return <TokenAddressResultItem props={args.data} />;
     case 'getLimitOrderTool':
       return <ShowLimitOrdersChatItem props={args.data} />;
-    case 'createLimitOrderTool':
-      return <CreateLimitOrderChatItem props={args.data} />;
     case 'trendingAiProjects':
       return <AiProjects props={args.data} />;
     case 'getLuloAssetsTool':
