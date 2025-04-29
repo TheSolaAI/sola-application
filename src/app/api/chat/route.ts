@@ -68,7 +68,7 @@ export async function POST(req: Request) {
       onError({ error }) {
         console.error(error);
       },
-      onFinish: async ({ text, toolResults, usage }) => {
+      onFinish: async ({ usage, steps }) => {
         const tokensUsed = usage.totalTokens;
         const usdConsumed = (tokensUsed / 1_000_000) * 8;
 
@@ -84,12 +84,30 @@ export async function POST(req: Request) {
         } catch (err) {
           console.error('Error: logging usage:', err);
         }
-        await handleStreamCompletion(
-          text,
-          toolResults,
-          currentRoomID,
-          accessToken
-        );
+
+        steps.reverse().map(async (step) => {
+          if (step.text) {
+            try {
+              await storeTextMessage(step.text, currentRoomID, accessToken);
+            } catch (error) {
+              console.log('Error: while storing text in DB', error);
+            }
+          }
+          if (step.toolResults) {
+            const toolResults = step.toolResults;
+            for (const toolResult of toolResults) {
+              try {
+                await storeToolResultMessage(
+                  toolResult,
+                  currentRoomID,
+                  accessToken
+                );
+              } catch (error) {
+                console.log('Error: while storing tool-result in DB', error);
+              }
+            }
+          }
+        });
       },
     });
     // console.log(result)
@@ -125,43 +143,6 @@ function loadToolsFromToolsets(
   }
 
   return allTools;
-}
-
-/**
- * Handles the completion of a stream, storing tool results and final text
- */
-async function handleStreamCompletion(
-  text: string,
-  toolResults: Array<{
-    toolName: string;
-    toolCallId: string;
-    result: any;
-    args: any;
-  }>,
-  roomId: string,
-  accessToken: string
-) {
-  console.log(`INFO: Stream completed with ${toolResults.length} tool results`);
-
-  for (const toolResult of toolResults) {
-    try {
-      await storeToolResultMessage(toolResult, roomId, accessToken);
-    } catch (error) {
-      console.error(
-        `ERROR: Failed to store result for ${toolResult.toolName} - ${error instanceof Error ? error.message : 'Unknown error'}`
-      );
-    }
-  }
-
-  if (text?.trim()) {
-    try {
-      await storeTextMessage(text, roomId, accessToken);
-    } catch (error) {
-      console.error(
-        `ERROR: Failed to store final text message - ${error instanceof Error ? error.message : 'Unknown error'}`
-      );
-    }
-  }
 }
 
 /**
