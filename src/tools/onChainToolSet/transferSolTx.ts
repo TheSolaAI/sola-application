@@ -1,9 +1,13 @@
 import { z } from 'zod';
 import { Tool } from 'ai';
 import { ToolContext, ToolResult } from '@/types/tool';
-import { ApiClient, createServerApiClient } from '@/lib/ApiClient';
 import { PublicKey, SystemProgram, Transaction } from '@solana/web3.js';
-import { API_URLS } from '@/config/api_urls';
+
+const baseUrl =
+  process.env.NEXT_PUBLIC_BASE_URL ||
+  (typeof window !== 'undefined'
+    ? window.location.origin
+    : 'http://localhost:5173');
 
 const Parameters = z.object({
   quantity: z
@@ -39,11 +43,10 @@ export function createTransferSolTool(context: ToolContext) {
         };
       }
 
-      const serverApiClient = createServerApiClient(context.authToken);
-
       try {
         // Convert SOL to lamports (1 SOL = 1,000,000,000 lamports)
         const lamports = quantity * 1_000_000_000;
+        console.log(lamports, quantity);
 
         // Create transaction
         const transaction = new Transaction().add(
@@ -55,21 +58,20 @@ export function createTransferSolTool(context: ToolContext) {
         );
 
         // Get recent blockhash
-        const blockhashResponse = await serverApiClient.get(
-          API_URLS.WALLET.BLOCKHASH,
-          undefined,
-          'wallet'
+        const blockhashResponse = await fetch(
+          `${baseUrl}/api/wallet/blockhash`
         );
 
-        if (ApiClient.isApiError(blockhashResponse)) {
+        if (!blockhashResponse.ok) {
           return {
             success: false,
-            error: 'Failed to get recent blockhash',
+            error: `Failed to get recent blockhash: ${blockhashResponse.status}`,
             data: undefined,
           };
         }
 
-        transaction.recentBlockhash = blockhashResponse.data.blockhash;
+        const blockhashData = await blockhashResponse.json();
+        transaction.recentBlockhash = blockhashData.blockhash;
         transaction.feePayer = new PublicKey(context.publicKey);
 
         // Serialize the transaction
@@ -83,7 +85,6 @@ export function createTransferSolTool(context: ToolContext) {
         return {
           success: true,
           data: {
-            type: 'transfer_sol',
             transaction: serializedTransaction,
             details: {
               senderAddress: context.publicKey,

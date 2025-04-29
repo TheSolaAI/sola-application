@@ -44,7 +44,6 @@ export async function POST(req: Request) {
         { status: 401 }
       );
     }
-
     const tools = loadToolsFromToolsets(
       requiredToolSets,
       accessToken,
@@ -118,9 +117,10 @@ function loadToolsFromToolsets(
   accessToken: string,
   walletPublicKey: string
 ): Record<string, Tool<any, any>> {
-  console.log(`INFO: Loading toolsets [${toolsets.join(', ')}]`);
-
   const allTools: Record<string, Tool<any, any>> = {};
+  if (!toolsets) return allTools;
+
+  console.log(`INFO: Loading toolsets [${toolsets.join(', ')}]`);
 
   for (const toolset of toolsets) {
     const toolsetTools = getToolsFromToolset(toolset, {

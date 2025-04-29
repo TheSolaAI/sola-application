@@ -92,7 +92,6 @@ export function createSwapTokensTool(context: ToolContext) {
           return {
             success: true,
             data: {
-              type: 'swap_tokens',
               transaction: response.data.transaction,
               details: {
                 input_mint: inputTokenAddress,

@@ -1,8 +1,13 @@
 import { z } from 'zod';
 import { Tool } from 'ai';
 import { ToolContext, ToolResult } from '@/types/tool';
-import { ApiClient, createServerApiClient } from '@/lib/ApiClient';
 import { Transaction } from '@solana/web3.js';
+
+const baseUrl =
+  process.env.NEXT_PUBLIC_BASE_URL ||
+  (typeof window !== 'undefined'
+    ? window.location.origin
+    : 'http://localhost:5173');
 
 const Parameters = z.object({
   amount: z.number().describe('Amount of the token to send.'),
@@ -35,8 +40,6 @@ export function createTransferSplTool(context: ToolContext) {
         };
       }
 
-      const serverApiClient = createServerApiClient(context.authToken);
-
       const transferParams = {
         senderAddress: context.publicKey,
         recipientAddress: address,
@@ -45,21 +48,29 @@ export function createTransferSplTool(context: ToolContext) {
       };
 
       try {
-        const prepareResponse = await serverApiClient.post(
-          '/api/wallet/prepareSplTransfer',
-          transferParams,
-          'wallet'
+        const prepareResponse = await fetch(
+          `${baseUrl}/api/wallet/prepareSplTransfer`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${context.authToken}`,
+            },
+            body: JSON.stringify(transferParams),
+          }
         );
 
-        if (ApiClient.isApiError(prepareResponse)) {
+        if (!prepareResponse.ok) {
           return {
             success: false,
-            error: 'Failed to prepare SPL transfer',
+            error: `Failed to prepare SPL transfer: ${prepareResponse.status}`,
             data: undefined,
           };
         }
 
-        if (!prepareResponse.data.serializedTransaction) {
+        const responseData = await prepareResponse.json();
+
+        if (!responseData.serializedTransaction) {
           return {
             success: false,
             error:
@@ -70,7 +81,7 @@ export function createTransferSplTool(context: ToolContext) {
 
         try {
           const transactionBuffer = Buffer.from(
-            prepareResponse.data.serializedTransaction,
+            responseData.serializedTransaction,
             'base64'
           );
           const transaction = Transaction.from(transactionBuffer);
@@ -79,14 +90,15 @@ export function createTransferSplTool(context: ToolContext) {
             success: true,
             data: {
               type: 'transfer_spl',
-              transaction: prepareResponse.data.serializedTransaction,
+              transaction: responseData.serializedTransaction,
               details: {
                 senderAddress: context.publicKey,
                 recipientAddress: address,
                 tokenMint: token,
                 amount,
-                transaction: transaction,
+                transaction,
                 params: transferParams,
+                tokenDetails: responseData.tokenDetails,
               },
               response_id: 'temp',
               sender: 'system',
@@ -105,7 +117,9 @@ export function createTransferSplTool(context: ToolContext) {
       } catch (error) {
         return {
           success: false,
-          error: 'Unable to prepare transfer transaction',
+          error: `Unable to prepare transfer transaction: ${
+            error instanceof Error ? error.message : 'Unknown error'
+          }`,
           data: undefined,
         };
       }

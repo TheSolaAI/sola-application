@@ -2,6 +2,12 @@ import { z } from 'zod';
 import { Tool } from 'ai';
 import { ToolContext, ToolResult } from '@/types/tool';
 
+const baseUrl =
+  process.env.NEXT_PUBLIC_BASE_URL ||
+  (typeof window !== 'undefined'
+    ? window.location.origin
+    : 'http://localhost:5173');
+
 export function createResolveSnsNameTool(context: ToolContext) {
   const Parameters = z.object({
     domain: z
@@ -30,7 +36,7 @@ export function createResolveSnsNameTool(context: ToolContext) {
 
         // Call our server-side API to resolve the domain
         const response = await fetch(
-          `/api/wallet/resolve-domain?domain=${encodeURIComponent(domain)}`
+          `${baseUrl}/api/wallet/resolve-domain?domain=${encodeURIComponent(domain)}`
         );
         const data = await response.json();
 

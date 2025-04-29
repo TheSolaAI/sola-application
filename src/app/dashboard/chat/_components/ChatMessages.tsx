@@ -85,7 +85,7 @@ export default function ChatMessages() {
       {/* Floating scroll to bottom button */}
       {showScrollButton && (
         <button
-          className="fixed bottom-24 right-8 bg-primary text-white p-2 rounded-full shadow-lg z-20"
+          className="fixed bottom-24 right-8 bg-primary text-white p-2 rounded-full shadow-lg z-50"
           onClick={() => scrollToBottom(messagesEndRef.current)}
         >
           <FaArrowAltCircleDown size={16} />
