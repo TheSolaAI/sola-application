@@ -17,7 +17,6 @@ import {
   Legend,
 } from 'recharts';
 import { TokenAsset } from '@/types/wallet';
-import useThemeManager from '@/store/ThemeManager';
 import { formatNumber } from '@/utils/formatNumber';
 
 const COLORS = [
@@ -41,7 +40,6 @@ const WalletCoinAssets = () => {
     startMonitoring,
     currentWallet,
   } = useWalletHandler();
-  const { theme } = useThemeManager();
 
   /**
    * Local state
@@ -231,7 +229,7 @@ const WalletCoinAssets = () => {
                 <button
                   className={'ml-3'}
                   onClick={() => {
-                    startMonitoring(currentWallet?.address!, false);
+                    startMonitoring(currentWallet?.address || '', false);
                   }}
                 >
                   <LuPlay className={'w-6 h-6 text-secText '} />
