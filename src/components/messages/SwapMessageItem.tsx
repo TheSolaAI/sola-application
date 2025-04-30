@@ -1,149 +1,40 @@
 'use client';
 
-import { FC, useEffect, useState } from 'react';
-import { SwapChatContent } from '@/types/chatItem';
-import Image from 'next/image';
+import { FC, useState, useRef, useEffect } from 'react';
+import { LuArrowRightLeft, LuExternalLink } from 'react-icons/lu';
+import { FiCopy } from 'react-icons/fi';
+import { TokenSwapData } from '@/types/token';
+import { toast } from 'sonner';
 
-interface SwapChatItemProps {
-  props: SwapChatContent;
+interface SwapTokenMessageItem {
+  props: TokenSwapData;
 }
 
-export const SwapChatItem: FC<SwapChatItemProps> = ({ props }) => {
-  const [txStatus, setTxStatus] = useState<'pending' | 'success' | 'failed'>(
-    props.status || 'pending'
-  );
-  const [lastChecked, setLastChecked] = useState<string>(
-    new Date().toISOString()
-  );
-  const [isPolling, setIsPolling] = useState<boolean>(true);
-  const [errorDetails, setErrorDetails] = useState<string | null>(null);
+export const SwapTokenMessageItem: FC<SwapTokenMessageItem> = ({ props }) => {
+  const [isExpanded, setIsExpanded] = useState<boolean>(false);
+  const expandedContentRef = useRef<HTMLDivElement>(null);
+  const [contentHeight, setContentHeight] = useState<number>(0);
+  const [isAnimating, setIsAnimating] = useState<boolean>(false);
 
+  // Get height of expanded content when it changes
   useEffect(() => {
-    if (!props.txn || txStatus === 'success' || txStatus === 'failed') {
-      setIsPolling(false);
-      return;
+    if (expandedContentRef.current) {
+      setContentHeight(expandedContentRef.current.scrollHeight);
     }
+  }, [isExpanded]);
 
-    let timeoutId: number;
-    let attempts = 0;
-    const maxAttempts = 30;
-    const interval = 2000;
-
-    const checkStatus = async () => {
-      try {
-        if (attempts >= maxAttempts) {
-          setTxStatus('failed');
-          setErrorDetails('Transaction timed out after multiple attempts');
-          setLastChecked(new Date().toISOString());
-          setIsPolling(false);
-          return;
-        }
-
-        attempts++;
-        const response = await fetch('/api/wallet/getTransaction', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            signature: props.txn,
-            options: {
-              maxSupportedTransactionVersion: 0,
-              commitment: 'confirmed',
-            },
-          }),
-        });
-
-        const data = await response.json();
-
-        if (data.status === 'success') {
-          if (data.transaction) {
-            if (data.error) {
-              setTxStatus('failed');
-              setErrorDetails(data.error || 'Transaction failed');
-              setLastChecked(new Date().toISOString());
-              setIsPolling(false);
-              return;
-            }
-
-            setTxStatus('success');
-            setLastChecked(new Date().toISOString());
-            setIsPolling(false);
-            return;
-          }
-
-          // Transaction not found yet, continue polling
-          setLastChecked(new Date().toISOString());
-          timeoutId = window.setTimeout(checkStatus, interval);
-        } else {
-          // API error
-          console.error('API Error:', data.message);
-          // Don't fail immediately on API error, retry
-          setLastChecked(new Date().toISOString());
-          timeoutId = window.setTimeout(checkStatus, interval);
-        }
-      } catch (error) {
-        console.error('Error checking transaction status:', error);
-        // Don't fail immediately on network error, retry
-        setLastChecked(new Date().toISOString());
-        timeoutId = window.setTimeout(checkStatus, interval);
-      }
-    };
-
-    if (isPolling) {
-      timeoutId = window.setTimeout(checkStatus, 0);
-    }
-
-    return () => {
-      window.clearTimeout(timeoutId);
-    };
-  }, [props.txn, txStatus, isPolling]);
-
-  const getStatusInfo = () => {
-    switch (txStatus) {
-      case 'pending':
-        return {
-          label: 'Pending',
-          color: 'text-yellow-500',
-          bgColor: 'bg-yellow-100',
-          isLoading: true,
-        };
-      case 'success':
-        return {
-          label: 'Success',
-          color: 'text-green-500',
-          bgColor: 'bg-green-100',
-          icon: '✅',
-          isLoading: false,
-        };
-      case 'failed':
-        return {
-          label: 'Failed',
-          color: 'text-red-500',
-          bgColor: 'bg-red-100',
-          icon: '❌',
-          isLoading: false,
-        };
-    }
+  const toggleExpand = () => {
+    setIsAnimating(true);
+    setIsExpanded(!isExpanded);
+    // Reset animation state after transition completes
+    setTimeout(() => {
+      setIsAnimating(false);
+    }, 300); // Match this with the CSS transition duration
   };
-
-  const LoadingSpinner = () => (
-    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-900" />
-  );
-
-  const formatTime = (timestamp: string) => {
-    try {
-      return new Date(timestamp).toLocaleTimeString();
-    } catch (e) {
-      console.log(e);
-      return 'Invalid time';
-    }
-  };
-
-  const statusInfo = getStatusInfo();
 
   // Format token names for better display
   const getTokenDisplay = (mintAddress: string) => {
+    if (!mintAddress) return 'Unknown';
     if (mintAddress.startsWith('$')) {
       return mintAddress.substring(1); // Remove $ prefix for symbols
     }
@@ -154,104 +45,180 @@ export const SwapChatItem: FC<SwapChatItemProps> = ({ props }) => {
   };
 
   // Get token names without $ if they exist
-  const inputToken = getTokenDisplay(props.data.input_mint);
-  const outputToken = getTokenDisplay(props.data.output_mint);
+  const inputToken = props.details?.tickers?.inputTokenTicker
+    ? props.details.tickers.inputTokenTicker
+    : getTokenDisplay(props.details.input_mint);
+  const outputToken = props.details?.tickers?.outputTokenTicker
+    ? props.details.tickers.outputTokenTicker
+    : getTokenDisplay(props.details.output_mint);
+
+  // Compact View (collapsed state)
+  const compactView = (
+    <div className="w-full overflow-hidden rounded-xl bg-sec_background  shadow-lg">
+      {/* Compact Header */}
+      <div className="p-2 border-b border-border flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <div className="bg-primary/10 p-1 rounded-lg">
+            <LuArrowRightLeft className="text-primary" size={16} />
+          </div>
+          <h3 className="font-medium text-textColor text-sm">Token Swap</h3>
+        </div>
+
+        {/* Swap Info in one line */}
+        <div className="flex items-center gap-2">
+          <span className="text-textColor text-sm font-medium">
+            {props.details.amount} {inputToken} → {props.details.outAmount}{' '}
+            {outputToken}
+          </span>
+        </div>
+      </div>
+
+      {/* Compact Footer */}
+      <div className="p-2 bg-surface/20 flex justify-between items-center">
+        <div className="flex items-center gap-1">
+          <a
+            href={`https://solscan.io`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="p-1 rounded-full hover:bg-surface/50 transition-colors"
+            title="View on Solscan"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <LuExternalLink className="text-secText" size={12} />
+          </a>
+        </div>
+
+        <div>
+          <span className="text-xs text-secText">
+            Fee: {props.details.priorityFee.toLocaleString()} SOL
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Expanded content
+  const expandedContent = (
+    <div ref={expandedContentRef}>
+      {/* Header */}
+      <div className="px-4 py-3 border-b border-border flex justify-between items-center bg-primary/10">
+        <h2 className="text-lg font-semibold text-textColor flex items-center gap-2">
+          <div className="bg-primary/10 p-1 rounded-lg">
+            <LuArrowRightLeft className="text-primary" size={28} />
+          </div>
+          Token Swap
+        </h2>
+      </div>
+
+      {/* Content */}
+      <div className="p-4">
+        <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex flex-col gap-4 w-full">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-background rounded-lg p-3">
+                <p className="text-secText text-sm">From</p>
+                <div className="flex items-center mt-1">
+                  <p className="text-textColor text-lg font-bold">
+                    {props.details.amount} {inputToken}
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-background rounded-lg p-3">
+                <p className="text-secText text-sm">To</p>
+                <div className="flex items-center mt-1">
+                  <p className="text-textColor text-lg font-bold">
+                    {props.details.outAmount} {outputToken}
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-background rounded-lg p-3">
+                <p className="text-secText text-sm">Priority Fee</p>
+                <p className="text-textColor text-lg font-bold">
+                  {props.details.priorityFee.toLocaleString()} SOL
+                </p>
+              </div>
+
+              <div className="bg-background rounded-lg p-3">
+                <p className="text-secText text-sm">Swap Mode</p>
+                <p className="text-textColor text-lg font-bold">
+                  {props.details.inputParams?.swap_mode || 'Standard'}
+                </p>
+              </div>
+            </div>
+
+            {/* Token Addresses */}
+            <div className="flex flex-col gap-2">
+              <div className="bg-surface/30 p-2 rounded-lg flex items-center justify-between">
+                <span className="text-xs text-secText">Input Token:</span>
+                <div className="flex items-center">
+                  <span className="text-xs font-mono text-textColor mr-1">
+                    {props.details.input_mint}
+                  </span>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigator.clipboard.writeText(props.details.input_mint);
+                      toast.success('Copied to clipboard');
+                    }}
+                    className="p-1 rounded-full hover:bg-surface/50"
+                  >
+                    <FiCopy size={12} className="text-secText" />
+                  </button>
+                </div>
+              </div>
+              <div className="bg-surface/30 p-2 rounded-lg flex items-center justify-between">
+                <span className="text-xs text-secText">Output Token:</span>
+                <div className="flex items-center">
+                  <span className="text-xs font-mono text-textColor mr-1">
+                    {props.details.output_mint}
+                  </span>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigator.clipboard.writeText(props.details.output_mint);
+                      toast.success('Copied to clipboard');
+                    }}
+                    className="p-1 rounded-full hover:bg-surface/50"
+                  >
+                    <FiCopy size={12} className="text-secText" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Footer with transaction action button */}
+        <div className="mt-4 pt-3 border-t border-border">
+          <div className="text-xs text-secText">
+            <p>
+              This transaction is being prepared and will be submitted to the
+              blockchain.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
-    <div className="flex my-1 justify-start max-w-[100%] md:max-w-[80%]">
-      <div className="flex flex-col p-4 rounded-lg bg-sec_background text-secText w-full shadow-sm hover:shadow-md transition-shadow duration-200">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center space-x-2">
-            <Image
-              src="/solscan.png"
-              alt="solscan"
-              className="rounded-lg"
-              height={32}
-              width={32}
-            />
-            <span className="font-medium text-lg text-primaryDark">
-              Token Swap
-            </span>
-          </div>
-
-          <div
-            className={`px-3 py-1 rounded-full flex items-center ${
-              txStatus === 'success'
-                ? 'bg-green-100'
-                : txStatus === 'failed'
-                  ? 'bg-red-100'
-                  : 'bg-yellow-50'
-            }`}
-          >
-            {statusInfo.isLoading ? (
-              <div className="flex items-center">
-                <LoadingSpinner />
-                <span className="ml-2 text-sm font-medium text-yellow-600">
-                  {statusInfo.label}
-                </span>
-              </div>
-            ) : (
-              <>
-                <span className="mr-1">{statusInfo.icon}</span>
-                <span className={`text-sm font-medium ${statusInfo.color}`}>
-                  {statusInfo.label}
-                </span>
-              </>
-            )}
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-3">
-          <div className="flex flex-col">
-            <span className="text-gray-500 text-sm">From</span>
-            <span className="font-medium text-secText">
-              {props.data.amount} {inputToken}
-            </span>
-          </div>
-          <div className="flex flex-col">
-            <span className="text-gray-500 text-sm">To</span>
-            <span className="font-medium text-secText">
-              {props.data.output_amount} {outputToken}
-            </span>
-          </div>
-        </div>
-
-        {txStatus === 'failed' && errorDetails && (
-          <div className="mb-3 p-2 bg-red-50 border border-red-200 rounded-md text-xs text-red-600">
-            {errorDetails}
-          </div>
-        )}
-
-        <div className="text-xs text-gray-500 mb-2">
-          {txStatus === 'success'
-            ? `Success at ${formatTime(lastChecked)}`
-            : txStatus === 'pending'
-              ? `Submitted at ${formatTime(props.timestamp || new Date().toISOString())}`
-              : `Last checked at ${formatTime(lastChecked)}`}
-        </div>
-
-        <a
-          href={`https://solscan.io/tx/${props.txn}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-primaryDark hover:opacity-80 transition text-sm flex items-center"
-        >
-          View on Solscan
-          <svg
-            className="w-3 h-3 ml-1"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-            ></path>
-          </svg>
-        </a>
+    <div className="flex my-1 justify-start max-w-lg">
+      <div
+        className="w-full cursor-pointer overflow-hidden rounded-xl bg-sec_background border border-border shadow-lg transition-all duration-300 ease-in-out"
+        onClick={toggleExpand}
+        style={{
+          maxHeight: isExpanded ? `${contentHeight}px` : '80px', // Adjust based on your compact view height
+          opacity: isAnimating ? (isExpanded ? 1 : 0.9) : 1,
+          transform: isAnimating
+            ? isExpanded
+              ? 'scale(1)'
+              : 'scale(0.99)'
+            : 'scale(1)',
+        }}
+      >
+        {isExpanded ? expandedContent : compactView}
       </div>
     </div>
   );

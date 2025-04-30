@@ -5,7 +5,6 @@ import { SimpleMessageChatItem } from '@/components/messages/SimpleMessageChatIt
 import UserInput from '@/components/messages/UserInput';
 import { TokenAddressResultItem } from '@/components/messages/TokenAddressResultItem';
 import { ShowLimitOrdersChatItem } from '@/components/messages/ShowLimitOrderChatItem';
-import { CreateLimitOrderChatItem } from '@/components/messages/CreateLimitOrderMessageItem';
 import { AiProjects } from '@/components/messages/AiProjects';
 import { LuloAssetsMessageItem } from '@/components/messages/LuloAssetsMessageItem';
 import { TokenDataMessageItem } from '@/components/messages/TokenDataMessageItem';
@@ -13,6 +12,8 @@ import { BubbleMapChatItem } from '@/components/messages/BubbleMapCardItem';
 import { TopHoldersMessageItem } from '@/components/messages/TopHoldersMessageItem';
 import { NFTCollectionMessageItem } from '@/components/messages/NFTCollectionCardItem';
 import { generateId } from 'ai';
+import { SwapTokenMessageItem } from '@/components/messages/SwapMessageItem';
+import { SignedTransactionsMessageItem } from '@/components/messages/SignedTransactionsMessageItem';
 
 export function renderMessageContent(message: UIMessage) {
   const role = message.role;
@@ -60,6 +61,10 @@ export function renderToolResult(
   toolName: string,
   args: ToolResult
 ): React.ReactNode {
+  // in the case we have a caught error in the tool and we have propagated said error to the frontEnd we display that error here
+  if (!args.success) {
+    return <SimpleMessageChatItem text={`Error: ${args.error}`} />;
+  }
   switch (toolName) {
     case 'tokenAddressTool':
       return <TokenAddressResultItem props={args.data} />;
@@ -81,6 +86,10 @@ export function renderToolResult(
       return <NFTCollectionMessageItem props={args.data} />;
     case 'getTrendingNFTs':
       return <NFTCollectionMessageItem props={args.data} />;
+    case 'swapTokens':
+      return <SwapTokenMessageItem props={args.data} />;
+    case 'sign_and_send_tx':
+      return <SignedTransactionsMessageItem props={args.data} />;
     default:
       return <SimpleMessageChatItem text={JSON.stringify(args.data)} />;
   }

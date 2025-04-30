@@ -6,6 +6,8 @@ import { useChatMessageHandler } from '@/store/ChatMessageHandler';
 import { useWalletHandler } from '@/store/WalletHandler';
 import { useUserHandler } from '@/store/UserHandler';
 import { VersionedTransaction } from '@solana/web3.js';
+import { ToolResult } from '@/types/tool';
+import { TransactionResponse } from '@/types/response';
 
 export function useChatMessages(
   roomId: string,
@@ -28,7 +30,8 @@ export function useChatMessages(
     maxSteps: 5,
     async onToolCall({ toolCall }) {
       if (toolCall.toolName === 'sign_and_send_tx') {
-        return await handleSignTransaction(toolCall.args);
+        const result = await handleSignTransaction(toolCall.args);
+        return result;
       }
     },
     onError: (error) => {
@@ -198,19 +201,19 @@ export function useChatMessages(
   };
 
   // Transaction signing
-  async function handleSignTransaction(args: any) {
+  async function handleSignTransaction(args: any): Promise<ToolResult> {
     interface TransactionArgs {
       transactionHash: string;
     }
     try {
       const { transactionHash } = args as TransactionArgs;
-      console.log(transactionHash);
       const currentWallet = useWalletHandler.getState().currentWallet;
 
       if (!currentWallet) {
         return {
           success: false,
           error: 'No wallet connected',
+          data: undefined,
         };
       }
 
@@ -234,24 +237,32 @@ export function useChatMessages(
         }),
       });
 
-      const responseData = await response.json();
+      const responseData: TransactionResponse = await response.json();
 
       if (!response.ok) {
         return {
           success: false,
           error: 'Transaction failed',
-          message: responseData,
+          data: {
+            transactionDetails: responseData,
+            inputArgs: args,
+          },
         };
       }
 
       return {
         success: true,
-        message: responseData,
+        error: undefined,
+        data: {
+          transactionDetails: responseData,
+          inputArgs: args,
+        },
       };
     } catch (error) {
       return {
         success: false,
         error: `Transaction processing error: ${error || 'Unknown error'}`,
+        data: undefined,
       };
     }
   }
