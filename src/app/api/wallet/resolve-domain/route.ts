@@ -19,8 +19,6 @@ function getConnection(): Connection {
       disableRetryOnRateLimit: false,
       confirmTransactionInitialTimeout: 30000,
     });
-
-    console.log('Solana connection initialized');
   }
 
   return connection;

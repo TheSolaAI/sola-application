@@ -12,6 +12,9 @@ import {
 import { SiSolana } from 'react-icons/si';
 import { useAppSelector } from '@/redux/hook';
 import { UserTiers } from '@/config/tierMapping';
+import { HiWallet } from 'react-icons/hi2';
+import { ConnectedSolanaWallet, useConnectWallet } from '@privy-io/react-auth';
+import { useWalletHandler } from '@/store/WalletHandler';
 
 interface SessionVerificationModalProps {
   isOpen: boolean;
@@ -36,9 +39,32 @@ export default function SessionVerificationModal({
   onVerifyTier,
   tierVerificationResult,
 }: SessionVerificationModalProps) {
+  /*
+   * Global states
+   */
   const tierFromRedux = useAppSelector((state) => state.tier.userTier);
+  const { wallets, setWallets, setCurrentWallet } = useWalletHandler();
+
+  /*
+   * Local states
+   */
   const [isVerifying, setIsVerifying] = useState(false);
   const [showTierDropdown, setShowTierDropdown] = useState(false);
+
+  //TODO: This logic is used in wallet side bar, So create a reusable component for this.
+  const { connectWallet } = useConnectWallet({
+    onSuccess: ({ wallet }) => {
+      if (wallet.type === 'solana') {
+        const walletExists = wallets.some((w) => w.address === wallet.address);
+
+        if (!walletExists) {
+          setWallets([...wallets, wallet as unknown as ConnectedSolanaWallet]);
+        }
+
+        setCurrentWallet(wallet as unknown as ConnectedSolanaWallet);
+      }
+    },
+  });
 
   // Updated to use either Redux state or prop-passed state
   const displayResult = tierFromRedux || tierVerificationResult;
@@ -96,9 +122,7 @@ export default function SessionVerificationModal({
                   <LuTriangleAlert className="w-5 h-5 text-primaryDark" />
                 </div>
                 <div className="space-y-2">
-                  <p className="text-textColor">
-                    You&#39;ve reached the session limit for your tier.
-                  </p>
+                  <p className="text-textColor">Verify Your Sola Holdings.</p>
                   <p className="text-secText text-sm">
                     Verify your SOLA token holdings to unlock additional
                     sessions.
@@ -233,6 +257,26 @@ export default function SessionVerificationModal({
                 ) : (
                   'Verify SOLA Holdings'
                 )}
+              </button>
+            </div>
+
+            <div className="bg-sec_background p-4 rounded-lg">
+              <h3 className="text-textColor font-medium flex items-center gap-2 mb-3">
+                <HiWallet className="w-4 h-4 text-primary" />
+                Link your wallets
+              </h3>
+              <p className="text-secText text-sm mb-4">
+                Link your $SOLA wallets to get higher tier allocation
+              </p>
+
+              <button
+                onClick={() =>
+                  connectWallet({ walletChainType: 'solana-only' })
+                }
+                disabled={isVerifying}
+                className="w-full py-2 px-4 bg-primary hover:bg-primaryDark text-textColorContrast rounded-lg flex items-center justify-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Link Wallet
               </button>
             </div>
           </div>

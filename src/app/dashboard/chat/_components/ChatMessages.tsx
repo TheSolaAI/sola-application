@@ -5,6 +5,7 @@ import useThemeManager from '@/store/ThemeManager';
 import { hexToRgb } from '@/utils/hexToRGB';
 import { FaArrowAltCircleDown } from 'react-icons/fa';
 import { renderMessageContent } from '@/lib/messageRenderer';
+import { useLayoutContext } from '@/providers/LayoutProvider';
 
 export default function ChatMessages() {
   const {
@@ -31,6 +32,8 @@ export default function ChatMessages() {
     return () => container.removeEventListener('scroll', handleScrollEvent);
   }, [handleScroll]);
 
+  const { dashboardOpen } = useLayoutContext();
+
   return (
     <>
       {/* Top fade gradient */}
@@ -49,7 +52,9 @@ export default function ChatMessages() {
         ref={scrollableContainerRef}
         className="absolute inset-0 overflow-y-auto no-scrollbar messages-container"
       >
-        <div className="w-full sm:w-[80%] mx-auto pb-32 mt-10">
+        <div
+          className={`w-full mx-auto pb-32 mt-10 ${dashboardOpen ? 'sm:w-[100%]' : 'sm:w-[50%] '}`}
+        >
           {messages.map((message, index) => (
             <div key={`message-${message.id || index}`}>
               {renderMessageContent(message)}
@@ -85,7 +90,7 @@ export default function ChatMessages() {
       {/* Floating scroll to bottom button */}
       {showScrollButton && (
         <button
-          className="fixed bottom-24 right-8 bg-primary text-white p-2 rounded-full shadow-lg z-20"
+          className="fixed bottom-24 right-8 bg-primary text-white p-2 rounded-full shadow-lg z-50"
           onClick={() => scrollToBottom(messagesEndRef.current)}
         >
           <FaArrowAltCircleDown size={16} />

@@ -1,19 +1,5 @@
 import { NextRequest } from 'next/server';
-import { Connection, VersionedTransactionResponse } from '@solana/web3.js';
-
-// Define response data types
-type ErrorResponse = {
-  status: 'error';
-  message: string;
-};
-
-type SuccessResponse = {
-  status: 'success';
-  transaction: VersionedTransactionResponse | null;
-  error: boolean;
-};
-
-type ApiResponse = ErrorResponse | SuccessResponse;
+import { Connection } from '@solana/web3.js';
 
 // Define request body type
 interface GetTransactionRequest {

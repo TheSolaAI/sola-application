@@ -1,4 +1,3 @@
-// src/app/dashboard/chat/[id]/page.tsx
 'use client';
 
 import { useParams } from 'next/navigation';

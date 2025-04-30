@@ -54,7 +54,6 @@ export const createTrendingAiProjectsTool = (context: ToolContext) => {
           throw new Error('No data available for the specified category');
         }
       } catch (error) {
-        console.log(error);
         return {
           success: false,
           error:

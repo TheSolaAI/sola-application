@@ -71,92 +71,124 @@ export const CoinsSortDropDown: FC<CoinseSortDropDownProps> = ({
       width="auto"
       horizontalAlignment="auto"
     >
-      <div className="w-full p-2 space-y-2">
-        {/* Sort Type Section */}
-        <div className="border-border border-b py-2">
-          <h2 className="text-secText text-md font-medium mb-2">Sort By</h2>
-          <div className="space-y-1">
-            {Object.values(SortType).map((sortType) => (
+      <div className="overflow-hidden rounded-xl bg-sec_background w-full">
+        {/* Header */}
+        <div className="px-4 py-3 border-b border-border">
+          <h2 className="text-lg font-semibold text-textColor">
+            Sort & Filter Options
+          </h2>
+        </div>
+
+        <div className="p-4 space-y-4">
+          {/* Sort Type Section */}
+          <div>
+            <label className="text-xs uppercase tracking-wider text-secText mb-2 block">
+              Sort By
+            </label>
+            <div className="space-y-2">
+              {Object.values(SortType).map((sortType) => (
+                <button
+                  key={sortType}
+                  className={`w-full flex items-center justify-between p-3 rounded-lg transition-colors ${
+                    selectedSortType === sortType
+                      ? 'bg-primaryDark bg-opacity-20 border-l-4 border-primaryDark'
+                      : 'bg-surface/30 hover:bg-surface/50'
+                  }`}
+                  onClick={() =>
+                    handleSortSelection(sortType as SortType, selectedDirection)
+                  }
+                >
+                  <span
+                    className={`font-medium ${selectedSortType === sortType ? 'text-textColor' : 'text-secText'}`}
+                  >
+                    {sortType}
+                  </span>
+                  {selectedSortType === sortType && (
+                    <div className="flex items-center">
+                      {selectedDirection === SortDirection.ASCENDING ? (
+                        <LuArrowUp className="w-5 h-5 text-textColor" />
+                      ) : (
+                        <LuArrowDown className="w-5 h-5 text-textColor" />
+                      )}
+                    </div>
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Sort Direction Section */}
+          <div>
+            <label className="text-xs uppercase tracking-wider text-secText mb-2 block">
+              Direction
+            </label>
+            <div className="flex space-x-2">
               <button
-                key={sortType}
-                className={`w-full flex items-center justify-between p-2 rounded-lg transition-colors ${
-                  selectedSortType === sortType
-                    ? 'bg-primaryDark text-textColor'
-                    : 'hover:bg-surface text-secText'
+                className={`flex-1 flex items-center justify-center p-3 rounded-lg transition-colors ${
+                  selectedDirection === SortDirection.ASCENDING
+                    ? 'bg-primaryDark bg-opacity-20 border-b-2 border-primaryDark'
+                    : 'bg-surface/30 hover:bg-surface/50'
                 }`}
                 onClick={() =>
-                  handleSortSelection(sortType as SortType, selectedDirection)
+                  handleSortSelection(selectedSortType, SortDirection.ASCENDING)
                 }
               >
-                <span className="text-md text-textColor">{sortType}</span>
-                {selectedSortType === sortType && (
-                  <div className="flex items-center">
-                    {selectedDirection === SortDirection.ASCENDING ? (
-                      <LuArrowUp className="w-6 h-6 mr-2 text-textColor" />
-                    ) : (
-                      <LuArrowDown className="w-6 h-6 mr-2 text-textColor" />
-                    )}
-                  </div>
-                )}
+                <PiSortAscendingDuotone className="w-5 h-5 mr-2" />
+                <span className="font-medium">Ascending</span>
               </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Sort Direction Section */}
-        <div className="border-border border-b py-2">
-          <h2 className="text-secText text-md font-medium mb-2">Direction</h2>
-          <div className="flex space-x-2">
-            <button
-              className={`flex-1 flex items-center justify-center p-2 rounded-lg transition-colors ${
-                selectedDirection === SortDirection.ASCENDING
-                  ? 'bg-primaryDark text-textColor'
-                  : 'hover:bg-surface text-secText'
-              }`}
-              onClick={() =>
-                handleSortSelection(selectedSortType, SortDirection.ASCENDING)
-              }
-            >
-              <PiSortAscendingDuotone className="w-5 h-5 mr-2 text-textColor" />
-              Ascending
-            </button>
-            <button
-              className={`flex-1 flex items-center justify-center p-2 rounded-lg transition-colors ${
-                selectedDirection === SortDirection.DESCENDING
-                  ? 'bg-primaryDark text-textColor'
-                  : 'hover:bg-surface text-secText'
-              }`}
-              onClick={() =>
-                handleSortSelection(selectedSortType, SortDirection.DESCENDING)
-              }
-            >
-              <PiSortDescendingDuotone className="w-5 h-5 mr-2 text-textColor" />
-              Descending
-            </button>
-          </div>
-        </div>
-
-        {/* Solana Priority Toggle */}
-        <div className="">
-          <button
-            className="w-full flex items-center justify-between p-2 rounded-lg hover:bg-background"
-            onClick={toggleSolanaPriority}
-          >
-            <span className="text-md font-medium">
-              Prioritize Solana Tokens
-            </span>
-            <div
-              className={`w-10 h-5 rounded-full relative transition-colors ${
-                prioritizeSolana ? 'bg-primaryDark' : 'bg-backgroundContrast'
-              }`}
-            >
-              <div
-                className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-surface shadow-md transition-transform ${
-                  prioritizeSolana ? 'translate-x-5' : 'translate-x-0'
+              <button
+                className={`flex-1 flex items-center justify-center p-3 rounded-lg transition-colors ${
+                  selectedDirection === SortDirection.DESCENDING
+                    ? 'bg-primaryDark bg-opacity-20 border-b-2 border-primaryDark'
+                    : 'bg-surface/30 hover:bg-surface/50'
                 }`}
-              />
+                onClick={() =>
+                  handleSortSelection(
+                    selectedSortType,
+                    SortDirection.DESCENDING
+                  )
+                }
+              >
+                <PiSortDescendingDuotone className="w-5 h-5 mr-2" />
+                <span className="font-medium">Descending</span>
+              </button>
             </div>
-          </button>
+          </div>
+
+          {/* Solana Priority Toggle */}
+          <div className="pt-2 border-t border-border">
+            <label className="text-xs uppercase tracking-wider text-secText mb-2 block">
+              Special Filter
+            </label>
+            <div className="bg-surface/30 p-3 rounded-lg">
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="font-medium text-textColor">
+                    Prioritize Solana Tokens
+                  </span>
+                  <p className="text-xs text-secText mt-1">
+                    Show SOL at the top of the list
+                  </p>
+                </div>
+                <button
+                  onClick={toggleSolanaPriority}
+                  className="focus:outline-none"
+                >
+                  <div
+                    className={`w-12 h-6 rounded-full relative transition-colors ${
+                      prioritizeSolana ? 'bg-primaryDark' : 'bg-surface'
+                    }`}
+                  >
+                    <div
+                      className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow-md transition-transform ${
+                        prioritizeSolana ? 'translate-x-7' : 'translate-x-1'
+                      }`}
+                    />
+                  </div>
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </Dropdown>

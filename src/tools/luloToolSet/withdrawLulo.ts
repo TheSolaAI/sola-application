@@ -11,7 +11,12 @@ import {
   WithdrawTransaction,
 } from '@/types/lulo';
 
-// Parameters for the withdrawal function
+const baseUrl =
+  process.env.NEXT_PUBLIC_BASE_URL ||
+  (typeof window !== 'undefined'
+    ? window.location.origin
+    : 'http://localhost:5173');
+
 const Parameters = z.object({
   amount: z.number(),
   token: z.enum(['USDT', 'USDS', 'USDC']),
@@ -66,22 +71,24 @@ export function createWithdrawLuloTool(context: ToolContext) {
         const txResults = [];
 
         for (const transaction of transactions) {
-          // Get recent blockhash
-          const serverApiClient = createServerApiClient(context.authToken);
-          const blockhashRes = await serverApiClient.get(
-            API_URLS.WALLET.BLOCKHASH
-          );
+          // Get recent blockhash using fetch
+          const blockhashRes = await fetch(`${baseUrl}/api/wallet/blockhash`, {
+            method: 'GET',
+            headers: {
+              Authorization: `Bearer ${context.authToken}`,
+            },
+          });
 
-          if (ApiClient.isApiError(blockhashRes)) {
+          if (!blockhashRes.ok) {
             return {
               success: false,
-              error: 'Failed to get recent blockhash',
+              error: `Failed to get recent blockhash: ${blockhashRes.status}`,
               data: undefined,
             };
           }
 
-          const { blockhash } = blockhashRes.data;
-          transaction.message.recentBlockhash = blockhash;
+          const blockhashData = await blockhashRes.json();
+          transaction.message.recentBlockhash = blockhashData.blockhash;
 
           // Since we can't directly sign transactions here, we'll return the transaction for signing
           const serializedTx = Buffer.from(transaction.serialize()).toString(
@@ -94,9 +101,9 @@ export function createWithdrawLuloTool(context: ToolContext) {
             amount,
           });
         }
-
         return {
           success: true,
+          transaction: txResults,
           data: {
             type: 'lulo_withdraw',
             transactions: txResults,
@@ -110,11 +117,14 @@ export function createWithdrawLuloTool(context: ToolContext) {
             timestamp: new Date().toISOString(),
           },
           error: undefined,
+          signAndSend: true,
         };
       } catch (error) {
         return {
           success: false,
-          error: 'Unable to prepare withdrawal transaction',
+          error: `Unable to prepare withdrawal transaction: ${
+            error instanceof Error ? error.message : 'Unknown error'
+          }`,
           data: undefined,
         };
       }
@@ -124,7 +134,7 @@ export function createWithdrawLuloTool(context: ToolContext) {
   return withdrawLuloTool;
 }
 
-// Integrated withdrawLuloTx function
+// Integrated withdrawLuloTx function - keeping this unchanged as requested
 async function withdrawLuloTx(
   params: WithdrawParams,
   authToken: string

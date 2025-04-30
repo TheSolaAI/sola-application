@@ -43,3 +43,9 @@ export interface OpenAIKeyGenResponse {
     expires_at: number;
   };
 }
+
+export interface TransactionResponse {
+  status: string;
+  txid: string;
+  message: string;
+}

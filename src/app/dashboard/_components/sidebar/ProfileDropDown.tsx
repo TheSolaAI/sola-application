@@ -7,7 +7,7 @@ import { useLayoutContext } from '@/providers/LayoutProvider';
 import { FaGithub } from 'react-icons/fa';
 import { IoSettings } from 'react-icons/io5';
 import { SiGoogledocs } from 'react-icons/si';
-import { MdOutlineLogout } from 'react-icons/md';
+import { MdBugReport, MdOutlineLogout } from 'react-icons/md';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 
@@ -55,7 +55,6 @@ export const ProfileDropDown: FC<ProfileDropDownProps> = ({
 
     // 2. Stop all tracks in the media stream
     if (mediaStream) {
-      console.log('Stopping media stream tracks...');
       mediaStream.getTracks().forEach((track) => {
         track.stop();
       });
@@ -64,7 +63,6 @@ export const ProfileDropDown: FC<ProfileDropDownProps> = ({
 
     // 3. Close the peer connection
     if (peerConnection) {
-      console.log('Closing peer connection...');
       peerConnection.close();
       setPeerConnection(null);
     }
@@ -105,6 +103,19 @@ export const ProfileDropDown: FC<ProfileDropDownProps> = ({
         >
           <h1 className="text-textColor font-medium text-md">Docs</h1>
           <SiGoogledocs className="text-secText w-5 h-5" />
+        </button>
+        <button
+          className="w-full hover:bg-primary/85 flex-row flex gap-4 items-center justify-between px-3 py-2 rounded-lg"
+          onClick={() => {
+            window.open(
+              'https://github.com/TheSolaAI/sola-application/issues/new',
+              '_blank',
+              'noopener,noreferrer'
+            );
+          }}
+        >
+          <h1 className="text-textColor font-medium text-md">Report Issue</h1>
+          <MdBugReport className="text-secText w-5 h-5" />
         </button>
         <button
           className="w-full hover:bg-primary/85 flex-row flex gap-4 items-center justify-between px-3 py-2 rounded-lg"

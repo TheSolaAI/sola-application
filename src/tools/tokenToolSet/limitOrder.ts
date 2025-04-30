@@ -16,7 +16,7 @@ export function createLimitOrderTool(context: ToolContext) {
   const limitOrderTool: Tool<typeof Parameters, ToolResult> = {
     id: 'token.create_limit_order' as const,
     description:
-      'Creates a limit order to buy or sell a specified token at a user-defined price in USD. Only use when the user explicitly requests a limit order and not for any other kind of token swap',
+      'Creates a limit order to buy or sell a specified token at a user-defined price in USDC. Only use when the user explicitly requests a limit order and not for any other kind of token swap',
     parameters: Parameters,
     execute: async (params) => {
       const { action, amount, token, limitPrice } = params;
@@ -74,7 +74,6 @@ export function createLimitOrderTool(context: ToolContext) {
         return {
           success: true,
           data: {
-            type: 'create_limit_order',
             transaction: resp.data.tx,
             details: {
               amount,

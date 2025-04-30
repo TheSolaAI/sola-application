@@ -4,11 +4,12 @@ import { Tool } from 'ai';
 import { ToolContext, ToolResult } from '@/types/tool';
 import { ApiClient, createServerApiClient } from '@/lib/ApiClient';
 import { API_URLS } from '@/config/api_urls';
-import { VersionedTransaction } from '@solana/web3.js';
 
 const Parameters = z.object({
   inputTokenAddress: z.string().describe('Token Address to swap from'),
   outputTokenAddress: z.string().describe('Token Address to swap to'),
+  inputTokenTicker: z.string().describe('Token Ticker to swap from'),
+  outputTokenTicker: z.string().describe('Token Ticker to swap to'),
   amount: z
     .number()
     .describe(
@@ -83,29 +84,26 @@ export function createSwapTokensTool(context: ToolContext) {
 
         try {
           const transactionBuffer = Buffer.from(
-            response.data.transaction,
-            'base64'
-          );
-          const transaction =
-            VersionedTransaction.deserialize(transactionBuffer);
+            response.data.transaction
+          ).toString('base64');
 
           return {
             success: true,
             data: {
-              type: 'swap_tokens',
-              transaction: response.data.transaction,
+              transactionHash: transactionBuffer,
               details: {
                 input_mint: inputTokenAddress,
                 output_mint: outputTokenAddress,
                 amount,
                 outAmount: response.data.outAmount,
                 priorityFee: response.data.priorityFee,
-                versionedTransaction: transaction,
-                params: swapParams,
+                versionedTransaction: transactionBuffer,
+                inputParams: swapParams,
+                tickers: {
+                  inputTokenTicker: params.inputTokenTicker,
+                  outputTokenTicker: params.outputTokenTicker,
+                },
               },
-              response_id: 'temp',
-              sender: 'system',
-              timestamp: new Date().toISOString(),
             },
             error: undefined,
             signAndSend: true,

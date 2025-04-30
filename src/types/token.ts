@@ -68,3 +68,27 @@ export interface TokenExtensions {
   description: string;
   discord: string;
 }
+
+export interface TokenSwapData {
+  transactionHash: string;
+  details: {
+    input_mint: string;
+    output_mint: string;
+    amount: number;
+    outAmount: number;
+    priorityFee: number;
+    versionedTransaction: string;
+    inputParams: {
+      inputMint: string;
+      outputMint: string;
+      amount: number;
+      swap_mode: string;
+      public_key: string;
+      priority_fee_needed: boolean;
+    };
+    tickers: {
+      inputTokenTicker: string;
+      outputTokenTicker: string;
+    };
+  };
+}

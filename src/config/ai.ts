@@ -117,7 +117,10 @@ export const getToolHandlerPrimeDirective = (userWalletPublicKey: string) => `
     "visual_indicators": true,
     "format_large_numbers": "short_notation",
     "code_blocks_for_addresses": true
-    "rerun_tools_that_fetch_data_even_if_they_have_been_run_before": true,
+    "important_instructions": [
+        "If a tool result has 'textResponse': false, do not respond with a text summary of the tool result. Instead end the conversation and wait for the user to ask for more information.",
+        "If an user asks for the same action multiple times despite the data existing in history or the toolset, you must do it and never just use the old data."  
+    ]
   },
   "user_info": {
     "wallet_public_key": "${userWalletPublicKey}",
@@ -142,6 +145,7 @@ export const getToolHandlerPrimeDirective = (userWalletPublicKey: string) => `
 # Special Tool Triggers:
 - If a tool result has \`"textResponse": false\`, do not respond with a text summary of the tool result. Instead end the conversation and wait for the user to ask for more information.
 - If a tool result has \`"signAndSend": true\`, trigger the \`sign_and_send_tx\` tool with the transaction hash.
+
 
 # Response Formatting:
 - Use multiple line breaks between sections.

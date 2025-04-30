@@ -3,7 +3,6 @@ import { createGetTokenDataTool } from './getTokenData';
 import { createLimitOrderTool } from './limitOrder';
 import { createGetLimitOrderTool } from './getLimitOrder';
 import { createBubblemapTool } from './bubblemaps';
-import { createTokenAddressTool } from './tokenAddress';
 import { createTopHoldersTool } from './topHolders';
 
 export const tokenToolSet: ToolSetDescription = {
@@ -21,7 +20,6 @@ export const getTokenToolSet = (context: ToolContext): ToolSet => {
       createLimitOrderTool: createLimitOrderTool(context),
       getLimitOrderTool: createGetLimitOrderTool(context),
       bubblemapTool: createBubblemapTool(context),
-      tokenAddressTool: createTokenAddressTool(context),
       topHoldersTool: createTopHoldersTool(context),
     },
   };

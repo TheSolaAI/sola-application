@@ -192,7 +192,6 @@ export const UserSettings = forwardRef<UserSettingsRef>((_, ref) => {
           onChange={(e) => setName(e.target.value)}
           onBlur={() => {
             // save the name on blur
-            console.log('Name saved:', name);
             handleSubmit();
           }}
         />

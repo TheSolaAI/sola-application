@@ -44,7 +44,6 @@ export const createGetTokenDataTool = (context: ToolContext) => {
         );
         // Check if response is valid
         if (ApiClient.isApiResponse<TokenDataResponse>(response)) {
-          console.log('Returning token data');
           return {
             success: true,
             data: response.data,

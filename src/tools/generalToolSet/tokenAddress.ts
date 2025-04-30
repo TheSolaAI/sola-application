@@ -14,7 +14,7 @@ export function createTokenAddressTool(context: ToolContext) {
   const tokenAddressTool: Tool<typeof Parameters, ToolResult> = {
     id: 'token.tokenAddress' as const,
     description:
-      'Get the token address for a given token symbol or name on the Solana blockchain. This tool is useful when you need a token address but the user only provided a token symbol or name.',
+      'Get the token address for a given token symbol or token name on the Solana blockchain. This tool is useful when you need a token address but the user only provided a token symbol or name. Do not use this tool for wallet addresses.',
     parameters: Parameters,
     execute: async (params) => {
       try {
@@ -37,8 +37,6 @@ export function createTokenAddressTool(context: ToolContext) {
 
         // Clean up the token symbol
         const tokenSymbol = params.token_symbol.trim();
-
-        console.log('Token symbol:', tokenSymbol);
 
         // Add $ prefix if not already present (for the API)
         const apiSymbol = tokenSymbol.startsWith('$')
@@ -65,8 +63,6 @@ export function createTokenAddressTool(context: ToolContext) {
 
           if (response.ok) {
             const data = await response.json();
-
-            console.log('Token address found:', data.token_address, data);
             return {
               success: true,
               data: {

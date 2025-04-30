@@ -17,8 +17,8 @@ import {
   Legend,
 } from 'recharts';
 import { TokenAsset } from '@/types/wallet';
-import useThemeManager from '@/store/ThemeManager';
 import { formatNumber } from '@/utils/formatNumber';
+import Image from 'next/image';
 
 const COLORS = [
   '#0088FE',
@@ -41,7 +41,6 @@ const WalletCoinAssets = () => {
     startMonitoring,
     currentWallet,
   } = useWalletHandler();
-  const { theme } = useThemeManager();
 
   /**
    * Local state
@@ -121,8 +120,8 @@ const WalletCoinAssets = () => {
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-baseBackground p-2 rounded-lg border border-gray-300">
-          <p className="font-semibold">{`${payload[0].name}`}</p>
+        <div className="bg-sec_background p-3 rounded-lg border border-border shadow-lg">
+          <p className="font-semibold text-textColor">{`${payload[0].name}`}</p>
           <p className="text-secText">{`${formatNumber(payload[0].value)} USDC`}</p>
         </div>
       );
@@ -132,161 +131,192 @@ const WalletCoinAssets = () => {
 
   // Custom Legend formatter
   const renderColorfulLegendText = (value: string) => {
-    return <span className="text-textColor">{value}</span>;
+    return <span className="text-textColor font-medium">{value}</span>;
   };
 
   return (
-    <div className="text-textColor flex flex-col">
+    <div className="flex flex-col gap-y-4 w-full transition-opacity duration-500">
       {walletAssets.tokens.length === 0 ? (
-        <p>No tokens found.</p>
+        <div className="overflow-hidden rounded-xl bg-sec_background border border-border shadow-lg p-6 text-center">
+          <p className="text-textColor font-medium">No tokens found.</p>
+        </div>
       ) : (
-        <div className={'flex flex-col gap-y-2'}>
-          {/* Main Content Start*/}
-          {/* Chart Section Start*/}
-          <div className="bg-background rounded-xl">
-            <ResponsiveContainer width="100%" height={450}>
-              <PieChart>
-                <Pie
-                  data={chartData}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  outerRadius={160}
-                  innerRadius={115}
-                  dataKey="value"
-                >
-                  {chartData.map((entry, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={COLORS[index % COLORS.length]}
-                    />
-                  ))}
-                </Pie>
-                <Tooltip content={<CustomTooltip />} />
-                <Legend
-                  formatter={renderColorfulLegendText}
-                  layout="horizontal"
-                  verticalAlign="bottom"
-                  align="center"
-                />
-              </PieChart>
-            </ResponsiveContainer>
-
-            {/* Total Balance Section Below Chart */}
-            <div className="flex flex-col items-center justify-center py-4">
-              <h2 className="text-textColor font-bold text-lg">
-                Total Balance
+        <div className="flex flex-col gap-y-4">
+          {/* Chart Section */}
+          <div className="overflow-hidden rounded-xl bg-sec_background border border-border shadow-lg w-full">
+            <div className="px-4 py-3 border-b border-border">
+              <h2 className="text-lg font-semibold text-textColor">
+                Portfolio Distribution
               </h2>
-              <p className="text-textColor font-bold text-2xl">
-                {formatNumber(walletAssets.totalBalance ?? 0.0)} USDC
-              </p>
-            </div>
-          </div>
-          {/* Chart Section End*/}
-          {/* Status Bar Section Start*/}
-          <div
-            className={
-              'bg-background rounded-xl flex flex-row p-2 justify-between items-center'
-            }
-          >
-            <div
-              className={
-                'bg-baseBackground rounded-xl flex flex-row items-center p-2 justify-center'
-              }
-            >
-              <h1 className="text-textColor font-semibold text-lg">Status:</h1>
-              <div
-                className={`rounded-full w-4 h-4 ml-2 ${
-                  status === 'listening'
-                    ? 'bg-green-500'
-                    : status === 'paused'
-                      ? 'bg-yellow-500'
-                      : status === 'updating'
-                        ? 'bg-blue-500'
-                        : status === 'error'
-                          ? 'bg-red-500'
-                          : 'bg-gray-500'
-                }`}
-              />
-              <p
-                className={`font-medium ml-1 ${
-                  status === 'listening'
-                    ? 'text-green-500'
-                    : status === 'paused'
-                      ? 'text-yellow-500'
-                      : status === 'updating'
-                        ? 'text-blue-500'
-                        : status === 'error'
-                          ? 'text-red-500'
-                          : 'text-gray-500'
-                }`}
-              >
-                {titleCase(status)}
-              </p>
-              {status === 'listening' || status === 'updating' ? (
-                <button className={'ml-3'} onClick={() => stopMonitoring()}>
-                  <LuPause className={'w-6 h-6 text-secText '} />
-                </button>
-              ) : status === 'paused' ? (
-                <button
-                  className={'ml-3'}
-                  onClick={() => {
-                    startMonitoring(currentWallet?.address!, false);
-                  }}
-                >
-                  <LuPlay className={'w-6 h-6 text-secText '} />
-                </button>
-              ) : null}
             </div>
 
-            <button
-              className={
-                'bg-baseBackground rounded-xl flex flex-row justify-between items-center p-2 gap-x-2 px-4'
-              }
-              ref={coinSortRef}
-              onClick={() => setCoinSortOpen(true)}
-            >
-              <h1 className={'text-secText font-medium text-lg'}>Sort</h1>
-              <LuArrowUpDown className={'w-6 h-6 text-secText'} />
-            </button>
+            <div className="p-4">
+              <ResponsiveContainer width="100%" height={450}>
+                <PieChart>
+                  <Pie
+                    data={chartData}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    outerRadius={160}
+                    innerRadius={115}
+                    dataKey="value"
+                  >
+                    {chartData.map((entry, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={COLORS[index % COLORS.length]}
+                      />
+                    ))}
+                  </Pie>
+                  <Tooltip content={<CustomTooltip />} />
+                  <Legend
+                    formatter={renderColorfulLegendText}
+                    layout="horizontal"
+                    verticalAlign="bottom"
+                    align="center"
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+
+            {/* Total Balance Section */}
+            <div className="px-4 py-3 bg-surface/20 border-t border-border">
+              <div className="flex flex-col items-center justify-center">
+                <label className="text-xs uppercase tracking-wider text-secText mb-1 block">
+                  Total Balance
+                </label>
+                <p className="text-textColor font-bold text-2xl">
+                  {formatNumber(walletAssets.totalBalance ?? 0.0)} USDC
+                </p>
+              </div>
+            </div>
           </div>
-          {/*Status Bar Section End*/}
+
+          {/* Status & Sort Controls */}
+          <div className="overflow-hidden rounded-xl bg-sec_background border border-border shadow-lg w-full">
+            <div className="px-4 py-3 border-b border-border flex justify-between items-center">
+              <h2 className="text-lg font-semibold text-textColor">Assets</h2>
+
+              <div className="flex items-center gap-x-2">
+                <div className="flex items-center bg-surface/30 px-3 py-1 rounded-lg">
+                  <span className="text-xs uppercase tracking-wider text-secText mr-2">
+                    Status:
+                  </span>
+                  <div
+                    className={`rounded-full w-3 h-3 mr-1 ${
+                      status === 'listening'
+                        ? 'bg-green-500'
+                        : status === 'paused'
+                          ? 'bg-yellow-500'
+                          : status === 'updating'
+                            ? 'bg-blue-500'
+                            : status === 'error'
+                              ? 'bg-red-500'
+                              : 'bg-gray-500'
+                    }`}
+                  />
+                  <span
+                    className={`font-medium text-sm ${
+                      status === 'listening'
+                        ? 'text-green-500'
+                        : status === 'paused'
+                          ? 'text-yellow-500'
+                          : status === 'updating'
+                            ? 'text-blue-500'
+                            : status === 'error'
+                              ? 'text-red-500'
+                              : 'text-gray-500'
+                    }`}
+                  >
+                    {titleCase(status)}
+                  </span>
+                </div>
+
+                {status === 'listening' || status === 'updating' ? (
+                  <button
+                    className="p-1 rounded-full hover:bg-surface/50 transition-colors"
+                    onClick={() => stopMonitoring()}
+                  >
+                    <LuPause className="w-5 h-5 text-secText" />
+                  </button>
+                ) : status === 'paused' ? (
+                  <button
+                    className="p-1 rounded-full hover:bg-surface/50 transition-colors"
+                    onClick={() => {
+                      startMonitoring(currentWallet?.address || '', false);
+                    }}
+                  >
+                    <LuPlay className="w-5 h-5 text-secText" />
+                  </button>
+                ) : null}
+
+                <button
+                  className="bg-surface/30 px-3 py-1 rounded-lg flex items-center gap-x-2 hover:bg-surface/50 transition-colors"
+                  ref={coinSortRef}
+                  onClick={() => setCoinSortOpen(true)}
+                >
+                  <span className="text-xs uppercase tracking-wider text-secText">
+                    Sort
+                  </span>
+                  <LuArrowUpDown className="w-4 h-4 text-secText" />
+                </button>
+              </div>
+            </div>
+
+            <div className="p-4">
+              <div className="flex flex-col gap-3">
+                {tokens.map((token, index) => (
+                  <div
+                    key={index}
+                    className={`bg-surface/30 rounded-lg p-3 flex items-center ${
+                      token.symbol === 'SOL'
+                        ? 'border-l-4 border-primaryDark'
+                        : ''
+                    }`}
+                  >
+                    {token.imageLink && (
+                      <div className="mr-3">
+                        <img
+                          src={token.imageLink}
+                          alt={token.symbol}
+                          className="w-10 h-10 rounded-lg"
+                        />
+                      </div>
+                    )}
+
+                    <div className="flex-1">
+                      <div className="flex flex-col">
+                        <h3 className="text-textColor font-medium">
+                          {token.name}{' '}
+                          <span className="text-secText">({token.symbol})</span>
+                        </h3>
+                        <span className="text-secText text-sm">
+                          ${formatNumber(token.pricePerToken)} USD
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="text-right">
+                      <div className="text-textColor font-medium">
+                        {formatNumber(token.totalPrice)} USDC
+                      </div>
+                      <div className="text-secText text-sm">
+                        {formatNumber(token.balance)} {token.symbol}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
           <CoinsSortDropDown
             isOpen={coinSortOpen}
             onClose={() => setCoinSortOpen(false)}
             anchorEl={coinSortRef.current!}
             onSortChange={updateSorting}
           />
-          <div className="flex flex-col gap-2">
-            {tokens.map((token, index) => (
-              <div
-                key={index}
-                className={`bg-background rounded-xl w-full flex flex-row items-center p-3 gap-2 ${token.symbol === 'SOL' ? 'border-primaryDark border-[1px]' : ''}`}
-              >
-                <img
-                  src={token.imageLink}
-                  alt="token"
-                  className="w-8 h-8 rounded-xl"
-                />
-                <div className="flex flex-col items-start flex-1">
-                  <h1 className="text-textColor font-semibold text-lg">
-                    {token.name}({token.symbol})
-                  </h1>
-                  <h1 className="text-secText font-regular text-s">
-                    ${formatNumber(token.pricePerToken)} USD
-                  </h1>
-                </div>
-                <div className={'flex flex-col items-end'}>
-                  <h1 className="text-lg text-textColor font-medium">
-                    {formatNumber(token.totalPrice)} USDC
-                  </h1>
-                  <h1 className="text-secText font-regular text-s">
-                    {formatNumber(token.balance)} {token.symbol}
-                  </h1>
-                </div>
-              </div>
-            ))}
-          </div>
         </div>
       )}
     </div>

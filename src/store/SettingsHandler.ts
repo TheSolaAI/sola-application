@@ -40,7 +40,6 @@ export const useSettingsHandler = create<SettingsHandler>(() => {
           ? response.data.custom_themes
           : [];
         useThemeManager.getState().populateCustomThemes(customThemes);
-        console.log(response.data.theme);
         useThemeManager
           .getState()
           .setTheme(
