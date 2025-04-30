@@ -1,5 +1,6 @@
 'use client';
 
+import { useLayoutContext } from '@/providers/LayoutProvider';
 import { FC, ReactNode, useState, useRef, useEffect } from 'react';
 
 interface BaseExpandableMessageItemProps {
@@ -9,7 +10,6 @@ interface BaseExpandableMessageItemProps {
   expandedContent: ReactNode;
   footer?: ReactNode;
   initialExpanded?: boolean;
-  maxWidth?: string;
 }
 
 export const BaseExpandableMessageItem: FC<BaseExpandableMessageItemProps> = ({
@@ -19,7 +19,6 @@ export const BaseExpandableMessageItem: FC<BaseExpandableMessageItemProps> = ({
   expandedContent,
   footer,
   initialExpanded = false,
-  maxWidth = 'md:max-w-[30%]',
 }) => {
   const [isExpanded, setIsExpanded] = useState(initialExpanded);
   const [contentHeight, setContentHeight] = useState<number>(0);
@@ -42,6 +41,10 @@ export const BaseExpandableMessageItem: FC<BaseExpandableMessageItemProps> = ({
       setIsAnimating(false);
     }, 300); // Match this with the CSS transition duration
   };
+
+  const { dashboardOpen } = useLayoutContext();
+
+  const maxWidth = dashboardOpen ? 'max-w-[100%]' : 'max-w-[40%]';
 
   const containerClasses = isExpanded
     ? 'flex my-1 justify-start max-w-[100%] md:max-w-[80%] transition-all duration-300 ease-in-out'
@@ -75,7 +78,7 @@ export const BaseExpandableMessageItem: FC<BaseExpandableMessageItemProps> = ({
         className="w-full overflow-hidden rounded-xl bg-sec_background border border-border shadow-lg cursor-pointer hover:border-primary/30 transition-all duration-300 ease-in-out"
         onClick={toggleExpand}
         style={{
-          maxHeight: isExpanded ? `${contentHeight}px` : '80px',
+          maxHeight: isExpanded ? `${contentHeight}px` : '100px',
           opacity: isAnimating ? (isExpanded ? 1 : 0.9) : 1,
           transform: isAnimating
             ? isExpanded

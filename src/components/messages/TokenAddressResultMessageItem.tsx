@@ -32,7 +32,6 @@ export const TokenAddressResultMessageItem: FC<
       <div className="hidden sm:block text-xs text-secText font-mono truncate max-w-[150px]">
         {props.tokenAddress}
       </div>
-      <LuChevronDown className="text-secText" size={16} />
     </div>
   );
 
