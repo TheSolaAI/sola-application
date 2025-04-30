@@ -35,7 +35,6 @@ interface NFTCollectionChatItemProps {
 export const NFTCollectionMessageItem: FC<NFTCollectionChatItemProps> = ({
   props,
 }) => {
-  console.log('NFTCollectionChatItem', props);
   return (
     <BaseGridChatItem col={2}>
       <div

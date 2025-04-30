@@ -15,6 +15,7 @@ import { generateId } from 'ai';
 import { SwapTokenMessageItem } from '@/components/messages/SwapMessageItem';
 import { SignedTransactionsMessageItem } from '@/components/messages/SignedTransactionsMessageItem';
 import { SNSResolverMessageItem } from '@/components/messages/SNSResolverMessageItem';
+import { TransferTokenMessageItem } from '@/components/messages/TransferTokenMessageItem';
 
 export function renderMessageContent(message: UIMessage) {
   const role = message.role;
@@ -91,6 +92,10 @@ export function renderToolResult(
       return <SNSResolverMessageItem props={args.data} />;
     case 'sign_and_send_tx':
       return <SignedTransactionsMessageItem props={args.data} />;
+    case 'transferSol':
+      return <TransferTokenMessageItem props={args.data} />;
+    case 'transferSpl':
+      return <TransferTokenMessageItem props={args.data} />;
     default:
       return <SimpleMessageChatItem text={JSON.stringify(args.data)} />;
   }

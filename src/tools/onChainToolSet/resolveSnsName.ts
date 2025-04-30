@@ -43,7 +43,6 @@ export function createResolveSnsNameTool(context: ToolContext) {
         if (!response.ok) {
           throw new Error(data.error || 'Failed to resolve domain');
         }
-        console.log('Resolved SNS domain:', data);
         const ownerAddress = data.address;
 
         return {

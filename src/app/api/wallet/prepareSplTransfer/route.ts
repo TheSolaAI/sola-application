@@ -37,8 +37,6 @@ export async function POST(req: Request) {
     const rpc =
       process.env.SOLANA_RPC_URL || 'https://api.mainnet-beta.solana.com';
 
-    console.log('Using RPC URL:', rpc);
-
     // Create connection with better options
     const connection = new Connection(rpc, {
       commitment: 'confirmed',

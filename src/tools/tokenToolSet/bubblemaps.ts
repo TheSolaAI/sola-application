@@ -17,7 +17,6 @@ export function createBubblemapTool(context: ToolContext) {
       'Create a Bubblemap visualization for a specific token on the Solana blockchain. Bubblemaps show token ownership distribution, helping identify whale accounts, token concentration, and potential wash trading patterns.',
     parameters: Parameters,
     execute: async (params) => {
-      console.log('Bubblemap tool executed with params:', params);
       try {
         // Validate token address
         if (!params.token_address || params.token_address.trim().length < 32) {

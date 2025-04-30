@@ -101,9 +101,6 @@ export function createWithdrawLuloTool(context: ToolContext) {
             amount,
           });
         }
-
-        console.log(txResults);
-
         return {
           success: true,
           transaction: txResults,

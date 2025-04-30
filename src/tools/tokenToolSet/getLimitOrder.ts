@@ -11,8 +11,6 @@ export function createGetLimitOrderTool(context: ToolContext) {
     description: 'Get the active limit orders of the user.',
     parameters: Parameters,
     execute: async (_params) => {
-      console.log('getLimitOrderTool', context);
-
       if (!context.publicKey) {
         return {
           success: false,
@@ -39,8 +37,6 @@ export function createGetLimitOrderTool(context: ToolContext) {
             },
           }
         );
-
-        console.log('getLimitOrderTool response', res);
 
         if (!res.ok) {
           const errText = await res.json();

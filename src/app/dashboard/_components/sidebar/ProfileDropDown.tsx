@@ -55,7 +55,6 @@ export const ProfileDropDown: FC<ProfileDropDownProps> = ({
 
     // 2. Stop all tracks in the media stream
     if (mediaStream) {
-      console.log('Stopping media stream tracks...');
       mediaStream.getTracks().forEach((track) => {
         track.stop();
       });
@@ -64,7 +63,6 @@ export const ProfileDropDown: FC<ProfileDropDownProps> = ({
 
     // 3. Close the peer connection
     if (peerConnection) {
-      console.log('Closing peer connection...');
       peerConnection.close();
       setPeerConnection(null);
     }

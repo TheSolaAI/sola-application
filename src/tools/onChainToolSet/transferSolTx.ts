@@ -46,8 +46,6 @@ export function createTransferSolTool(context: ToolContext) {
       try {
         // Convert SOL to lamports (1 SOL = 1,000,000,000 lamports)
         const lamports = quantity * 1_000_000_000;
-        console.log(lamports, quantity);
-
         // Create transaction
         const transaction = new Transaction().add(
           SystemProgram.transfer({
@@ -93,9 +91,6 @@ export function createTransferSolTool(context: ToolContext) {
               lamports: lamports,
               transactionObject: transaction,
             },
-            response_id: 'temp',
-            sender: 'system',
-            timestamp: new Date().toISOString(),
           },
           error: undefined,
           signAndSend: true,

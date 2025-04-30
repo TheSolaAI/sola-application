@@ -21,7 +21,6 @@ export const TokenDataDashboard: FC<TokenDataDashboardProps> = ({
 
   useEffect(() => {
     setDashboardTitle('Token Data');
-    console.log('Token Data:', tokenData);
   });
 
   return (

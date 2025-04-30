@@ -12,6 +12,7 @@ const baseUrl =
 const Parameters = z.object({
   amount: z.number().describe('Amount of the token to send.'),
   token: z.string().describe('The token that the user wants to send.'),
+  tokenTicker: z.string().describe('The token ticker.'),
   address: z.string().describe('Recipient wallet address or .sol domain.'),
 });
 
@@ -89,7 +90,6 @@ export function createTransferSplTool(context: ToolContext) {
           return {
             success: true,
             data: {
-              type: 'transfer_spl',
               transaction: responseData.serializedTransaction,
               details: {
                 senderAddress: context.publicKey,
@@ -98,11 +98,8 @@ export function createTransferSplTool(context: ToolContext) {
                 amount,
                 transaction,
                 params: transferParams,
-                tokenDetails: responseData.tokenDetails,
+                tokenTicker: params.tokenTicker,
               },
-              response_id: 'temp',
-              sender: 'system',
-              timestamp: new Date().toISOString(),
             },
             error: undefined,
             signAndSend: true,
