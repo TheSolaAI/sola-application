@@ -81,23 +81,6 @@ export default function OnboardingHeader({
             </motion.a>
           ))}
         </motion.div>
-
-        <motion.div
-          initial={{ x: 20, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.4 }}
-          className="hidden lg:flex lg:flex-1 lg:justify-end"
-        >
-          <motion.button
-            onClick={() => login()}
-            disabled={disabled}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="text-sm/6 font-semibold text-gray-300 hover:text-white transition-colors duration-200"
-          >
-            Log in <span aria-hidden="true">&rarr;</span>
-          </motion.button>
-        </motion.div>
       </nav>
 
       {/* Mobile menu dialog with transitions */}
