@@ -1,3 +1,4 @@
+'use client';
 import { FC } from 'react';
 import { Dropdown } from '@/components/common/DropDown';
 
@@ -28,23 +29,25 @@ export const PaginationCountDropDown: FC<PaginationCountDropdownProps> = ({
       direction="down"
       width="auto"
     >
-      <div className="w-full">
-        {PAGINATION_OPTIONS.map((count) => (
-          <button
-            key={count}
-            className={`w-full hover:bg-surface flex-row flex items-center justify-between p-3 rounded-xl ${
-              currentCount === count ? 'bg-primary/20' : ''
-            }`}
-            onClick={() => {
-              onCountChange(count);
-              onClose();
-            }}
-          >
-            <h1 className="text-textColor font-medium text-md">
-              {count} Items per Page
-            </h1>
-          </button>
-        ))}
+      <div className="w-full p-2">
+        <div className="flex flex-col gap-2">
+          {PAGINATION_OPTIONS.map((count) => (
+            <button
+              key={count}
+              className={`w-full flex items-center justify-between px-3 py-2 rounded-lg transition-colors ${
+                currentCount === count
+                  ? 'bg-primaryDark text-white font-medium'
+                  : 'bg-surface/30 text-textColor hover:bg-surface/50'
+              }`}
+              onClick={() => {
+                onCountChange(count);
+                onClose();
+              }}
+            >
+              <span className="font-medium">{count} items</span>
+            </button>
+          ))}
+        </div>
       </div>
     </Dropdown>
   );

@@ -2,16 +2,16 @@
   "light": {
     "baseTheme": "light",
     "baseBackground": "#FFFFFF",
-    "background": "#EDEDED",
-    "backgroundContrast": "#1b1b1b",
-    "sec_background": "#f2f2f3",
-    "surface": "#f2f2f3",
-    "textColor": "#0c0d0d",
+    "background": "#F5F5F5",
+    "backgroundContrast": "#0A0A0A",
+    "sec_background": "#EDEDED",
+    "surface": "#E0E0E0",
+    "textColor": "#1E1E1E",
     "textColorContrast": "#FFFFFF",
-    "secText": "#252627",
-    "border": "#bdbfc1",
-    "primary": "#c5b3fe",
-    "primaryDark": "#9f81fe",
+    "secText": "#696969",
+    "border": "#BDBDBD",
+    "primary": "#9278b2",
+    "primaryDark": "#7C3AED",
     "dashboardBackground": "#000000"
   },
   "dark": {
@@ -27,6 +27,22 @@
     "border": "#484848",
     "primary": "#9278b2",
     "primaryDark": "#7C3AED",
+    "dashboardBackground": "#FFFFFF"
+  },
+
+  "minimal-dark": {
+    "baseTheme": "dark",
+    "baseBackground": "#000000",
+    "background": "#0A0A0A",
+    "backgroundContrast": "#FAFAFA",
+    "sec_background": "#141414",
+    "surface": "#1E1E1E",
+    "textColor": "#F5F5F5",
+    "textColorContrast": "#000000",
+    "secText": "#A8A8A8",
+    "border": "#333333",
+    "primary": "#8C9EFF",
+    "primaryDark": "#536DFE",
     "dashboardBackground": "#FFFFFF"
   },
   "softPastel": {

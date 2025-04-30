@@ -1,10 +1,11 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useWalletHandler } from '@/store/WalletHandler';
 import { titleCase } from '@/utils/titleCase';
 import { WalletPicker } from '@/app/dashboard/_components/wallet/WalletPicker';
 import { FiCopy } from 'react-icons/fi';
 import { LuChevronDown, LuX } from 'react-icons/lu';
+import { FaAngleDoubleRight } from 'react-icons/fa';
 import { toast } from 'sonner';
 import { AnimatePresence, motion } from 'framer-motion';
 import WalletCoinAssets from '@/app/dashboard/_components/wallet/WalletCoinAssets';
@@ -22,6 +23,7 @@ interface WalletLensSidebarProps {
 
 export const WalletLensSideBar: React.FC<WalletLensSidebarProps> = ({
   visible,
+  setVisible,
 }) => {
   /**
    * Global State
@@ -33,137 +35,195 @@ export const WalletLensSideBar: React.FC<WalletLensSidebarProps> = ({
   /**
    * Refs
    */
-  const walletPickerRef = React.useRef<HTMLDivElement>(null);
+  const walletPickerRef = useRef<HTMLDivElement>(null);
+  const sidebarRef = useRef<HTMLDivElement>(null);
 
   /**
    * Local State
    */
   const [walletPickerOpen, setWalletPickerOpen] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
+  const [hoverCloseButton, setHoverCloseButton] = useState(false);
+  const [showExpandedElements, setShowExpandedElements] = useState(visible);
   const tabs = ['Tokens', 'NFTs', 'Transactions'];
   const isMobile = useIsMobile();
 
+  // Transition controls - similar to Sidebar
+  useEffect(() => {
+    if (visible) {
+      setShowExpandedElements(true);
+    } else {
+      const timer = setTimeout(() => {
+        setShowExpandedElements(false);
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [visible]);
+
+  /**
+   * Close the panel when clicking outside
+   */
+  const handleClickOutside = (e: MouseEvent) => {
+    if (sidebarRef.current && !sidebarRef.current.contains(e.target as Node)) {
+      setWalletPickerOpen(false);
+      if (isMobile) {
+        handleWalletLensOpen(false);
+      }
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
   return (
     <div
-      className={`h-full bg-sec_background sm:rounded-2xl transition-all duration-500 overflow-y-auto flex
-      ${visible ? 'opacity-100 sm:ml-2 w-[35rem] p-2' : 'w-0 opacity-100'}
-      ${isMobile && visible && 'min-w-[100%]'}
-    `}
+      ref={sidebarRef}
+      className={`h-full transition-all duration-300 ease-in-out overflow-y-auto border-l-[1px] border-border
+        ${visible ? 'opacity-100 w-125' : 'w-0 opacity-0'}
+        ${isMobile && visible && 'fixed right-0 top-0 bottom-0 w-full z-40'}
+        ${!isMobile ? 'rounded-r-2xl' : ''}
+        bg-sec_background
+      `}
     >
-      <div className={`w-full ${!visible && 'hidden'}`}>
-        {/* Header - Container */}
-        <div className={'flex flex-row mt-2 gap-x-2 w-full'}>
-          {/* Close Button that is only shown on Mobile*/}
-          <div className="flex justify-center items-center sm:hidden bg-baseBackground p-2 rounded-2xl border-border border-2">
-            <button
-              onClick={() => {
-                handleWalletLensOpen(false);
-              }}
-              className="p-1 sm:p-2"
-            >
-              <LuX className=" w-4 h-4 sm:w-8 sm:h-8 text-secText" />
-            </button>
-          </div>
-          {/* End Close Button*/}
-          {/* Wallet Info and wallet changer */}
-          <div
-            className="bg-baseBackground flex flex-row items-center justify-center rounded-2xl gap-x-2  p-3 w-full"
-            ref={walletPickerRef}
-          >
-            <button onClick={(e) => e.stopPropagation()}>
-              {currentWallet?.meta.icon ? (
-                <Image
-                  src={currentWallet.meta.icon}
-                  alt="wallet logo"
-                  className="bg-white p-2 rounded-xl"
-                  height={36}
-                  width={36}
-                  onClick={(e) => {
-                    e.stopPropagation(); // Stop event from selecting the wallet
-                    window.open(
-                      `https://solscan.io/account/${currentWallet.address}`,
-                      '_blank'
-                    );
-                  }}
-                />
-              ) : (
-                <Image
-                  src="/default_wallet.svg"
-                  alt="wallet logo"
-                  width={36}
-                  height={36}
-                  className="rounded-xl"
-                />
-              )}
-            </button>
-            <div className="flex flex-col items-start flex-1 min-w-0">
-              <div className="flex items-center gap-x-2">
-                <h1 className="text-sm text-textColor font-semibold sm:text-xl">
-                  {titleCase(currentWallet?.meta.name)}
-                </h1>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    navigator.clipboard.writeText(currentWallet?.address || '');
-                    toast.success('Copied to clipboard');
-                  }}
-                  className="text-secText hover:text-textColor transition-all flex-shrink-0"
-                >
-                  <FiCopy size={16} />
-                </button>
-              </div>
+      {/* Collapsed state - Close button for non-mobile */}
+      {!isMobile && (
+        <button
+          onClick={() => handleWalletLensOpen(false)}
+          className={`absolute right-4 top-6 z-10 text-textColor hover:text-primaryDark transition-colors p-1 rounded-md hover:bg-background active:bg-primary/20 ${
+            visible ? 'opacity-100' : 'opacity-0 pointer-events-none'
+          }`}
+        >
+          <FaAngleDoubleRight size={20} />
+        </button>
+      )}
 
-              <h1 className="text-secText font-regular text-xs overflow-hidden whitespace-nowrap truncate min-w-0 w-full hidden sm:block">
-                {currentWallet?.address}
+      <div className={`w-full h-full p-3 pt-6 ${!visible && 'hidden'}`}>
+        {/* Header Section */}
+        <div className="flex items-center justify-between h-10 mb-4">
+          <h1 className="text-2xl font-bold text-textColor whitespace-nowrap">
+            Wallet Lens
+          </h1>
+
+          {/* Mobile Close Button */}
+          {isMobile && (
+            <button
+              onClick={() => handleWalletLensOpen(false)}
+              onMouseEnter={() => setHoverCloseButton(true)}
+              onMouseLeave={() => setHoverCloseButton(false)}
+              className={`p-2 rounded-md transition-all duration-200 ${
+                hoverCloseButton ? 'bg-primary' : 'hover:bg-background'
+              } active:scale-95`}
+            >
+              <LuX size={24} className="text-textColor" />
+            </button>
+          )}
+        </div>
+
+        {/* Wallet Picker Section */}
+        <div
+          className="bg-baseBackground flex flex-row items-center justify-center rounded-xl gap-x-2 p-3 w-full mb-6 border-border border-[1px]"
+          ref={walletPickerRef}
+        >
+          <button onClick={(e) => e.stopPropagation()}>
+            {currentWallet?.meta.icon ? (
+              <Image
+                src={currentWallet.meta.icon}
+                alt="wallet logo"
+                className="bg-white p-2 rounded-xl"
+                height={36}
+                width={36}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  window.open(
+                    `https://solscan.io/account/${currentWallet.address}`,
+                    '_blank'
+                  );
+                }}
+              />
+            ) : (
+              <Image
+                src="/default_wallet.svg"
+                alt="wallet logo"
+                width={36}
+                height={36}
+                className="rounded-xl"
+              />
+            )}
+          </button>
+          <div className="flex flex-col items-start flex-1 min-w-0">
+            <div className="flex items-center gap-x-2">
+              <h1 className="text-sm text-textColor font-semibold sm:text-xl">
+                {titleCase(currentWallet?.meta.name)}
               </h1>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigator.clipboard.writeText(currentWallet?.address || '');
+                  toast.success('Copied to clipboard');
+                }}
+                className="text-secText hover:text-textColor transition-all flex-shrink-0"
+              >
+                <FiCopy size={16} />
+              </button>
             </div>
 
-            {/* Ensure Dropdown Button Doesn't Get Pushed Out */}
-            <button
-              onClick={() => setWalletPickerOpen(!walletPickerOpen)}
-              className="flex-shrink-0"
-            >
-              <LuChevronDown className="w-8 h-8 text-secText" />
-            </button>
+            <h1 className="text-secText font-regular text-xs overflow-hidden whitespace-nowrap truncate min-w-0 w-full hidden sm:block">
+              {currentWallet?.address}
+            </h1>
           </div>
+
+          <button
+            onClick={() => setWalletPickerOpen(!walletPickerOpen)}
+            className="flex-shrink-0 p-1 rounded-md hover:bg-background active:bg-primary/20 transition-colors"
+          >
+            <LuChevronDown className="w-6 h-6 text-secText" />
+          </button>
         </div>
-        {/* End Wallet Picker */}
+
+        {/* Wallet Picker Dropdown */}
         <WalletPicker
           isOpen={walletPickerOpen}
           onClose={() => setWalletPickerOpen(false)}
           anchorEl={walletPickerRef.current!}
         />
-        {/* End Header */}
-        {/*   Tabbed Section*/}
+
+        {/* Tabbed Content Section */}
         <MaskedRevealLoader
           isLoading={status === 'initialLoad'}
           backgroundColor={theme.baseBackground}
         >
           {status === 'initialLoad' ? (
-            <div className={'flex-1 mt-5'} />
+            <div className="flex-1 mt-5" />
           ) : (
             <>
-              <div className="flex flex-col mt-3">
+              {/* Tab Navigation */}
+              <div className="flex flex-col">
                 <div className="flex relative z-10">
                   {tabs.map((tab, index) => (
                     <button
                       key={index}
                       onClick={() => setActiveTab(index)}
                       className={`
-                      px-4 py-2 rounded-t-lg font-medium transition-colors duration-200
-                      ${
-                        activeTab === index
-                          ? 'bg-baseBackground text-textColor'
-                          : 'bg-background text-secText hover:bg-surface'
-                      }
-                    `}
+                        px-4 py-2 rounded-t-lg font-medium transition-colors duration-200 border-border border-[1px] border-b-0
+                        ${
+                          activeTab === index
+                            ? 'bg-baseBackground text-textColor'
+                            : 'bg-background text-secText hover:bg-surface'
+                        }
+                      `}
                     >
                       {tab}
                     </button>
                   ))}
                 </div>
               </div>
-              <div className="bg-baseBackground p-2 pt-3 rounded-2xl rounded-tl-none flex-1 flex flex-col">
+
+              {/* Tab Content */}
+              <div className="bg-baseBackground p-2 pt-3 rounded-xl rounded-tl-none flex-1 flex flex-col border-border border-[1px]">
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={activeTab}
@@ -178,7 +238,9 @@ export const WalletLensSideBar: React.FC<WalletLensSidebarProps> = ({
                     ) : activeTab === 1 ? (
                       <WalletNFTAssets />
                     ) : (
-                      <p className={'text-textColor'}> Coming Soon</p>
+                      <div className="flex items-center justify-center p-4 h-full">
+                        <p className="text-textColor">Coming Soon</p>
+                      </div>
                     )}
                   </motion.div>
                 </AnimatePresence>

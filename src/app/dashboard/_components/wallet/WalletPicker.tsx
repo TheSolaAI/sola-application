@@ -4,7 +4,7 @@ import { Dropdown } from '@/components/common/DropDown';
 import { useWalletHandler } from '@/store/WalletHandler';
 import { titleCase } from '@/utils/titleCase';
 import { FiCopy } from 'react-icons/fi';
-import { LuLink } from 'react-icons/lu';
+import { LuLink, LuExternalLink } from 'react-icons/lu';
 import { toast } from 'sonner';
 import { ConnectedSolanaWallet, useConnectWallet } from '@privy-io/react-auth';
 import Image from 'next/image';
@@ -43,6 +43,7 @@ export const WalletPicker: FC<WalletPickerProps> = ({
   /** Function to copy the wallet address */
   const copyToClipboard = (address: string) => {
     navigator.clipboard.writeText(address);
+    toast.success('Address copied to clipboard');
   };
 
   return (
@@ -55,88 +56,108 @@ export const WalletPicker: FC<WalletPickerProps> = ({
       direction="down"
       width="component"
     >
-      <div className="flex gap-y-3 flex-col px-2 pb-2">
+      <div className="flex flex-col gap-y-3 p-4">
         {wallets.map((wallet) => (
           <div
             key={wallet.address}
-            className={`flex items-center justify-between w-full p-4 bg-surface rounded-xl gap-x-4 cursor-pointer ${
+            className={`overflow-hidden rounded-xl bg-sec_background border ${
               currentWallet?.address === wallet.address
-                ? 'border-[1.5px] border-primaryDark'
-                : ''
-            }`}
+                ? 'border-primaryDark'
+                : 'border-border'
+            } shadow-lg w-full cursor-pointer transition-opacity duration-500`}
             onClick={() => {
               onClose();
               setCurrentWallet(wallet);
             }}
           >
-            <button
-              className="focus:outline-none"
-              onClick={(e) => e.stopPropagation()}
-            >
-              {wallet.meta.icon ? (
-                <Image
-                  src={wallet.meta.icon}
-                  alt="wallet logo"
-                  className="bg-white p-2 rounded-xl"
-                  height={36}
-                  width={36}
+            {/* Header with wallet name and copy button */}
+            <div className="px-4 py-3 border-b border-border flex justify-between items-center">
+              <h2 className="text-lg font-semibold text-textColor flex items-center gap-2">
+                {titleCase(wallet?.meta.name)}
+              </h2>
+
+              <div className="flex items-center">
+                <button
                   onClick={(e) => {
-                    e.stopPropagation(); // Stop event from selecting the wallet
+                    e.stopPropagation();
+                    copyToClipboard(wallet.address);
+                  }}
+                  className="p-1 rounded-full hover:bg-surface/50 transition-colors"
+                  title="Copy to clipboard"
+                >
+                  <FiCopy className="text-secText" size={14} />
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
                     window.open(
                       `https://solscan.io/account/${wallet.address}`,
                       '_blank'
                     );
                   }}
-                />
-              ) : (
-                <Image
-                  src="/default_wallet.svg"
-                  alt="wallet logo"
-                  className="rounded-xl"
-                  width={40}
-                  height={40}
-                />
-              )}
-            </button>
-
-            {/* Wallet Info */}
-            <div className="flex flex-col items-start flex-1 min-w-0">
-              <div className="flex items-center gap-x-2">
-                <h1 className="text-textColor font-semibold text-xl">
-                  {titleCase(wallet?.meta.name)}
-                </h1>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    copyToClipboard(wallet.address);
-                    toast.success('Copied to clipboard');
-                  }}
-                  className="text-secText hover:text-textColor transition-all"
+                  className="p-1 ml-1 rounded-full hover:bg-surface/50 transition-colors"
+                  title="View on Solscan"
                 >
-                  <FiCopy size={16} />
+                  <LuExternalLink className="text-secText" size={14} />
                 </button>
               </div>
+            </div>
 
-              <h1 className="text-secText font-light text-xs overflow-hidden whitespace-nowrap truncate w-full text-start">
-                {wallet?.address}
-              </h1>
+            {/* Content */}
+            <div className="p-4">
+              <div className="flex items-center gap-4">
+                {wallet.meta.icon ? (
+                  <Image
+                    src={wallet.meta.icon}
+                    alt="wallet logo"
+                    className="bg-white p-2 rounded-xl"
+                    height={60}
+                    width={60}
+                  />
+                ) : (
+                  <Image
+                    src="/default_wallet.svg"
+                    alt="wallet logo"
+                    className="rounded-xl"
+                    width={60}
+                    height={60}
+                  />
+                )}
+
+                <div className="flex-1">
+                  <label className="text-xs uppercase tracking-wider text-secText mb-1 block">
+                    Address
+                  </label>
+                  <div className="bg-surface/30 px-3 py-1 rounded-lg text-sm font-mono text-textColor overflow-hidden overflow-ellipsis whitespace-nowrap">
+                    {wallet?.address}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         ))}
+
         {/* Link a new Wallet */}
-        <button
-          className={
-            'flex items-center justify-center w-full p-4 bg-surface rounded-xl gap-x-2 border-[2px] border-border'
-          }
-          onClick={() => {
-            connectWallet();
-          }}
-        >
-          <LuLink size={24} className="text-textColor text-md" />
-          <h1 className="text-textColor font-normal text-md">
-            Link Another Wallet
-          </h1>
-        </button>
+        <div className="overflow-hidden rounded-xl bg-sec_background border border-border shadow-lg w-full">
+          <div className="px-4 py-3 border-b border-border">
+            <h2 className="text-lg font-semibold text-textColor">
+              Link Wallet
+            </h2>
+          </div>
+          <div className="p-4">
+            <button
+              className="flex items-center justify-center w-full p-3 bg-surface/30 rounded-lg gap-x-2 hover:bg-surface/50 transition-colors"
+              onClick={() => {
+                connectWallet();
+              }}
+            >
+              <LuLink size={20} className="text-textColor" />
+              <span className="text-textColor font-medium">
+                Connect New Wallet
+              </span>
+            </button>
+          </div>
+        </div>
       </div>
     </Dropdown>
   );
