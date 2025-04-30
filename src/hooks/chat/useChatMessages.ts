@@ -8,6 +8,7 @@ import { useUserHandler } from '@/store/UserHandler';
 import { VersionedTransaction } from '@solana/web3.js';
 import { ToolResult } from '@/types/tool';
 import { TransactionResponse } from '@/types/response';
+import { storeToolResultMessage } from '@/lib/db/db';
 
 export function useChatMessages(
   roomId: string,
@@ -31,6 +32,17 @@ export function useChatMessages(
     async onToolCall({ toolCall }) {
       if (toolCall.toolName === 'sign_and_send_tx') {
         const result = await handleSignTransaction(toolCall.args);
+        // store this result in DB
+        await storeToolResultMessage(
+          {
+            toolName: toolCall.toolName,
+            toolCallId: toolCall.toolCallId,
+            args: toolCall.args,
+            result,
+          },
+          roomId,
+          useUserHandler.getState().authToken!
+        );
         return result;
       }
     },

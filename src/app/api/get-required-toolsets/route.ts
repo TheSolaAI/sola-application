@@ -71,8 +71,10 @@ export async function POST(req: Request) {
         { status: 401 }
       );
     }
-
-    if (await hasExceededUsageLimit(privyId)) {
+    if (
+      process.env.NODE_ENV === 'production' &&
+      (await hasExceededUsageLimit(privyId))
+    ) {
       return NextResponse.json(
         { error: 'Usage limit exceeded' },
         { status: 403 }

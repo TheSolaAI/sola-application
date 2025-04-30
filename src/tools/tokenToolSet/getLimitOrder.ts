@@ -48,7 +48,7 @@ export function createGetLimitOrderTool(context: ToolContext) {
         }
 
         const json: ShowLimitOrderResponse = await res.json();
-
+        console.log('json', json);
         return {
           success: true,
           error: undefined,
