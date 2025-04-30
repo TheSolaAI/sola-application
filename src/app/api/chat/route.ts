@@ -87,13 +87,6 @@ export async function POST(req: Request) {
         }
 
         steps.reverse().map(async (step) => {
-          if (step.text) {
-            try {
-              await storeTextMessage(step.text, currentRoomID, accessToken);
-            } catch (error) {
-              console.log('Error: while storing text in DB', error);
-            }
-          }
           if (step.toolResults) {
             const toolResults = step.toolResults;
             for (const toolResult of toolResults) {
@@ -106,6 +99,13 @@ export async function POST(req: Request) {
               } catch (error) {
                 console.log('Error: while storing tool-result in DB', error);
               }
+            }
+          }
+          if (step.text) {
+            try {
+              await storeTextMessage(step.text, currentRoomID, accessToken);
+            } catch (error) {
+              console.log('Error: while storing text in DB', error);
             }
           }
         });
