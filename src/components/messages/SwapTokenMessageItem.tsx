@@ -1,37 +1,19 @@
 'use client';
 
-import { FC, useState, useRef, useEffect } from 'react';
+import { FC } from 'react';
 import { LuArrowRightLeft, LuExternalLink } from 'react-icons/lu';
 import { FiCopy } from 'react-icons/fi';
 import { TokenSwapData } from '@/types/token';
 import { toast } from 'sonner';
+import { BaseExpandableMessageItem } from './base/BaseExpandableMessageItem';
 
-interface SwapTokenMessageItem {
+interface SwapTokenMessageItemProps {
   props: TokenSwapData;
 }
 
-export const SwapTokenMessageItem: FC<SwapTokenMessageItem> = ({ props }) => {
-  const [isExpanded, setIsExpanded] = useState<boolean>(false);
-  const expandedContentRef = useRef<HTMLDivElement>(null);
-  const [contentHeight, setContentHeight] = useState<number>(0);
-  const [isAnimating, setIsAnimating] = useState<boolean>(false);
-
-  // Get height of expanded content when it changes
-  useEffect(() => {
-    if (expandedContentRef.current) {
-      setContentHeight(expandedContentRef.current.scrollHeight);
-    }
-  }, [isExpanded]);
-
-  const toggleExpand = () => {
-    setIsAnimating(true);
-    setIsExpanded(!isExpanded);
-    // Reset animation state after transition completes
-    setTimeout(() => {
-      setIsAnimating(false);
-    }, 300); // Match this with the CSS transition duration
-  };
-
+export const SwapTokenMessageItem: FC<SwapTokenMessageItemProps> = ({
+  props,
+}) => {
   // Format token names for better display
   const getTokenDisplay = (mintAddress: string) => {
     if (!mintAddress) return 'Unknown';
@@ -52,54 +34,43 @@ export const SwapTokenMessageItem: FC<SwapTokenMessageItem> = ({ props }) => {
     ? props.details.tickers.outputTokenTicker
     : getTokenDisplay(props.details.output_mint);
 
-  // Compact View (collapsed state)
-  const compactView = (
-    <div className="w-full overflow-hidden rounded-xl bg-sec_background  shadow-lg">
-      {/* Compact Header */}
-      <div className="p-2 border-b border-border flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="bg-primary/10 p-1 rounded-lg">
-            <LuArrowRightLeft className="text-primary" size={16} />
-          </div>
-          <h3 className="font-medium text-textColor text-sm">Token Swap</h3>
-        </div>
-
-        {/* Swap Info in one line */}
-        <div className="flex items-center gap-2">
-          <span className="text-textColor text-sm font-medium">
-            {props.details.amount} {inputToken} → {props.details.outAmount}{' '}
-            {outputToken}
-          </span>
-        </div>
-      </div>
-
-      {/* Compact Footer */}
-      <div className="p-2 bg-surface/20 flex justify-between items-center">
-        <div className="flex items-center gap-1">
-          <a
-            href={`https://solscan.io`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="p-1 rounded-full hover:bg-surface/50 transition-colors"
-            title="View on Solscan"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <LuExternalLink className="text-secText" size={12} />
-          </a>
-        </div>
-
-        <div>
-          <span className="text-xs text-secText">
-            Fee: {props.details.priorityFee.toLocaleString()} SOL
-          </span>
-        </div>
-      </div>
+  // Compact content
+  const compactContent = (
+    <div className="flex items-center gap-2">
+      <span className="text-textColor text-sm font-medium">
+        {props.details.amount} {inputToken} → {props.details.outAmount}{' '}
+        {outputToken}
+      </span>
     </div>
+  );
+
+  // Compact footer
+  const compactFooter = (
+    <>
+      <div className="flex items-center gap-1">
+        <a
+          href={`https://solscan.io`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="p-1 rounded-full hover:bg-surface/50 transition-colors"
+          title="View on Solscan"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <LuExternalLink className="text-secText" size={12} />
+        </a>
+      </div>
+
+      <div>
+        <span className="text-xs text-secText">
+          Fee: {props.details.priorityFee.toLocaleString()} SOL
+        </span>
+      </div>
+    </>
   );
 
   // Expanded content
   const expandedContent = (
-    <div ref={expandedContentRef}>
+    <>
       {/* Header */}
       <div className="px-4 py-3 border-b border-border flex justify-between items-center bg-primary/10">
         <h2 className="text-lg font-semibold text-textColor flex items-center gap-2">
@@ -200,26 +171,17 @@ export const SwapTokenMessageItem: FC<SwapTokenMessageItem> = ({ props }) => {
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 
   return (
-    <div className="flex my-1 justify-start max-w-lg">
-      <div
-        className="w-full cursor-pointer overflow-hidden rounded-xl bg-sec_background border border-border shadow-lg transition-all duration-300 ease-in-out"
-        onClick={toggleExpand}
-        style={{
-          maxHeight: isExpanded ? `${contentHeight}px` : '80px', // Adjust based on your compact view height
-          opacity: isAnimating ? (isExpanded ? 1 : 0.9) : 1,
-          transform: isAnimating
-            ? isExpanded
-              ? 'scale(1)'
-              : 'scale(0.99)'
-            : 'scale(1)',
-        }}
-      >
-        {isExpanded ? expandedContent : compactView}
-      </div>
-    </div>
+    <BaseExpandableMessageItem
+      title="Token Swap"
+      icon={<LuArrowRightLeft className="text-primary" size={16} />}
+      compactContent={compactContent}
+      expandedContent={expandedContent}
+      footer={compactFooter}
+      maxWidth="max-w-lg"
+    />
   );
 };

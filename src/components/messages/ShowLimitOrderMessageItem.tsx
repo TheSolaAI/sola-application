@@ -1,19 +1,19 @@
 'use client';
 
 import { FC } from 'react';
-import BaseGridChatItem from '@/components/messages/general/BaseGridChatItem';
 import { TOKEN_LIST } from '@/config/tokenMapping';
 import { ShowLimitOrderResponse } from '@/types/jupiter';
+import { BaseGridMessageItem } from './base/BaseGridMessageItem';
 
-interface ShowLimitOrdersChatItemProps {
+interface ShowLimitOrdersMessageItemProps {
   props: ShowLimitOrderResponse;
 }
 
-export const ShowLimitOrdersChatItem: FC<ShowLimitOrdersChatItemProps> = ({
-  props,
-}) => {
+export const ShowLimitOrdersMessageItem: FC<
+  ShowLimitOrdersMessageItemProps
+> = ({ props }) => {
   return (
-    <BaseGridChatItem col={3}>
+    <BaseGridMessageItem col={3}>
       {props.orders.map((order, lIndex) => {
         const inputToken = Object.values(TOKEN_LIST).find(
           (v) => v.MINT === order.input_mint
@@ -74,6 +74,6 @@ export const ShowLimitOrdersChatItem: FC<ShowLimitOrdersChatItemProps> = ({
           </div>
         );
       })}
-    </BaseGridChatItem>
+    </BaseGridMessageItem>
   );
 };

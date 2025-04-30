@@ -1,21 +1,21 @@
 import React from 'react';
 import { UIMessage } from 'ai';
 import { ToolResult } from '@/types/tool';
-import { SimpleMessageChatItem } from '@/components/messages/SimpleMessageChatItem';
 import UserInput from '@/components/messages/UserInput';
-import { TokenAddressResultItem } from '@/components/messages/TokenAddressResultItem';
-import { ShowLimitOrdersChatItem } from '@/components/messages/ShowLimitOrderChatItem';
-import { AiProjects } from '@/components/messages/AiProjects';
 import { LuloAssetsMessageItem } from '@/components/messages/LuloAssetsMessageItem';
 import { TokenDataMessageItem } from '@/components/messages/TokenDataMessageItem';
-import { BubbleMapChatItem } from '@/components/messages/BubbleMapCardItem';
 import { TopHoldersMessageItem } from '@/components/messages/TopHoldersMessageItem';
-import { NFTCollectionMessageItem } from '@/components/messages/NFTCollectionCardItem';
 import { generateId } from 'ai';
-import { SwapTokenMessageItem } from '@/components/messages/SwapMessageItem';
 import { SignedTransactionsMessageItem } from '@/components/messages/SignedTransactionsMessageItem';
 import { SNSResolverMessageItem } from '@/components/messages/SNSResolverMessageItem';
 import { TransferTokenMessageItem } from '@/components/messages/TransferTokenMessageItem';
+import { AiProjectsMessageItem } from '@/components/messages/AiProjectsMessageItem';
+import { BubbleMapMessageItem } from '@/components/messages/BubbleMapMessageItem';
+import { TokenAddressResultMessageItem } from '../components/messages/TokenAddressResultMessageItem';
+import { ShowLimitOrdersMessageItem } from '@/components/messages/ShowLimitOrderMessageItem';
+import { SimpleMessageItem } from '@/components/messages/SimpleMessageItem';
+import { NFTCollectionMessageItem } from '@/components/messages/NFTCollectionMessageItem';
+import { SwapTokenMessageItem } from '@/components/messages/SwapTokenMessageItem';
 
 export function renderMessageContent(message: UIMessage) {
   const role = message.role;
@@ -29,7 +29,7 @@ export function renderMessageContent(message: UIMessage) {
         return role === 'user' ? (
           <UserInput text={message.content} transcript={true} />
         ) : (
-          <SimpleMessageChatItem key={`text-${partIndex}`} text={part.text} />
+          <SimpleMessageItem key={`text-${partIndex}`} text={part.text} />
         );
       } else if (
         part.type === 'tool-invocation' &&
@@ -56,7 +56,7 @@ export function renderMessageContent(message: UIMessage) {
   }
 
   // Handle simple text messages
-  return <SimpleMessageChatItem text={message.content} />;
+  return <SimpleMessageItem text={message.content} />;
 }
 
 export function renderToolResult(
@@ -65,21 +65,21 @@ export function renderToolResult(
 ): React.ReactNode {
   // in the case we have a caught error in the tool and we have propagated said error to the frontEnd we display that error here
   if (!args.success) {
-    return <SimpleMessageChatItem text={`Error: ${args.error}`} />;
+    return <SimpleMessageItem text={`Error: ${args.error}`} />;
   }
   switch (toolName) {
     case 'tokenAddressTool':
-      return <TokenAddressResultItem props={args.data} />;
+      return <TokenAddressResultMessageItem props={args.data} />;
     case 'getLimitOrderTool':
-      return <ShowLimitOrdersChatItem props={args.data} />;
+      return <ShowLimitOrdersMessageItem props={args.data} />;
     case 'trendingAiProjects':
-      return <AiProjects props={args.data} />;
+      return <AiProjectsMessageItem props={args.data} />;
     case 'getLuloAssetsTool':
       return <LuloAssetsMessageItem props={args.data} />;
     case 'getTokenDataTool':
       return <TokenDataMessageItem props={args.data} />;
     case 'bubblemapTool':
-      return <BubbleMapChatItem props={args.data} />;
+      return <BubbleMapMessageItem props={args.data} />;
     case 'topHoldersTool':
       return <TopHoldersMessageItem props={args.data} />;
     case 'getNFTPrice':
@@ -97,6 +97,6 @@ export function renderToolResult(
     case 'transferSpl':
       return <TransferTokenMessageItem props={args.data} />;
     default:
-      return <SimpleMessageChatItem text={JSON.stringify(args.data)} />;
+      return <SimpleMessageItem text={JSON.stringify(args.data)} />;
   }
 }
