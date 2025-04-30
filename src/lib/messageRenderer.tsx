@@ -14,6 +14,7 @@ import { NFTCollectionMessageItem } from '@/components/messages/NFTCollectionCar
 import { generateId } from 'ai';
 import { SwapTokenMessageItem } from '@/components/messages/SwapMessageItem';
 import { SignedTransactionsMessageItem } from '@/components/messages/SignedTransactionsMessageItem';
+import { SNSResolverMessageItem } from '@/components/messages/SNSResolverMessageItem';
 
 export function renderMessageContent(message: UIMessage) {
   const role = message.role;
@@ -80,14 +81,14 @@ export function renderToolResult(
       return <BubbleMapChatItem props={args.data} />;
     case 'topHoldersTool':
       return <TopHoldersMessageItem props={args.data} />;
-    case 'resolveSnsNameTool':
-      return <TokenAddressResultItem props={args.data} />;
     case 'getNFTPrice':
       return <NFTCollectionMessageItem props={args.data} />;
     case 'getTrendingNFTs':
       return <NFTCollectionMessageItem props={args.data} />;
     case 'swapTokens':
       return <SwapTokenMessageItem props={args.data} />;
+    case 'resolveSnsNameTool':
+      return <SNSResolverMessageItem props={args.data} />;
     case 'sign_and_send_tx':
       return <SignedTransactionsMessageItem props={args.data} />;
     default:

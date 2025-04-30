@@ -143,10 +143,6 @@ export const getToolHandlerPrimeDirective = (userWalletPublicKey: string) => `
 - Cite reputable links if you use online sources.
 - Never attempt actions you are not equipped for; inform the user if something is unsupported.
 
-# Special Tool Triggers:
-- If a tool result has \`"textResponse": false\`, do not respond with a text summary of the tool result. Instead end the conversation and wait for the user to ask for more information.
-- If a tool result has \`"signAndSend": true\`, trigger the \`sign_and_send_tx\` tool with the transaction hash.
-
 # Response Formatting:
 - Use multiple line breaks between sections.
 - Format using GitHub-Flavored Markdown (GFM).

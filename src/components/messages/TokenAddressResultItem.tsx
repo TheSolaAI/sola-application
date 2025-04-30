@@ -9,6 +9,7 @@ import {
   LuChevronDown,
   LuChevronUp,
 } from 'react-icons/lu';
+import { toast } from 'sonner';
 
 interface TokenAddressResultItemProps {
   props: TokenAddressResult;
@@ -173,6 +174,7 @@ export const TokenAddressResultItem: FC<TokenAddressResultItemProps> = ({
           onClick={(e) => {
             e.stopPropagation();
             copyToClipboard();
+            toast.success('Token address copied to clipboard!');
           }}
         >
           Copy Address
