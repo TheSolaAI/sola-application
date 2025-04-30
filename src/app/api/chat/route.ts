@@ -1,4 +1,4 @@
-import { generateId, Message, smoothStream, streamText, Tool } from 'ai';
+import { smoothStream, streamText, Tool } from 'ai';
 import {
   getToolHandlerPrimeDirective,
   getToolsFromToolset,
@@ -10,6 +10,7 @@ import { extractUserPrivyId } from '@/lib/server/userSession';
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getGeneralToolSet } from '@/tools/generalToolSet';
+import { storeTextMessage, storeToolResultMessage } from '@/lib/db/db';
 
 /**
  * Handles POST requests for chat processing with tools
@@ -143,94 +144,4 @@ function loadToolsFromToolsets(
   }
 
   return allTools;
-}
-
-/**
- * Creates and stores a tool result message
- */
-async function storeToolResultMessage(
-  toolResult: {
-    toolName: string;
-    toolCallId: string;
-    result: any;
-    args: any;
-  },
-  roomId: string,
-  accessToken: string
-) {
-  const message: Message = {
-    id: generateId(),
-    role: 'assistant',
-    content: JSON.stringify(toolResult.result),
-    createdAt: new Date(),
-    parts: [
-      {
-        type: 'tool-invocation',
-        toolInvocation: {
-          state: 'result',
-          result: toolResult.result,
-          toolName: toolResult.toolName,
-          toolCallId: toolResult.toolCallId,
-          args: toolResult.args,
-        },
-      },
-    ],
-  };
-
-  await storeMessageInDB(roomId, JSON.stringify(message), accessToken);
-}
-
-/**
- * Creates and stores a text message
- */
-async function storeTextMessage(
-  text: string,
-  roomId: string,
-  accessToken: string
-) {
-  const message: Message = {
-    id: generateId(),
-    role: 'assistant',
-    content: text,
-    createdAt: new Date(),
-    parts: [
-      {
-        type: 'text',
-        text,
-      },
-    ],
-  };
-
-  await storeMessageInDB(roomId, JSON.stringify(message), accessToken);
-}
-
-/**
- * Stores a message in the database
- */
-async function storeMessageInDB(
-  roomId: string,
-  messageJson: string,
-  authToken: string
-): Promise<any> {
-  const response = await fetch(
-    `https://user-service.solaai.tech/api/v1/chatrooms/${roomId}/messages/`,
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${authToken}`,
-      },
-      body: JSON.stringify({
-        message: messageJson,
-      }),
-    }
-  );
-
-  if (!response.ok) {
-    throw new Error(
-      `Failed to store message: ${response.status} ${response.statusText}`
-    );
-  }
-
-  return await response.json();
 }
