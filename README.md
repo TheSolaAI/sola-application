@@ -9,7 +9,7 @@ Sola AI is a personalized AI voice assistant that bridges Solana blockchain tech
 This application provides seamless interaction between the user, OpenAI, and blockchain data using voice and text. Key features include:
 
 * **Real-time Communication:** Utilizes WebRTC for seamless voice and text communication.
-* **Modern Frontend:** Built with Vite React and styled with Tailwind CSS.
+* **Modern Frontend:** Built with Next.js and styled with Tailwind CSS.
 * **Scalable Backend:** Employs a microservices architecture for efficient data processing.
 * **Blockchain Data Filtering:** Microservices filter and process blockchain data based on user queries.
 * **Blockchain Interactions:** Supports Solana on-chain interactions (e.g., transfer, swap).
@@ -43,6 +43,40 @@ This application provides seamless interaction between the user, OpenAI, and blo
 5. **Response:** Sola AI processes the results and responds to the user through the voice/text interface.
 
 ## Installation
+
+### Quick Setup
+
+1. Clone the repository
+2. Install dependencies with `yarn install`
+3. Set up your environment variables (see below)
+4. Start the development server with `yarn dev`
+
+### Environment Configuration
+
+Create a `.env` file in the root directory with the following variables:
+
+```env
+# Authentication (Privy)
+NEXT_PUBLIC_PRIVY_APP_ID=cm5lc4euv00c5kmrbpu9oj0u4
+PRIVY_VERIFICATION_KEY=
+PRIVY_APP_SECRET=
+
+# Database
+DATABASE_URL=
+
+# OpenAI
+OPENAI_API_KEY=
+
+# Solana
+NEXT_PUBLIC_SOLANA_RPC=
+SOLANA_RPC_URL=
+SOLANA_PRIVATE_KEY=
+
+# Microservices
+NEXT_PUBLIC_AUTH_SERVICE_URL=https://user-service.solaai.tech/api/v1/
+NEXT_PUBLIC_DATA_SERVICE_URL=https://data-stream-service.solaai.tech/
+NEXT_PUBLIC_WALLET_SERVICE_URL=https://wallet-service.solaai.tech/
+```
 
 For detailed installation instructions, please refer to the [INSTALL.md](INSTALL.md) file.
 
