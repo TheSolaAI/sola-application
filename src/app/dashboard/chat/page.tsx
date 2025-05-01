@@ -6,11 +6,13 @@ import { useChatRoomHandler } from '@/store/ChatRoomHandler';
 import { toast } from 'sonner';
 import { RiSendPlaneFill, RiMicFill } from 'react-icons/ri';
 import { BiLoaderAlt } from 'react-icons/bi';
+import { FiMessageSquare } from 'react-icons/fi';
 import { Button } from '@/components/common/Button';
 import { Input } from '@/components/common/Input';
 import { Card } from '@/components/common/Card';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useUserHandler } from '@/store/UserHandler';
+import useThemeManager from '@/store/ThemeManager';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -24,7 +26,6 @@ const containerVariants = {
   },
 };
 
-// Child element animations
 const itemVariants = {
   hidden: { y: 20, opacity: 0 },
   visible: {
@@ -34,7 +35,6 @@ const itemVariants = {
   },
 };
 
-// Mic button animation variants
 const micButtonVariants = {
   idle: { scale: 1 },
   hover: {
@@ -59,7 +59,6 @@ const micButtonVariants = {
   },
 };
 
-// Suggestion card animations
 const cardVariants = {
   hidden: { opacity: 0, y: 20 },
   visible: (i: number) => ({
@@ -73,7 +72,7 @@ const cardVariants = {
     },
   }),
   hover: {
-    y: -10,
+    y: -5,
     boxShadow: '0px 10px 20px rgba(var(--color-primaryDark), 0.15)',
     borderColor: 'rgba(var(--color-primary), 0.5)',
     backgroundColor: 'rgba(var(--color-primaryDark), 0.03)',
@@ -87,6 +86,7 @@ const cardVariants = {
 
 export default function NewChat() {
   const router = useRouter();
+  const { theme } = useThemeManager();
   const [inputText, setInputText] = useState('');
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
@@ -285,151 +285,187 @@ export default function NewChat() {
   // Define suggestion cards
   const suggestions = [
     {
-      title: 'Check my wallet',
-      description: 'check the portfolio of your wallet',
+      title: 'Place a Limit Order',
+      description:
+        'Place a limit order for swapping 10 dollars of SOL to USDC when the price hits $200',
+      id: 'wallet',
     },
     {
-      title: 'Launch a new token',
-      description: 'deploy a new token on pump.fun',
+      title: 'How do I get started?',
+      description:
+        'I am new to crypto trading, where do I get started and what do I do?',
+      id: 'general',
     },
     {
       title: 'Swap 1 SOL for USDC',
       description: 'using Jupiter to swap on Solana',
+      id: 'swap',
     },
     {
-      title: "What's trending on Solana?",
-      description: 'find the current market trends',
+      title: "What's the top AI projects?",
+      description: 'Top AI Projects on the Solana blockchain',
+      id: 'ai',
     },
   ];
 
   return (
     <motion.div
-      className="flex flex-col items-center justify-center min-h-screen bg-background text-textColor p-4"
+      className="flex flex-col items-center justify-center min-h-screen bg-background text-textColor p-4 sm:p-6"
       initial="hidden"
       animate="visible"
       variants={containerVariants}
     >
-      <motion.div className="w-full max-w-3xl mx-auto flex flex-col items-center px-2 sm:px-4">
+      <motion.div className="w-full max-w-4xl mx-auto" variants={itemVariants}>
         {/* Header */}
         <motion.h1
-          className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8 text-center"
+          className="text-2xl sm:text-4xl font-bold mb-3 text-center"
           variants={itemVariants}
         >
-          How can I assist you?
+          How can I assist you today?
         </motion.h1>
 
-        {/* Voice Input Button with animations */}
-        <motion.div
-          className="relative mb-6 sm:mb-8 flex flex-col items-center"
+        <motion.p
+          className="text-secText text-lg text-center mb-10 max-w-2xl mx-auto"
           variants={itemVariants}
         >
-          <motion.button
-            ref={buttonRef}
-            className="w-20 h-20 sm:w-28 sm:h-28 rounded-full flex items-center justify-center border-2 border-primary/50 bg-primaryDark/20"
-            variants={micButtonVariants}
-            initial="idle"
-            whileHover={isProcessingAudio ? 'processing' : 'hover'}
-            animate={
-              isRecording
-                ? 'recording'
-                : isProcessingAudio
-                  ? 'processing'
-                  : 'idle'
-            }
-            onPointerDown={handlePointerDown}
-            onPointerUp={handlePointerUp}
-            onPointerLeave={handlePointerLeave}
-            onPointerCancel={handlePointerLeave}
-            disabled={isProcessingAudio}
-            aria-label={
-              isRecording
-                ? 'Release to stop recording'
-                : isProcessingAudio
-                  ? 'Processing audio'
-                  : 'Hold to record'
-            }
-          >
-            <AnimatePresence mode="wait">
-              {isProcessingAudio ? (
-                <motion.div
-                  key="processing"
-                  initial={{ rotate: 0, opacity: 0 }}
-                  animate={{ rotate: 360, opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
-                >
-                  <BiLoaderAlt className="w-8 h-8 sm:w-12 sm:h-12 text-primary" />
-                </motion.div>
-              ) : isRecording ? (
-                <motion.div
-                  key="recording"
-                  className="flex flex-col items-center"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                >
-                  <motion.div className="flex gap-1 mt-2">
-                    {[0, 1, 2, 3].map((i) => (
-                      <motion.div
-                        key={i}
-                        className="w-1 h-6 sm:h-8 bg-primary rounded-full"
-                        animate={{
-                          height: [6, 14, 20, 14, 6],
-                        }}
-                        transition={{
-                          repeat: Infinity,
-                          duration: 1.5,
-                          delay: i * 0.15,
-                          ease: 'easeInOut',
-                        }}
-                      />
-                    ))}
-                  </motion.div>
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="idle"
-                  initial={{ scale: 0.8, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  exit={{ scale: 0.8, opacity: 0 }}
-                  transition={{ type: 'spring', stiffness: 400, damping: 17 }}
-                >
-                  <RiMicFill className="w-8 h-8 sm:w-12 sm:h-12 text-primary" />
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.button>
+          Use voice commands or text to interact with Sola AI.
+        </motion.p>
 
-          <motion.span
-            className="mt-2 text-xs sm:text-sm text-secText"
-            animate={{
-              opacity: [1, 0.7, 1],
-              transition: { repeat: isRecording ? Infinity : 0, duration: 2 },
-            }}
-          >
-            {isRecording
-              ? `Recording...`
-              : isProcessingAudio
-                ? 'Processing...'
-                : 'Hold to speak'}
-          </motion.span>
-        </motion.div>
-
-        {/* Text Input with animations */}
-        <motion.form
-          onSubmit={handleSubmit}
-          className="w-full mb-8 sm:mb-12 px-1 sm:px-0"
+        {/* Voice Recording - Main Focus */}
+        <motion.div
+          className="flex flex-col items-center mb-10"
           variants={itemVariants}
         >
           <motion.div
-            className="relative"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4, type: 'spring' }}
+            className="relative mb-3 rounded-full bg-sec_background/50 p-2 border border-border shadow-lg"
+            initial={{ boxShadow: '0 0 0 rgba(var(--color-primary), 0)' }}
+            animate={{
+              boxShadow: isRecording
+                ? '0 0 40px rgba(var(--color-primary), 0.3)'
+                : '0 0 20px rgba(var(--color-primary), 0.1)',
+            }}
+            transition={{
+              duration: 1.5,
+              repeat: Infinity,
+              repeatType: 'reverse',
+            }}
           >
+            <motion.button
+              ref={buttonRef}
+              className="w-32 h-32 sm:w-40 sm:h-40 rounded-full flex items-center justify-center border-2 border-primary/50 bg-sec_background"
+              variants={micButtonVariants}
+              initial="idle"
+              whileHover={isProcessingAudio ? 'processing' : 'hover'}
+              animate={
+                isRecording
+                  ? 'recording'
+                  : isProcessingAudio
+                    ? 'processing'
+                    : 'idle'
+              }
+              onPointerDown={handlePointerDown}
+              onPointerUp={handlePointerUp}
+              onPointerLeave={handlePointerLeave}
+              onPointerCancel={handlePointerLeave}
+              disabled={isProcessingAudio}
+              aria-label={
+                isRecording
+                  ? 'Release to stop recording'
+                  : isProcessingAudio
+                    ? 'Processing audio'
+                    : 'Hold to record'
+              }
+            >
+              <AnimatePresence mode="wait">
+                {isProcessingAudio ? (
+                  <motion.div
+                    key="processing"
+                    initial={{ rotate: 0, opacity: 0 }}
+                    animate={{ rotate: 360, opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{
+                      repeat: Infinity,
+                      duration: 1,
+                      ease: 'linear',
+                    }}
+                  >
+                    <BiLoaderAlt className="w-12 h-12 sm:w-16 sm:h-16 text-primary" />
+                  </motion.div>
+                ) : isRecording ? (
+                  <motion.div
+                    key="recording"
+                    className="flex flex-col items-center"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                  >
+                    <motion.div className="flex gap-2 mt-2">
+                      {[0, 1, 2, 3].map((i) => (
+                        <motion.div
+                          key={i}
+                          className="w-2 h-10 sm:h-12 bg-primary rounded-full"
+                          animate={{
+                            height: [10, 24, 36, 24, 10],
+                          }}
+                          transition={{
+                            repeat: Infinity,
+                            duration: 1.5,
+                            delay: i * 0.15,
+                            ease: 'easeInOut',
+                          }}
+                        />
+                      ))}
+                    </motion.div>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="idle"
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0.8, opacity: 0 }}
+                    transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+                  >
+                    <RiMicFill className="w-16 h-16 sm:w-20 sm:h-20 text-primary" />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.button>
+          </motion.div>
+
+          <motion.div className="text-center" variants={itemVariants}>
+            <motion.p
+              className="text-xl font-medium mb-1"
+              animate={{
+                opacity: isRecording ? [1, 0.7, 1] : 1,
+                transition: { repeat: isRecording ? Infinity : 0, duration: 2 },
+              }}
+            >
+              {isRecording
+                ? `Recording... ${recordingTime}s`
+                : isProcessingAudio
+                  ? 'Processing...'
+                  : 'Hold to speak'}
+            </motion.p>
+            <p className="text-secText">
+              {isRecording
+                ? 'Release to stop recording'
+                : isProcessingAudio
+                  ? 'Converting speech to text...'
+                  : 'Maximum 30 seconds recording'}
+            </p>
+          </motion.div>
+        </motion.div>
+
+        {/* Text Input - Secondary Option */}
+        <motion.form
+          onSubmit={handleSubmit}
+          className="w-full max-w-2xl mx-auto mb-10"
+          variants={itemVariants}
+        >
+          <div className="relative">
             <Input
-              className="w-full bg-sec_background/60 border-border rounded-full py-4 sm:py-6 pl-4 sm:pl-6 pr-12 focus-within:border-primary/70 focus-within:shadow-lg focus-within:shadow-primary/10 transition-all duration-300 text-sm sm:text-base"
-              placeholder="Start a new conversation..."
+              className="w-full bg-sec_background border-border rounded-full py-5 pl-6 pr-14 focus-within:border-primary/70 focus-within:shadow-lg focus-within:shadow-primary/10 transition-all duration-300 text-base"
+              placeholder="Or type your question here..."
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               maxLength={200}
@@ -441,17 +477,17 @@ export default function NewChat() {
                   <Button
                     type="submit"
                     variant="primary"
-                    className="rounded-full p-1.5 sm:p-2 h-auto"
+                    className="rounded-full p-2 h-auto"
                     disabled={!inputText.trim()}
                   >
-                    <RiSendPlaneFill className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <RiSendPlaneFill className="w-5 h-5" />
                   </Button>
                 </motion.div>
               }
             />
             {inputText && (
               <motion.span
-                className="absolute right-12 sm:right-14 top-1/2 transform -translate-y-1/2 text-xs text-secText"
+                className="absolute right-14 top-1/2 transform -translate-y-1/2 text-xs text-secText"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
@@ -459,20 +495,20 @@ export default function NewChat() {
                 {inputText.length}/200
               </motion.span>
             )}
-          </motion.div>
+          </div>
         </motion.form>
 
-        {/* Suggestions with staggered animation */}
+        {/* Quick Suggestion Cards */}
         <motion.div className="w-full" variants={itemVariants}>
           <motion.h2
-            className="text-xs sm:text-sm text-secText mb-2 sm:mb-3 px-1"
+            className="text-xl font-semibold mb-4 text-center"
             variants={itemVariants}
           >
-            Suggestions
+            Try asking about:
           </motion.h2>
 
           <motion.div
-            className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4"
             variants={containerVariants}
           >
             {suggestions.map((suggestion, index) => (
@@ -483,12 +519,12 @@ export default function NewChat() {
                 initial="hidden"
                 animate="visible"
                 whileHover="hover"
-                onClick={() => handleInitialMessage(suggestion.title)}
+                onClick={() => handleInitialMessage(suggestion.description)}
                 className="overflow-hidden rounded-lg"
               >
-                <Card className="p-3 sm:p-4 cursor-pointer h-full border border-border relative z-10 transition-colors duration-300">
+                <Card className="p-4 cursor-pointer h-full border border-border relative z-10 transition-colors duration-300 bg-sec_background">
                   <motion.h3
-                    className="font-medium mb-1 text-sm sm:text-base text-textColor"
+                    className="font-medium mb-1 text-base text-textColor"
                     whileHover={{ x: 5 }}
                     transition={{ type: 'spring', stiffness: 500 }}
                   >
@@ -496,7 +532,7 @@ export default function NewChat() {
                   </motion.h3>
 
                   <motion.p
-                    className="text-xs sm:text-sm text-secText line-clamp-2"
+                    className="text-sm text-secText line-clamp-2"
                     initial={{ opacity: 0.7 }}
                     whileHover={{ opacity: 1 }}
                   >

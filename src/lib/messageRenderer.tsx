@@ -16,6 +16,8 @@ import { ShowLimitOrdersMessageItem } from '@/components/messages/ShowLimitOrder
 import { SimpleMessageItem } from '@/components/messages/SimpleMessageItem';
 import { NFTCollectionMessageItem } from '@/components/messages/NFTCollectionMessageItem';
 import { SwapTokenMessageItem } from '@/components/messages/SwapTokenMessageItem';
+import { FeatureRequestMessageItem } from '@/components/messages/FeatureRequestMessageItem';
+import { BugReportMessageItem } from '@/components/messages/BugReportMessageItem';
 
 export function renderMessageContent(message: UIMessage) {
   const role = message.role;
@@ -96,6 +98,10 @@ export function renderToolResult(
       return <TransferTokenMessageItem props={args.data} />;
     case 'transferSpl':
       return <TransferTokenMessageItem props={args.data} />;
+    case 'requestFeature':
+      return <FeatureRequestMessageItem props={args.data} />;
+    case 'reportBug':
+      return <BugReportMessageItem props={args.data} />;
     default:
       return <SimpleMessageItem text={JSON.stringify(args.data)} />;
   }

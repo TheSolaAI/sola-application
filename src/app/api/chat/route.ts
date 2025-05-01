@@ -1,6 +1,6 @@
 import { smoothStream, streamText, Tool } from 'ai';
 import {
-  getToolHandlerPrimeDirective,
+  TOOL_HANDLER_PRIME_DIRECTIVE,
   getToolsFromToolset,
   toolhandlerModel,
   ToolsetSlug,
@@ -56,7 +56,7 @@ export async function POST(req: Request) {
     }).tools;
     const result = streamText({
       model: toolhandlerModel,
-      system: getToolHandlerPrimeDirective(walletPublicKey),
+      system: TOOL_HANDLER_PRIME_DIRECTIVE,
       messages,
       tools: {
         ...generalTools,
@@ -86,29 +86,39 @@ export async function POST(req: Request) {
           console.error('Error: logging usage:', err);
         }
 
-        steps.reverse().map(async (step) => {
-          if (step.toolResults) {
-            const toolResults = step.toolResults;
-            for (const toolResult of toolResults) {
-              try {
-                await storeToolResultMessage(
-                  toolResult,
-                  currentRoomID,
-                  accessToken
+        try {
+          const storePromises = steps.reverse().map(async (step) => {
+            const promises = [];
+
+            if (step.toolResults) {
+              const toolResults = step.toolResults;
+              for (const toolResult of toolResults) {
+                promises.push(
+                  storeToolResultMessage(
+                    toolResult,
+                    currentRoomID,
+                    accessToken
+                  ).catch((error) =>
+                    console.log('Error: while storing tool-result in DB', error)
+                  )
                 );
-              } catch (error) {
-                console.log('Error: while storing tool-result in DB', error);
               }
             }
-          }
-          if (step.text) {
-            try {
-              await storeTextMessage(step.text, currentRoomID, accessToken);
-            } catch (error) {
-              console.log('Error: while storing text in DB', error);
+
+            if (step.text) {
+              promises.push(
+                storeTextMessage(step.text, currentRoomID, accessToken).catch(
+                  (error) =>
+                    console.log('Error: while storing text in DB', error)
+                )
+              );
             }
-          }
-        });
+            return Promise.all(promises);
+          });
+          await Promise.all(storePromises);
+        } catch (error) {
+          console.log('Error: while storing messages in DB', error);
+        }
       },
     });
     return result.toDataStreamResponse();
