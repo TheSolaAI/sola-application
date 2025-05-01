@@ -4,7 +4,6 @@ import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { FaMobileAlt } from 'react-icons/fa';
 import { HiComputerDesktop } from 'react-icons/hi2';
-import { FaBell } from 'react-icons/fa';
 
 interface HeroProps {
   login: () => void;
@@ -14,9 +13,6 @@ interface HeroProps {
   setShowMobileView: (show: boolean) => void;
   promptInstall: () => Promise<string | null>;
   isInstallPromptAvailable: boolean;
-  isBeforeLaunch: boolean;
-  onSubscribe: () => void;
-  onSecretTextClick?: () => void;
 }
 
 export default function Hero({
@@ -27,9 +23,6 @@ export default function Hero({
   setShowMobileView,
   promptInstall,
   isInstallPromptAvailable,
-  isBeforeLaunch,
-  onSubscribe,
-  onSecretTextClick,
 }: HeroProps) {
   const handleMobileView = () => {
     setShowMobileView(!showMobileView);
@@ -68,38 +61,21 @@ export default function Hero({
             transition={{ duration: 0.4, delay: 0.4 }}
             className="mt-10 flex items-center justify-center gap-x-6"
           >
-            {isBeforeLaunch ? (
-              <motion.button
-                onClick={onSubscribe}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="h-15 flex items-center rounded-md bg-gradient-to-r from-indigo-600 to-indigo-500 px-5 py-2.5 text-lg font-semibold text-white shadow-lg shadow-indigo-500/20 hover:from-indigo-500 hover:to-indigo-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 transition-all duration-200"
-              >
-                <FaBell className="mr-2" /> Get Launch Notification
-              </motion.button>
-            ) : (
-              <motion.button
-                onClick={() => login()}
-                disabled={disabled}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="h-15 w-40 rounded-md bg-gradient-to-r from-indigo-600 to-indigo-500 px-4 py-2.5 text-lg font-semibold text-white shadow-lg shadow-indigo-500/20 hover:from-indigo-500 hover:to-indigo-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 transition-all duration-200"
-              >
-                Get started
-              </motion.button>
-            )}
+            <motion.button
+              onClick={() => login()}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="h-15 w-40 rounded-md bg-gradient-to-r from-indigo-600 to-indigo-500 px-4 py-2.5 text-lg font-semibold text-white shadow-lg shadow-indigo-500/20 hover:from-indigo-500 hover:to-indigo-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 transition-all duration-200"
+            >
+              Get started
+            </motion.button>
 
             {!isMobile ? (
               <motion.button
                 onClick={handleMobileView}
-                disabled={isBeforeLaunch}
-                whileHover={{ scale: isBeforeLaunch ? 1 : 1.05 }}
-                whileTap={{ scale: isBeforeLaunch ? 1 : 0.95 }}
-                className={`flex items-center gap-2 text-sm/6 font-semibold ${
-                  isBeforeLaunch
-                    ? 'text-gray-500 cursor-not-allowed'
-                    : 'text-indigo-300 hover:text-indigo-200 transition-colors duration-200'
-                }`}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="flex items-center gap-2 text-sm/6 font-semibold text-indigo-300 hover:text-indigo-200 transition-colors duration-200"
               >
                 {showMobileView ? (
                   <>
@@ -115,15 +91,15 @@ export default function Hero({
             ) : (
               <motion.button
                 onClick={handleInstall}
-                disabled={!isInstallPromptAvailable || isBeforeLaunch}
+                disabled={!isInstallPromptAvailable}
                 whileHover={{
-                  scale: !isInstallPromptAvailable || isBeforeLaunch ? 1 : 1.05,
+                  scale: !isInstallPromptAvailable ? 1 : 1.05,
                 }}
                 whileTap={{
-                  scale: !isInstallPromptAvailable || isBeforeLaunch ? 1 : 0.95,
+                  scale: !isInstallPromptAvailable ? 1 : 0.95,
                 }}
                 className={`flex items-center gap-2 text-sm/6 font-semibold ${
-                  isInstallPromptAvailable && !isBeforeLaunch
+                  isInstallPromptAvailable
                     ? 'text-indigo-300 hover:text-indigo-200'
                     : 'text-gray-500 cursor-not-allowed'
                 } transition-colors duration-200`}
@@ -132,19 +108,6 @@ export default function Hero({
               </motion.button>
             )}
           </motion.div>
-
-          {isBeforeLaunch && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.6 }}
-              className="mt-6 text-gray-400 text-sm"
-              onClick={onSecretTextClick}
-              style={{ userSelect: 'none' }}
-            >
-              Subscribe to get notified when we go live!
-            </motion.div>
-          )}
         </motion.div>
 
         {showMobileView && !isMobile ? (
