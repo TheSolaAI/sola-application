@@ -2,10 +2,13 @@
 import { forwardRef, useImperativeHandle, useState } from 'react';
 import { usePrivy } from '@privy-io/react-auth';
 import { toast } from 'sonner';
-import { FaDiscord, FaLink, FaUnlink } from 'react-icons/fa';
+import { FaDiscord, FaLink, FaTwitter, FaXTwitter } from 'react-icons/fa6';
+import { LuBadgeDollarSign, LuCreditCard } from 'react-icons/lu';
 import { useSessionHandler } from '@/store/SessionHandler';
 import { useSettingsHandler } from '@/store/SettingsHandler';
 import { useUserHandler } from '@/store/UserHandler';
+import { useAppSelector } from '@/redux/hook';
+import { formatNumber } from '@/utils/formatNumber';
 
 export interface UserSettingsRef {
   onSubmit: () => void;
@@ -215,7 +218,7 @@ export const UserSettings = forwardRef<UserSettingsRef>((_, ref) => {
                 className="text-red-500 hover:text-red-700 bg-surface p-2 rounded-lg text-sm flex items-center gap-1"
                 onClick={handleUnlinkEmail}
               >
-                <FaUnlink size={14} />
+                <FaLink size={14} />
                 <span>Unlink Email</span>
               </button>
             </div>
@@ -270,7 +273,7 @@ export const UserSettings = forwardRef<UserSettingsRef>((_, ref) => {
                 className="text-red-500 hover:text-red-700 bg-surface p-2 rounded-lg text-sm flex items-center gap-1"
                 onClick={handleUnlinkDiscord}
               >
-                <FaUnlink size={14} />
+                <FaLink size={14} />
                 <span>Unlink Discord</span>
               </button>
             </div>
@@ -310,7 +313,7 @@ export const UserSettings = forwardRef<UserSettingsRef>((_, ref) => {
                 className="text-red-500 hover:text-red-700 bg-surface p-2 rounded-lg text-sm flex items-center gap-1"
                 onClick={handleUnlinkTwitter}
               >
-                <FaUnlink size={14} />
+                <FaLink size={14} />
                 <span>Unlink X Account</span>
               </button>
             </div>

@@ -1,202 +1,228 @@
 'use client';
 
-import { FC, useEffect, useState } from 'react';
-import { LimitOrderChatContent } from '@/types/chatItem';
-import { BaseStatusMessageItem } from './base/BaseStatusMessageItem';
-import { LuArrowRightLeft } from 'react-icons/lu';
+import { FC } from 'react';
+import { LuTrendingUp, LuExternalLink } from 'react-icons/lu';
+import { FiCopy } from 'react-icons/fi';
+import { toast } from 'sonner';
+import { BaseExpandableMessageItem } from './base/BaseExpandableMessageItem';
 
-interface LimitOrderChatItemProps {
-  props: LimitOrderChatContent;
+interface LimitOrderData {
+  transaction: string;
+  amount: number;
+  input_mint: string;
+  output_mint: string;
+  limit_price: number;
+  action: string; // 'buy' or 'sell'
+  priority_fee_needed: boolean;
+  params_order: any; // Additional parameters for the order
+  details?: {
+    tickers?: {
+      inputTokenTicker?: string;
+      outputTokenTicker?: string;
+    };
+  };
 }
 
-export const CreateLimitOrderMessageItem: FC<LimitOrderChatItemProps> = ({
-  props,
-}) => {
-  const [txStatus, setTxStatus] = useState<'pending' | 'success' | 'failed'>(
-    props.status || 'pending'
-  );
-  const [lastChecked, setLastChecked] = useState<string>(
-    new Date().toISOString()
-  );
-  const [isPolling, setIsPolling] = useState<boolean>(true);
+interface CreateLimitOrderMessageItemProps {
+  props: LimitOrderData;
+}
 
-  useEffect(() => {
-    if (!props.txn || txStatus === 'success' || txStatus === 'failed') {
-      setIsPolling(false);
-      return;
+export const CreateLimitOrderMessageItem: FC<
+  CreateLimitOrderMessageItemProps
+> = ({ props }) => {
+  // Format token names for better display
+  const getTokenDisplay = (mintAddress: string) => {
+    if (!mintAddress) return 'Unknown';
+    if (mintAddress.startsWith('$')) {
+      return mintAddress.substring(1); // Remove $ prefix for symbols
     }
-
-    let timeoutId: number;
-    let attempts = 0;
-    const maxAttempts = 30;
-    const interval = 2000;
-
-    const checkStatus = async () => {
-      try {
-        if (attempts >= maxAttempts) {
-          setTxStatus('failed');
-          setLastChecked(new Date().toISOString());
-          setIsPolling(false);
-          return;
-        }
-
-        attempts++;
-
-        // Use the API endpoint instead of direct connection
-        const response = await fetch('/api/get-transaction', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            signature: props.txn,
-            options: {
-              maxSupportedTransactionVersion: 0,
-              commitment: 'confirmed',
-            },
-          }),
-        });
-
-        const data = await response.json();
-
-        if (data.status === 'success') {
-          if (data.transaction) {
-            if (data.error) {
-              setTxStatus('failed');
-              setLastChecked(new Date().toISOString());
-              setIsPolling(false);
-              return;
-            }
-
-            setTxStatus('success');
-            setLastChecked(new Date().toISOString());
-            setIsPolling(false);
-            return;
-          }
-
-          // Transaction not found yet, continue polling
-          setLastChecked(new Date().toISOString());
-          timeoutId = window.setTimeout(checkStatus, interval);
-        } else {
-          // API error
-          console.error('API Error:', data.message);
-          setLastChecked(new Date().toISOString());
-          timeoutId = window.setTimeout(checkStatus, interval);
-        }
-      } catch (error) {
-        console.error('Error checking transaction status:', error);
-        setLastChecked(new Date().toISOString());
-        timeoutId = window.setTimeout(checkStatus, interval);
-      }
-    };
-
-    if (isPolling) {
-      timeoutId = window.setTimeout(checkStatus, 0);
-    }
-
-    return () => {
-      window.clearTimeout(timeoutId);
-      setIsPolling(false);
-    };
-  }, [props.txn, txStatus, isPolling]);
-
-  const formatTime = (timestamp: string) => {
-    try {
-      return new Date(timestamp).toLocaleTimeString();
-    } catch (e) {
-      return 'Invalid time';
-    }
+    // For addresses, show abbreviated version
+    return mintAddress.length > 12
+      ? `${mintAddress.substring(0, 6)}...${mintAddress.substring(mintAddress.length - 4)}`
+      : mintAddress;
   };
 
   // Get token names without $ if they exist
-  const inputToken = props.data.input_mint.startsWith('$')
-    ? props.data.input_mint.substring(1)
-    : props.data.input_mint.substring(0, 6) + '...';
+  const inputToken = props.details?.tickers?.inputTokenTicker
+    ? props.details.tickers.inputTokenTicker
+    : getTokenDisplay(props.input_mint);
+  const outputToken = props.details?.tickers?.outputTokenTicker
+    ? props.details.tickers.outputTokenTicker
+    : getTokenDisplay(props.output_mint);
 
-  const outputToken = props.data.output_mint.startsWith('$')
-    ? props.data.output_mint.substring(1)
-    : props.data.output_mint.substring(0, 6) + '...';
+  // Determine action text
+  const actionText = props.action === 'buy' ? 'Buy' : 'Sell';
 
-  const statusIcon = (
-    <LuArrowRightLeft
-      className={
-        txStatus === 'success'
-          ? 'text-green-500'
-          : txStatus === 'failed'
-            ? 'text-red-500'
-            : 'text-primary animate-spin'
-      }
-      size={24}
-    />
-  );
-
-  const footer = (
-    <div className="flex justify-between items-center">
-      <div className="text-xs text-secText">
-        {txStatus === 'success'
-          ? `Success at ${formatTime(lastChecked)}`
-          : txStatus === 'pending'
-            ? `Submitted at ${formatTime(props.timestamp || new Date().toISOString())}`
-            : `Last checked at ${formatTime(lastChecked)}`}
-      </div>
-      <a
-        href={`https://solscan.io/tx/${props.txn}`}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="text-primary hover:text-primary/80 transition text-sm flex items-center"
-        onClick={(e) => e.stopPropagation()}
-      >
-        View on Solscan
-        <svg
-          className="w-3 h-3 ml-1"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-          ></path>
-        </svg>
-      </a>
+  // Compact content
+  const compactContent = (
+    <div className="flex items-center gap-2">
+      <span className="text-textColor text-sm font-medium">
+        {actionText} {props.amount} {inputToken} @ {props.limit_price}{' '}
+        {outputToken}
+      </span>
     </div>
   );
 
-  return (
-    <BaseStatusMessageItem
-      title="Limit Order"
-      status={
-        txStatus === 'success'
-          ? 'success'
-          : txStatus === 'failed'
-            ? 'error'
-            : 'pending'
-      }
-      statusText={txStatus.charAt(0).toUpperCase() + txStatus.slice(1)}
-      icon={statusIcon}
-      footer={footer}
-    >
-      <div className="grid grid-cols-3 gap-4 mb-3">
-        <div className="flex flex-col">
-          <span className="text-secText text-sm">From</span>
-          <span className="font-medium text-textColor">
-            {props.data.amount} {inputToken}
-          </span>
+  // Compact footer
+  const compactFooter = (
+    <>
+      <div className="flex items-center gap-1">
+        <a
+          href={`https://solscan.io`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="p-1 rounded-full hover:bg-surface/50 transition-colors"
+          title="View on Solscan"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <LuExternalLink className="text-secText" size={12} />
+        </a>
+      </div>
+
+      <div>
+        <span className="text-xs text-secText">
+          {props.priority_fee_needed
+            ? 'Priority Fee Required'
+            : 'No Priority Fee'}
+        </span>
+      </div>
+    </>
+  );
+
+  // Expanded content
+  const expandedContent = (
+    <>
+      {/* Header */}
+      <div className="px-4 py-3 border-b border-border flex justify-between items-center bg-primary/10">
+        <h2 className="text-lg font-semibold text-textColor flex items-center gap-2">
+          <div className="bg-primary/10 p-1 rounded-lg">
+            <LuTrendingUp className="text-primary" size={28} />
+          </div>
+          Limit Order
+        </h2>
+      </div>
+
+      {/* Content */}
+      <div className="p-4">
+        <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex flex-col gap-4 w-full">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-background rounded-lg p-3">
+                <p className="text-secText text-sm">Order Type</p>
+                <div className="flex items-center mt-1">
+                  <p className="text-textColor text-lg font-bold">
+                    {actionText} Limit Order
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-background rounded-lg p-3">
+                <p className="text-secText text-sm">Amount</p>
+                <div className="flex items-center mt-1">
+                  <p className="text-textColor text-lg font-bold">
+                    {props.amount} {inputToken}
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-background rounded-lg p-3">
+                <p className="text-secText text-sm">Limit Price</p>
+                <p className="text-textColor text-lg font-bold">
+                  {props.limit_price} {outputToken}
+                </p>
+              </div>
+
+              <div className="bg-background rounded-lg p-3">
+                <p className="text-secText text-sm">Priority Fee</p>
+                <p className="text-textColor text-lg font-bold">
+                  {props.priority_fee_needed ? 'Required' : 'Not Required'}
+                </p>
+              </div>
+            </div>
+
+            {/* Token Addresses */}
+            <div className="flex flex-col gap-2">
+              <div className="bg-surface/30 p-2 rounded-lg flex items-center justify-between">
+                <span className="text-xs text-secText">Input Token:</span>
+                <div className="flex items-center">
+                  <span className="text-xs font-mono text-textColor mr-1">
+                    {props.input_mint}
+                  </span>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigator.clipboard.writeText(props.input_mint);
+                      toast.success('Copied to clipboard');
+                    }}
+                    className="p-1 rounded-full hover:bg-surface/50"
+                  >
+                    <FiCopy size={12} className="text-secText" />
+                  </button>
+                </div>
+              </div>
+              <div className="bg-surface/30 p-2 rounded-lg flex items-center justify-between">
+                <span className="text-xs text-secText">Output Token:</span>
+                <div className="flex items-center">
+                  <span className="text-xs font-mono text-textColor mr-1">
+                    {props.output_mint}
+                  </span>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigator.clipboard.writeText(props.output_mint);
+                      toast.success('Copied to clipboard');
+                    }}
+                    className="p-1 rounded-full hover:bg-surface/50"
+                  >
+                    <FiCopy size={12} className="text-secText" />
+                  </button>
+                </div>
+              </div>
+              <div className="bg-surface/30 p-2 rounded-lg flex items-center justify-between">
+                <span className="text-xs text-secText">Transaction ID:</span>
+                <div className="flex items-center">
+                  <span className="text-xs font-mono text-textColor mr-1">
+                    {props.transaction.length > 20
+                      ? `${props.transaction.substring(0, 10)}...${props.transaction.substring(props.transaction.length - 10)}`
+                      : props.transaction}
+                  </span>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigator.clipboard.writeText(props.transaction);
+                      toast.success('Copied to clipboard');
+                    }}
+                    className="p-1 rounded-full hover:bg-surface/50"
+                  >
+                    <FiCopy size={12} className="text-secText" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-        <div className="flex flex-col">
-          <span className="text-secText text-sm">To</span>
-          <span className="font-medium text-textColor">{outputToken}</span>
-        </div>
-        <div className="flex flex-col">
-          <span className="text-secText text-sm">at</span>
-          <span className="font-medium text-textColor">
-            {props.data.limit_price}$
-          </span>
+
+        {/* Footer with transaction action button */}
+        <div className="mt-4 pt-3 border-t border-border">
+          <div className="text-xs text-secText">
+            <p>
+              This limit order will execute when the market price reaches your
+              specified limit price.
+            </p>
+          </div>
         </div>
       </div>
-    </BaseStatusMessageItem>
+    </>
+  );
+
+  return (
+    <BaseExpandableMessageItem
+      title="Limit Order"
+      icon={<LuTrendingUp className="text-primary" size={16} />}
+      compactContent={compactContent}
+      expandedContent={expandedContent}
+      footer={compactFooter}
+      maxWidth="max-w-lg"
+    />
   );
 };

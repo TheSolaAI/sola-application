@@ -9,7 +9,7 @@ interface SimpleMessageItemProps {
 export const SimpleMessageItem: FC<SimpleMessageItemProps> = ({ text }) => {
   return (
     <div className="my-5 max-w-[100%] md:max-w-[80%]">
-      <div className="text-textColor p-3 rounded-r-xl rounded-tl-2xl font-normal text-md">
+      <div className="text-textColor p-3 rounded-r-xl rounded-tl-2xl font-normal text-md text-wrap">
         <MarkdownRenderer content={text} />
       </div>
     </div>

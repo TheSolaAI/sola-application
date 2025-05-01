@@ -18,6 +18,8 @@ import { NFTCollectionMessageItem } from '@/components/messages/NFTCollectionMes
 import { SwapTokenMessageItem } from '@/components/messages/SwapTokenMessageItem';
 import { FeatureRequestMessageItem } from '@/components/messages/FeatureRequestMessageItem';
 import { BugReportMessageItem } from '@/components/messages/BugReportMessageItem';
+import { ThemeChangeMessageItem } from '@/components/messages/ThemeChangeMessageItem';
+import { CreateLimitOrderMessageItem } from '@/components/messages/CreateLimitOrderMessageItem';
 
 export function renderMessageContent(message: UIMessage) {
   const role = message.role;
@@ -63,9 +65,13 @@ export function renderMessageContent(message: UIMessage) {
 
 export function renderToolResult(
   toolName: string,
-  args: ToolResult
+  args: ToolResult | undefined
 ): React.ReactNode {
   // in the case we have a caught error in the tool and we have propagated said error to the frontEnd we display that error here
+  if (args === undefined) {
+    return;
+  }
+
   if (!args.success) {
     return <SimpleMessageItem text={`Error: ${args.error}`} />;
   }
@@ -74,6 +80,8 @@ export function renderToolResult(
       return <TokenAddressResultMessageItem props={args.data} />;
     case 'getLimitOrderTool':
       return <ShowLimitOrdersMessageItem props={args.data} />;
+    case 'createLimitOrderTool':
+      return <CreateLimitOrderMessageItem props={args.data} />;
     case 'trendingAiProjects':
       return <AiProjectsMessageItem props={args.data} />;
     case 'getLuloAssetsTool':
@@ -102,6 +110,8 @@ export function renderToolResult(
       return <FeatureRequestMessageItem props={args.data} />;
     case 'reportBug':
       return <BugReportMessageItem props={args.data} />;
+    case 'changeTheme':
+      return <ThemeChangeMessageItem props={args.data} />;
     default:
       return <SimpleMessageItem text={JSON.stringify(args.data)} />;
   }

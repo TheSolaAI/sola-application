@@ -1,7 +1,10 @@
 import { prisma } from '@/lib/prisma';
 import { getUserTier, TIME_WINDOW_HOURS } from '@/config/tierMapping'; // Adjust the path if necessary
+import { UserTierStatus } from '@/types/tier';
 
-export async function hasExceededUsageLimit(privyId: string): Promise<boolean> {
+export async function hasExceededUsageLimit(
+  privyId: string
+): Promise<UserTierStatus> {
   const now = new Date();
 
   const cutoffTime = new Date(
@@ -36,7 +39,17 @@ export async function hasExceededUsageLimit(privyId: string): Promise<boolean> {
   const totalUsdUsed = recentUsage._sum.usdConsumed ?? 0;
 
   if (totalUsdUsed > userTier.usageLimitUSD) {
-    return true;
+    return {
+      active: false,
+      tier: userTier.id,
+      usageLimitUSD: userTier.usageLimitUSD,
+      percentageUsed: 100,
+    };
   }
-  return false;
+  return {
+    active: true,
+    tier: userTier.id,
+    usageLimitUSD: userTier.usageLimitUSD,
+    percentageUsed: (totalUsdUsed / userTier.usageLimitUSD) * 100,
+  };
 }
