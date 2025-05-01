@@ -49,31 +49,46 @@ Create a `.env` file in the root directory with the following environment variab
 ### Required Environment Variables
 
 ```env
-# OpenAI Configuration
-NEXT_PUBLIC_OPENAI_API_URL=https://api.openai.com/v1/realtime?model=gpt-4o-mini-realtime-preview-2024-12-17
-OPENAI_API_KEY= #your open-ai key
+# Base URL
+NEXT_PUBLIC_BASE_URL=https://beta.solaai.xyz
 
-# Authentication
-NEXT_PUBLIC_PRIVY_APP_ID=cm5lc4euv00c5kmrbpu9oj0u4  
+# Authentication (Privy)
+NEXT_PUBLIC_PRIVY_APP_ID=cm5lc4euv00c5kmrbpu9oj0u4
+PRIVY_VERIFICATION_KEY=
+PRIVY_APP_SECRET=
+
+# OpenAI Configuration
+OPENAI_API_KEY=
+
+# Database Configuration
+DATABASE_URL=
 
 # Solana Configuration
-NEXT_PUBLIC_SOLANA_RPC= #Solana RPC
-SOLANA_RPC_URL= #Solana RPC
+NEXT_PUBLIC_SOLANA_RPC=
+SOLANA_RPC_URL=
+SOLANA_PRIVATE_KEY=
 
 # Microservices URLs
-NEXT_PUBLIC_WALLET_SERVICE_URL=https://wallet-service.solaai.tech/  
-NEXT_PUBLIC_DATA_SERVICE_URL=https://data-stream-service.solaai.tech/  
-NEXT_PUBLIC_AUTH_SERVICE_URL=https://user-service.solaai.tech/api/v1/  
+NEXT_PUBLIC_WALLET_SERVICE_URL=https://wallet-service.solaai.tech/
+NEXT_PUBLIC_DATA_SERVICE_URL=https://data-stream-service.solaai.tech/
+NEXT_PUBLIC_AUTH_SERVICE_URL=https://user-service.solaai.tech/api/v1/
+
+# Monitoring (Optional)
+SENTRY_AUTH_TOKEN=
 ```
 
 ### Environment Variable Details
 
-- **OPENAI_API_URL**: Use GPT-4.0 realtime or realtime mini model url
-- **PRIVY_APP_ID**: Use `cm5lc4euv00c5kmrbpu9oj0u4` or your own privy ID.
-- **HELIUS_API_KEY**: Your Helius API key for Solana data access
-- **SOLANA_RPC**: Your Solana RPC endpoint (Helius RPC recommended)
-- **ATA_PRIV_KEY**: Solana private key for general validation (not used in transactions)
-- **SENTRY_AUTH_TOKEN**: Can use dummy value for development
+- **NEXT_PUBLIC_BASE_URL**: The base URL for the application (e.g., https://beta.solaai.xyz)
+- **NEXT_PUBLIC_PRIVY_APP_ID**: Use `cm5lc4euv00c5kmrbpu9oj0u4` or your own Privy app ID
+- **PRIVY_VERIFICATION_KEY**: Your Privy verification key for server-side authentication
+- **PRIVY_APP_SECRET**: Your Privy app secret for secure server-side operations
+- **OPENAI_API_KEY**: Your OpenAI API key for AI functionality
+- **DATABASE_URL**: PostgreSQL database connection string for Prisma
+- **NEXT_PUBLIC_SOLANA_RPC**: Public-facing Solana RPC endpoint
+- **SOLANA_RPC_URL**: Server-side Solana RPC endpoint
+- **SOLANA_PRIVATE_KEY**: Solana private key for signing transactions
+- **SENTRY_AUTH_TOKEN**: Sentry authentication token for error monitoring (optional for development)
 
 ### Security Note
 
@@ -89,7 +104,7 @@ For production deployments:
 Start the development server:
 
 ```sh
-yarn dev -p 5173
+yarn dev
 ```
 
 The application will be available at `http://localhost:5173`
@@ -122,7 +137,13 @@ If you encounter issues during setup:
    - Check for typos in variable names
    - Ensure service endpoints are accessible
 
-4. **Network Issues**
+4. **Database Connection**
+
+   - Verify your PostgreSQL database is running
+   - Check that your DATABASE_URL is correctly formatted
+   - Run `npx prisma generate` to update the Prisma client
+
+5. **Network Issues**
 
    - Check your internet connection
    - Verify Solana RPC endpoint is responsive
