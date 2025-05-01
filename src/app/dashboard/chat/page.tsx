@@ -287,7 +287,7 @@ export default function NewChat() {
     {
       title: 'Place a Limit Order',
       description:
-        'Place a limit order for swapping 10 dollars of SOL to USDC when the price hits $200',
+        'Place a limit order for swapping 1 SOL to USDC when the price hits $200',
       id: 'wallet',
     },
     {
