@@ -53,9 +53,6 @@ export default function Footer() {
       name: 'Gate.io',
       href: 'https://www.gate.io/fr/pilot/solana/sola-ai-sola',
     },
-    { name: 'MEXC', href: 'https://www.mexc.com/exchange/SOLA_USDT' },
-    { name: 'LBank', href: 'https://www.lbank.com/trade/sola_usdt' },
-    { name: 'XT Exchange', href: 'https://www.xt.com/en/trade/sola_usdt' },
     { name: 'KCEX', href: 'https://www.kcex.com/exchange/SOLA_USDT' },
   ];
 
