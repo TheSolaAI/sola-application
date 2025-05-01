@@ -7,8 +7,12 @@ import { useWalletHandler } from '@/store/WalletHandler';
 import { useUserHandler } from '@/store/UserHandler';
 import { VersionedTransaction } from '@solana/web3.js';
 import { ToolResult } from '@/types/tool';
-import { TransactionResponse } from '@/types/response';
+import { ToolSetChooserResponse, TransactionResponse } from '@/types/response';
 import { storeToolResultMessage } from '@/lib/db/db';
+import { useDispatch } from 'react-redux';
+import { updateCurrentUsage } from '@/redux/features/user/tier';
+import { changeThemeTool } from '@/tools/managementToolSet/changeThemeTool';
+import { useLayoutContext } from '@/providers/LayoutProvider';
 
 export function useChatMessages(
   roomId: string,
@@ -18,6 +22,9 @@ export function useChatMessages(
   >
 ) {
   const { setLoadingMessage, messages: dbMessages } = useChatMessageHandler();
+  const dispatch = useDispatch();
+
+  const { setSettingsIsOpen } = useLayoutContext();
 
   // Set up useChat hook
   const { messages, setMessages, append, isLoading, error } = useChat({
@@ -30,21 +37,30 @@ export function useChatMessages(
     },
     maxSteps: 5,
     async onToolCall({ toolCall }) {
+      let result: ToolResult | undefined;
       if (toolCall.toolName === 'sign_and_send_tx') {
-        const result = await handleSignTransaction(toolCall.args);
-        // store this result in DB
-        await storeToolResultMessage(
-          {
-            toolName: toolCall.toolName,
-            toolCallId: toolCall.toolCallId,
-            args: toolCall.args,
-            result,
-          },
-          roomId,
-          useUserHandler.getState().authToken!
-        );
-        return result;
+        result = await handleSignTransaction(toolCall.args);
+        console.log('Transaction result:', result);
+      } else if (toolCall.toolName === 'changeTheme') {
+        result = changeThemeTool(toolCall.args);
+        // in the case that the theme was not changed open the settings screen
+        if (!result.data.autoSwitched) {
+          setSettingsIsOpen(true);
+        }
       }
+      // store this result in DB
+      await storeToolResultMessage(
+        {
+          toolName: toolCall.toolName,
+          toolCallId: toolCall.toolCallId,
+          args: toolCall.args,
+          result,
+        },
+        roomId,
+        useUserHandler.getState().authToken!
+      );
+      console.log('Tool result:', result);
+      return result;
     },
     onError: (error) => {
       console.error('Chat error:', error);
@@ -133,7 +149,17 @@ export function useChatMessages(
         throw new Error('Failed to determine required toolset');
       }
 
-      const toolsetData = await toolsetResponse.json();
+      const toolsetData: ToolSetChooserResponse = await toolsetResponse.json();
+
+      // update the current usage limits in our local store
+      if (toolsetData.usageLimit) {
+        dispatch(
+          updateCurrentUsage({
+            currentUsage: toolsetData.usageLimit.usageLimitUSD || 0,
+            percentageUsed: toolsetData.usageLimit.percentageUsed || 0,
+          })
+        );
+      }
 
       if (toolsetData.selectedToolset.length === 0 || toolsetData.audioData) {
         handleAddUserMessage(currentMessage);

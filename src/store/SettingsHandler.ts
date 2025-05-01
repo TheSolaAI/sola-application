@@ -7,7 +7,6 @@ import { UserSettingsResponse } from '@/types/response';
 import useThemeManager, { Theme } from '@/store/ThemeManager';
 import { UpdateUserSettingsRequest } from '@/types/request';
 import { useSessionHandler } from '@/store/SessionHandler';
-import { useCreditHandler } from '@/store/CreditHandler';
 import { useUserHandler } from '@/store/UserHandler';
 
 interface SettingsHandler {
@@ -49,9 +48,6 @@ export const useSettingsHandler = create<SettingsHandler>(() => {
         useUserHandler.getState().setProfilePic(response.data.profile_pic);
         useSessionHandler.getState().setAiEmotion(response.data.emotion_choice);
         useSessionHandler.getState().setAiVoice(response.data.voice_preference);
-        useCreditHandler
-          .getState()
-          .setCurrentCredits(response.data.credits_remaining);
       } else {
         toast.error('Failed to fetch settings.');
       }

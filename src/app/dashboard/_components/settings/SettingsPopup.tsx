@@ -1,4 +1,4 @@
-import { useState, FC, useRef } from 'react';
+import { useState, FC, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { IoIosSunny, IoMdClose } from 'react-icons/io';
 import { IoMoonOutline } from 'react-icons/io5';
@@ -9,7 +9,7 @@ import {
   AIConfigSettings,
   AIConfigSettingsRef,
 } from '@/app/dashboard/_components/settings/AiConfigSettings';
-import { LuUser } from 'react-icons/lu';
+import { LuBadgeDollarSign, LuUser } from 'react-icons/lu';
 import {
   UserSettings,
   UserSettingsRef,
@@ -18,7 +18,12 @@ import {
   ThemeSettings,
   ThemeSettingsRef,
 } from '@/app/dashboard/_components/settings/ThemeSettings';
+import {
+  TierSettings,
+  TierSettingsRef,
+} from '@/app/dashboard/_components/settings/TierSettings';
 import { WalletSettings } from '@/app/dashboard/_components/settings/WalletSettings';
+
 export const SettingsModal: FC<{ isOpen: boolean; onClose: () => void }> = ({
   isOpen,
   onClose,
@@ -34,6 +39,7 @@ export const SettingsModal: FC<{ isOpen: boolean; onClose: () => void }> = ({
   const walletSettingsRef = useRef<UserSettingsRef>(null);
   const userSettingsRef = useRef<UserSettingsRef>(null);
   const themeSettingsRef = useRef<ThemeSettingsRef>(null);
+  const tierSettingsRef = useRef<TierSettingsRef>(null);
 
   // Handle section change
   const handleSectionChange = (section: string) => {
@@ -54,6 +60,7 @@ export const SettingsModal: FC<{ isOpen: boolean; onClose: () => void }> = ({
     walletSettingsRef.current?.onSubmit();
     userSettingsRef.current?.onSubmit();
     themeSettingsRef.current?.onSubmit();
+    tierSettingsRef.current?.onSubmit();
     onClose();
   };
 
@@ -144,6 +151,20 @@ export const SettingsModal: FC<{ isOpen: boolean; onClose: () => void }> = ({
                       )}
                       <span className={`${isMobile ? 'hidden' : 'block'}`}>
                         Theme Settings
+                      </span>
+                    </button>
+
+                    <button
+                      onClick={() => handleSectionChange('tier')}
+                      className={`flex items-center gap-3 px-4 py-3 transition-colors ${
+                        activeSection === 'tier'
+                          ? 'bg-primary/10 text-primary border-r-4 border-primary'
+                          : 'text-textColor hover:bg-background/50'
+                      }`}
+                    >
+                      <LuBadgeDollarSign size={18} />
+                      <span className={`${isMobile ? 'hidden' : 'block'}`}>
+                        Tier Settings
                       </span>
                     </button>
 
@@ -244,6 +265,17 @@ export const SettingsModal: FC<{ isOpen: boolean; onClose: () => void }> = ({
                           transition={{ duration: 0.2 }}
                         >
                           <UserSettings ref={userSettingsRef} />
+                        </motion.div>
+                      )}
+                      {activeSection === 'tier' && (
+                        <motion.div
+                          key="tier-settings"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                          transition={{ duration: 0.2 }}
+                        >
+                          <TierSettings ref={tierSettingsRef} />
                         </motion.div>
                       )}
                     </AnimatePresence>

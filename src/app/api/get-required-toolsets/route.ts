@@ -71,12 +71,10 @@ export async function POST(req: Request) {
         { status: 401 }
       );
     }
-    if (
-      process.env.NODE_ENV === 'production' &&
-      (await hasExceededUsageLimit(privyId))
-    ) {
+    const usageLimit = await hasExceededUsageLimit(privyId);
+    if (process.env.NODE_ENV === 'production' && !usageLimit.active) {
       return NextResponse.json(
-        { error: 'Usage limit exceeded' },
+        { error: 'Usage limit exceeded', usageLimit },
         { status: 403 }
       );
     }
@@ -203,6 +201,7 @@ export async function POST(req: Request) {
         fallbackResponse,
         audioData,
         needsToolset: !fallbackResponse,
+        usageLimit,
       }),
       {
         headers: { 'Content-Type': 'application/json' },

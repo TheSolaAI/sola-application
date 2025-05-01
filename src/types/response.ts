@@ -1,5 +1,6 @@
 import { AIVoice } from '@/config/ai';
 import { Theme } from '@/store/ThemeManager';
+import { UserTierStatus } from './tier';
 
 export interface UserSettingsResponse {
   id: number;
@@ -48,4 +49,12 @@ export interface TransactionResponse {
   status: string;
   txid: string;
   message: string;
+}
+
+export interface ToolSetChooserResponse {
+  selectedToolset: string[];
+  fallbackResponse: string;
+  audioData: string;
+  needsToolset: boolean;
+  usageLimit: UserTierStatus;
 }

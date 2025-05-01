@@ -17,22 +17,6 @@
   "dark": {
     "baseTheme": "dark",
     "baseBackground": "#000000",
-    "background": "#202020",
-    "backgroundContrast": "#fafafa",
-    "sec_background": "#1B1B1B",
-    "surface": "#1E1E1E",
-    "textColor": "#FFFFFF",
-    "textColorContrast": "#000000",
-    "secText": "#A0AEC0",
-    "border": "#484848",
-    "primary": "#9278b2",
-    "primaryDark": "#7C3AED",
-    "dashboardBackground": "#FFFFFF"
-  },
-
-  "minimal-dark": {
-    "baseTheme": "dark",
-    "baseBackground": "#000000",
     "background": "#0A0A0A",
     "backgroundContrast": "#FAFAFA",
     "sec_background": "#141414",
@@ -43,6 +27,21 @@
     "border": "#333333",
     "primary": "#8C9EFF",
     "primaryDark": "#536DFE",
+    "dashboardBackground": "#FFFFFF"
+  },
+  "materialDark": {
+    "baseTheme": "dark",
+    "baseBackground": "#000000",
+    "background": "#202020",
+    "backgroundContrast": "#fafafa",
+    "sec_background": "#1B1B1B",
+    "surface": "#1E1E1E",
+    "textColor": "#FFFFFF",
+    "textColorContrast": "#000000",
+    "secText": "#A0AEC0",
+    "border": "#484848",
+    "primary": "#9278b2",
+    "primaryDark": "#7C3AED",
     "dashboardBackground": "#FFFFFF"
   },
   "softPastel": {
@@ -88,21 +87,6 @@
     "border": "#4C566A",
     "primary": "#7AA2F7",
     "primaryDark": "#6187E0",
-    "dashboardBackground": "#000000"
-  },
-  "materialShadow": {
-    "baseTheme": "dark",
-    "baseBackground": "#121212",
-    "background": "#1E1E1E",
-    "backgroundContrast": "#FFFFFF",
-    "sec_background": "#272727",
-    "surface": "#303030",
-    "textColor": "#FFFFFF",
-    "textColorContrast": "#121212",
-    "secText": "#B0BEC5",
-    "border": "#424242",
-    "primary": "#BB86FC",
-    "primaryDark": "#6200EE",
     "dashboardBackground": "#000000"
   },
   "monokaiMidnight": {
