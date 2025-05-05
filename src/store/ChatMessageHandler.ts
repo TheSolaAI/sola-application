@@ -29,6 +29,7 @@ interface ChatMessageHandler {
   setLoadingMessage: (message: string | null) => void;
   setShowMessageSkeleton: (show: boolean) => void;
   commitCurrentChat: () => Promise<void>;
+  clearChatState: () => void;
 }
 
 export const useChatMessageHandler = create<ChatMessageHandler>((set, get) => {
@@ -43,10 +44,22 @@ export const useChatMessageHandler = create<ChatMessageHandler>((set, get) => {
     initChatMessageHandler: async () => {
       const currentRoomID = useChatRoomHandler.getState().currentChatRoom?.id;
       if (!currentRoomID) {
-        set({ messages: [], currentChatItem: null });
+        // When no room is selected, clear all message state
+        set({
+          messages: [],
+          currentChatItem: null,
+          loadingMessage: null,
+          next: null,
+          showMessageSkeleton: false,
+        });
         return;
       }
-      set({ state: 'loading', messages: [], currentChatItem: null });
+      set({
+        state: 'loading',
+        messages: [],
+        currentChatItem: null,
+        next: null,
+      });
       // fetch only the first 40 messages and we will fetch the rest as we scroll
       const response = await apiClient.get<ChatMessagesResponse>(
         API_URLS.CHAT_ROOMS + currentRoomID + '/messages/?limit=40',
@@ -181,6 +194,18 @@ export const useChatMessageHandler = create<ChatMessageHandler>((set, get) => {
         await get().addMessage(get().currentChatItem!);
         set({ currentChatItem: null });
       }
+    },
+
+    // Clear all chat message state - used when switching rooms
+    clearChatState: () => {
+      set({
+        messages: [],
+        currentChatItem: null,
+        loadingMessage: null,
+        next: null,
+        showMessageSkeleton: false,
+        state: 'idle',
+      });
     },
   };
 });

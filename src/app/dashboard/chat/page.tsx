@@ -239,6 +239,9 @@ export default function NewChat() {
     try {
       toast.loading('Creating your chat...');
 
+      // Clear any previous pending messages to avoid contamination
+      localStorage.removeItem('pending_message');
+
       // Create a new chat room with a title based on the message
       const title =
         messageText.substring(0, 20) + (messageText.length > 20 ? '...' : '');

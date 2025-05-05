@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { Message, generateId } from 'ai';
 import { useChat } from '@ai-sdk/react';
 import { toast } from 'sonner';
@@ -27,10 +27,15 @@ export function useChatMessages(
 
   const { setSettingsIsOpen } = useLayoutContext();
 
-  // Set up useChat hook
+  // Used to determine if this is a new room instance
+  const previousRoomIdRef = useRef<string | null>(null);
+  const isNewRoom = previousRoomIdRef.current !== roomId;
+
+  // Set up useChat hook - importantly, we only use dbMessages as initialMessages
+  // when first loading an existing room, not when switching rooms
   const { messages, setMessages, append, isLoading, error } = useChat({
     api: '/api/chat',
-    initialMessages: dbMessages,
+    initialMessages: isNewRoom ? [] : dbMessages,
     id: `chat-${roomId}`,
     body: {
       walletPublicKey: useWalletHandler.getState().currentWallet?.address,
@@ -90,12 +95,35 @@ export function useChatMessages(
     },
   });
 
-  // Check for a pending message from localStorage on mount
+  // Update the room ID reference and load messages for new rooms
   useEffect(() => {
+    // Clear messages and reset state when switching to a new room
+    if (
+      previousRoomIdRef.current !== null &&
+      previousRoomIdRef.current !== roomId
+    ) {
+      // Reset messages when switching rooms
+      setMessages([]);
+      // Clear all state in the global message handler
+      useChatMessageHandler.getState().clearChatState();
+    }
+
+    // Load messages from database for the current room
+    if (roomId) {
+      useChatMessageHandler.getState().initChatMessageHandler();
+    }
+
+    // Update the room ID reference
+    previousRoomIdRef.current = roomId;
+
+    // Check for pending messages after setting up the new room
     const pendingMessage = localStorage.getItem('pending_message');
     if (pendingMessage) {
       localStorage.removeItem('pending_message');
-      processMessage(pendingMessage);
+      // Small delay to ensure the room is fully initialized before processing the message
+      setTimeout(() => {
+        processMessage(pendingMessage);
+      }, 100);
     }
   }, [roomId]);
 

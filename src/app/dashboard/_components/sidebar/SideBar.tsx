@@ -194,6 +194,9 @@ export const Sidebar: FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
                   className="w-full h-full group flex items-center justify-center rounded-xl p-[2px] transition-all duration-300 active:scale-95
                     bg-background bg-gradient-to-r from-primary to-primaryDark hover:shadow-primaryDark"
                   onClick={() => {
+                    // Clear any pending messages in localStorage
+                    localStorage.removeItem('pending_message');
+                    // Reset chat room state
                     setCurrentChatRoom(null);
                     useChatMessageHandler.getState().messages = [];
                     router.push('/dashboard/chat');
@@ -215,6 +218,9 @@ export const Sidebar: FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
               <button
                 className="w-12 h-12 flex items-center justify-center rounded-xl bg-primary/10 hover:bg-primary/20 transition-all duration-300 active:scale-95"
                 onClick={() => {
+                  // Clear any pending messages in localStorage
+                  localStorage.removeItem('pending_message');
+                  // Reset chat state
                   setCurrentChatRoom(null);
                   useChatMessageHandler.getState().messages = [];
                   router.push('/dashboard/chat');
