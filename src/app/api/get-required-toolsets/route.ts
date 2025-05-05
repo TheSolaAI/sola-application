@@ -13,11 +13,11 @@ import {
   ToolsetSlug,
 } from '@/config/ai';
 import { z } from 'zod';
-import { cookies } from 'next/headers';
-import { extractUserPrivyId } from '@/lib/server/userSession';
-import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { hasExceededUsageLimit } from '@/lib/server/userTier';
+import {
+  authenticateAndCheckUsage,
+  createErrorResponseFromAuth,
+} from '@/lib/server/authAndUsage';
 
 const ToolsetSelectionSchema = z.object({
   selectedToolset: z.array(
@@ -30,39 +30,6 @@ const ToolsetSelectionSchema = z.object({
     )
     .optional(),
 });
-
-/**
- * Validates if the request is from an authorized mobile client
- * Uses a combination of mobile-client-id and mobile-api-key headers
- */
-function isValidMobileClient(req: Request): boolean {
-  const clientId = req.headers.get('x-mobile-client-id');
-  const apiKey = req.headers.get('x-mobile-api-key');
-  const expectedApiKeys: Record<string, string> = {
-    'ios-app': process.env.IOS_MOBILE_API_KEY || '',
-    'android-app': process.env.ANDROID_MOBILE_API_KEY || '',
-  };
-  if (!clientId || !apiKey || !expectedApiKeys[clientId]) {
-    return false;
-  }
-  return timingSafeEqual(apiKey, expectedApiKeys[clientId]);
-}
-
-/**
- * Constant-time string comparison to prevent timing attacks
- */
-function timingSafeEqual(a: string, b: string): boolean {
-  if (a.length !== b.length) {
-    return false;
-  }
-
-  let result = 0;
-  for (let i = 0; i < a.length; i++) {
-    result |= a.charCodeAt(i) ^ b.charCodeAt(i);
-  }
-
-  return result === 0;
-}
 
 /**
  * Handles POST requests for toolset selection and fallback responses
@@ -81,47 +48,19 @@ export async function POST(req: Request) {
       currentRoomID: string;
     } = await req.json();
 
-    // Get auth token from cookies
-    const cookieStore = cookies();
-    const accessToken = (await cookieStore).get('privy-token')?.value;
-    if (!accessToken) {
-      return new Response('Unauthorized', { status: 401 });
-    }
-    let privyId: string;
-
-    // Check if request is from a mobile client and bypass usage limits if so
-    const isMobileClient = isValidMobileClient(req);
-
-    try {
-      privyId = await extractUserPrivyId(accessToken, isMobileClient);
-    } catch (error) {
-      console.error('Error validating token:', error);
-      return NextResponse.json(
-        { error: 'Invalid or expired authentication token' },
-        { status: 401 }
-      );
-    }
-    if (!privyId) {
-      return NextResponse.json(
-        { error: 'Failed to extract user ID from token' },
-        { status: 401 }
-      );
+    const authResult = await authenticateAndCheckUsage(req);
+    if (
+      !authResult.isAuthenticated ||
+      !authResult.privyId ||
+      !authResult.accessToken
+    ) {
+      return createErrorResponseFromAuth(authResult);
     }
 
-    let usageLimit = { active: true };
-
-    if (!isMobileClient && process.env.NODE_ENV === 'production') {
-      usageLimit = await hasExceededUsageLimit(privyId);
-      if (!usageLimit.active) {
-        return NextResponse.json(
-          { error: 'Usage limit exceeded', usageLimit },
-          { status: 403 }
-        );
-      }
-    }
+    const { privyId, accessToken, usageLimit } = authResult;
 
     console.log(
-      `INFO: Processing toolset selection for message in room ${currentRoomID}${isMobileClient ? ' (mobile client)' : ''}`
+      `INFO: Processing toolset selection for message in room ${currentRoomID}`
     );
 
     try {
@@ -138,7 +77,11 @@ export async function POST(req: Request) {
         ],
       };
 
-      storeMessageInDB(currentRoomID, JSON.stringify(userMessage), accessToken);
+      storeMessageInDB(
+        currentRoomID,
+        JSON.stringify(userMessage),
+        accessToken!
+      );
     } catch (error) {
       console.error(
         `ERROR: Failed to store user message - ${error instanceof Error ? error.message : 'Unknown error'}`

@@ -81,7 +81,6 @@ export async function storeMessageInDB(
       }),
     }
   );
-
   if (!response.ok) {
     throw new Error(
       `Failed to store message: ${response.status} ${response.statusText}`
