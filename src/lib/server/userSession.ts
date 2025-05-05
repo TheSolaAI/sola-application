@@ -19,10 +19,15 @@ const privy = new PrivyClient(
  * @param accessToken The user's access token.
  * @returns The user's Privy ID.
  */
-export const extractUserPrivyId = async (accessToken: string) => {
+export const extractUserPrivyId = async (
+  accessToken: string,
+  isMobile: boolean
+) => {
   const verifiedClaims = await privy.verifyAuthToken(
     accessToken,
-    process.env.PRIVY_VERIFICATION_KEY
+    isMobile
+      ? process.env.PRIVY_MOBILE_VERIFICATION_KEY
+      : process.env.PRIVY_VERIFICATION_KEY
   );
   return verifiedClaims.userId;
 };

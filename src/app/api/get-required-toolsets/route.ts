@@ -89,8 +89,11 @@ export async function POST(req: Request) {
     }
     let privyId: string;
 
+    // Check if request is from a mobile client and bypass usage limits if so
+    const isMobileClient = isValidMobileClient(req);
+
     try {
-      privyId = await extractUserPrivyId(accessToken);
+      privyId = await extractUserPrivyId(accessToken, isMobileClient);
     } catch (error) {
       console.error('Error validating token:', error);
       return NextResponse.json(
@@ -105,8 +108,6 @@ export async function POST(req: Request) {
       );
     }
 
-    // Check if request is from a mobile client and bypass usage limits if so
-    const isMobileClient = isValidMobileClient(req);
     let usageLimit = { active: true };
 
     if (!isMobileClient && process.env.NODE_ENV === 'production') {
