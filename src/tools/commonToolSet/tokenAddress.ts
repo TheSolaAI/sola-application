@@ -12,7 +12,7 @@ export function createTokenAddressTool(context: ToolContext) {
   });
 
   const tokenAddressTool: Tool<typeof Parameters, ToolResult> = {
-    id: 'token.tokenAddress' as const,
+    id: 'common.tokenAddress' as const,
     description:
       'Get the token address for a given token symbol or token name on the Solana blockchain. This tool is useful when you need a token address but the user only provided a token symbol or name. Do not use this tool for wallet addresses.',
     parameters: Parameters,

@@ -13,6 +13,7 @@ import { useDispatch } from 'react-redux';
 import { updateCurrentUsage } from '@/redux/features/user/tier';
 import { changeThemeTool } from '@/tools/managementToolSet/changeThemeTool';
 import { useLayoutContext } from '@/providers/LayoutProvider';
+import { GetUserInfoType } from '@/tools/commonToolSet/getUserInfo';
 
 export function useChatMessages(
   roomId: string,
@@ -46,6 +47,28 @@ export function useChatMessages(
         // in the case that the theme was not changed open the settings screen
         if (!result.data.autoSwitched) {
           setSettingsIsOpen(true);
+        }
+      } else if (toolCall.toolName === 'getUserInfo') {
+        const typedArgs = toolCall.args as GetUserInfoType;
+        const { type } = typedArgs;
+        console.log(typedArgs);
+
+        if (type === 'wallet') {
+          result = {
+            success: true,
+            data: {
+              availableWallets: useWalletHandler
+                .getState()
+                .wallets.map((wallet) => wallet.address),
+              activeSelectedWallet:
+                useWalletHandler.getState().currentWallet?.address,
+            },
+          };
+        } else {
+          result = {
+            success: false,
+            error: 'the selected type is incorrect',
+          };
         }
       }
       // store this result in DB
