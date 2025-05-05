@@ -23,7 +23,6 @@ export function useChatMessages(
 ) {
   const { setLoadingMessage, messages: dbMessages } = useChatMessageHandler();
   const dispatch = useDispatch();
-
   const { setSettingsIsOpen } = useLayoutContext();
 
   // Set up useChat hook
@@ -38,29 +37,49 @@ export function useChatMessages(
     maxSteps: 5,
     async onToolCall({ toolCall }) {
       let result: ToolResult | undefined;
-      if (toolCall.toolName === 'sign_and_send_tx') {
-        result = await handleSignTransaction(toolCall.args);
-        console.log('Transaction result:', result);
-      } else if (toolCall.toolName === 'changeTheme') {
-        result = changeThemeTool(toolCall.args);
-        // in the case that the theme was not changed open the settings screen
-        if (!result.data.autoSwitched) {
-          setSettingsIsOpen(true);
+      try {
+        console.log('Tool call:', toolCall);
+        if (toolCall.toolName === 'sign_and_send_tx') {
+          result = await handleSignTransaction(toolCall.args);
+        } else if (toolCall.toolName === 'changeTheme') {
+          result = changeThemeTool(toolCall.args);
+          // in the case that the theme was not changed open the settings screen
+          if (!result.data.autoSwitched) {
+            setSettingsIsOpen(true);
+          }
+          // store this result in DB
+          await storeToolResultMessage(
+            {
+              toolName: toolCall.toolName,
+              toolCallId: toolCall.toolCallId,
+              args: toolCall.args,
+              result,
+            },
+            roomId,
+            useUserHandler.getState().authToken!
+          );
+          return result;
         }
+      } catch (error) {
+        console.error('Error in tool call:', error);
+        result = {
+          success: false,
+          error: `Error in tool call: ${error}`,
+          data: undefined,
+        };
+        // store this result in DB
+        await storeToolResultMessage(
+          {
+            toolName: toolCall.toolName,
+            toolCallId: toolCall.toolCallId,
+            args: toolCall.args,
+            result,
+          },
+          roomId,
+          useUserHandler.getState().authToken!
+        );
+        return result;
       }
-      // store this result in DB
-      await storeToolResultMessage(
-        {
-          toolName: toolCall.toolName,
-          toolCallId: toolCall.toolCallId,
-          args: toolCall.args,
-          result,
-        },
-        roomId,
-        useUserHandler.getState().authToken!
-      );
-      console.log('Tool result:', result);
-      return result;
     },
     onError: (error) => {
       console.error('Chat error:', error);
