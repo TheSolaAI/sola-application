@@ -9,7 +9,7 @@ import { cookies } from 'next/headers';
 import { extractUserPrivyId } from '@/lib/server/userSession';
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { getGeneralToolSet } from '@/tools/generalToolSet';
+import { getGeneralToolSet } from '@/tools/commonToolSet';
 import { storeTextMessage, storeToolResultMessage } from '@/lib/db/db';
 
 /**
