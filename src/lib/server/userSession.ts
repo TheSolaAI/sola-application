@@ -14,6 +14,11 @@ const privy = new PrivyClient(
   process.env.PRIVY_APP_SECRET || ''
 );
 
+const mobilePrivy = new PrivyClient(
+  process.env.NEXT_PUBLIC_MOBILE_PRIVY_APP_ID || '',
+  process.env.PRIVY_MOBILE_APP_SECRET || ''
+);
+
 /**
  * Extracts the Privy user ID from the provided access token.
  * @param accessToken The user's access token.
@@ -23,13 +28,19 @@ export const extractUserPrivyId = async (
   accessToken: string,
   isMobile: boolean
 ) => {
-  const verifiedClaims = await privy.verifyAuthToken(
-    accessToken,
-    isMobile
-      ? process.env.PRIVY_MOBILE_VERIFICATION_KEY
-      : process.env.PRIVY_VERIFICATION_KEY
-  );
-  return verifiedClaims.userId;
+  if (isMobile) {
+    const mobileClaims = await mobilePrivy.verifyAuthToken(
+      accessToken,
+      process.env.PRIVY_MOBILE_VERIFICATION_KEY
+    );
+    return mobileClaims.userId;
+  } else {
+    const claims = await privy.verifyAuthToken(
+      accessToken,
+      process.env.PRIVY_VERIFICATION_KEY
+    );
+    return claims.userId;
+  }
 };
 
 /**
