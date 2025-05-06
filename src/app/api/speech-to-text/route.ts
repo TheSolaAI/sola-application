@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { extractUserPrivyId } from '@/lib/server/userSession';
 import OpenAI from 'openai';
+import {
+  authenticateAndCheckUsage,
+  createErrorResponseFromAuth,
+} from '@/lib/server/authAndUsage';
 
 // Initialize OpenAI client
 const openai = new OpenAI({
@@ -9,27 +12,14 @@ const openai = new OpenAI({
 
 export async function POST(req: NextRequest) {
   try {
-    // Verify authentication
-    const authToken = req.headers.get('Authorization')?.split(' ')[1];
-    if (!authToken) {
-      return NextResponse.json(
-        { error: 'Authorization token not provided' },
-        { status: 401 }
-      );
+    const authResult = await authenticateAndCheckUsage(req);
+    if (
+      !authResult.isAuthenticated ||
+      !authResult.privyId ||
+      !authResult.accessToken
+    ) {
+      return createErrorResponseFromAuth(authResult);
     }
-
-    // Validate user
-    let privyId;
-    try {
-      privyId = await extractUserPrivyId(authToken);
-    } catch (error) {
-      console.error('Error validating token:', error);
-      return NextResponse.json(
-        { error: 'Invalid or expired authentication token' },
-        { status: 401 }
-      );
-    }
-
     // Process the form data
     const formData = await req.formData();
     const audioFile = formData.get('audio') as File;
