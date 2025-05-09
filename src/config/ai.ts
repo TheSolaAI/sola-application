@@ -12,6 +12,7 @@ import {
   getManagementToolSet,
   managementToolSet,
 } from '@/tools/managementToolSet';
+import { AIKit } from '@sola-labs/ai-kit';
 
 export const toolhandlerModel = openai.responses('gpt-4.1');
 export const toolsetSelectionModel = openai('gpt-4.1-mini');
@@ -183,3 +184,23 @@ export const AI_VOICES: AIVoice[] = [
   'shimmer',
   'verse',
 ];
+
+// Initialize AIKit instance
+export const aiKit = new AIKit({
+  systemPrompt: TOOL_HANDLER_PRIME_DIRECTIVE,
+  model: toolhandlerModel,
+  toolSetFactories: [
+    (context: ToolContext) => getAIProjectToolSet(context),
+    (context: ToolContext) => getTokenToolSet(context),
+    (context: ToolContext) => getLuloToolSet(context),
+    (context: ToolContext) => getNftToolSet(context),
+    (context: ToolContext) => getOnChainToolSet(context),
+    (context: ToolContext) => getManagementToolSet(context),
+  ],
+  appendToolSetDefinition: true,
+  orchestrationMode: {
+    enabled: true,
+    systemPrompt: getToolSetSelectorPrimeDirective(''),
+    model: toolsetSelectionModel,
+  },
+});

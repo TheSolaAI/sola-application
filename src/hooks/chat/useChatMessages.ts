@@ -87,7 +87,6 @@ export function useChatMessages(
         roomId,
         useUserHandler.getState().authToken!
       );
-      console.log('Tool result:', result);
       return result;
     },
     onError: (error) => {
