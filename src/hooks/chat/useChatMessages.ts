@@ -24,7 +24,6 @@ export function useChatMessages(
 ) {
   const { setLoadingMessage, messages: dbMessages } = useChatMessageHandler();
   const dispatch = useDispatch();
-
   const { setSettingsIsOpen } = useLayoutContext();
 
   // Used to determine if this is a new room instance
@@ -44,50 +43,49 @@ export function useChatMessages(
     maxSteps: 5,
     async onToolCall({ toolCall }) {
       let result: ToolResult | undefined;
-      if (toolCall.toolName === 'sign_and_send_tx') {
-        result = await handleSignTransaction(toolCall.args);
-        console.log('Transaction result:', result);
-      } else if (toolCall.toolName === 'changeTheme') {
-        result = changeThemeTool(toolCall.args);
-        // in the case that the theme was not changed open the settings screen
-        if (!result.data.autoSwitched) {
-          setSettingsIsOpen(true);
-        }
-      } else if (toolCall.toolName === 'getUserInfo') {
-        const typedArgs = toolCall.args as GetUserInfoType;
-        const { type } = typedArgs;
-        console.log(typedArgs);
-
-        if (type === 'wallet') {
-          result = {
-            success: true,
-            data: {
-              availableWallets: useWalletHandler
-                .getState()
-                .wallets.map((wallet) => wallet.address),
-              activeSelectedWallet:
-                useWalletHandler.getState().currentWallet?.address,
+      try {
+        console.log('Tool call:', toolCall);
+        if (toolCall.toolName === 'sign_and_send_tx') {
+          result = await handleSignTransaction(toolCall.args);
+        } else if (toolCall.toolName === 'changeTheme') {
+          result = changeThemeTool(toolCall.args);
+          // in the case that the theme was not changed open the settings screen
+          if (!result.data.autoSwitched) {
+            setSettingsIsOpen(true);
+          }
+          // store this result in DB
+          await storeToolResultMessage(
+            {
+              toolName: toolCall.toolName,
+              toolCallId: toolCall.toolCallId,
+              args: toolCall.args,
+              result,
             },
-          };
-        } else {
-          result = {
-            success: false,
-            error: 'the selected type is incorrect',
-          };
+            roomId,
+            useUserHandler.getState().authToken!
+          );
+          return result;
         }
+      } catch (error) {
+        console.error('Error in tool call:', error);
+        result = {
+          success: false,
+          error: `Error in tool call: ${error}`,
+          data: undefined,
+        };
+        // store this result in DB
+        await storeToolResultMessage(
+          {
+            toolName: toolCall.toolName,
+            toolCallId: toolCall.toolCallId,
+            args: toolCall.args,
+            result,
+          },
+          roomId,
+          useUserHandler.getState().authToken!
+        );
+        return result;
       }
-      // store this result in DB
-      await storeToolResultMessage(
-        {
-          toolName: toolCall.toolName,
-          toolCallId: toolCall.toolCallId,
-          args: toolCall.args,
-          result,
-        },
-        roomId,
-        useUserHandler.getState().authToken!
-      );
-      return result;
     },
     onError: (error) => {
       console.error('Chat error:', error);

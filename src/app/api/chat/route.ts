@@ -4,12 +4,13 @@ import {
   aiKit,
   toolhandlerModel,
 } from '@/config/ai';
-import { cookies } from 'next/headers';
-import { extractUserPrivyId } from '@/lib/server/userSession';
-import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getGeneralToolSet } from '@/tools/commonToolSet';
 import { storeTextMessage, storeToolResultMessage } from '@/lib/db/db';
+import {
+  authenticateAndCheckUsage,
+  createErrorResponseFromAuth,
+} from '@/lib/server/authAndUsage';
 import { getManagementToolSet } from '@/tools/managementToolSet';
 
 /**
@@ -20,30 +21,17 @@ export async function POST(req: Request) {
     const { walletPublicKey, messages, currentRoomID, requiredToolSets } =
       await req.json();
 
-    const cookieStore = cookies();
-    const accessToken = (await cookieStore).get('privy-token')?.value;
-    if (!accessToken) {
-      return new Response('Unauthorized', { status: 401 });
+    // Use the new authentication utility
+    const authResult = await authenticateAndCheckUsage(req);
+    if (
+      !authResult.isAuthenticated ||
+      !authResult.privyId ||
+      !authResult.accessToken
+    ) {
+      return createErrorResponseFromAuth(authResult);
     }
 
-    let privyId: string;
-
-    try {
-      privyId = await extractUserPrivyId(accessToken);
-    } catch (error) {
-      console.error('Error validating token:', error);
-      return NextResponse.json(
-        { error: 'Invalid or expired authentication token' },
-        { status: 401 }
-      );
-    }
-
-    if (!privyId) {
-      return NextResponse.json(
-        { error: 'Failed to extract user ID from token' },
-        { status: 401 }
-      );
-    }
+    const { privyId, accessToken } = authResult;
 
     const context = {
       authToken: accessToken,

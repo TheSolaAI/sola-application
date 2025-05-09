@@ -13,11 +13,11 @@ import {
   ToolsetSlug,
 } from '@/config/ai';
 import { z } from 'zod';
-import { cookies } from 'next/headers';
-import { extractUserPrivyId } from '@/lib/server/userSession';
-import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { hasExceededUsageLimit } from '@/lib/server/userTier';
+import {
+  authenticateAndCheckUsage,
+  createErrorResponseFromAuth,
+} from '@/lib/server/authAndUsage';
 
 const ToolsetSelectionSchema = z.object({
   selectedToolset: z.array(
@@ -48,36 +48,16 @@ export async function POST(req: Request) {
       currentRoomID: string;
     } = await req.json();
 
-    // Get auth token from cookies
-    const cookieStore = cookies();
-    const accessToken = (await cookieStore).get('privy-token')?.value;
-    if (!accessToken) {
-      return new Response('Unauthorized', { status: 401 });
+    const authResult = await authenticateAndCheckUsage(req);
+    if (
+      !authResult.isAuthenticated ||
+      !authResult.privyId ||
+      !authResult.accessToken
+    ) {
+      return createErrorResponseFromAuth(authResult);
     }
-    let privyId: string;
 
-    try {
-      privyId = await extractUserPrivyId(accessToken);
-    } catch (error) {
-      console.error('Error validating token:', error);
-      return NextResponse.json(
-        { error: 'Invalid or expired authentication token' },
-        { status: 401 }
-      );
-    }
-    if (!privyId) {
-      return NextResponse.json(
-        { error: 'Failed to extract user ID from token' },
-        { status: 401 }
-      );
-    }
-    const usageLimit = await hasExceededUsageLimit(privyId);
-    if (process.env.NODE_ENV === 'production' && !usageLimit.active) {
-      return NextResponse.json(
-        { error: 'Usage limit exceeded', usageLimit },
-        { status: 403 }
-      );
-    }
+    const { privyId, accessToken, usageLimit } = authResult;
 
     console.log(
       `INFO: Processing toolset selection for message in room ${currentRoomID}`
@@ -97,7 +77,11 @@ export async function POST(req: Request) {
         ],
       };
 
-      storeMessageInDB(currentRoomID, JSON.stringify(userMessage), accessToken);
+      storeMessageInDB(
+        currentRoomID,
+        JSON.stringify(userMessage),
+        accessToken!
+      );
     } catch (error) {
       console.error(
         `ERROR: Failed to store user message - ${error instanceof Error ? error.message : 'Unknown error'}`

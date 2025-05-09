@@ -76,8 +76,7 @@ export default function Hero({
                 onClick={handleMobileView}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className={`flex items-center gap-2 text-sm/6 font-semibold text-indigo-300 hover:text-indigo-200 transition-colors duration-200
-                }`}
+                className="flex items-center gap-2 text-sm/6 font-semibold text-indigo-300 hover:text-indigo-200 transition-colors duration-200"
               >
                 {showMobileView ? (
                   <>
