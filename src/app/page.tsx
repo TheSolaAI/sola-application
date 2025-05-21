@@ -30,7 +30,7 @@ export default function Home() {
     },
   });
   const { ready, authenticated } = usePrivy();
-  const disabled = false;
+  const disabled = !ready || authenticated;
 
   // Ensure mobile view state is reset when device type changes
   useEffect(() => {
@@ -72,7 +72,7 @@ export default function Home() {
                 Future Features Roadmap 🚀
               </p>
               <p className="mx-auto mt-4 max-w-2xl text-center text-gray-400">
-                We&rsquo;re constantly evolving. Here&rsquo;s what we&rsquo;re
+                We&apos;re constantly evolving. Here&apos;s what we&apos;re
                 building next to take your experience to the next level.
               </p>
             </motion.div>

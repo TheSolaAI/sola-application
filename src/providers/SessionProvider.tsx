@@ -65,8 +65,21 @@ export const SessionProvider: FC<SessionProviderProps> = ({ children }) => {
    * Runs every time the current chat room changes and loads the chat messages of the room
    */
   useEffect(() => {
-    if (!currentChatRoom || (!previousChatRoom && isNewRoomCreated)) return;
-    // load the messages of the room asynchronously
+    // Only load messages for existing rooms, not for newly created ones
+    if (!currentChatRoom) {
+      // When no room is selected, clear all chat state
+      useChatMessageHandler.getState().clearChatState();
+      return;
+    }
+
+    if (isNewRoomCreated) {
+      // For newly created rooms, just clear the state but don't load messages yet
+      // The pending message will be handled by the useChatMessages hook
+      useChatMessageHandler.getState().clearChatState();
+      return;
+    }
+
+    // For existing rooms, load the messages
     initChatMessageHandler();
   }, [
     currentChatRoom,

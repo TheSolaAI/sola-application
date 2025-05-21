@@ -1,4 +1,4 @@
-import React, { createContext, useContext, ReactNode } from 'react';
+import React, { createContext, useContext, ReactNode, useEffect } from 'react';
 import { UIMessage } from 'ai';
 import { useAudioPlayer } from '@/hooks/chat/useAudioPlayer';
 import { useScrollBehavior } from '@/hooks/chat/useScrollBehavior';
@@ -37,6 +37,12 @@ export function ChatProvider({
     audioController,
     scrollController
   );
+
+  // Clear the messages in the global store when the room ID changes
+  useEffect(() => {
+    // Clear any pending messages to prevent them from loading in the wrong chat room
+    localStorage.removeItem('pending_message');
+  }, [roomId]);
 
   const value: ChatContextValue = {
     // Audio-related

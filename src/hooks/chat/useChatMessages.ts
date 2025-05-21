@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { Message, generateId } from 'ai';
 import { useChat } from '@ai-sdk/react';
 import { toast } from 'sonner';
@@ -13,6 +13,7 @@ import { useDispatch } from 'react-redux';
 import { updateCurrentUsage } from '@/redux/features/user/tier';
 import { changeThemeTool } from '@/tools/managementToolSet/changeThemeTool';
 import { useLayoutContext } from '@/providers/LayoutProvider';
+import { GetUserInfoType } from '@/tools/commonToolSet/getUserInfo';
 
 export function useChatMessages(
   roomId: string,
@@ -25,10 +26,15 @@ export function useChatMessages(
   const dispatch = useDispatch();
   const { setSettingsIsOpen } = useLayoutContext();
 
-  // Set up useChat hook
+  // Used to determine if this is a new room instance
+  const previousRoomIdRef = useRef<string | null>(null);
+  const isNewRoom = previousRoomIdRef.current !== roomId;
+
+  // Set up useChat hook - importantly, we only use dbMessages as initialMessages
+  // when first loading an existing room, not when switching rooms
   const { messages, setMessages, append, isLoading, error } = useChat({
     api: '/api/chat',
-    initialMessages: dbMessages,
+    initialMessages: isNewRoom ? [] : dbMessages,
     id: `chat-${roomId}`,
     body: {
       walletPublicKey: useWalletHandler.getState().currentWallet?.address,
@@ -47,19 +53,37 @@ export function useChatMessages(
           if (!result.data.autoSwitched) {
             setSettingsIsOpen(true);
           }
-          // store this result in DB
-          await storeToolResultMessage(
-            {
-              toolName: toolCall.toolName,
-              toolCallId: toolCall.toolCallId,
-              args: toolCall.args,
-              result,
-            },
-            roomId,
-            useUserHandler.getState().authToken!
-          );
-          return result;
+        } else if (toolCall.toolName === 'getUserInfo') {
+          const args = toolCall.args as GetUserInfoType;
+          if (args.type === 'wallet') {
+            const activeSelectedWallet =
+              useWalletHandler.getState().currentWallet?.address;
+            const availableWallets = useWalletHandler
+              .getState()
+              .wallets.map((wallet) => wallet.address);
+            result = {
+              success: true,
+              error: undefined,
+              data: {
+                userInfo: {
+                  activeSelectedWallet,
+                  availableWallets,
+                },
+              },
+            };
+          }
         }
+        await storeToolResultMessage(
+          {
+            toolName: toolCall.toolName,
+            toolCallId: toolCall.toolCallId,
+            args: toolCall.args,
+            result,
+          },
+          roomId,
+          useUserHandler.getState().authToken!
+        );
+        return result;
       } catch (error) {
         console.error('Error in tool call:', error);
         result = {
@@ -86,12 +110,35 @@ export function useChatMessages(
     },
   });
 
-  // Check for a pending message from localStorage on mount
+  // Update the room ID reference and load messages for new rooms
   useEffect(() => {
+    // Clear messages and reset state when switching to a new room
+    if (
+      previousRoomIdRef.current !== null &&
+      previousRoomIdRef.current !== roomId
+    ) {
+      // Reset messages when switching rooms
+      setMessages([]);
+      // Clear all state in the global message handler
+      useChatMessageHandler.getState().clearChatState();
+    }
+
+    // Load messages from database for the current room
+    if (roomId) {
+      useChatMessageHandler.getState().initChatMessageHandler();
+    }
+
+    // Update the room ID reference
+    previousRoomIdRef.current = roomId;
+
+    // Check for pending messages after setting up the new room
     const pendingMessage = localStorage.getItem('pending_message');
     if (pendingMessage) {
       localStorage.removeItem('pending_message');
-      processMessage(pendingMessage);
+      // Small delay to ensure the room is fully initialized before processing the message
+      setTimeout(() => {
+        processMessage(pendingMessage);
+      }, 100);
     }
   }, [roomId]);
 

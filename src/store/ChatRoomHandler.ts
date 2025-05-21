@@ -52,6 +52,11 @@ export const useChatRoomHandler = create<ChatRoomHandler>((set, get) => {
     setState: (state: 'idle' | 'loading' | 'error'): void => set({ state }),
 
     setCurrentChatRoom: async (room: ChatRoom | null): Promise<void> => {
+      // When changing rooms, clear localStorage to prevent message contamination
+      if (room?.id !== get().currentChatRoom?.id) {
+        localStorage.removeItem('pending_message');
+      }
+
       set({
         previousChatRoom: get().currentChatRoom,
         currentChatRoom: room,

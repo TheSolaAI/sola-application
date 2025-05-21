@@ -68,13 +68,24 @@ export const AiProjectsMessageItem: FC<AiProjectsMessageItemProps> = ({
               }}
             >
               <div className="flex items-center gap-4">
-                <Image
-                  src={token.image}
-                  alt="project image"
-                  className="rounded-lg"
-                  height={64}
-                  width={64}
-                />
+                {token.image && token.image.startsWith('http') ? (
+                  <Image
+                    src={token.image}
+                    alt="project image"
+                    className="rounded-lg"
+                    height={64}
+                    width={64}
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.onerror = null;
+                      target.src = '/placeholder.png';
+                    }}
+                  />
+                ) : (
+                  <div className="w-16 h-16 rounded-lg bg-surface flex items-center justify-center">
+                    <span className="text-2xl">{token.symbol?.[0] || '?'}</span>
+                  </div>
+                )}
                 <div>
                   <p className="text-base font-semibold text-textColor">
                     {token.name}

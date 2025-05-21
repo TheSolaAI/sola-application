@@ -12,6 +12,7 @@ import { TransferTokenMessageItem } from '@/components/messages/TransferTokenMes
 import { AiProjectsMessageItem } from '@/components/messages/AiProjectsMessageItem';
 import { BubbleMapMessageItem } from '@/components/messages/BubbleMapMessageItem';
 import { TokenAddressResultMessageItem } from '../components/messages/TokenAddressResultMessageItem';
+import { UserDetailsMessageItem } from '../components/messages/UserDetailsMessageItem';
 import { ShowLimitOrdersMessageItem } from '@/components/messages/ShowLimitOrderMessageItem';
 import { SimpleMessageItem } from '@/components/messages/SimpleMessageItem';
 import { NFTCollectionMessageItem } from '@/components/messages/NFTCollectionMessageItem';
@@ -112,6 +113,8 @@ export function renderToolResult(
       return <BugReportMessageItem props={args.data} />;
     case 'changeTheme':
       return <ThemeChangeMessageItem props={args.data} />;
+    case 'getUserInfo':
+      return <UserDetailsMessageItem props={args.data} />;
     default:
       return <SimpleMessageItem text={JSON.stringify(args.data)} />;
   }

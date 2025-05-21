@@ -63,6 +63,7 @@ export default function Hero({
           >
             <motion.button
               onClick={() => login()}
+              disabled={disabled}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className="h-15 w-40 rounded-md bg-gradient-to-r from-indigo-600 to-indigo-500 px-4 py-2.5 text-lg font-semibold text-white shadow-lg shadow-indigo-500/20 hover:from-indigo-500 hover:to-indigo-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 transition-all duration-200"

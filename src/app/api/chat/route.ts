@@ -1,17 +1,17 @@
 import { smoothStream, streamText, Tool } from 'ai';
 import {
   TOOL_HANDLER_PRIME_DIRECTIVE,
-  getToolsFromToolset,
+  aiKit,
   toolhandlerModel,
-  ToolsetSlug,
 } from '@/config/ai';
 import { prisma } from '@/lib/prisma';
-import { getGeneralToolSet } from '@/tools/generalToolSet';
+import { getGeneralToolSet } from '@/tools/commonToolSet';
 import { storeTextMessage, storeToolResultMessage } from '@/lib/db/db';
 import {
   authenticateAndCheckUsage,
   createErrorResponseFromAuth,
 } from '@/lib/server/authAndUsage';
+import { getManagementToolSet } from '@/tools/managementToolSet';
 
 /**
  * Handles POST requests for chat processing with tools
@@ -33,23 +33,39 @@ export async function POST(req: Request) {
 
     const { privyId, accessToken } = authResult;
 
-    const tools = loadToolsFromToolsets(
-      requiredToolSets,
-      accessToken!,
-      walletPublicKey
+    const context = {
+      authToken: accessToken,
+      publicKey: walletPublicKey,
+    };
+
+    // Get tools from AIKit
+    const aiKitTools = await aiKit.getTools(
+      context,
+      messages,
+      requiredToolSets
     );
     const generalTools = getGeneralToolSet({
       authToken: accessToken,
       publicKey: walletPublicKey,
     }).tools;
+    const managementTools = getManagementToolSet({
+      authToken: accessToken,
+      publicKey: walletPublicKey,
+    }).tools;
+
+    const tools: Record<string, Tool<any, any>> = {
+      ...generalTools,
+      ...managementTools,
+      ...(aiKitTools === Symbol.for('NO_TOOLS_NEEDED')
+        ? {}
+        : (aiKitTools as Record<string, Tool<any, any>>)),
+    };
+
     const result = streamText({
       model: toolhandlerModel,
       system: TOOL_HANDLER_PRIME_DIRECTIVE,
       messages,
-      tools: {
-        ...generalTools,
-        ...tools,
-      },
+      tools,
       toolChoice: 'auto',
       maxSteps: 8,
       experimental_telemetry: { isEnabled: true },
@@ -75,7 +91,7 @@ export async function POST(req: Request) {
         }
 
         try {
-          const storePromises = steps.reverse().map(async (step) => {
+          const storePromises = steps.map(async (step) => {
             const promises = [];
 
             if (step.toolResults) {
@@ -116,29 +132,4 @@ export async function POST(req: Request) {
     );
     return new Response('Internal Server Error', { status: 500 });
   }
-}
-
-/**
- * Loads tools from specified toolsets
- */
-function loadToolsFromToolsets(
-  toolsets: ToolsetSlug[],
-  accessToken: string,
-  walletPublicKey: string
-): Record<string, Tool<any, any>> {
-  const allTools: Record<string, Tool<any, any>> = {};
-  if (!toolsets) return allTools;
-
-  console.log(`INFO: Loading toolsets [${toolsets.join(', ')}]`);
-
-  for (const toolset of toolsets) {
-    const toolsetTools = getToolsFromToolset(toolset, {
-      authToken: accessToken,
-      publicKey: walletPublicKey,
-    });
-
-    Object.assign(allTools, toolsetTools);
-  }
-
-  return allTools;
 }
