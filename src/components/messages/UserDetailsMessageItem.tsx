@@ -6,8 +6,10 @@ import { toast } from 'sonner';
 import { BaseExpandableMessageItem } from './base/BaseExpandableMessageItem';
 
 interface UserDetailsProps {
-  activeSelectedWallet: string;
-  availableWallets: string[];
+  userInfo: {
+    activeSelectedWallet: string;
+    availableWallets: string[];
+  };
 }
 
 interface UserDetailsMessageItemProps {
@@ -17,6 +19,8 @@ interface UserDetailsMessageItemProps {
 export const UserDetailsMessageItem: FC<UserDetailsMessageItemProps> = ({
   props,
 }) => {
+  const { activeSelectedWallet, availableWallets } = props.userInfo;
+
   const copyToClipboard = (text: string, itemName: string) => {
     if (text) {
       navigator.clipboard.writeText(text);
@@ -37,7 +41,7 @@ export const UserDetailsMessageItem: FC<UserDetailsMessageItemProps> = ({
     <div className="flex items-center gap-2">
       <span className="text-textColor text-sm font-medium">Active Wallet</span>
       <div className="hidden sm:block text-xs text-secText font-mono truncate max-w-[150px]">
-        {getAbbreviatedAddress(props.activeSelectedWallet)}
+        {getAbbreviatedAddress(activeSelectedWallet)}
       </div>
     </div>
   );
@@ -47,7 +51,7 @@ export const UserDetailsMessageItem: FC<UserDetailsMessageItemProps> = ({
     <>
       <div className="flex items-center gap-1">
         <a
-          href={`https://solscan.io/account/${props.activeSelectedWallet}`}
+          href={`https://solscan.io/account/${activeSelectedWallet}`}
           target="_blank"
           rel="noopener noreferrer"
           className="p-1 rounded-full hover:bg-surface/50 transition-colors"
@@ -90,23 +94,20 @@ export const UserDetailsMessageItem: FC<UserDetailsMessageItemProps> = ({
             <p className="text-secText text-sm">Active Wallet</p>
             <div className="flex items-center justify-between mt-1">
               <p className="text-textColor text-lg font-bold font-mono break-all pr-2">
-                {props.activeSelectedWallet}
+                {activeSelectedWallet}
               </p>
               <div className="flex items-center">
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    copyToClipboard(
-                      props.activeSelectedWallet,
-                      'Wallet address'
-                    );
+                    copyToClipboard(activeSelectedWallet, 'Wallet address');
                   }}
                   className="p-1 rounded-full hover:bg-surface/50"
                 >
                   <LuCopy size={14} className="text-secText" />
                 </button>
                 <a
-                  href={`https://solscan.io/account/${props.activeSelectedWallet}`}
+                  href={`https://solscan.io/account/${activeSelectedWallet}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="p-1 rounded-full hover:bg-surface/50"
@@ -121,14 +122,14 @@ export const UserDetailsMessageItem: FC<UserDetailsMessageItemProps> = ({
           {/* Available wallets section */}
           <div className="mt-2">
             <p className="text-secText text-sm mb-2">
-              Available Wallets ({props.availableWallets.length})
+              Available Wallets ({availableWallets.length})
             </p>
             <div className="flex flex-col gap-2">
-              {props.availableWallets.map((wallet, index) => (
+              {availableWallets.map((wallet, index) => (
                 <div
                   key={index}
                   className={`bg-surface/30 p-2 rounded-lg flex items-center justify-between ${
-                    wallet === props.activeSelectedWallet
+                    wallet === activeSelectedWallet
                       ? 'border-l-4 border-primary'
                       : ''
                   }`}
@@ -172,17 +173,14 @@ export const UserDetailsMessageItem: FC<UserDetailsMessageItemProps> = ({
       <div className="px-4 py-3 bg-surface/20 border-t border-border">
         <div className="text-xs text-secText">
           <p>
-            {`${props.availableWallets.length} connected wallet${props.availableWallets.length > 1 ? 's' : ''} available for this account.`}
+            {`${availableWallets.length} connected wallet${availableWallets.length > 1 ? 's' : ''} available for this account.`}
           </p>
         </div>
         <button
           className="mt-2 w-full bg-primary/80 hover:bg-primary text-white px-3 py-2 rounded-md text-sm font-medium flex items-center justify-center gap-2"
           onClick={(e) => {
             e.stopPropagation();
-            copyToClipboard(
-              props.activeSelectedWallet,
-              'Active wallet address'
-            );
+            copyToClipboard(activeSelectedWallet, 'Active wallet address');
           }}
         >
           <LuWallet size={16} />

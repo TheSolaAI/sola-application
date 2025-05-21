@@ -53,19 +53,37 @@ export function useChatMessages(
           if (!result.data.autoSwitched) {
             setSettingsIsOpen(true);
           }
-          // store this result in DB
-          await storeToolResultMessage(
-            {
-              toolName: toolCall.toolName,
-              toolCallId: toolCall.toolCallId,
-              args: toolCall.args,
-              result,
-            },
-            roomId,
-            useUserHandler.getState().authToken!
-          );
-          return result;
+        } else if (toolCall.toolName === 'getUserInfo') {
+          const args = toolCall.args as GetUserInfoType;
+          if (args.type === 'wallet') {
+            const activeSelectedWallet =
+              useWalletHandler.getState().currentWallet?.address;
+            const availableWallets = useWalletHandler
+              .getState()
+              .wallets.map((wallet) => wallet.address);
+            result = {
+              success: true,
+              error: undefined,
+              data: {
+                userInfo: {
+                  activeSelectedWallet,
+                  availableWallets,
+                },
+              },
+            };
+          }
         }
+        await storeToolResultMessage(
+          {
+            toolName: toolCall.toolName,
+            toolCallId: toolCall.toolCallId,
+            args: toolCall.args,
+            result,
+          },
+          roomId,
+          useUserHandler.getState().authToken!
+        );
+        return result;
       } catch (error) {
         console.error('Error in tool call:', error);
         result = {

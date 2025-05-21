@@ -91,7 +91,7 @@ export async function POST(req: Request) {
         }
 
         try {
-          const storePromises = steps.reverse().map(async (step) => {
+          const storePromises = steps.map(async (step) => {
             const promises = [];
 
             if (step.toolResults) {
