@@ -77,21 +77,21 @@ export function renderToolResult(
     return <SimpleMessageItem text={`Error: ${args.error}`} />;
   }
   switch (toolName) {
-    case 'tokenAddressTool':
+    case 'tokenAddress':
       return <TokenAddressResultMessageItem props={args.data} />;
-    case 'getLimitOrderTool':
+    case 'getLimitOrder':
       return <ShowLimitOrdersMessageItem props={args.data} />;
-    case 'createLimitOrderTool':
+    case 'createLimitOrder':
       return <CreateLimitOrderMessageItem props={args.data} />;
     case 'trendingAiProjects':
       return <AiProjectsMessageItem props={args.data} />;
-    case 'getLuloAssetsTool':
+    case 'getLuloAssets':
       return <LuloAssetsMessageItem props={args.data} />;
-    case 'getTokenDataTool':
+    case 'getTokenData':
       return <TokenDataMessageItem props={args.data} />;
-    case 'bubblemapTool':
+    case 'bubblemap':
       return <BubbleMapMessageItem props={args.data} />;
-    case 'topHoldersTool':
+    case 'topHolders':
       return <TopHoldersMessageItem props={args.data} />;
     case 'getNFTPrice':
       return <NFTCollectionMessageItem props={args.data} />;

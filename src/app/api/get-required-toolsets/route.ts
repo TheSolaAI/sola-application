@@ -8,7 +8,6 @@ import {
 import {
   getToolSetSelectorPrimeDirective,
   textToSpeechModel,
-  TOOLSET_SLUGS,
   toolsetSelectionModel,
   ToolsetSlug,
 } from '@/config/ai';
@@ -21,7 +20,7 @@ import {
 
 const ToolsetSelectionSchema = z.object({
   selectedToolset: z.array(
-    z.enum(TOOLSET_SLUGS as unknown as [string, ...string[]])
+    z.enum(['token', 'aiProjects', 'lulo', 'nft', 'onChain', 'staking'])
   ),
   fallbackResponse: z
     .string()

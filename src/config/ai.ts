@@ -1,5 +1,5 @@
 import { openai } from '@ai-sdk/openai';
-import { ToolContext, ToolSetDescription } from '@/types/tool';
+import { ToolSetDescription } from '@/types/tool';
 import {
   aiProjectsToolSet,
   getAIProjectToolSet,
@@ -12,7 +12,16 @@ import {
   getManagementToolSet,
   managementToolSet,
 } from '@/tools/managementToolSet';
-import { AIKit } from '@sola-labs/ai-kit';
+import {
+  AIKit,
+  aiProjectsToolSetFactory,
+  createApiClient,
+  luloToolSetFactory,
+  nftToolSetFactory,
+  onChainToolSetFactory,
+  stakingToolSetFactory,
+  tokenToolSetFactory,
+} from '@sola-labs/ai-kit';
 import { AVAILABLE_INVESTMENT_TYPES } from './investmentTypes';
 
 export const toolhandlerModel = openai.responses('gpt-4.1');
@@ -34,29 +43,6 @@ export const availableToolsetsDescription: Record<string, ToolSetDescription> =
 
 export const TOOLSET_SLUGS = Object.keys(availableToolsetsDescription);
 export type ToolsetSlug = (typeof TOOLSET_SLUGS)[number];
-
-export const getToolsFromToolset = (
-  toolsetSlug: ToolsetSlug,
-  context: ToolContext
-) => {
-  const toolset = availableToolsetsDescription[toolsetSlug];
-  switch (toolset.slug) {
-    case aiProjectsToolSet.slug:
-      return getAIProjectToolSet(context).tools;
-    case tokenToolSet.slug:
-      return getTokenToolSet(context).tools;
-    case luloToolSet.slug:
-      return getLuloToolSet(context).tools;
-    case nftToolSet.slug:
-      return getNftToolSet(context).tools;
-    case onChainToolSet.slug:
-      return getOnChainToolSet(context).tools;
-    case managementToolSet.slug:
-      return getManagementToolSet(context).tools;
-    default:
-      throw new Error(`Toolset ${toolset.slug} not found`);
-  }
-};
 
 export const getToolSetSelectorPrimeDirective = () => {
   const formattedToolsets = Object.entries(availableToolsetsDescription)
@@ -89,7 +75,7 @@ Your Task:
 Available ToolSets:
 ${formattedToolsets}
 
-Available Investment Types That You Can Help With:
+Available Investment Types That You Can Help With (Call the attached toolsets with the investment type only when an action is required, to for general informations asked):
 ${JSON.stringify(AVAILABLE_INVESTMENT_TYPES, null, 2)}
 
 Key Guidelines:
@@ -194,18 +180,30 @@ export const AI_VOICES: AIVoice[] = [
   'verse',
 ];
 
+// Initialize API client
+export const apiClient = createApiClient({
+  dataServiceUrl: process.env.NEXT_PUBLIC_DATA_SERVICE_URL,
+  walletServiceUrl: process.env.NEXT_PUBLIC_WALLET_SERVICE_URL,
+  goatIndexServiceUrl: process.env.NEXT_PUBLIC_GOAT_INDEX_SERVICE_URL,
+  nextjsServiceUrl:
+    process.env.NODE_ENV === 'development'
+      ? 'http://localhost:5173'
+      : process.env.NEXT_PUBLIC_BASE_URL,
+  enableLogging: process.env.NODE_ENV === 'development',
+});
+
 // Initialize AIKit instance
 export const aiKit = new AIKit({
   systemPrompt: TOOL_HANDLER_PRIME_DIRECTIVE,
-  model: toolhandlerModel,
   toolSetFactories: [
-    (context: ToolContext) => getAIProjectToolSet(context),
-    (context: ToolContext) => getTokenToolSet(context),
-    (context: ToolContext) => getLuloToolSet(context),
-    (context: ToolContext) => getNftToolSet(context),
-    (context: ToolContext) => getOnChainToolSet(context),
-    (context: ToolContext) => getManagementToolSet(context),
+    tokenToolSetFactory,
+    aiProjectsToolSetFactory,
+    luloToolSetFactory,
+    nftToolSetFactory,
+    onChainToolSetFactory,
+    stakingToolSetFactory,
   ],
+  model: toolhandlerModel,
   appendToolSetDefinition: true,
   orchestrationMode: {
     enabled: true,

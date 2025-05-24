@@ -31,6 +31,6 @@ export const AVAILABLE_INVESTMENT_TYPES: InvestmentTypes = {
           '  2. **MEV JITO Rewards** – Validators using the JITO client can earn extra rewards from processing MEV bundles.',
       },
     },
-    toolsets: [],
+    toolsets: ['staking'],
   },
 };

@@ -1,8 +1,9 @@
-import { smoothStream, streamText, Tool } from 'ai';
+import { Message, smoothStream, streamText, Tool } from 'ai';
 import {
   TOOL_HANDLER_PRIME_DIRECTIVE,
   aiKit,
   toolhandlerModel,
+  apiClient,
 } from '@/config/ai';
 import { prisma } from '@/lib/prisma';
 import { getGeneralToolSet } from '@/tools/commonToolSet';
@@ -33,9 +34,39 @@ export async function POST(req: Request) {
 
     const { privyId, accessToken } = authResult;
 
+    const filteredMessages: Message[] = messages.filter((message: Message) => {
+      if (message.role === 'assistant') {
+        // Check if message has parts
+        if (!message.parts) return true;
+
+        // Track if we should keep this message
+        let shouldKeepMessage = true;
+
+        message.parts.forEach((part) => {
+          if (part.type === 'tool-invocation') {
+            const toolInvocation = part.toolInvocation;
+            // Filter out messages with incomplete tool invocations
+            // We only want messages where the tool invocation is complete
+            if (
+              !toolInvocation ||
+              !toolInvocation.toolCallId ||
+              toolInvocation.state === 'call' ||
+              toolInvocation.state === 'result'
+            ) {
+              shouldKeepMessage = false;
+            }
+          }
+        });
+
+        return shouldKeepMessage;
+      }
+      return true;
+    });
+
     const context = {
       authToken: accessToken,
-      publicKey: walletPublicKey,
+      walletPublicKey: walletPublicKey,
+      apiClient,
     };
 
     // Get tools from AIKit
@@ -64,7 +95,7 @@ export async function POST(req: Request) {
     const result = streamText({
       model: toolhandlerModel,
       system: TOOL_HANDLER_PRIME_DIRECTIVE,
-      messages,
+      messages: filteredMessages,
       tools,
       toolChoice: 'auto',
       maxSteps: 8,
