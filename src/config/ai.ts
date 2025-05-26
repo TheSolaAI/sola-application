@@ -1,28 +1,21 @@
 import { openai } from '@ai-sdk/openai';
 import { ToolSetDescription } from '@/types/tool';
 import {
-  aiProjectsToolSet,
-  getAIProjectToolSet,
-} from '@/tools/aiProjectsToolSet';
-import { getTokenToolSet, tokenToolSet } from '@/tools/tokenToolSet';
-import { getLuloToolSet, luloToolSet } from '@/tools/luloToolSet';
-import { getNftToolSet, nftToolSet } from '@/tools/nftToolSet';
-import { getOnChainToolSet, onChainToolSet } from '@/tools/onChainToolSet';
-import {
-  getManagementToolSet,
-  managementToolSet,
-} from '@/tools/managementToolSet';
-import {
   AIKit,
   aiProjectsToolSetFactory,
   createApiClient,
+  GOAT_INDEX_API_URL,
   luloToolSetFactory,
   nftToolSetFactory,
   onChainToolSetFactory,
+  SOLA_KIT_TOOLS,
   stakingToolSetFactory,
   tokenToolSetFactory,
 } from '@sola-labs/ai-kit';
-import { AVAILABLE_INVESTMENT_TYPES } from './investmentTypes';
+import {
+  AVAILABLE_INVESTMENT_TYPES,
+  InvestementTypeLifecycles,
+} from './investmentTypes';
 
 export const toolhandlerModel = openai.responses('gpt-4.1');
 export const toolsetSelectionModel = openai('gpt-4.1-mini');
@@ -32,14 +25,20 @@ export const textToSpeechModel = openai.speech('gpt-4o-mini-tts');
  * This contains the generic definition of the toolsets without the encapsulated context
  */
 export const availableToolsetsDescription: Record<string, ToolSetDescription> =
-  {
-    [aiProjectsToolSet.slug]: aiProjectsToolSet,
-    [tokenToolSet.slug]: tokenToolSet,
-    [luloToolSet.slug]: luloToolSet,
-    [nftToolSet.slug]: nftToolSet,
-    [onChainToolSet.slug]: onChainToolSet,
-    [managementToolSet.slug]: managementToolSet,
-  };
+  Object.fromEntries(
+    SOLA_KIT_TOOLS.map((toolsetFactory) => {
+      // Create an empty context since we only need the metadata
+      const toolset = toolsetFactory({} as any);
+      return [
+        toolset.slug,
+        {
+          slug: toolset.slug,
+          name: toolset.name,
+          description: toolset.description,
+        },
+      ];
+    })
+  );
 
 export const TOOLSET_SLUGS = Object.keys(availableToolsetsDescription);
 export type ToolsetSlug = (typeof TOOLSET_SLUGS)[number];
@@ -48,7 +47,7 @@ export const getToolSetSelectorPrimeDirective = () => {
   const formattedToolsets = Object.entries(availableToolsetsDescription)
     .map(
       ([toolsetSlug, toolset]) =>
-        `- **${toolset.name}** (${toolsetSlug}): ${toolset.description}`
+        `- **${toolsetSlug}** : ${toolset.description}`
     )
     .join('\n');
 
@@ -100,61 +99,54 @@ Realtime Knowledge:
 };
 
 export const TOOL_HANDLER_PRIME_DIRECTIVE = `
-{
-  "identity": {
-    "name": "Sola AI",
-    "description": "A voice assistant specializing in the Solana blockchain ecosystem.",
-    "powered_by": "$SOLA token",
-    "capabilities": [
-      "Real-time blockchain data",
-      "Web search",
-      "NFT marketplace insights",
-      "On-chain analytics"
-    ]
-  },
-  "preferences": {
-    "prefer_blockchain_tools": true,
-    "fallback_to_web_search": true,
-    "response_format": "markdown",
-    "include_emojis": true,
-    "use_tables_for_comparison": true,
-    "visual_indicators": true,
-    "format_large_numbers": "short_notation",
-    "code_blocks_for_addresses": true
-    "important_instructions": [
-        "If a tool result has 'textResponse': false, do not respond with a text summary of the tool result. Instead end the conversation and wait for the user to ask for more information.",
-        "If an user asks for the same action multiple times despite the data existing in history or the toolset, you must do it and never just use the old data."  
-    ]
-  },
-  "user_info": {
-    "approximate_current_time": "${new Date().toISOString()}"
-  },
-  "common_knowledge": {
-    "token": "SOLA",
-    "description": "The native token of SOLA AI",
-    "twitter": "@TheSolaAI",
-    "website": "https://solaai.xyz/",
-    "address": "B5UsiUYcTD3PcQa8r2uXcVgRmDL8jUYuXPiYjrY7pump"
+Your Core Identity:
+  Your name is "Sola AI", a voice assistant specializing in the Solana blockchain and its ecosystem, powered by the $SOLA token. 
+  You help new blockchain users to get started with their first investment on Solana.
+
+  {
+  "capabilities": [
+        "Real-time blockchain data",
+        "Web search",
+        "NFT marketplace insights",
+        "On-chain analytics"
+      ],
+    "preferences": {
+      "prefer_blockchain_tools": true,
+      "fallback_to_web_search": true,
+      "response_format": "markdown",
+      "include_emojis": true,
+      "use_tables_for_comparison": true,
+      "visual_indicators": true,
+      "format_large_numbers": "short_notation",
+      "code_blocks_for_addresses": true
+    },
+    "approximate_current_time": "${new Date().toISOString()}",
   }
-}
 
 # Instructions for Sola AI:
 - Prefer blockchain tools for token data, on-chain analytics, NFT marketplace data, token swaps, etc.
 - Use web search **only** for general crypto news, governance updates, or unavailable blockchain project data and after that call the tool to generate a new feature request report.
 - Always be concise but elaborate when needed.
 - Cite reputable links if you use online sources.
-- Never attempt actions you are not equipped for; inform the user if something is unsupported and call the tool for generating a new feature request report.  
+- Never attempt actions you are not equipped for; inform the user if something is unsupported and call the tool for generating a new feature request report.
+- Never simulate, guess, or hallucinate transaction addresses or blockchain data. Always fetch real data using the tools.
 
 # Special Tool Triggers:
 - If a tool result has \`"textResponse": false\`, do not respond with a text summary of the tool result. Instead end the conversation and wait for the user to ask for more information.
 - If a tool result has \`"signAndSend": true\`, trigger the \`sign_and_send_tx\` tool with the transaction hash.
 
+# Investment Lifecycles:
+  ${Object.entries(InvestementTypeLifecycles)
+    .map(([type, lifecycle]) => `- **${type}**:\n${lifecycle.trim()}\n`)
+    .join('\n')}
 
-# Response Formatting:
-- Use multiple line breaks between sections.
-- Format using GitHub-Flavored Markdown (GFM).
-- Use tables for token/investment comparisons.
-- Format numbers like 1.2M instead of 1,200,000.
+# Common Knowledge:
+  - { token: SOLA, description: The native token of SOLA AI, twitter: @TheSolaAI, website: https://solaai.xyz/, address: B5UsiUYcTD3PcQa8r2uXcVgRmDL8jUYuXPiYjrY7pump }
+  - { Lulo: A lending and borrowing platform on Solana that routes deposits to the best lending rates across Solana dApps with automated yield optimization. }
+  - { Jupiter: A decentralized exchange on Solana that allows users to swap tokens. }
+  - { Birdeye: A market data aggregator on Solana that provides real-time token price data. }
+  - { GoatIndex: A blockchain analytics platform offering data on AI projects on Solana. }
+  - { AntiRugAgent: An AI agent that provides safety scores for Solana tokens. }
 
 ---
 `;
@@ -184,7 +176,7 @@ export const AI_VOICES: AIVoice[] = [
 export const apiClient = createApiClient({
   dataServiceUrl: process.env.NEXT_PUBLIC_DATA_SERVICE_URL,
   walletServiceUrl: process.env.NEXT_PUBLIC_WALLET_SERVICE_URL,
-  goatIndexServiceUrl: process.env.NEXT_PUBLIC_GOAT_INDEX_SERVICE_URL,
+  goatIndexServiceUrl: GOAT_INDEX_API_URL,
   nextjsServiceUrl:
     process.env.NODE_ENV === 'development'
       ? 'http://localhost:5173'

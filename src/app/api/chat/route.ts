@@ -34,34 +34,49 @@ export async function POST(req: Request) {
 
     const { privyId, accessToken } = authResult;
 
-    const filteredMessages: Message[] = messages.filter((message: Message) => {
-      if (message.role === 'assistant') {
-        // Check if message has parts
-        if (!message.parts) return true;
+    const filteredMessages: Message[] = messages.filter(
+      (message: Message, index: number, self: Message[]) => {
+        // First deduplicate messages
+        const isDuplicate =
+          self.findIndex(
+            (messageInArray: Message) =>
+              messageInArray.role === message.role &&
+              messageInArray.content === message.content &&
+              messageInArray.createdAt === message.createdAt
+          ) !== index;
 
-        // Track if we should keep this message
-        let shouldKeepMessage = true;
+        if (isDuplicate) return false;
 
-        message.parts.forEach((part) => {
-          if (part.type === 'tool-invocation') {
-            const toolInvocation = part.toolInvocation;
-            // Filter out messages with incomplete tool invocations
-            // We only want messages where the tool invocation is complete
-            if (
-              !toolInvocation ||
-              !toolInvocation.toolCallId ||
-              toolInvocation.state === 'call' ||
-              toolInvocation.state === 'result'
-            ) {
-              shouldKeepMessage = false;
+        if (message.role === 'assistant') {
+          // Check if message has parts
+          if (!message.parts) return true;
+
+          // Track if we should keep this message
+          let shouldKeepMessage = true;
+
+          message.parts.forEach((part) => {
+            if (part.type === 'tool-invocation') {
+              const toolInvocation = part.toolInvocation;
+              // Filter out messages with incomplete tool invocations
+              // We only want messages where the tool invocation is complete
+              if (
+                !toolInvocation ||
+                !toolInvocation.toolCallId ||
+                toolInvocation.state === 'call' ||
+                toolInvocation.state === 'result'
+              ) {
+                shouldKeepMessage = false;
+              }
             }
-          }
-        });
+          });
 
-        return shouldKeepMessage;
+          return shouldKeepMessage;
+        }
+        return true;
       }
-      return true;
-    });
+    );
+
+    console.log('filteredMessages', filteredMessages);
 
     const context = {
       authToken: accessToken,
@@ -95,7 +110,7 @@ export async function POST(req: Request) {
     const result = streamText({
       model: toolhandlerModel,
       system: TOOL_HANDLER_PRIME_DIRECTIVE,
-      messages: filteredMessages,
+      messages: messages,
       tools,
       toolChoice: 'auto',
       maxSteps: 8,
@@ -107,7 +122,6 @@ export async function POST(req: Request) {
       onFinish: async ({ usage, steps }) => {
         const tokensUsed = usage.totalTokens;
         const usdConsumed = (tokensUsed / 1_000_000) * 8;
-
         try {
           await prisma.usageRecord.create({
             data: {
