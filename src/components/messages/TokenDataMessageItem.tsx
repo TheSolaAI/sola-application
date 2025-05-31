@@ -71,8 +71,7 @@ export const TokenDataMessageItem: FC<TokenDataMessageItemProps> = ({
       <div>
         <span className="text-xs text-secText">
           Vol: $
-          {formatNumber(Number(props.vBuy24hUSD + props.vSell24hUSD), 1) ||
-            'N/A'}
+          {formatNumber(Number(props.vBuy24hUSD + props.vSell24hUSD)) || 'N/A'}
         </span>
       </div>
     </div>

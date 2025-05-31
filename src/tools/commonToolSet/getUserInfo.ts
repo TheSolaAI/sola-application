@@ -11,7 +11,7 @@ export type GetUserInfoType = z.infer<typeof GetUserInfoSchema>;
 export function createGetUserInfoTool() {
   const getUserInfoTool: Tool<typeof GetUserInfoSchema, ToolResult> = {
     id: 'common.userinfo' as const,
-    description: 'Get the user saved details or preferences.',
+    description: 'Get the user saved wallet address.',
     parameters: GetUserInfoSchema,
   };
 

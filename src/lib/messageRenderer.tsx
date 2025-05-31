@@ -21,6 +21,13 @@ import { FeatureRequestMessageItem } from '@/components/messages/FeatureRequestM
 import { BugReportMessageItem } from '@/components/messages/BugReportMessageItem';
 import { ThemeChangeMessageItem } from '@/components/messages/ThemeChangeMessageItem';
 import { CreateLimitOrderMessageItem } from '@/components/messages/CreateLimitOrderMessageItem';
+// Staking components
+import { NativeStakeMessageItem } from '@/components/messages/NativeStakeMessageItem';
+import { NativeUnstakeMessageItem } from '@/components/messages/NativeUnstakeMessageItem';
+import { ValidatorsMessageItem } from '@/components/messages/ValidatorsMessageItem';
+import { ViewStakesMessageItem } from '@/components/messages/ViewStakesMessageItem';
+import { StakeStatusMessageItem } from '@/components/messages/StakeStatusMessageItem';
+import { NativeWithdrawMessageItem } from '@/components/messages/NativeWithdrawMessageItem';
 
 export function renderMessageContent(message: UIMessage) {
   const role = message.role;
@@ -76,22 +83,24 @@ export function renderToolResult(
   if (!args.success) {
     return <SimpleMessageItem text={`Error: ${args.error}`} />;
   }
+
+  console.log(toolName);
   switch (toolName) {
     case 'tokenAddressTool':
       return <TokenAddressResultMessageItem props={args.data} />;
-    case 'getLimitOrderTool':
+    case 'getLimitOrder':
       return <ShowLimitOrdersMessageItem props={args.data} />;
-    case 'createLimitOrderTool':
+    case 'createLimitOrder':
       return <CreateLimitOrderMessageItem props={args.data} />;
     case 'trendingAiProjects':
       return <AiProjectsMessageItem props={args.data} />;
-    case 'getLuloAssetsTool':
+    case 'getLuloAssets':
       return <LuloAssetsMessageItem props={args.data} />;
-    case 'getTokenDataTool':
+    case 'getTokenData':
       return <TokenDataMessageItem props={args.data} />;
-    case 'bubblemapTool':
+    case 'bubblemap':
       return <BubbleMapMessageItem props={args.data} />;
-    case 'topHoldersTool':
+    case 'topHolders':
       return <TopHoldersMessageItem props={args.data} />;
     case 'getNFTPrice':
       return <NFTCollectionMessageItem props={args.data} />;
@@ -115,6 +124,19 @@ export function renderToolResult(
       return <ThemeChangeMessageItem props={args.data} />;
     case 'getUserInfo':
       return <UserDetailsMessageItem props={args.data} />;
+    // Staking tools
+    case 'nativeStake':
+      return <NativeStakeMessageItem props={args.data} />;
+    case 'nativeUnstake':
+      return <NativeUnstakeMessageItem props={args.data} />;
+    case 'nativeGetValidators':
+      return <ValidatorsMessageItem props={args} />;
+    case 'nativeViewStakes':
+      return <ViewStakesMessageItem props={args.data} />;
+    case 'nativeStakeStatus':
+      return <StakeStatusMessageItem props={args.data} />;
+    case 'nativeWithdraw':
+      return <NativeWithdrawMessageItem props={args.data} />;
     default:
       return <SimpleMessageItem text={JSON.stringify(args.data)} />;
   }

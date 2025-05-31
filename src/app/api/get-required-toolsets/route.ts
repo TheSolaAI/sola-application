@@ -8,7 +8,6 @@ import {
 import {
   getToolSetSelectorPrimeDirective,
   textToSpeechModel,
-  TOOLSET_SLUGS,
   toolsetSelectionModel,
   ToolsetSlug,
 } from '@/config/ai';
@@ -21,7 +20,7 @@ import {
 
 const ToolsetSelectionSchema = z.object({
   selectedToolset: z.array(
-    z.enum(TOOLSET_SLUGS as unknown as [string, ...string[]])
+    z.enum(['token', 'aiProjects', 'lulo', 'nftAnalyst', 'onChain', 'staking'])
   ),
   fallbackResponse: z
     .string()
@@ -95,8 +94,7 @@ export async function POST(req: Request) {
     let audioData: string | undefined;
 
     try {
-      const toolsetSelectionPrompt =
-        getToolSetSelectorPrimeDirective(walletPublicKey);
+      const toolsetSelectionPrompt = getToolSetSelectorPrimeDirective();
 
       const toolsetSelectionResult = await generateObject({
         model: toolsetSelectionModel,
