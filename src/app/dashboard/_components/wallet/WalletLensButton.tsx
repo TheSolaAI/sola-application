@@ -5,6 +5,7 @@ import { titleCase } from '@/utils/titleCase';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import useIsMobile from '@/utils/isMobile';
+import { useLayoutContext } from '@/providers/LayoutProvider';
 
 interface WalletLensButtonProps {
   onClick?: () => void;
@@ -19,12 +20,14 @@ const WalletLensButton = memo(function WalletLensButton({
 }: WalletLensButtonProps) {
   const { currentWallet } = useWalletHandler();
   const isMobile = useIsMobile();
+  const { walletLensOpen } = useLayoutContext();
 
   // Animation variants
   const buttonVariants = {
-    rest: { scale: 1 },
-    hover: { scale: 1.02, transition: { duration: 0.2 } },
-    tap: { scale: 0.98, transition: { duration: 0.1 } },
+    rest: { scale: 1, opacity: 1 },
+    hover: { scale: 1.02, opacity: 1, transition: { duration: 0.2 } },
+    tap: { scale: 0.98, opacity: 1, transition: { duration: 0.1 } },
+    hidden: { scale: 0.95, opacity: 0, transition: { duration: 0.2 } },
   };
 
   const handleSolscanClick = (e: React.MouseEvent) => {
@@ -43,8 +46,10 @@ const WalletLensButton = memo(function WalletLensButton({
       onClick={onClick}
       variants={buttonVariants}
       initial="rest"
+      animate={walletLensOpen ? 'hidden' : 'rest'}
       whileHover="hover"
       whileTap="tap"
+      style={{ pointerEvents: walletLensOpen ? 'none' : 'auto' }}
     >
       <div className="flex items-center gap-x-3">
         {currentWallet?.meta.icon ? (
