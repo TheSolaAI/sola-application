@@ -103,14 +103,12 @@ export default function SessionVerificationModal({
             <h2 className="text-lg font-semibold text-textColor">
               Holders Verification
             </h2>
-            {displayResult && displayResult.tier > 0 && (
-              <button
-                onClick={onClose}
-                className="p-1 rounded-full hover:bg-surface text-secText"
-              >
-                <LuX className="w-5 h-5" />
-              </button>
-            )}
+            <button
+              onClick={onClose}
+              className="p-1 rounded-full hover:bg-surface text-secText"
+            >
+              <LuX className="w-5 h-5" />
+            </button>
           </div>
 
           {/* Body */}
@@ -125,7 +123,7 @@ export default function SessionVerificationModal({
                   <p className="text-textColor">Verify Your Sola Holdings.</p>
                   <p className="text-secText text-sm">
                     Verify your SOLA token holdings to unlock additional
-                    sessions.
+                    features and usage limits.
                   </p>
                 </div>
               </div>
@@ -156,6 +154,23 @@ export default function SessionVerificationModal({
                     className="overflow-hidden"
                   >
                     <div className="mt-3 border-t border-border pt-3 space-y-2">
+                      {/* Free Tier Information */}
+                      <div className="p-3 rounded-lg bg-surface">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            {displayResult && displayResult.tier === 0 && (
+                              <LuCheck className="text-primary" />
+                            )}
+                            <span className="font-medium text-textColor">
+                              Free Tier
+                            </span>
+                          </div>
+                        </div>
+                        <div className="mt-1 text-xs text-secText">
+                          <span>No SOLA tokens required - Basic access</span>
+                        </div>
+                      </div>
+
                       {UserTiers.filter((tier) => tier.id > 0).map((tier) => (
                         <div
                           key={tier.id}

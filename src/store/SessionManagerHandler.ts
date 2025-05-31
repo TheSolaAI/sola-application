@@ -49,7 +49,7 @@ export const useSessionManagerHandler = create<SessionManagerStore>((set) => ({
         };
       }
 
-      const privyId = await extractUserPrivyId(authToken);
+      const privyId = await extractUserPrivyId(authToken, false);
       const tierInfo = await verifyUserTier(privyId, authToken);
       if (tierInfo.success) {
         return {

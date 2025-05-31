@@ -56,26 +56,27 @@ export const WalletPicker: FC<WalletPickerProps> = ({
       direction="down"
       width="component"
     >
-      <div className="flex flex-col gap-y-3 p-4">
+      <div className="flex flex-col gap-y-2 p-2">
         {wallets.map((wallet) => (
           <div
             key={wallet.address}
-            className={`overflow-hidden rounded-xl bg-sec_background border ${
-              currentWallet?.address === wallet.address
-                ? 'border-primaryDark'
-                : 'border-border'
-            } shadow-lg w-full cursor-pointer transition-opacity duration-500`}
+            className={`min-h-[56px] flex flex-col justify-center overflow-hidden rounded-lg border transition-all duration-200 cursor-pointer shadow-sm
+              ${
+                currentWallet?.address === wallet.address
+                  ? 'border-primary bg-primary/10 shadow-md'
+                  : 'border-border bg-sec_background hover:bg-surface/40'
+              }
+            `}
             onClick={() => {
               onClose();
               setCurrentWallet(wallet);
             }}
           >
             {/* Header with wallet name and copy button */}
-            <div className="px-4 py-3 border-b border-border flex justify-between items-center">
-              <h2 className="text-lg font-semibold text-textColor flex items-center gap-2">
+            <div className="px-3 py-1 border-b border-border flex justify-between items-center">
+              <h2 className="text-sm font-semibold text-textColor flex items-center gap-2 truncate max-w-[120px]">
                 {titleCase(wallet?.meta.name)}
               </h2>
-
               <div className="flex items-center">
                 <button
                   onClick={(e) => {
@@ -85,7 +86,7 @@ export const WalletPicker: FC<WalletPickerProps> = ({
                   className="p-1 rounded-full hover:bg-surface/50 transition-colors"
                   title="Copy to clipboard"
                 >
-                  <FiCopy className="text-secText" size={14} />
+                  <FiCopy className="text-secText" size={12} />
                 </button>
                 <button
                   onClick={(e) => {
@@ -98,39 +99,28 @@ export const WalletPicker: FC<WalletPickerProps> = ({
                   className="p-1 ml-1 rounded-full hover:bg-surface/50 transition-colors"
                   title="View on Solscan"
                 >
-                  <LuExternalLink className="text-secText" size={14} />
+                  <LuExternalLink className="text-secText" size={12} />
                 </button>
               </div>
             </div>
 
             {/* Content */}
-            <div className="p-4">
-              <div className="flex items-center gap-4">
-                {wallet.meta.icon ? (
-                  <Image
-                    src={wallet.meta.icon}
-                    alt="wallet logo"
-                    className="bg-white p-2 rounded-xl"
-                    height={60}
-                    width={60}
-                  />
-                ) : (
-                  <Image
-                    src="/default_wallet.svg"
-                    alt="wallet logo"
-                    className="rounded-xl"
-                    width={60}
-                    height={60}
-                  />
-                )}
-
-                <div className="flex-1">
-                  <label className="text-xs uppercase tracking-wider text-secText mb-1 block">
-                    Address
-                  </label>
-                  <div className="bg-surface/30 px-3 py-1 rounded-lg text-sm font-mono text-textColor overflow-hidden overflow-ellipsis whitespace-nowrap">
-                    {wallet?.address}
-                  </div>
+            <div className="p-2 flex items-center gap-3">
+              <div className="w-8 h-8 flex items-center justify-center rounded-md overflow-hidden bg-white">
+                <Image
+                  src={wallet.meta.icon || '/default_wallet.svg'}
+                  alt="wallet logo"
+                  width={28}
+                  height={28}
+                  className="object-contain"
+                />
+              </div>
+              <div className="flex-1 min-w-0">
+                <label className="text-[10px] uppercase tracking-wider text-secText mb-0.5 block">
+                  Address
+                </label>
+                <div className="bg-surface/30 px-2 py-0.5 rounded text-xs font-mono text-textColor truncate">
+                  {wallet?.address}
                 </div>
               </div>
             </div>
@@ -138,20 +128,20 @@ export const WalletPicker: FC<WalletPickerProps> = ({
         ))}
 
         {/* Link a new Wallet */}
-        <div className="overflow-hidden rounded-xl bg-sec_background border border-border shadow-lg w-full">
-          <div className="px-4 py-3 border-b border-border">
-            <h2 className="text-lg font-semibold text-textColor">
+        <div className="overflow-hidden rounded-lg bg-sec_background border border-border shadow w-full mt-1">
+          <div className="px-3 py-2 border-b border-border">
+            <h2 className="text-sm font-semibold text-textColor">
               Link Wallet
             </h2>
           </div>
-          <div className="p-4">
+          <div className="p-2">
             <button
-              className="flex items-center justify-center w-full p-3 bg-surface/30 rounded-lg gap-x-2 hover:bg-surface/50 transition-colors"
+              className="flex items-center justify-center w-full p-2 bg-surface/30 rounded gap-x-2 hover:bg-surface/50 transition-colors text-sm"
               onClick={() => {
                 connectWallet();
               }}
             >
-              <LuLink size={20} className="text-textColor" />
+              <LuLink size={16} className="text-textColor" />
               <span className="text-textColor font-medium">
                 Connect New Wallet
               </span>

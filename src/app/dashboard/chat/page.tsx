@@ -288,20 +288,19 @@ export default function NewChat() {
   // Define suggestion cards
   const suggestions = [
     {
-      title: 'Place a Limit Order',
-      description:
-        'Place a limit order for swapping 1 SOL to USDC when the price hits $200',
-      id: 'wallet',
-    },
-    {
       title: 'How do I get started?',
       description:
         'I am new to crypto trading, where do I get started and what do I do?',
       id: 'general',
     },
     {
+      title: 'What is Native Staking?',
+      description: 'Explain how native staking works on Solana',
+      id: 'general',
+    },
+    {
       title: 'Swap 1 SOL for USDC',
-      description: 'using Jupiter to swap on Solana',
+      description: 'swap 1 SOL for USDC',
       id: 'swap',
     },
     {
