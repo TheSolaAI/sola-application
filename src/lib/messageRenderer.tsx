@@ -129,7 +129,7 @@ export function renderToolResult(
       return <NativeStakeMessageItem props={args.data} />;
     case 'nativeUnstake':
       return <NativeUnstakeMessageItem props={args.data} />;
-    case 'getValidators':
+    case 'nativeGetValidators':
       return <ValidatorsMessageItem props={args} />;
     case 'nativeViewStakes':
       return <ViewStakesMessageItem props={args.data} />;

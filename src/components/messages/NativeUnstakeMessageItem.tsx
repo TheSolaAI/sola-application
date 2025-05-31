@@ -13,7 +13,7 @@ import { useLayoutContext } from '@/providers/LayoutProvider';
 import type { NativeUnstakeResult } from '@/types/staking';
 
 interface NativeUnstakeMessageItemProps {
-  props: NativeUnstakeResult;
+  props: NativeUnstakeResult['data'];
 }
 
 export const NativeUnstakeMessageItem: FC<NativeUnstakeMessageItemProps> = ({
@@ -35,7 +35,7 @@ export const NativeUnstakeMessageItem: FC<NativeUnstakeMessageItemProps> = ({
   };
 
   // Error state
-  if (!props.success) {
+  if (!props) {
     return (
       <BaseBorderedMessageItem
         title="Unstaking Failed"
@@ -55,7 +55,7 @@ export const NativeUnstakeMessageItem: FC<NativeUnstakeMessageItemProps> = ({
             <div className="bg-surface/30 rounded-lg p-3">
               <p className="text-secText text-sm">Stake Account</p>
               <p className="text-textColor text-sm font-mono">
-                {getAbbreviatedAddress(props.data.stakeAccount)}
+                {getAbbreviatedAddress(props.stakeAccount)}
               </p>
             </div>
           )}
@@ -69,7 +69,7 @@ export const NativeUnstakeMessageItem: FC<NativeUnstakeMessageItemProps> = ({
     <div className="flex items-center gap-2">
       <AiOutlineCheckCircle className="text-orange-500" size={16} />
       <span className="text-textColor text-sm font-medium">
-        Unstaked from {getAbbreviatedAddress(props.data.stakeAccount)}
+        Unstaked from {getAbbreviatedAddress(props.stakeAccount)}
       </span>
     </div>
   );
@@ -81,7 +81,7 @@ export const NativeUnstakeMessageItem: FC<NativeUnstakeMessageItemProps> = ({
         <button
           onClick={(e) => {
             e.stopPropagation();
-            copyToClipboard(props.data.stakeAccount, 'Stake account');
+            copyToClipboard(props.stakeAccount, 'Stake account');
           }}
           className="p-1 rounded-full hover:bg-surface/50 transition-colors"
           title="Copy stake account"
@@ -89,7 +89,7 @@ export const NativeUnstakeMessageItem: FC<NativeUnstakeMessageItemProps> = ({
           <FiCopy className="text-secText" size={12} />
         </button>
         <a
-          href={`https://solscan.io/account/${props.data.stakeAccount}`}
+          href={`https://solscan.io/account/${props.stakeAccount}`}
           target="_blank"
           rel="noopener noreferrer"
           className="p-1 rounded-full hover:bg-surface/50 transition-colors"
@@ -129,7 +129,7 @@ export const NativeUnstakeMessageItem: FC<NativeUnstakeMessageItemProps> = ({
         hoverable={true}
         onClick={() => {
           window.open(
-            `https://solscan.io/account/${props.data.stakeAccount}`,
+            `https://solscan.io/account/${props.stakeAccount}`,
             '_blank'
           );
         }}
@@ -179,12 +179,12 @@ export const NativeUnstakeMessageItem: FC<NativeUnstakeMessageItemProps> = ({
           <span className="text-xs text-secText">Stake Account:</span>
           <div className="flex items-center justify-between mt-1">
             <span className="text-xs font-mono text-textColor break-all pr-2">
-              {props.data.stakeAccount}
+              {props.stakeAccount}
             </span>
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                copyToClipboard(props.data.stakeAccount, 'Stake account');
+                copyToClipboard(props.stakeAccount, 'Stake account');
               }}
               className="p-1 rounded-full hover:bg-surface/50 flex-shrink-0"
             >

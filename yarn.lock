@@ -3128,8 +3128,10 @@
   resolved "https://registry.npmjs.org/@sindresorhus/merge-streams/-/merge-streams-4.0.0.tgz"
   integrity sha512-tlqY9xq5ukxTUZBmoOp+m61cqwQD5pHJtFY3Mn8CA8ps6yghLH/Hw8UPdqg4OLmFW3IFlcXnQNmo/dh8HzXYIQ==
 
-"@sola-labs/ai-kit@file:../ai-kit":
-  version "0.1.8"
+"@sola-labs/ai-kit@0.1.9":
+  version "0.1.9"
+  resolved "https://registry.yarnpkg.com/@sola-labs/ai-kit/-/ai-kit-0.1.9.tgz#26b2863098adaf1574137aec24682c6f754c6596"
+  integrity sha512-556T2qnWQBQgjMAjX6VXd7CaeCUMXoIjI2rnh/7DrqUCA9oxhZ+kL5pIg3Vax0i7xTT4+cQJlmGldCyrIY+3Ow==
   dependencies:
     "@solana/web3.js" "^1.98.2"
     axios "^1.9.0"

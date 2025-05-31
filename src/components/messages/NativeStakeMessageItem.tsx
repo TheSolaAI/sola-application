@@ -13,13 +13,12 @@ import { useLayoutContext } from '@/providers/LayoutProvider';
 import type { NativeStakingResult } from '@/types/staking';
 
 interface NativeStakeMessageItemProps {
-  props: NativeStakingResult;
+  props: NativeStakingResult['data'];
 }
 
 export const NativeStakeMessageItem: FC<NativeStakeMessageItemProps> = ({
   props,
 }) => {
-  console.log(props);
   const { theme } = useThemeManager();
   const { dashboardOpen } = useLayoutContext();
 
@@ -36,7 +35,7 @@ export const NativeStakeMessageItem: FC<NativeStakeMessageItemProps> = ({
   };
 
   // Error state
-  if (!props.success) {
+  if (!props) {
     return (
       <BaseBorderedMessageItem
         title="Staking Failed"
@@ -52,19 +51,19 @@ export const NativeStakeMessageItem: FC<NativeStakeMessageItemProps> = ({
             <p className="text-textColor text-sm mt-1">{props.error}</p>
           </div>
 
-          {props.data.details && (
+          {props.details && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div className="bg-surface/30 rounded-lg p-3">
                 <p className="text-secText text-sm">Amount</p>
                 <p className="text-textColor text-lg font-bold">
-                  {props.data.details.amount} SOL
+                  {props.details.amount} SOL
                 </p>
               </div>
 
               <div className="bg-surface/30 rounded-lg p-3">
                 <p className="text-secText text-sm">Validator</p>
                 <p className="text-textColor text-sm font-mono">
-                  {getAbbreviatedAddress(props.data.details.validator)}
+                  {getAbbreviatedAddress(props.details.validator)}
                 </p>
               </div>
             </div>
@@ -79,7 +78,7 @@ export const NativeStakeMessageItem: FC<NativeStakeMessageItemProps> = ({
     <div className="flex items-center gap-2">
       <AiOutlineCheckCircle className="text-green-500" size={16} />
       <span className="text-textColor text-sm font-medium">
-        Staked {props.data.details.amount} SOL
+        Staked {props.details.amount} SOL
       </span>
     </div>
   );
@@ -91,7 +90,7 @@ export const NativeStakeMessageItem: FC<NativeStakeMessageItemProps> = ({
         <button
           onClick={(e) => {
             e.stopPropagation();
-            copyToClipboard(props.data.stakeAccount, 'Stake account');
+            copyToClipboard(props.stakeAccount, 'Stake account');
           }}
           className="p-1 rounded-full hover:bg-surface/50 transition-colors"
           title="Copy stake account"
@@ -99,7 +98,7 @@ export const NativeStakeMessageItem: FC<NativeStakeMessageItemProps> = ({
           <FiCopy className="text-secText" size={12} />
         </button>
         <a
-          href={`https://solscan.io/account/${props.data.stakeAccount}`}
+          href={`https://solscan.io/account/${props.stakeAccount}`}
           target="_blank"
           rel="noopener noreferrer"
           className="p-1 rounded-full hover:bg-surface/50 transition-colors"
@@ -111,7 +110,7 @@ export const NativeStakeMessageItem: FC<NativeStakeMessageItemProps> = ({
       </div>
       <div>
         <span className="text-xs text-secText">
-          Validator: {getAbbreviatedAddress(props.data.details.validator)}
+          Validator: {getAbbreviatedAddress(props.details.validator)}
         </span>
       </div>
     </div>
@@ -141,7 +140,7 @@ export const NativeStakeMessageItem: FC<NativeStakeMessageItemProps> = ({
         hoverable={true}
         onClick={() => {
           window.open(
-            `https://solscan.io/account/${props.data.stakeAccount}`,
+            `https://solscan.io/account/${props.stakeAccount}`,
             '_blank'
           );
         }}
@@ -182,7 +181,7 @@ export const NativeStakeMessageItem: FC<NativeStakeMessageItemProps> = ({
           <div className="bg-background rounded-lg p-3">
             <p className="text-secText text-sm">Amount Staked</p>
             <p className="text-textColor text-xl font-bold">
-              {props.data.details.amount} SOL
+              {props.details.amount} SOL
             </p>
           </div>
 
@@ -201,12 +200,12 @@ export const NativeStakeMessageItem: FC<NativeStakeMessageItemProps> = ({
             <span className="text-xs text-secText">Stake Account:</span>
             <div className="flex items-center justify-between mt-1">
               <span className="text-xs font-mono text-textColor break-all pr-2">
-                {props.data.stakeAccount}
+                {props.stakeAccount}
               </span>
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  copyToClipboard(props.data.stakeAccount, 'Stake account');
+                  copyToClipboard(props.stakeAccount, 'Stake account');
                 }}
                 className="p-1 rounded-full hover:bg-surface/50 flex-shrink-0"
               >
@@ -219,15 +218,12 @@ export const NativeStakeMessageItem: FC<NativeStakeMessageItemProps> = ({
             <span className="text-xs text-secText">Validator:</span>
             <div className="flex items-center justify-between mt-1">
               <span className="text-xs font-mono text-textColor break-all pr-2">
-                {props.data.details.validator}
+                {props.details.validator}
               </span>
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  copyToClipboard(
-                    props.data.details.validator,
-                    'Validator address'
-                  );
+                  copyToClipboard(props.details.validator, 'Validator address');
                 }}
                 className="p-1 rounded-full hover:bg-surface/50 flex-shrink-0"
               >
@@ -240,12 +236,12 @@ export const NativeStakeMessageItem: FC<NativeStakeMessageItemProps> = ({
             <span className="text-xs text-secText">Owner:</span>
             <div className="flex items-center justify-between mt-1">
               <span className="text-xs font-mono text-textColor break-all pr-2">
-                {props.data.details.owner}
+                {props.details.owner}
               </span>
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  copyToClipboard(props.data.details.owner, 'Owner address');
+                  copyToClipboard(props.details.owner, 'Owner address');
                 }}
                 className="p-1 rounded-full hover:bg-surface/50 flex-shrink-0"
               >

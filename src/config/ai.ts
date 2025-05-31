@@ -51,6 +51,8 @@ export const getToolSetSelectorPrimeDirective = () => {
     )
     .join('\n');
 
+  console.log(formattedToolsets);
+
   return `
 Your Core Identity:
   Your name is "Sola AI", a voice assistant specializing in the Solana blockchain and its ecosystem, powered by the $SOLA token. 
