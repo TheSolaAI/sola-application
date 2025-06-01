@@ -1,14 +1,10 @@
-import { useState, FC, useRef, useEffect } from 'react';
+import { useState, FC, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { IoIosSunny, IoMdClose } from 'react-icons/io';
 import { IoMoonOutline } from 'react-icons/io5';
 import { FaWallet } from 'react-icons/fa';
 import { RiRobot2Line } from 'react-icons/ri';
 import useThemeManager from '@/store/ThemeManager';
-import {
-  AIConfigSettings,
-  AIConfigSettingsRef,
-} from '@/app/dashboard/_components/settings/AiConfigSettings';
 import { LuBadgeDollarSign, LuUser } from 'react-icons/lu';
 import {
   UserSettings,
@@ -34,8 +30,6 @@ export const SettingsModal: FC<{ isOpen: boolean; onClose: () => void }> = ({
   // Local state
   const [activeSection, setActiveSection] = useState<string>('wallet');
 
-  // refs
-  const aiConfigRef = useRef<AIConfigSettingsRef>(null);
   const walletSettingsRef = useRef<UserSettingsRef>(null);
   const userSettingsRef = useRef<UserSettingsRef>(null);
   const themeSettingsRef = useRef<ThemeSettingsRef>(null);
@@ -43,10 +37,7 @@ export const SettingsModal: FC<{ isOpen: boolean; onClose: () => void }> = ({
 
   // Handle section change
   const handleSectionChange = (section: string) => {
-    // Don't allow selecting AI section as it's coming soon
-    if (section !== 'ai') {
-      setActiveSection(section);
-    }
+    setActiveSection(section);
   };
 
   // Check if device is mobile
@@ -56,7 +47,6 @@ export const SettingsModal: FC<{ isOpen: boolean; onClose: () => void }> = ({
    * Function to handle done button click. In this case call the submit method in all the settings components
    */
   const onDoneClicked = () => {
-    aiConfigRef.current?.onSubmit();
     walletSettingsRef.current?.onSubmit();
     userSettingsRef.current?.onSubmit();
     themeSettingsRef.current?.onSubmit();
@@ -223,17 +213,6 @@ export const SettingsModal: FC<{ isOpen: boolean; onClose: () => void }> = ({
                     className={`flex-1 overflow-auto p-6 ${isMobile ? 'h-full' : 'max-h-[calc(85vh-80px-60px)]'}`}
                   >
                     <AnimatePresence mode="wait">
-                      {activeSection === 'ai' && (
-                        <motion.div
-                          key="ai-settings"
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          exit={{ opacity: 0 }}
-                          transition={{ duration: 0.2 }}
-                        >
-                          <AIConfigSettings ref={aiConfigRef} />
-                        </motion.div>
-                      )}
                       {activeSection === 'wallet' && (
                         <motion.div
                           key="wallet-settings"

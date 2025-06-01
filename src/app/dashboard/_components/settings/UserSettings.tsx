@@ -2,13 +2,9 @@
 import { forwardRef, useImperativeHandle, useState } from 'react';
 import { usePrivy } from '@privy-io/react-auth';
 import { toast } from 'sonner';
-import { FaDiscord, FaLink, FaTwitter, FaXTwitter } from 'react-icons/fa6';
-import { LuBadgeDollarSign, LuCreditCard } from 'react-icons/lu';
-import { useSessionHandler } from '@/store/SessionHandler';
+import { FaDiscord, FaLink } from 'react-icons/fa6';
 import { useSettingsHandler } from '@/store/SettingsHandler';
 import { useUserHandler } from '@/store/UserHandler';
-import { useAppSelector } from '@/redux/hook';
-import { formatNumber } from '@/utils/formatNumber';
 
 export interface UserSettingsRef {
   onSubmit: () => void;
@@ -72,7 +68,6 @@ export const UserSettings = forwardRef<UserSettingsRef>((_, ref) => {
       color: getAvatarColor(),
       initials: getInitials(),
     });
-    useSessionHandler.getState().updateSession('name');
     useSettingsHandler.getState().updateSettings('name');
   };
 

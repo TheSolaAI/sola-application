@@ -6,7 +6,6 @@ import { API_URLS } from '@/config/api_urls';
 import { UserSettingsResponse } from '@/types/response';
 import useThemeManager, { Theme } from '@/store/ThemeManager';
 import { UpdateUserSettingsRequest } from '@/types/request';
-import { useSessionHandler } from '@/store/SessionHandler';
 import { useUserHandler } from '@/store/UserHandler';
 
 interface SettingsHandler {
@@ -46,8 +45,6 @@ export const useSettingsHandler = create<SettingsHandler>(() => {
           );
         useUserHandler.getState().setUserName(response.data.name);
         useUserHandler.getState().setProfilePic(response.data.profile_pic);
-        useSessionHandler.getState().setAiEmotion(response.data.emotion_choice);
-        useSessionHandler.getState().setAiVoice(response.data.voice_preference);
       } else {
         toast.error('Failed to fetch settings.');
       }
@@ -59,12 +56,6 @@ export const useSettingsHandler = create<SettingsHandler>(() => {
       const data: UpdateUserSettingsRequest = {};
       if (setting === 'all' || setting === 'theme') {
         data['theme'] = useThemeManager.getState().theme.name;
-      }
-      if (setting === 'all' || setting === 'emotion') {
-        data['emotion_choice'] = useSessionHandler.getState().aiEmotion;
-      }
-      if (setting === 'all' || setting === 'voice') {
-        data['voice_preference'] = useSessionHandler.getState().aiVoice;
       }
       if (setting === 'all' || setting === 'custom_themes') {
         // in this case we set both the new custom theme that was added as well as setting the current users theme

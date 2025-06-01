@@ -6,7 +6,6 @@ import {
   LuRefreshCw,
   LuCircleStop,
 } from 'react-icons/lu';
-import { useSessionHandler } from '@/store/SessionHandler';
 import { toast } from 'sonner';
 import { useAudioRecorder } from '@/hooks/useAudioRecorder';
 import { useChatRoomHandler } from '@/store/ChatRoomHandler';
@@ -29,7 +28,6 @@ const SessionControls: React.FC<SessionControlsProps> = ({
   isProcessing,
   onUserInteraction,
 }) => {
-  const { state } = useSessionHandler();
   const { createChatRoom, currentChatRoom } = useChatRoomHandler();
   const { setLoadingMessage } = useChatMessageHandler();
   const [inputText, setInputText] = useState('');
@@ -44,11 +42,6 @@ const SessionControls: React.FC<SessionControlsProps> = ({
 
   const sendMessageToAI = async () => {
     if (!inputText.trim()) return;
-
-    if (state === 'error' || state === 'idle') {
-      toast.error('Connection lost. Please reconnect first.');
-      return;
-    }
 
     // Stop any audio playing
     onUserInteraction();

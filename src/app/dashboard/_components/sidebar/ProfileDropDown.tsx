@@ -2,7 +2,6 @@
 import { FC } from 'react';
 import { Dropdown } from '@/components/common/DropDown';
 import { useLogout } from '@privy-io/react-auth';
-import { useSessionHandler } from '@/store/SessionHandler';
 import { useLayoutContext } from '@/providers/LayoutProvider';
 import { FaGithub } from 'react-icons/fa';
 import { IoSettings } from 'react-icons/io5';
@@ -25,15 +24,6 @@ export const ProfileDropDown: FC<ProfileDropDownProps> = ({
   /**
    * Global State
    */
-  const {
-    mediaStream,
-    setMediaStream,
-    peerConnection,
-    setPeerConnection,
-    dataStream,
-    setDataStream,
-    setMuted,
-  } = useSessionHandler();
   const { settingsIsOpen, setSettingsIsOpen } = useLayoutContext();
   const router = useRouter();
 
@@ -46,29 +36,6 @@ export const ProfileDropDown: FC<ProfileDropDownProps> = ({
       toast.success('successfully logged out');
     },
   });
-
-  const logoutHandler = () => {
-    if (dataStream) {
-      dataStream.close();
-      setDataStream(null);
-    }
-
-    // 2. Stop all tracks in the media stream
-    if (mediaStream) {
-      mediaStream.getTracks().forEach((track) => {
-        track.stop();
-      });
-      setMediaStream(null);
-    }
-
-    // 3. Close the peer connection
-    if (peerConnection) {
-      peerConnection.close();
-      setPeerConnection(null);
-    }
-    setMuted(true);
-    logout();
-  };
 
   return (
     <Dropdown
@@ -132,7 +99,7 @@ export const ProfileDropDown: FC<ProfileDropDownProps> = ({
         </button>
         <button
           className="w-full hover:bg-surface flex-row flex items-center justify-between px-3 py-2 rounded-lg"
-          onClick={logoutHandler}
+          onClick={() => logout()}
         >
           <h1 className="text-red-400 font-medium text-md">Logout</h1>
           <MdOutlineLogout className="text-red-400 w-5 h-5" />
