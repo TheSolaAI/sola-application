@@ -14,7 +14,7 @@ export function createBubblemapTool(context: ToolContext) {
   const bubblemapTool: Tool<typeof Parameters, ToolResult> = {
     id: 'token.bubblemap' as const,
     description:
-      'Create a Bubblemap visualization for a specific token on the Solana blockchain. Bubblemaps show token ownership distribution, helping identify whale accounts, token concentration, and potential wash trading patterns.',
+      'Create a Bubblemap visualization for a specific token on the Solana blockchain. Do not entertain follow up questions on bubblemaps.',
     parameters: Parameters,
     execute: async (params) => {
       try {

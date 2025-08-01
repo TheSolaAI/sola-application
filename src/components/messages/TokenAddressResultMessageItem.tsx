@@ -38,23 +38,31 @@ export const TokenAddressResultMessageItem: FC<
   // Compact footer
   const compactFooter = (
     <>
-      <div className="flex items-center gap-1">
-        <a
-          href={`https://solscan.io/token/${props.tokenAddress}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="p-1 rounded-full hover:bg-surface/50 transition-colors"
-          title="View on Solscan"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <LuExternalLink className="text-secText" size={12} />
-        </a>
-      </div>
-
       <div>
         <span className="text-xs text-secText">
           {props.source ? `Source: ${props.source}` : 'Token Address'}
         </span>
+      </div>
+
+      <div className="flex items-center">
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            copyToClipboard();
+          }}
+          className="p-1 rounded-full hover:bg-surface/50"
+        >
+          <LuCopy size={12} className="text-secText" />
+        </button>
+        <a
+          href={`https://solscan.io/token/${props.tokenAddress}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="p-1 rounded-full hover:bg-surface/50"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <LuExternalLink size={12} className="text-secText" />
+        </a>
       </div>
     </>
   );
@@ -128,12 +136,6 @@ export const TokenAddressResultMessageItem: FC<
 
       {/* Footer with instructions */}
       <div className="px-4 py-3 bg-surface/20 border-t border-border">
-        <div className="text-xs text-secText">
-          <p>
-            You can use this token address with other tools like getTokenData,
-            getTopHolders, or getRugCheck.
-          </p>
-        </div>
         <button
           className="mt-2 w-full bg-primary/80 hover:bg-primary text-white px-3 py-2 rounded-md text-sm font-medium"
           onClick={(e) => {
@@ -155,6 +157,7 @@ export const TokenAddressResultMessageItem: FC<
       compactContent={compactContent}
       expandedContent={expandedContent}
       footer={compactFooter}
+      initialExpanded={true}
     />
   );
 };
