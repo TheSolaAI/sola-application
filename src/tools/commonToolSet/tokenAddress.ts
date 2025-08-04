@@ -7,7 +7,7 @@ export function createTokenAddressTool(context: ToolContext) {
     token_symbol: z
       .string()
       .describe(
-        'The token symbol or name to look up (e.g., "SOL", "BONK", "Solana").'
+        'The token or xstocks symbol or name to look up (e.g., "SOL", "BONK", "Solana").'
       ),
   });
 
