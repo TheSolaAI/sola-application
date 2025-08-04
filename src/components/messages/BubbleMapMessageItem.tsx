@@ -14,11 +14,6 @@ export const BubbleMapMessageItem: FC<BubbleMapMessageItemProps> = ({
   }
   const tokenAddress = props.token;
   const shortenedAddress = `${tokenAddress.slice(0, 6)}...${tokenAddress.slice(-4)}`;
-  let partnerId = process.env.BUBBLEMAPS_API_KEY;
-
-  if (!partnerId) {
-    partnerId = 'demo';
-  }
 
   const footer = (
     <div className="text-xs text-secText">
@@ -35,10 +30,9 @@ export const BubbleMapMessageItem: FC<BubbleMapMessageItemProps> = ({
       subtitle={shortenedAddress}
       footer={footer}
     >
-      {/* Bubblemap iframe using secure proxy */}
       <div className="relative">
         <iframe
-          src={`https://iframe.bubblemaps.io/map?address=${tokenAddress}&chain=solana&partnerId=${partnerId}`}
+          src={`https://iframe.bubblemaps.io/map?address=${tokenAddress}&chain=solana&partnerId=TZJrbZ0wWGkrKquXkTq4`}
           className="w-full min-h-94 rounded-lg"
           title="Token Bubblemap Visualization"
           sandbox="allow-scripts allow-same-origin"
