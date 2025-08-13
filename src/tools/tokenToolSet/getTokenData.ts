@@ -20,10 +20,12 @@ export const createGetTokenDataTool = (context: ToolContext) => {
     parameters: Parameters,
     execute: async (params) => {
       const { token_address } = params;
-
+      console.log(token_address);
       try {
         // Determine if input is an address or symbol
         const isAddress = token_address.length > 35;
+        console.log(isAddress);
+        console.log('entering the search');
         const url = isAddress
           ? `data/token/address?token_address=${token_address}`
           : `data/token/symbol?symbol=${token_address}`;

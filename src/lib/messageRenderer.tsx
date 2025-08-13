@@ -80,11 +80,9 @@ export function renderToolResult(
   if (args === undefined) {
     return;
   }
-
   if (!args.success) {
     return <ErrorMessageItem message={`Error: ${args.error}`} />;
   }
-
   switch (toolName) {
     case 'tokenAddress':
     case 'tokenAddressTool':
