@@ -28,6 +28,7 @@ import { ValidatorsMessageItem } from '@/components/messages/ValidatorsMessageIt
 import { ViewStakesMessageItem } from '@/components/messages/ViewStakesMessageItem';
 import { StakeStatusMessageItem } from '@/components/messages/StakeStatusMessageItem';
 import { NativeWithdrawMessageItem } from '@/components/messages/NativeWithdrawMessageItem';
+import { ErrorMessageItem } from '@/components/messages/ErrorMessageItem';
 
 export function renderMessageContent(message: UIMessage) {
   const role = message.role;
@@ -81,12 +82,12 @@ export function renderToolResult(
   }
 
   if (!args.success) {
-    return <SimpleMessageItem text={`Error: ${args.error}`} />;
+    return <ErrorMessageItem message={`Error: ${args.error}`} />;
   }
-  console.log(toolName);
 
   switch (toolName) {
     case 'tokenAddress':
+    case 'tokenAddressTool':
       return <TokenAddressResultMessageItem props={args.data} />;
     case 'getLimitOrder':
       return <ShowLimitOrdersMessageItem props={args.data} />;
