@@ -81,12 +81,12 @@ export function renderToolResult(
   }
 
   if (!args.success) {
-    return <SimpleMessageItem text={`Error: ${args.error}`} />;
+    return;
   }
-  console.log(toolName);
 
   switch (toolName) {
     case 'tokenAddress':
+    case 'tokenAddressTool':
       return <TokenAddressResultMessageItem props={args.data} />;
     case 'getLimitOrder':
       return <ShowLimitOrdersMessageItem props={args.data} />;
