@@ -39,3 +39,16 @@ export const TOKEN_LIST = {
 
 export const SOLA_TOKEN_ADDRESS =
   'B5UsiUYcTD3PcQa8r2uXcVgRmDL8jUYuXPiYjrY7pump';
+
+export const XSTOCKS_LIST: Record<string, string> = {
+  apple: 'AAPL',
+  tesla: 'TSLA',
+  microsoft: 'MSFT',
+  alphabet: 'GOOGL',
+  google: 'GOOGL',
+  amazon: 'AMZN',
+  nvidia: 'NVDA',
+  meta: 'META',
+  facebook: 'META',
+  // Extend or load dynamically as needed
+};

@@ -20,17 +20,27 @@ const Parameters = z.object({
     .describe(
       'The type of swap: EXACT_IN specifies the amount of tokenA being swapped, EXACT_OUT specifies the amount of tokenB to receive, and EXACT_DOLLAR specifies the dollar amount to be swapped'
     ),
+  assetType: z
+    .enum(['TOKEN', 'XSTOCKS'])
+    .describe(
+      'The type of asset swapped. TOKEN specifies crypto tokens and XSTOCKS specifies xstock tokens'
+    ),
 });
 
 export function createSwapTokensTool(context: ToolContext) {
   const swapTokensTool: Tool<typeof Parameters, ToolResult> = {
     id: 'token.swap' as const,
     description:
-      'Swaps a specified amount of one token for another token or one xstocks to another xstocks using Jupiter. Use this for all token swap operations except limit orders.',
+      'Swaps a specified amount of one token or xstocls for another token or xstocks using Jupiter. Use this for all token swap operations except limit orders.',
     parameters: Parameters,
     execute: async (params) => {
-      const { inputTokenAddress, outputTokenAddress, amount, swapType } =
-        params;
+      const {
+        inputTokenAddress,
+        outputTokenAddress,
+        amount,
+        swapType,
+        assetType,
+      } = params;
 
       if (!context.authToken) {
         return {
@@ -103,6 +113,7 @@ export function createSwapTokensTool(context: ToolContext) {
                   inputTokenTicker: params.inputTokenTicker,
                   outputTokenTicker: params.outputTokenTicker,
                 },
+                assetType: assetType,
               },
             },
             error: undefined,
