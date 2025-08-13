@@ -1,24 +1,25 @@
 import { z } from 'zod';
 import { Tool } from 'ai';
 import { ToolContext, ToolResult } from '@/types/tool';
+import { XSTOCKS_LIST } from '@/config/tokenMapping';
 
 export function createTokenAddressTool(context: ToolContext) {
   const Parameters = z.object({
     token_symbol: z
       .string()
       .describe(
-        'The token or xstocks symbol or name to look up (e.g., "SOL", "BONK", "Solana").'
+        'The token or xstocks symbol or name to look up (e.g., "SOL", "BONK", "Solana", "AAPL","xTSLA","Apple stocks")'
       ),
   });
 
   const tokenAddressTool: Tool<typeof Parameters, ToolResult> = {
     id: 'common.tokenAddress' as const,
     description:
-      'Get the token address for a given token symbol or token name on the Solana blockchain. This tool is useful when you need a token address but the user only provided a token symbol or name. Do not use this tool for wallet addresses.',
+      'Get the token address for a given token symbol or token name on Solana. Supports tokens and xStocks (Apple → xAAPL). Use when only a symbol or name is given, not wallet addresses.',
     parameters: Parameters,
+
     execute: async (params) => {
       try {
-        // Validate input
         if (!params.token_symbol) {
           return {
             success: false,
@@ -35,20 +36,25 @@ export function createTokenAddressTool(context: ToolContext) {
           };
         }
 
-        // Clean up the token symbol
-        const tokenSymbol = params.token_symbol.trim();
+        let tokenSymbol = params.token_symbol.trim();
+        const lower = tokenSymbol.toLowerCase();
+        if (
+          lower.includes('stock') ||
+          lower.includes('xstock') ||
+          XSTOCKS_LIST[lower]
+        ) {
+          tokenSymbol = normalizeXStockSymbol(tokenSymbol);
+        }
 
-        // Add $ prefix if not already present (for the API)
         const apiSymbol = tokenSymbol.startsWith('$')
           ? tokenSymbol
           : `$${tokenSymbol}`;
-
-        // For display, remove $ if present
         const displaySymbol = tokenSymbol.startsWith('$')
           ? tokenSymbol.substring(1)
           : tokenSymbol;
 
-        // First attempt: Try the data service API
+        console.log(displaySymbol);
+
         try {
           const response = await fetch(
             `https://data-stream-service.solaai.tech/data/token/token_address?symbol=${apiSymbol}`,
@@ -80,10 +86,8 @@ export function createTokenAddressTool(context: ToolContext) {
           }
         } catch (err) {
           console.error('Error with primary token lookup method:', err);
-          // Continue to fallback method
         }
 
-        // Fallback: Try DexScreener search
         const tokenAddress = await getTokenAddressFromTicker(displaySymbol);
 
         if (tokenAddress) {
@@ -103,7 +107,6 @@ export function createTokenAddressTool(context: ToolContext) {
           };
         }
 
-        // If both methods fail
         return {
           success: false,
           error: `Could not find token address for ${displaySymbol}`,
@@ -123,9 +126,6 @@ export function createTokenAddressTool(context: ToolContext) {
   return tokenAddressTool;
 }
 
-/**
- * Fallback function to get token address from DexScreener
- */
 async function getTokenAddressFromTicker(
   ticker: string
 ): Promise<string | null> {
@@ -133,18 +133,13 @@ async function getTokenAddressFromTicker(
     const response = await fetch(
       `https://api.dexscreener.com/latest/dex/search?q=${encodeURIComponent(ticker)}`
     );
-
     if (!response.ok) {
       return null;
     }
-
     const data = await response.json();
-
     if (!data.pairs || data.pairs.length === 0) {
       return null;
     }
-
-    // Filter for Solana pairs only and sort by FDV
     let solanaPairs = data.pairs
       .filter((pair: any) => pair.chainId === 'solana')
       .sort((a: any, b: any) => (b.fdv || 0) - (a.fdv || 0));
@@ -153,11 +148,30 @@ async function getTokenAddressFromTicker(
       (pair: any) =>
         pair.baseToken.symbol.toLowerCase() === ticker.toLowerCase()
     );
-
-    // Return the address of the highest FDV Solana pair
     return solanaPairs.length > 0 ? solanaPairs[0].baseToken.address : null;
   } catch (error) {
     console.error('Error fetching token address from DexScreener:', error);
     return null;
   }
+}
+
+function normalizeXStockSymbol(input: string): string {
+  if (!input) return input;
+
+  let cleaned = input.trim().toLowerCase();
+  cleaned = cleaned
+    .replace(/\bxstocks?\b/g, '')
+    .replace(/\bstocks?\b/g, '')
+    .trim();
+  const upper = cleaned.toUpperCase();
+  if (/^X[A-Z]{1,6}$/.test(upper)) {
+    return upper;
+  }
+  if (/^[A-Z]{1,6}$/.test(upper)) {
+    return `X${upper}`;
+  }
+  if (XSTOCKS_LIST[cleaned]) {
+    return `X${XSTOCKS_LIST[cleaned]}`;
+  }
+  return input;
 }
