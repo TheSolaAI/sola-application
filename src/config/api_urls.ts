@@ -12,7 +12,7 @@ export const API_URLS = {
   DATA: {
     NFT: {
       SYMBOL: 'data/nft/symbol',
-      TOP_NFT: 'data/nft/top',
+      TOP_NFT: 'data/nft/top_nft',
     },
   },
   WALLET: {

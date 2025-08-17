@@ -31,7 +31,7 @@ export function createSwapTokensTool(context: ToolContext) {
   const swapTokensTool: Tool<typeof Parameters, ToolResult> = {
     id: 'token.swap' as const,
     description:
-      'Swaps a specified amount of one token or xstocls for another token or xstocks using Jupiter. Use this for all token swap operations except limit orders.',
+      'Swaps a specified amount of one token or xstocks for another token or xstocks using Jupiter. Use this for all token swap operations except limit orders.',
     parameters: Parameters,
     execute: async (params) => {
       const {

@@ -53,8 +53,7 @@ export function createTokenAddressTool(context: ToolContext) {
           ? tokenSymbol.substring(1)
           : tokenSymbol;
 
-        console.log(displaySymbol);
-
+        console.log(apiSymbol);
         try {
           const response = await fetch(
             `https://data-stream-service.solaai.tech/data/token/token_address?symbol=${apiSymbol}`,
@@ -68,6 +67,7 @@ export function createTokenAddressTool(context: ToolContext) {
           );
 
           if (response.ok) {
+            console.log(response);
             const data = await response.json();
             return {
               success: true,
@@ -155,7 +155,7 @@ async function getTokenAddressFromTicker(
   }
 }
 
-function normalizeXStockSymbol(input: string): string {
+export function normalizeXStockSymbol(input: string): string {
   if (!input) return input;
 
   let cleaned = input.trim().toLowerCase();
