@@ -8,14 +8,14 @@ export function createTokenAddressTool(context: ToolContext) {
     token_symbol: z
       .string()
       .describe(
-        'The token or xstocks symbol or name to look up (e.g., "SOL", "BONK", "Solana", "AAPL","xTSLA","Apple stocks")'
+        'The token or xstocks symbol or name to look up (e.g., "SOL", "BONK", "Solana", "AAPLx","TSLA","Apple stocks")'
       ),
   });
 
   const tokenAddressTool: Tool<typeof Parameters, ToolResult> = {
     id: 'common.tokenAddress' as const,
     description:
-      'Get the token address for a given token symbol or token name on Solana. Supports tokens and xStocks (Apple → xAAPL). Use when only a symbol or name is given, not wallet addresses.',
+      'Get the token address for a given token symbol or token name on Solana. Supports tokens and xStocks (Apple → AAPLx). Use when only a symbol or name is given, not wallet addresses.',
     parameters: Parameters,
 
     execute: async (params) => {
@@ -38,22 +38,26 @@ export function createTokenAddressTool(context: ToolContext) {
 
         let tokenSymbol = params.token_symbol.trim();
         const lower = tokenSymbol.toLowerCase();
-        if (
+
+        const isXStock =
           lower.includes('stock') ||
           lower.includes('xstock') ||
-          XSTOCKS_LIST[lower]
-        ) {
+          XSTOCKS_LIST[lower];
+
+        if (isXStock) {
           tokenSymbol = normalizeXStockSymbol(tokenSymbol);
         }
 
         const apiSymbol = tokenSymbol.startsWith('$')
           ? tokenSymbol
           : `$${tokenSymbol}`;
+
         const displaySymbol = tokenSymbol.startsWith('$')
           ? tokenSymbol.substring(1)
           : tokenSymbol;
 
         console.log(apiSymbol);
+
         try {
           const response = await fetch(
             `https://data-stream-service.solaai.tech/data/token/token_address?symbol=${apiSymbol}`,
@@ -67,7 +71,6 @@ export function createTokenAddressTool(context: ToolContext) {
           );
 
           if (response.ok) {
-            console.log(response);
             const data = await response.json();
             return {
               success: true,
@@ -88,6 +91,7 @@ export function createTokenAddressTool(context: ToolContext) {
           console.error('Error with primary token lookup method:', err);
         }
 
+        // Fallback to DexScreener
         const tokenAddress = await getTokenAddressFromTicker(displaySymbol);
 
         if (tokenAddress) {
@@ -163,15 +167,14 @@ export function normalizeXStockSymbol(input: string): string {
     .replace(/\bxstocks?\b/g, '')
     .replace(/\bstocks?\b/g, '')
     .trim();
-  const upper = cleaned.toUpperCase();
-  if (/^X[A-Z]{1,6}$/.test(upper)) {
-    return upper;
+
+  if (cleaned.endsWith('x')) {
+    return cleaned.toUpperCase();
   }
-  if (/^[A-Z]{1,6}$/.test(upper)) {
-    return `X${upper}`;
-  }
+
   if (XSTOCKS_LIST[cleaned]) {
-    return `X${XSTOCKS_LIST[cleaned]}`;
+    return `${XSTOCKS_LIST[cleaned].toUpperCase()}x`;
   }
-  return input;
+
+  return `${cleaned.toUpperCase()}x`;
 }

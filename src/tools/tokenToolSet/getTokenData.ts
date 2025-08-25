@@ -62,6 +62,7 @@ export const createGetTokenDataTool = (context: ToolContext) => {
         }
 
         const apiClient = createServerApiClient(context.authToken);
+
         const response = await apiClient.get<TokenDataResponse>(
           url,
           undefined,
