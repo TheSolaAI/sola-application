@@ -2,6 +2,8 @@
 
 Sola AI is a personalized AI voice assistant that bridges Solana blockchain technology and AI through a hands-free user experience.
 
+<a href="https://www.codefactor.io/repository/github/thesolaai/sola-application"><img src="https://www.codefactor.io/repository/github/thesolaai/sola-application/badge?label=Codefactor&style=for-the-badge" alt="CodeFactor"/></a>
+
 ![app-screenshot](https://github.com/user-attachments/assets/c6464910-2ab6-45fd-b751-071562775d44)
 
 ## Overview
