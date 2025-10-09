@@ -21,6 +21,7 @@ import { FeatureRequestMessageItem } from '@/components/messages/FeatureRequestM
 import { BugReportMessageItem } from '@/components/messages/BugReportMessageItem';
 import { ThemeChangeMessageItem } from '@/components/messages/ThemeChangeMessageItem';
 import { CreateLimitOrderMessageItem } from '@/components/messages/CreateLimitOrderMessageItem';
+import { TopXStocksMessageItem } from '@/components/messages/TopXstocksMessageItem';
 // Staking components
 import { NativeStakeMessageItem } from '@/components/messages/NativeStakeMessageItem';
 import { NativeUnstakeMessageItem } from '@/components/messages/NativeUnstakeMessageItem';
@@ -80,9 +81,13 @@ export function renderToolResult(
   if (args === undefined) {
     return;
   }
+
+  console.log(args);
+  console.log(toolName);
   if (!args.success) {
     return <ErrorMessageItem message={`Error: ${args.error}`} />;
   }
+
   switch (toolName) {
     case 'tokenAddress':
     case 'tokenAddressTool':
@@ -107,6 +112,8 @@ export function renderToolResult(
       return <NFTCollectionMessageItem props={args.data} />;
     case 'swapTokens':
       return <SwapTokenMessageItem props={args.data} />;
+    case 'getTopXStocks':
+      return <TopXStocksMessageItem props={args.data} />;
     case 'resolveSnsNameTool':
       return <SNSResolverMessageItem props={args.data} />;
     case 'sign_and_send_tx':

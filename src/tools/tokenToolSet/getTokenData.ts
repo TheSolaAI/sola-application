@@ -3,8 +3,6 @@ import { ApiClient, createServerApiClient } from '@/lib/ApiClient';
 import { TokenDataResponse } from '@/types/token';
 import { ToolContext, ToolResult } from '@/types/tool';
 import { Tool } from 'ai';
-import { XSTOCKS_LIST } from '@/config/tokenMapping';
-import { normalizeXStockSymbol } from '../commonToolSet/tokenAddress';
 
 export const createGetTokenDataTool = (context: ToolContext) => {
   const Parameters = z.object({
@@ -22,16 +20,8 @@ export const createGetTokenDataTool = (context: ToolContext) => {
     parameters: Parameters,
     execute: async (params) => {
       const { token_address } = params;
+      console.log(token_address);
       let tokenSymbol = token_address.trim();
-      const lower = tokenSymbol.toLowerCase();
-
-      if (
-        lower.includes('stock') ||
-        lower.includes('xstock') ||
-        XSTOCKS_LIST[lower]
-      ) {
-        tokenSymbol = normalizeXStockSymbol(tokenSymbol);
-      }
 
       const apiSymbol = tokenSymbol.startsWith('$')
         ? tokenSymbol
@@ -40,17 +30,15 @@ export const createGetTokenDataTool = (context: ToolContext) => {
         ? tokenSymbol.substring(1)
         : tokenSymbol;
 
-      console.log(displaySymbol);
-      console.log(apiSymbol);
+      // Fix: Use the original token_address for address detection and fallback
+      const isAddress = token_address.length > 35;
+      const tokenAddressFallback = isAddress ? token_address : '';
 
-      const isAddress = apiSymbol.length > 35;
-      const tokenAddressFallback = isAddress
-        ? apiSymbol.replace(/^\$/, '')
-        : '';
+      console.log('starting the get request');
 
       try {
         const url = isAddress
-          ? `data/token/address?token_address=${apiSymbol}`
+          ? `data/token/address?token_address=${token_address}` // Use raw address
           : `data/token/symbol?symbol=${apiSymbol}`;
 
         if (!context.authToken) {
@@ -69,30 +57,45 @@ export const createGetTokenDataTool = (context: ToolContext) => {
           'data'
         );
 
-        if (ApiClient.isApiResponse<TokenDataResponse>(response)) {
+        console.log('got an response');
+        console.log(response.success);
+
+        if (!ApiClient.isApiError(response)) {
+          console.log('it is an api response');
+          console.log(response);
+          console.log('response');
           return {
             success: true,
             data: response.data,
             textResponse: false,
           };
-        }
-
-        if (tokenAddressFallback) {
-          const ds = await fetchTokenDataFromDexScreener(tokenAddressFallback);
-          if (ds) {
-            return { success: true, data: ds, textResponse: false };
+        } else {
+          console.log('here attempt 1');
+          // Fallback attempt 1: After failed API response
+          if (tokenAddressFallback) {
+            const ds =
+              await fetchTokenDataFromDexScreener(tokenAddressFallback);
+            console.log(ds);
+            console.log('attempt1');
+            if (ds) {
+              return { success: true, data: ds, textResponse: false };
+            }
           }
-        }
 
-        return {
-          success: false,
-          error: response?.errors?.[0]?.detail || 'Invalid response',
-          data: undefined,
-        };
+          return {
+            success: false,
+            error: response?.errors?.[0]?.detail || 'Invalid response',
+            data: undefined,
+          };
+        }
       } catch (error) {
-        console.log('entering error');
+        console.log('entering error block');
+
+        // Fallback attempt 2: After exception
         if (tokenAddressFallback) {
           const ds = await fetchTokenDataFromDexScreener(tokenAddressFallback);
+          console.log(ds);
+          console.log('attempt2');
           if (ds) {
             return { success: true, data: ds, textResponse: false };
           }

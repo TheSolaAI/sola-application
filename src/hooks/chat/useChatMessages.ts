@@ -45,6 +45,7 @@ export function useChatMessages(
       let result: ToolResult | undefined;
       try {
         console.log('Tool call:', toolCall);
+        console.log('Tool Result:', result);
         if (toolCall.toolName === 'sign_and_send_tx') {
           result = await handleSignTransaction(toolCall.args);
         } else if (toolCall.toolName === 'changeTheme') {
