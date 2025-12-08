@@ -22,6 +22,7 @@ const nextConfig: NextConfig = {
     NEXT_PUBLIC_APP_VERSION: packageInfo.version,
     NEXT_PUBLIC_BUILD_DATE: new Date().toISOString(),
   },
+  turbopack: {},
 };
 
 export default withSentryConfig(nextConfig, {
