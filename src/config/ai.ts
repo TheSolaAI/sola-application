@@ -2,15 +2,10 @@ import { openai } from '@ai-sdk/openai';
 import { ToolSetDescription } from '@/types/tool';
 import {
   AIKit,
-  aiProjectsToolSetFactory,
   createApiClient,
+  getAllToolSetFactories,
   GOAT_INDEX_API_URL,
-  luloToolSetFactory,
-  nftToolSetFactory,
-  onChainToolSetFactory,
   SOLA_KIT_TOOLS,
-  stakingToolSetFactory,
-  tokenToolSetFactory,
 } from '@sola-labs/ai-kit';
 import {
   AVAILABLE_INVESTMENT_TYPES,
@@ -21,12 +16,15 @@ export const toolhandlerModel = openai.responses('gpt-4.1');
 export const toolsetSelectionModel = openai('gpt-4.1-mini');
 export const textToSpeechModel = openai.speech('gpt-4o-mini-tts');
 
+// Get all toolset factories (includes lulo which is lazy-loaded)
+const allToolSetFactories = await getAllToolSetFactories();
+
 /**
  * This contains the generic definition of the toolsets without the encapsulated context
  */
 export const availableToolsetsDescription: Record<string, ToolSetDescription> =
   Object.fromEntries(
-    SOLA_KIT_TOOLS.map((toolsetFactory) => {
+    allToolSetFactories.map((toolsetFactory: (arg0: any) => any) => {
       // Create an empty context since we only need the metadata
       const toolset = toolsetFactory({} as any);
       return [
@@ -186,17 +184,10 @@ export const apiClient = createApiClient({
   enableLogging: process.env.NODE_ENV === 'development',
 });
 
-// Initialize AIKit instance
+// Initialize AIKit instance with all toolsets (including lulo)
 export const aiKit = new AIKit({
   systemPrompt: TOOL_HANDLER_PRIME_DIRECTIVE,
-  toolSetFactories: [
-    tokenToolSetFactory,
-    aiProjectsToolSetFactory,
-    luloToolSetFactory,
-    nftToolSetFactory,
-    onChainToolSetFactory,
-    stakingToolSetFactory,
-  ],
+  toolSetFactories: allToolSetFactories,
   model: toolhandlerModel,
   appendToolSetDefinition: true,
   orchestrationMode: {

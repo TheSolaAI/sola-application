@@ -206,7 +206,7 @@ async function storeMessageInDB(
   authToken: string
 ): Promise<any> {
   const response = await fetch(
-    `https://user-service.solaai.tech/api/v1/chatrooms/${roomId}/messages/`,
+    `${process.env.NEXT_PUBLIC_AUTH_SERVICE_URL}chatrooms/${roomId}/messages/`,
     {
       method: 'POST',
       headers: {

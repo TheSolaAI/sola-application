@@ -28,7 +28,7 @@ export function createGetLimitOrderTool(context: ToolContext) {
 
       try {
         const res = await fetch(
-          `https://wallet-service.solaai.tech/api/wallet/jup/limit-order/show?address=${context.publicKey}`,
+          `${process.env.NEXT_PUBLIC_WALLET_SERVICE_URL}api/wallet/jup/limit-order/show?address=${context.publicKey}`,
           {
             method: 'GET',
             headers: {

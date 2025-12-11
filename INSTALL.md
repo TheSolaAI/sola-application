@@ -69,9 +69,9 @@ SOLANA_RPC_URL=
 SOLANA_PRIVATE_KEY=
 
 # Microservices URLs
-NEXT_PUBLIC_WALLET_SERVICE_URL=https://wallet-service.solaai.tech/
-NEXT_PUBLIC_DATA_SERVICE_URL=https://data-stream-service.solaai.tech/
-NEXT_PUBLIC_AUTH_SERVICE_URL=https://user-service.solaai.tech/api/v1/
+NEXT_PUBLIC_WALLET_SERVICE_URL=https://service-wallet.solaai.xyz/
+NEXT_PUBLIC_DATA_SERVICE_URL=https://service-datastream.solaai.xyz/
+NEXT_PUBLIC_AUTH_SERVICE_URL=https://service-auth.solaai.xyz/api/v1/
 
 # Monitoring (Optional)
 SENTRY_AUTH_TOKEN=

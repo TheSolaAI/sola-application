@@ -7,7 +7,13 @@ import { useChatRoomHandler } from '@/store/ChatRoomHandler';
 export const ChatNavigationProvider = () => {
   const router = useRouter();
   const pathname = usePathname();
-  const currentChatRoom = useChatRoomHandler.getState().currentChatRoom;
+
+  // Guard against undefined
+  if (!useChatRoomHandler) {
+    return null;
+  }
+  const currentChatRoom = useChatRoomHandler((state) => state.currentChatRoom);
+
   const prevRoomIdRef = useRef<number | undefined>(undefined);
 
   useEffect(() => {

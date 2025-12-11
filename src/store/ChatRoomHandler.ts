@@ -1,5 +1,3 @@
-'use client';
-
 import { create } from 'zustand';
 import { ChatRoom, ChatRoomPatch } from '@/types/chatRoom';
 import { ApiClient, apiClient } from '@/lib/ApiClient';
