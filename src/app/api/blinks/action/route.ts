@@ -1,3 +1,6 @@
+import { isIP } from 'node:net';
+import { lookup } from 'node:dns/promises';
+
 type BlinkActionRequest = {
   actionUrl?: string;
   account?: string;
@@ -26,26 +29,38 @@ const PRIVATE_HOST_PATTERNS = [
   /^fe80:/i,
 ];
 
-const isHttpUrl = (value: string) => {
-  try {
-    const url = new URL(value);
-    const hostname = url.hostname.replace(/^\[|\]$/g, '');
-    return (
-      (url.protocol === 'http:' || url.protocol === 'https:') &&
-      !PRIVATE_HOST_PATTERNS.some((pattern) => pattern.test(hostname))
-    );
-  } catch {
-    return false;
+const isPrivateHost = (hostname: string) =>
+  PRIVATE_HOST_PATTERNS.some((pattern) => pattern.test(hostname));
+
+const parseHttpUrl = (value: string) => {
+  const url = new URL(value);
+  const hostname = url.hostname.replace(/^\[|\]$/g, '');
+
+  if (url.protocol !== 'http:' && url.protocol !== 'https:') {
+    throw new Error('Blink action URL must use http or https');
   }
+
+  if (isPrivateHost(hostname)) {
+    throw new Error('Unsafe Blink action URL');
+  }
+
+  return { url, hostname };
 };
 
-const assertSafeActionUrl = (value: string) => {
-  if (!isHttpUrl(value)) {
+const assertSafeActionUrl = async (value: string) => {
+  const { hostname } = parseHttpUrl(value);
+
+  if (isIP(hostname)) {
+    return;
+  }
+
+  const addresses = await lookup(hostname, { all: true });
+  if (addresses.some(({ address }) => isPrivateHost(address))) {
     throw new Error('Unsafe Blink action URL');
   }
 };
 
-const resolveActionHref = (
+const resolveActionHref = async (
   actionUrl: string,
   actionHref?: string,
   params?: Record<string, string>
@@ -53,7 +68,7 @@ const resolveActionHref = (
   const href = actionHref || actionUrl;
   const url = new URL(href, actionUrl);
 
-  assertSafeActionUrl(url.toString());
+  await assertSafeActionUrl(url.toString());
 
   for (const [key, value] of Object.entries(params ?? {})) {
     url.searchParams.set(key, value);
@@ -66,7 +81,16 @@ export async function POST(req: Request) {
   try {
     const body = (await req.json()) as BlinkActionRequest;
 
-    if (!body.actionUrl || !isHttpUrl(body.actionUrl)) {
+    if (!body.actionUrl) {
+      return Response.json(
+        { error: 'A valid Blink actionUrl is required' },
+        { status: 400 }
+      );
+    }
+
+    try {
+      await assertSafeActionUrl(body.actionUrl);
+    } catch {
       return Response.json(
         { error: 'A valid Blink actionUrl is required' },
         { status: 400 }
@@ -91,7 +115,7 @@ export async function POST(req: Request) {
       return Response.json({ metadata });
     }
 
-    const actionHref = resolveActionHref(
+    const actionHref = await resolveActionHref(
       body.actionUrl,
       body.actionHref,
       body.params
