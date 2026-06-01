@@ -118,19 +118,31 @@ export const BlinkActionMessageItem: FC<BlinkActionMessageItemProps> = ({
       body: JSON.stringify({ actionUrl: props.actionUrl }),
     });
 
-    const data = await response.json();
+    let data: { metadata?: BlinkMetadata; error?: string } = {};
+    try {
+      data = await response.json();
+    } catch {
+      // non-JSON response body — fall back to empty object
+    }
 
     if (!response.ok) {
       throw new Error(data.error || 'Unable to load Blink');
     }
 
-    setMetadata(data.metadata);
+    setMetadata(data.metadata ?? null);
     setStatus('ready');
     setStatusText('Ready');
   }, [props.actionUrl]);
 
   const executeBlinkAction = useCallback(
     async (action = selectedAction) => {
+      if (props.account && props.account !== currentWallet?.address) {
+        toast.error(
+          'Connected wallet does not match the account used to prepare this Blink. Please reconnect the original wallet or regenerate the Blink.'
+        );
+        return;
+      }
+
       if (!currentWallet) {
         toast.error('Please connect your wallet');
         return;
@@ -152,7 +164,16 @@ export const BlinkActionMessageItem: FC<BlinkActionMessageItemProps> = ({
           }),
         });
 
-        const data = await response.json();
+        let data: {
+          metadata?: BlinkMetadata;
+          transactionPayload?: { transaction: string };
+          error?: string;
+        } = {};
+        try {
+          data = await response.json();
+        } catch {
+          // non-JSON response body — fall back to empty object
+        }
 
         if (!response.ok) {
           throw new Error(data.error || 'Unable to create Blink transaction');
@@ -205,7 +226,13 @@ export const BlinkActionMessageItem: FC<BlinkActionMessageItemProps> = ({
         toast.error(message);
       }
     },
-    [currentWallet, props.actionUrl, props.params, selectedAction]
+    [
+      currentWallet,
+      props.account,
+      props.actionUrl,
+      props.params,
+      selectedAction,
+    ]
   );
 
   useEffect(() => {
