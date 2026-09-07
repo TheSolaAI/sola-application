@@ -8,6 +8,7 @@
     "postinstall": "prisma generate",
     "start": "next start",
     "lint": "next lint",
+    "test": "node --experimental-strip-types --test src/lib/blinks/*.test.ts",
     "prepare": "husky install",
     "semantic-release": "semantic-release"
   },
