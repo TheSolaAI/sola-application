@@ -3,6 +3,7 @@ import { createTokenAddressTool } from './tokenAddress';
 import { openai } from '@ai-sdk/openai';
 import { z } from 'zod';
 import { createGetUserInfoTool } from './getUserInfo';
+import { createBlinksTool } from './blinks';
 
 export const generalToolSet: ToolSetDescription = {
   slug: 'general',
@@ -28,6 +29,8 @@ export const getGeneralToolSet = (context: ToolContext) => {
         }),
       },
       getUserInfo: createGetUserInfoTool(),
+      blinksTool: createBlinksTool(context),
+      blinks: createBlinksTool(context),
     },
   };
 };
