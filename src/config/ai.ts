@@ -153,7 +153,14 @@ Your Core Identity:
 `;
 
 export type AIVoice =
-  'alloy' | 'ash' | 'ballad' | 'coral' | 'echo' | 'sage' | 'shimmer' | 'verse';
+  | 'alloy'
+  | 'ash'
+  | 'ballad'
+  | 'coral'
+  | 'echo'
+  | 'sage'
+  | 'shimmer'
+  | 'verse';
 
 export const AI_VOICES: AIVoice[] = [
   'alloy',

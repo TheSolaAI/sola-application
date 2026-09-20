@@ -18,6 +18,7 @@ const SOLANA_MAINNET_CHAIN_ID = 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp';
 const ACTION_VERSION = '2.4.1';
 const FETCH_TIMEOUT_MS = 10_000;
 const MAX_REDIRECTS = 3;
+const MAX_RESPONSE_BYTES = 256 * 1024;
 
 const ACTION_HEADERS = {
   Accept: 'application/json',
@@ -150,9 +151,43 @@ async function fetchBlinkJson(
       throw new Error(`Blink endpoint responded with ${response.status}`);
     }
 
-    return response.json();
+    return readBoundedJson(response);
   }
   throw new Error('Blink endpoint redirected too many times');
+}
+
+/**
+ * Parses a response body as JSON while capping the accepted size, so a
+ * hostile blink endpoint cannot exhaust memory with an unbounded body.
+ */
+async function readBoundedJson(response: Response): Promise<unknown> {
+  const declared = Number(response.headers.get('content-length'));
+  if (Number.isFinite(declared) && declared > MAX_RESPONSE_BYTES) {
+    throw new Error('Blink endpoint response too large');
+  }
+  if (!response.body) {
+    return response.json();
+  }
+  const reader = response.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let total = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    total += value.byteLength;
+    if (total > MAX_RESPONSE_BYTES) {
+      await reader.cancel();
+      throw new Error('Blink endpoint response too large');
+    }
+    chunks.push(value);
+  }
+  const bytes = new Uint8Array(total);
+  let offset = 0;
+  for (const chunk of chunks) {
+    bytes.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  return JSON.parse(new TextDecoder().decode(bytes));
 }
 
 /** Fetches and validates the metadata for a Solana Action URL. */

@@ -35,7 +35,9 @@ export const BlinkActionMessageItem: FC<BlinkActionMessageItemProps> = ({
 }) => {
   const [pendingLabel, setPendingLabel] = useState<string | null>(null);
   const [signature, setSignature] = useState<string | null>(null);
-  const [paramValues, setParamValues] = useState<Record<string, string>>({});
+  const [paramValues, setParamValues] = useState<
+    Record<string, Record<string, string>>
+  >({});
 
   const host = (() => {
     try {
@@ -45,12 +47,18 @@ export const BlinkActionMessageItem: FC<BlinkActionMessageItemProps> = ({
     }
   })();
 
+  const actionKey = (action: BlinkLinkedAction) =>
+    `${action.label}-${action.href}`;
+
   /**
    * Initiates a blink action without relying on the default blink UI:
    * builds the transaction through the server-side action proxy, signs it
    * with the connected wallet, and sends it to the network.
    */
-  const initiateAction = async (action: BlinkLinkedAction) => {
+  const initiateAction = async (
+    action: BlinkLinkedAction,
+    params: Record<string, string>
+  ) => {
     const wallet = useWalletHandler.getState().currentWallet;
     if (!wallet) {
       toast.error('Please connect your wallet');
@@ -65,7 +73,7 @@ export const BlinkActionMessageItem: FC<BlinkActionMessageItemProps> = ({
         body: JSON.stringify({
           url: action.href,
           account: wallet.address,
-          params: paramValues,
+          params,
         }),
       });
       const buildBody = await buildResponse.json();
@@ -166,40 +174,48 @@ export const BlinkActionMessageItem: FC<BlinkActionMessageItemProps> = ({
             </p>
           )}
 
-          {(props.actions ?? []).map((action) => (
-            <div
-              key={`${action.label}-${action.href}`}
-              className="bg-surface/30 rounded-lg p-3 flex flex-col gap-2"
-            >
-              {(action.parameters ?? []).map((parameter) => (
-                <input
-                  key={parameter.name}
-                  className="bg-background rounded-md px-2 py-1 text-sm text-textColor outline-none"
-                  placeholder={parameter.label || parameter.name}
-                  onChange={(e) =>
-                    setParamValues((prev) => ({
-                      ...prev,
-                      [parameter.name]: e.target.value,
-                    }))
-                  }
-                  onClick={(e) => e.stopPropagation()}
-                />
-              ))}
-              <button
-                className="flex items-center justify-center gap-2 rounded-md bg-primary/20 hover:bg-primary/30 transition-colors px-3 py-2 text-sm font-medium text-textColor disabled:opacity-50"
-                disabled={pendingLabel !== null}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  initiateAction(action);
-                }}
+          {(props.actions ?? []).map((action) => {
+            const key = actionKey(action);
+            const values = paramValues[key] ?? {};
+            return (
+              <div
+                key={key}
+                className="bg-surface/30 rounded-lg p-3 flex flex-col gap-2"
               >
-                {pendingLabel === action.label && (
-                  <LuLoader className="animate-spin" size={14} />
-                )}
-                {action.label}
-              </button>
-            </div>
-          ))}
+                {(action.parameters ?? []).map((parameter) => (
+                  <input
+                    key={parameter.name}
+                    className="bg-background rounded-md px-2 py-1 text-sm text-textColor outline-none"
+                    placeholder={parameter.label || parameter.name}
+                    value={values[parameter.name] ?? ''}
+                    onChange={(e) =>
+                      setParamValues((prev) => ({
+                        ...prev,
+                        [key]: {
+                          ...prev[key],
+                          [parameter.name]: e.target.value,
+                        },
+                      }))
+                    }
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                ))}
+                <button
+                  className="flex items-center justify-center gap-2 rounded-md bg-primary/20 hover:bg-primary/30 transition-colors px-3 py-2 text-sm font-medium text-textColor disabled:opacity-50"
+                  disabled={pendingLabel !== null}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    initiateAction(action, values);
+                  }}
+                >
+                  {pendingLabel === action.label && (
+                    <LuLoader className="animate-spin" size={14} />
+                  )}
+                  {action.label}
+                </button>
+              </div>
+            );
+          })}
 
           {signature && (
             <a

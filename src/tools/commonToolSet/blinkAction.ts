@@ -61,7 +61,7 @@ function pickAction(
 
 export function createBlinkActionTool(context: ToolContext) {
   const blinkActionTool: Tool<typeof Parameters, ToolResult> = {
-    id: 'general.blinkAction' as const,
+    id: 'common.blinkAction' as const,
     description:
       'Loads a Solana blink / Action link (dial.to, dia.ly, or any Solana Actions URL) and handsfree-executes the requested action: it builds the transaction server-side and returns it with signAndSend so sign_and_send_tx can sign and send it. When no action is specified and the blink offers several, it returns the available actions instead of executing.',
     parameters: Parameters,
