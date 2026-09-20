@@ -83,12 +83,22 @@ export function createBlinkActionTool(context: ToolContext) {
           title: metadata.title,
           description: metadata.description,
           label: metadata.label,
+          disabled: metadata.disabled,
           actions,
         };
 
-        const chosen =
-          pickAction(actions, params.action) ??
-          (actions.length === 1 ? actions[0] : undefined);
+        if (metadata.disabled) {
+          return {
+            success: true,
+            data: { ...display, disabled: true },
+          };
+        }
+
+        const chosen = params.action
+          ? pickAction(actions, params.action)
+          : actions.length === 1
+            ? actions[0]
+            : undefined;
 
         if (!chosen) {
           return {

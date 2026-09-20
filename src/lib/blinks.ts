@@ -51,13 +51,87 @@ function isPrivateIPv4(ip: string): boolean {
   return false;
 }
 
+/**
+ * Expands an IPv6 address (including `::` compression and a trailing
+ * dotted-quad) into its eight 16-bit hextets. Returns null when the
+ * address cannot be parsed.
+ */
+function ipv6ToHextets(ip: string): number[] | null {
+  const noZone = ip.split('%', 1)[0];
+  const dbl = noZone.indexOf('::');
+  const head = dbl >= 0 ? noZone.slice(0, dbl) : noZone;
+  const tail = dbl >= 0 ? noZone.slice(dbl + 2) : '';
+
+  const parseParts = (part: string): number[] | null => {
+    if (!part) return [];
+    const hextets: number[] = [];
+    for (const token of part.split(':')) {
+      if (token.includes('.')) {
+        const v4 = token.split('.').map(Number);
+        if (
+          v4.length !== 4 ||
+          v4.some((n) => Number.isNaN(n) || n < 0 || n > 255)
+        ) {
+          return null;
+        }
+        hextets.push((v4[0] << 8) | v4[1], (v4[2] << 8) | v4[3]);
+      } else {
+        if (!/^[0-9a-fA-F]{1,4}$/.test(token)) return null;
+        hextets.push(parseInt(token, 16));
+      }
+    }
+    return hextets;
+  };
+
+  const headParts = parseParts(head);
+  const tailParts = dbl >= 0 ? parseParts(tail) : [];
+  if (!headParts || !tailParts) return null;
+  if (dbl >= 0) {
+    const missing = 8 - headParts.length - tailParts.length;
+    if (missing < 1) return null;
+    return [...headParts, ...new Array<number>(missing).fill(0), ...tailParts];
+  }
+  return headParts.length === 8 ? headParts : null;
+}
+
+/**
+ * Checks an IPv6 address for loopback, private, link-local and reserved
+ * space. IPv4-embedding schemes (mapped ::ffff:, compatible ::, NAT64
+ * 64:ff9b::, 6to4 2002::, Teredo 2001::) are unpacked so the inner IPv4
+ * address is checked against the same private ranges — this blocks
+ * localhost regardless of the representation used.
+ */
 function isPrivateIPv6(ip: string): boolean {
-  const lower = ip.toLowerCase();
-  if (lower === '::' || lower === '::1') return true;
-  if (lower.startsWith('fc') || lower.startsWith('fd')) return true;
-  if (/^fe[89ab]/.test(lower)) return true;
-  const mapped = lower.match(/^::ffff:(\d+\.\d+\.\d+\.\d+)$/)?.[1];
-  if (mapped) return isPrivateIPv4(mapped);
+  const hextets = ipv6ToHextets(ip);
+  if (!hextets) return true;
+  const [h0, h1, h2, h3, h4, h5, h6, h7] = hextets;
+  const embeddedV4 = (hi: number, lo: number) =>
+    `${hi >> 8}.${hi & 0xff}.${lo >> 8}.${lo & 0xff}`;
+
+  if (h0 === 0) {
+    if (h1 === 0 && h2 === 0 && h3 === 0 && h4 === 0) {
+      // ::ffff:0:0/96 IPv4-mapped and ::/96 IPv4-compatible (covers :: and ::1)
+      if (h5 === 0xffff || h5 === 0) return isPrivateIPv4(embeddedV4(h6, h7));
+    }
+    return true; // the remainder of ::/8 is reserved
+  }
+  if (h0 === 0x0064 && h1 === 0xff9b && h2 === 0 && h3 === 0 && h4 === 0) {
+    return isPrivateIPv4(embeddedV4(h6, h7)); // NAT64 64:ff9b::/96
+  }
+  if (h0 === 0x0064 && h1 === 0xff9b && h2 === 1) {
+    return isPrivateIPv4(embeddedV4(h4, h5)); // NAT64 64:ff9b:1::/48
+  }
+  if (h0 === 0x2002) {
+    return isPrivateIPv4(embeddedV4(h1, h2)); // 6to4 2002::/16
+  }
+  if (h0 === 0x2001 && h1 === 0) {
+    return isPrivateIPv4(embeddedV4(~h6 & 0xffff, ~h7 & 0xffff)); // Teredo
+  }
+  if ((h0 & 0xfe00) === 0xfc00) return true; // fc00::/7 unique local
+  if ((h0 & 0xffc0) === 0xfe80) return true; // fe80::/10 link-local
+  if ((h0 & 0xffc0) === 0xfec0) return true; // fec0::/10 site-local
+  if ((h0 & 0xff00) === 0xff00) return true; // ff00::/8 multicast
+  if (h0 === 0x0100) return true; // 100::/64 discard-only
   return false;
 }
 

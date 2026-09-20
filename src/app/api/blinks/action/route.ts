@@ -1,13 +1,22 @@
 import { NextResponse } from 'next/server';
 import { getBlinkMetadata, postBlinkAction } from '@/lib/blinks';
+import {
+  authenticateAndCheckUsage,
+  createErrorResponseFromAuth,
+} from '@/lib/server/authAndUsage';
 
 /**
- * Proxy for Solana Actions ("blinks") endpoints.
+ * Authenticated proxy for Solana Actions ("blinks") endpoints.
  * GET  /api/blinks/action?url=<blinkUrl>  -> action metadata
  * POST /api/blinks/action  { url, account, params? } -> { transaction, message }
  * All upstream requests are validated against private/SSRF targets.
  */
 export async function GET(req: Request) {
+  const authResult = await authenticateAndCheckUsage(req, false);
+  if (!authResult.isAuthenticated) {
+    return createErrorResponseFromAuth(authResult);
+  }
+
   const url = new URL(req.url).searchParams.get('url');
   if (!url) {
     return NextResponse.json({ error: 'Missing url' }, { status: 400 });
@@ -25,6 +34,11 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
+  const authResult = await authenticateAndCheckUsage(req);
+  if (!authResult.isAuthenticated) {
+    return createErrorResponseFromAuth(authResult);
+  }
+
   let body: { url?: string; account?: string; params?: Record<string, string> };
   try {
     body = await req.json();
@@ -35,7 +49,7 @@ export async function POST(req: Request) {
     );
   }
 
-  if (!body.url || !body.account) {
+  if (!body || typeof body !== 'object' || !body.url || !body.account) {
     return NextResponse.json(
       { error: 'Missing url or account' },
       { status: 400 }

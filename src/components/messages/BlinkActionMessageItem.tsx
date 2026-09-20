@@ -24,6 +24,7 @@ interface BlinkActionData {
   unknownAction?: string;
   selectedAction?: string;
   missingParams?: string[];
+  disabled?: boolean;
 }
 
 interface BlinkActionMessageItemProps {
@@ -50,6 +51,17 @@ export const BlinkActionMessageItem: FC<BlinkActionMessageItemProps> = ({
   const actionKey = (action: BlinkLinkedAction) =>
     `${action.label}-${action.href}`;
 
+  const missingRequiredParams = (
+    action: BlinkLinkedAction,
+    values: Record<string, string>
+  ) =>
+    (action.parameters ?? [])
+      .filter(
+        (parameter) =>
+          parameter.required !== false && !values[parameter.name]?.trim()
+      )
+      .map((parameter) => parameter.name);
+
   /**
    * Initiates a blink action without relying on the default blink UI:
    * builds the transaction through the server-side action proxy, signs it
@@ -62,6 +74,12 @@ export const BlinkActionMessageItem: FC<BlinkActionMessageItemProps> = ({
     const wallet = useWalletHandler.getState().currentWallet;
     if (!wallet) {
       toast.error('Please connect your wallet');
+      return;
+    }
+
+    const missing = missingRequiredParams(action, params);
+    if (missing.length > 0) {
+      toast.error(`Missing parameters: ${missing.join(', ')}`);
       return;
     }
 
@@ -173,10 +191,16 @@ export const BlinkActionMessageItem: FC<BlinkActionMessageItemProps> = ({
               Missing parameters: {props.missingParams.join(', ')}
             </p>
           )}
+          {props.disabled && (
+            <p className="text-xs text-secText">
+              This action is currently disabled.
+            </p>
+          )}
 
           {(props.actions ?? []).map((action) => {
             const key = actionKey(action);
             const values = paramValues[key] ?? {};
+            const missingRequired = missingRequiredParams(action, values);
             return (
               <div
                 key={key}
@@ -202,7 +226,11 @@ export const BlinkActionMessageItem: FC<BlinkActionMessageItemProps> = ({
                 ))}
                 <button
                   className="flex items-center justify-center gap-2 rounded-md bg-primary/20 hover:bg-primary/30 transition-colors px-3 py-2 text-sm font-medium text-textColor disabled:opacity-50"
-                  disabled={pendingLabel !== null}
+                  disabled={
+                    pendingLabel !== null ||
+                    props.disabled === true ||
+                    missingRequired.length > 0
+                  }
                   onClick={(e) => {
                     e.stopPropagation();
                     initiateAction(action, values);
