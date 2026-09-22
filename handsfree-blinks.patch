@@ -1,0 +1,667 @@
+diff --git a/src/app/api/chat/route.ts b/src/app/api/chat/route.ts
+index ae45bda..ae76e32 100644
+--- a/src/app/api/chat/route.ts
++++ b/src/app/api/chat/route.ts
+@@ -13,6 +13,7 @@ import {
+   createErrorResponseFromAuth,
+ } from '@/lib/server/authAndUsage';
+ import { getManagementToolSet } from '@/tools/managementToolSet';
++import { getBlinksToolSet } from '@/tools/blinksToolSet';
+ 
+ /**
+  * Handles POST requests for chat processing with tools
+@@ -98,10 +99,15 @@ export async function POST(req: Request) {
+       authToken: accessToken,
+       publicKey: walletPublicKey,
+     }).tools;
++    const blinksTools = getBlinksToolSet({
++      authToken: accessToken,
++      publicKey: walletPublicKey,
++    }).tools;
+ 
+     const tools: Record<string, Tool<any, any>> = {
+       ...generalTools,
+       ...managementTools,
++      ...blinksTools,
+       ...(aiKitTools === Symbol.for('NO_TOOLS_NEEDED')
+         ? {}
+         : (aiKitTools as Record<string, Tool<any, any>>)),
+diff --git a/src/components/messages/BlinkActionMessageItem.tsx b/src/components/messages/BlinkActionMessageItem.tsx
+new file mode 100644
+index 0000000..0d42d7c
+--- /dev/null
++++ b/src/components/messages/BlinkActionMessageItem.tsx
+@@ -0,0 +1,202 @@
++'use client';
++
++import { FC, useState } from 'react';
++import Image from 'next/image';
++import { VersionedTransaction } from '@solana/web3.js';
++import { LuExternalLink, LuZap } from 'react-icons/lu';
++import { AiOutlineCheckCircle, AiOutlineLoading3Quarters } from 'react-icons/ai';
++import { toast } from 'sonner';
++import { BaseBorderedMessageItem } from './base/BaseBorderedMessageItem';
++import { Pill } from '@/components/common/Pill';
++import useThemeManager from '@/store/ThemeManager';
++import { useWalletHandler } from '@/store/WalletHandler';
++import {
++  applyActionParameters,
++  assertSafeActionUrl,
++  resolveActionHref,
++} from '@/lib/blinks';
++import type { BlinkAction, BlinkActionResultData } from '@/types/blinks';
++
++interface BlinkActionMessageItemProps {
++  props: BlinkActionResultData;
++}
++
++/**
++ * Sola's own Blink (Solana Action) component. It renders a Blink's
++ * metadata and exposes its own `triggerAction` function to build, sign
++ * and send the action's transaction directly with the connected wallet —
++ * instead of the default click-through Blink widget.
++ */
++export const BlinkActionMessageItem: FC<BlinkActionMessageItemProps> = ({
++  props,
++}) => {
++  const { theme } = useThemeManager();
++  const { currentWallet } = useWalletHandler();
++  const [pendingHref, setPendingHref] = useState<string | null>(null);
++  const [completedHref, setCompletedHref] = useState<string | null>(null);
++
++  /**
++   * Custom function to initiate a Blink action: resolves the action's
++   * transaction against the provider, then signs and sends it with the
++   * connected wallet. This is what lets an action be triggered directly
++   * (by a click here, or by Sola AI calling `executeBlinkAction`) rather
++   * than through the default Blink widget's own UI flow.
++   */
++  const triggerAction = async (baseUrl: string, action: BlinkAction) => {
++    if (!currentWallet) {
++      toast.error('Please connect your wallet to run this Blink action');
++      return;
++    }
++
++    setPendingHref(action.href);
++    try {
++      const target = assertSafeActionUrl(
++        applyActionParameters(resolveActionHref(baseUrl, action.href))
++      );
++
++      const response = await fetch(target.toString(), {
++        method: 'POST',
++        headers: {
++          'Content-Type': 'application/json',
++          Accept: 'application/json',
++        },
++        body: JSON.stringify({ account: currentWallet.address }),
++      });
++
++      if (!response.ok) {
++        throw new Error(`Blink provider responded with status ${response.status}`);
++      }
++
++      const body = (await response.json()) as {
++        transaction?: string;
++        message?: string;
++      };
++
++      if (!body.transaction) {
++        throw new Error('Blink provider did not return a transaction to sign');
++      }
++
++      const transaction = VersionedTransaction.deserialize(
++        Buffer.from(body.transaction, 'base64')
++      );
++      const signedTransaction = await currentWallet.signTransaction(transaction);
++
++      const sendResponse = await fetch('/api/wallet/sendTransaction', {
++        method: 'POST',
++        headers: { 'Content-Type': 'application/json' },
++        body: JSON.stringify({
++          serializedTransaction: Buffer.from(
++            signedTransaction.serialize()
++          ).toString('base64'),
++          options: { skipPreflight: true, maxRetries: 10 },
++        }),
++      });
++
++      const sendResult = await sendResponse.json();
++      if (!sendResponse.ok) {
++        throw new Error(sendResult?.message ?? 'Failed to send the transaction');
++      }
++
++      toast.success(body.message ?? `${action.label} completed`);
++      setCompletedHref(action.href);
++    } catch (error) {
++      toast.error(
++        error instanceof Error ? error.message : 'Failed to run the Blink action'
++      );
++    } finally {
++      setPendingHref(null);
++    }
++  };
++
++  const icon = (
++    <div className="bg-primary/10 p-1 rounded-lg overflow-hidden w-7 h-7 flex items-center justify-center">
++      {props.kind === 'metadata' && props.icon ? (
++        <Image
++          src={props.icon}
++          alt={props.title}
++          width={28}
++          height={28}
++          className="object-cover w-full h-full"
++        />
++      ) : (
++        <LuZap className="text-primary" size={20} />
++      )}
++    </div>
++  );
++
++  if (props.kind === 'prepared') {
++    return (
++      <BaseBorderedMessageItem title={props.actionLabel} icon={icon}>
++        <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-3">
++          <div className="flex items-center gap-2">
++            <AiOutlineCheckCircle className="text-green-500" size={20} />
++            <p className="text-green-500 text-sm font-medium">
++              Blink action prepared — signing and sending automatically
++            </p>
++          </div>
++          {props.message && (
++            <p className="text-secText text-xs mt-1">{props.message}</p>
++          )}
++        </div>
++      </BaseBorderedMessageItem>
++    );
++  }
++
++  return (
++    <BaseBorderedMessageItem title={props.title} icon={icon}>
++      <div className="flex flex-col gap-3">
++        {props.description && (
++          <p className="text-textColor text-sm">{props.description}</p>
++        )}
++
++        {props.disabled ? (
++          <p className="text-secText text-sm italic">
++            This Blink is currently disabled by its provider.
++          </p>
++        ) : (
++          <div className="flex flex-row flex-wrap gap-2">
++            {props.actions.map((action) => {
++              const isPending = pendingHref === action.href;
++              const isDone = completedHref === action.href;
++              return (
++                <Pill
++                  key={action.href}
++                  text={
++                    isPending
++                      ? 'Running…'
++                      : isDone
++                        ? `${action.label} ✓`
++                        : action.label
++                  }
++                  color={theme.primary}
++                  textColor={theme.background}
++                  icon={
++                    isPending ? (
++                      <AiOutlineLoading3Quarters className="animate-spin" />
++                    ) : undefined
++                  }
++                  hoverable={!isPending}
++                  onClick={() => {
++                    if (!isPending) {
++                      void triggerAction(props.url, action);
++                    }
++                  }}
++                />
++              );
++            })}
++          </div>
++        )}
++
++        <a
++          href={props.url}
++          target="_blank"
++          rel="noopener noreferrer"
++          className="text-secText text-xs flex items-center gap-1 hover:text-primary"
++        >
++          <LuExternalLink size={12} />
++          {props.url}
++        </a>
++      </div>
++    </BaseBorderedMessageItem>
++  );
++};
+diff --git a/src/config/ai.ts b/src/config/ai.ts
+index 0e39cb7..bc10fc0 100644
+--- a/src/config/ai.ts
++++ b/src/config/ai.ts
+@@ -83,6 +83,7 @@ Key Guidelines:
+   - If a user asks for the same action multiple times, you must do it and never say no.
+   - If a user asks for market analysis or web analysis, return the **token** toolset.
+   - For web searches or user details, always include the **managementToolSet** to allow the user to request a new feature.
++  - If the user shares a Blink (Solana Action) URL, or asks to play/interact with an on-chain Blink game or action, include the **onChain** toolset so the request reaches Sola AI's Blink tools.
+   - IMPORTANT: Stay within your scope of Solana and crypto-related topics. Do not attempt to answer questions outside this domain.
+ 
+ Common Knowledge:
+@@ -134,6 +135,7 @@ Your Core Identity:
+ # Special Tool Triggers:
+ - If a tool result has \`"textResponse": false\`, do not respond with a text summary of the tool result. Instead end the conversation and wait for the user to ask for more information.
+ - If a tool result has \`"signAndSend": true\`, trigger the \`sign_and_send_tx\` tool with the transaction hash.
++- Blinks (Solana Actions) hands-free flow: when the user shares a Blink URL, or a game/dApp exposes one, call \`getBlinkAction\` to load its metadata. If it returns a single unambiguous action with no required parameters, immediately call \`executeBlinkAction\` with that action's href to initiate it yourself — do not tell the user to click an external button. If there are multiple actions or required parameters, ask the user which action/values to use, then call \`executeBlinkAction\`.
+ 
+ # Investment Lifecycles:
+   ${Object.entries(InvestementTypeLifecycles)
+diff --git a/src/lib/blinks.ts b/src/lib/blinks.ts
+new file mode 100644
+index 0000000..aa78fe8
+--- /dev/null
++++ b/src/lib/blinks.ts
+@@ -0,0 +1,76 @@
++/**
++ * Shared helpers for loading and initiating Blink (Solana Action) requests
++ * directly, instead of going through a default third-party Blink widget.
++ *
++ * The host allow/deny checks here are a best-effort literal hostname/IP
++ * guard against pointing the server-side fetch at obviously internal
++ * targets (localhost, RFC1918 ranges). They are not a substitute for
++ * network-level egress controls or DNS-rebinding protection.
++ */
++
++const BLOCKED_HOSTNAMES = new Set(['localhost', '0.0.0.0', '::1']);
++
++function isPrivateIPv4(hostname: string): boolean {
++  const match = hostname.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
++  if (!match) return false;
++
++  const octets = match.slice(1).map(Number);
++  if (octets.some((octet) => octet > 255)) return false;
++  const [a, b] = octets;
++
++  if (a === 10) return true;
++  if (a === 127) return true;
++  if (a === 169 && b === 254) return true;
++  if (a === 172 && b >= 16 && b <= 31) return true;
++  if (a === 192 && b === 168) return true;
++  return false;
++}
++
++/**
++ * Validates that a Blink action URL is well-formed, uses https, and does
++ * not point at an obviously internal/private host. Throws on failure.
++ */
++export function assertSafeActionUrl(rawUrl: string): URL {
++  let parsed: URL;
++  try {
++    parsed = new URL(rawUrl);
++  } catch {
++    throw new Error('Invalid Blink action URL');
++  }
++
++  if (parsed.protocol !== 'https:') {
++    throw new Error('Blink action URLs must use https');
++  }
++
++  const hostname = parsed.hostname.toLowerCase();
++  if (BLOCKED_HOSTNAMES.has(hostname) || hostname.endsWith('.local')) {
++    throw new Error('Blink action URL points to a disallowed host');
++  }
++
++  if (isPrivateIPv4(hostname)) {
++    throw new Error('Blink action URL points to a private network address');
++  }
++
++  return parsed;
++}
++
++/** Resolves an action href (which may be relative) against the Blink's base URL. */
++export function resolveActionHref(baseUrl: string, href: string): string {
++  return new URL(href, baseUrl).toString();
++}
++
++/**
++ * Substitutes `{paramName}` placeholders in an action href with the
++ * provided parameter values, per the Solana Actions spec's optional
++ * href templating for parameterized actions.
++ */
++export function applyActionParameters(
++  href: string,
++  parameters?: Record<string, string>
++): string {
++  if (!parameters) return href;
++  return href.replace(/\{([^}]+)\}/g, (match, key: string) => {
++    const value = parameters[key];
++    return value !== undefined ? encodeURIComponent(value) : match;
++  });
++}
+diff --git a/src/lib/messageRenderer.tsx b/src/lib/messageRenderer.tsx
+index 612867c..d3e637d 100644
+--- a/src/lib/messageRenderer.tsx
++++ b/src/lib/messageRenderer.tsx
+@@ -30,6 +30,7 @@ import { ViewStakesMessageItem } from '@/components/messages/ViewStakesMessageIt
+ import { StakeStatusMessageItem } from '@/components/messages/StakeStatusMessageItem';
+ import { NativeWithdrawMessageItem } from '@/components/messages/NativeWithdrawMessageItem';
+ import { ErrorMessageItem } from '@/components/messages/ErrorMessageItem';
++import { BlinkActionMessageItem } from '@/components/messages/BlinkActionMessageItem';
+ 
+ export function renderMessageContent(message: UIMessage) {
+   const role = message.role;
+@@ -143,6 +144,10 @@ export function renderToolResult(
+       return <StakeStatusMessageItem props={args.data} />;
+     case 'nativeWithdraw':
+       return <NativeWithdrawMessageItem props={args.data} />;
++    // Blinks (Solana Actions)
++    case 'getBlinkAction':
++    case 'executeBlinkAction':
++      return <BlinkActionMessageItem props={args.data} />;
+     default:
+       return <SimpleMessageItem text={JSON.stringify(args.data)} />;
+   }
+diff --git a/src/tools/blinksToolSet/executeBlinkAction.ts b/src/tools/blinksToolSet/executeBlinkAction.ts
+new file mode 100644
+index 0000000..985b8ca
+--- /dev/null
++++ b/src/tools/blinksToolSet/executeBlinkAction.ts
+@@ -0,0 +1,125 @@
++import { z } from 'zod';
++import { Tool } from 'ai';
++import { ToolContext, ToolResult } from '@/types/tool';
++import { BlinkPreparedAction } from '@/types/blinks';
++import {
++  applyActionParameters,
++  assertSafeActionUrl,
++  resolveActionHref,
++} from '@/lib/blinks';
++
++const Parameters = z.object({
++  url: z.string().describe('The Blink URL originally loaded with getBlinkAction'),
++  actionHref: z
++    .string()
++    .describe(
++      'The href of the specific action to run, taken from the actions list returned by getBlinkAction'
++    ),
++  actionLabel: z
++    .string()
++    .optional()
++    .describe('The label of the action being run, for display purposes'),
++  parameters: z
++    .record(z.string())
++    .optional()
++    .describe(
++      'Values for any input parameters the action requires, keyed by parameter name'
++    ),
++});
++
++/**
++ * This is the custom function that initiates a Blink action on behalf of
++ * Sola AI: it builds the action's transaction directly against the
++ * provider's endpoint, instead of requiring the user to click through the
++ * default Blink widget.
++ */
++export function createExecuteBlinkActionTool(context: ToolContext) {
++  const executeBlinkActionTool: Tool<typeof Parameters, ToolResult> = {
++    id: 'blinks.execute' as const,
++    description:
++      "Initiates a Blink (Solana Action) directly for the connected wallet by POSTing to the action's endpoint, without requiring the user to click through the default Blink widget. Returns a transaction ready to sign.",
++    parameters: Parameters,
++    execute: async ({ url, actionHref, actionLabel, parameters }) => {
++      if (!context.publicKey) {
++        return {
++          success: false,
++          error: 'No connected wallet public key provided',
++          data: undefined,
++        };
++      }
++
++      let target: URL;
++      try {
++        const resolvedHref = applyActionParameters(
++          resolveActionHref(url, actionHref),
++          parameters
++        );
++        target = assertSafeActionUrl(resolvedHref);
++      } catch (error) {
++        return {
++          success: false,
++          error:
++            error instanceof Error ? error.message : 'Invalid Blink action URL',
++          data: undefined,
++        };
++      }
++
++      try {
++        const response = await fetch(target.toString(), {
++          method: 'POST',
++          headers: {
++            'Content-Type': 'application/json',
++            Accept: 'application/json',
++          },
++          body: JSON.stringify({ account: context.publicKey }),
++          signal: AbortSignal.timeout(15000),
++        });
++
++        if (!response.ok) {
++          return {
++            success: false,
++            error: `Blink provider rejected the action (status ${response.status})`,
++            data: undefined,
++          };
++        }
++
++        const body = (await response.json()) as {
++          transaction?: string;
++          message?: string;
++        };
++
++        if (!body.transaction) {
++          return {
++            success: false,
++            error: 'Blink provider did not return a transaction to sign',
++            data: undefined,
++          };
++        }
++
++        const prepared: BlinkPreparedAction = {
++          kind: 'prepared',
++          url,
++          actionHref: target.toString(),
++          actionLabel: actionLabel ?? 'Blink Action',
++          message: body.message,
++          transactionHash: body.transaction,
++        };
++
++        return {
++          success: true,
++          error: undefined,
++          data: prepared,
++          signAndSend: true,
++        };
++      } catch (error) {
++        return {
++          success: false,
++          error: 'Unable to prepare the Blink action transaction',
++          data: undefined,
++        };
++      }
++    },
++  };
++
++  return executeBlinkActionTool;
++}
+diff --git a/src/tools/blinksToolSet/getBlinkAction.ts b/src/tools/blinksToolSet/getBlinkAction.ts
+new file mode 100644
+index 0000000..3396c14
+--- /dev/null
++++ b/src/tools/blinksToolSet/getBlinkAction.ts
+@@ -0,0 +1,104 @@
++import { z } from 'zod';
++import { Tool } from 'ai';
++import { ToolResult } from '@/types/tool';
++import { BlinkAction, BlinkMetadata } from '@/types/blinks';
++import { assertSafeActionUrl } from '@/lib/blinks';
++
++const Parameters = z.object({
++  url: z
++    .string()
++    .describe(
++      'The Blink (Solana Action) URL shared by the user or embedded in a game, e.g. https://actions.example.com/api/mint'
++    ),
++});
++
++interface ActionGetResponse {
++  icon?: string;
++  title?: string;
++  description?: string;
++  label?: string;
++  disabled?: boolean;
++  links?: {
++    actions?: Array<{
++      label: string;
++      href: string;
++      parameters?: Array<{
++        name: string;
++        label?: string;
++        required?: boolean;
++        type?: string;
++      }>;
++    }>;
++  };
++}
++
++export function createGetBlinkActionTool() {
++  const getBlinkActionTool: Tool<typeof Parameters, ToolResult> = {
++    id: 'blinks.get' as const,
++    description:
++      "Loads a Blink (Solana Action) URL and returns its metadata (icon, title, description, and the list of available actions) so it can be rendered and initiated with Sola's own Blink component, instead of the default click-through Blink widget.",
++    parameters: Parameters,
++    execute: async ({ url }) => {
++      let target: URL;
++      try {
++        target = assertSafeActionUrl(url);
++      } catch (error) {
++        return {
++          success: false,
++          error: error instanceof Error ? error.message : 'Invalid Blink URL',
++          data: undefined,
++        };
++      }
++
++      try {
++        const response = await fetch(target.toString(), {
++          method: 'GET',
++          headers: { Accept: 'application/json' },
++          signal: AbortSignal.timeout(10000),
++        });
++
++        if (!response.ok) {
++          return {
++            success: false,
++            error: `Blink provider responded with status ${response.status}`,
++            data: undefined,
++          };
++        }
++
++        const body = (await response.json()) as ActionGetResponse;
++
++        const actions: BlinkAction[] = body.links?.actions?.length
++          ? body.links.actions.map((action) => ({
++              label: action.label,
++              href: action.href,
++              parameters: action.parameters,
++            }))
++          : [{ label: body.label ?? 'Execute', href: target.toString() }];
++
++        const metadata: BlinkMetadata = {
++          kind: 'metadata',
++          url: target.toString(),
++          icon: body.icon,
++          title: body.title ?? 'Blink Action',
++          description: body.description,
++          disabled: body.disabled ?? false,
++          actions,
++        };
++
++        return {
++          success: true,
++          error: undefined,
++          data: metadata,
++        };
++      } catch (error) {
++        return {
++          success: false,
++          error: 'Unable to load the Blink action metadata',
++          data: undefined,
++        };
++      }
++    },
++  };
++
++  return getBlinkActionTool;
++}
+diff --git a/src/tools/blinksToolSet/index.ts b/src/tools/blinksToolSet/index.ts
+new file mode 100644
+index 0000000..3a4e5aa
+--- /dev/null
++++ b/src/tools/blinksToolSet/index.ts
+@@ -0,0 +1,20 @@
++import { ToolContext, ToolSetDescription } from '@/types/tool';
++import { createGetBlinkActionTool } from './getBlinkAction';
++import { createExecuteBlinkActionTool } from './executeBlinkAction';
++
++export const blinksToolSet: ToolSetDescription = {
++  slug: 'blinks',
++  name: 'blinks_tools',
++  description:
++    'Tools to load and initiate Blink (Solana Action) games and dApp actions directly, hands-free, without the default click-through Blink widget.',
++};
++
++export const getBlinksToolSet = (context: ToolContext) => {
++  return {
++    ...blinksToolSet,
++    tools: {
++      getBlinkAction: createGetBlinkActionTool(),
++      executeBlinkAction: createExecuteBlinkActionTool(context),
++    },
++  };
++};
+diff --git a/src/types/blinks.ts b/src/types/blinks.ts
+new file mode 100644
+index 0000000..44a4c52
+--- /dev/null
++++ b/src/types/blinks.ts
+@@ -0,0 +1,33 @@
++export interface BlinkActionParameter {
++  name: string;
++  label?: string;
++  required?: boolean;
++  type?: string;
++}
++
++export interface BlinkAction {
++  label: string;
++  href: string;
++  parameters?: BlinkActionParameter[];
++}
++
++export interface BlinkMetadata {
++  kind: 'metadata';
++  url: string;
++  icon?: string;
++  title: string;
++  description?: string;
++  disabled?: boolean;
++  actions: BlinkAction[];
++}
++
++export interface BlinkPreparedAction {
++  kind: 'prepared';
++  url: string;
++  actionHref: string;
++  actionLabel: string;
++  message?: string;
++  transactionHash: string;
++}
++
++export type BlinkActionResultData = BlinkMetadata | BlinkPreparedAction;
