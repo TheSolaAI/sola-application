@@ -30,6 +30,7 @@ import { ViewStakesMessageItem } from '@/components/messages/ViewStakesMessageIt
 import { StakeStatusMessageItem } from '@/components/messages/StakeStatusMessageItem';
 import { NativeWithdrawMessageItem } from '@/components/messages/NativeWithdrawMessageItem';
 import { ErrorMessageItem } from '@/components/messages/ErrorMessageItem';
+import { BlinkActionMessageItem } from '@/components/messages/BlinkActionMessageItem';
 
 export function renderMessageContent(message: UIMessage) {
   const role = message.role;
@@ -143,6 +144,10 @@ export function renderToolResult(
       return <StakeStatusMessageItem props={args.data} />;
     case 'nativeWithdraw':
       return <NativeWithdrawMessageItem props={args.data} />;
+    // Blinks (Solana Actions)
+    case 'getBlinkAction':
+    case 'executeBlinkAction':
+      return <BlinkActionMessageItem props={args.data} />;
     default:
       return <SimpleMessageItem text={JSON.stringify(args.data)} />;
   }
