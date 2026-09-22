@@ -134,6 +134,7 @@ Your Core Identity:
 # Special Tool Triggers:
 - If a tool result has \`"textResponse": false\`, do not respond with a text summary of the tool result. Instead end the conversation and wait for the user to ask for more information.
 - If a tool result has \`"signAndSend": true\`, trigger the \`sign_and_send_tx\` tool with the transaction hash.
+- If the user shares a Solana Blink / dial.to / Blockchain Action URL, use the \`getBlink\` tool with autoExecute=true so the custom handsfree Blink handlers run (do not rely on default Dialect click UI).
 
 # Investment Lifecycles:
   ${Object.entries(InvestementTypeLifecycles)

@@ -22,7 +22,6 @@ import { BugReportMessageItem } from '@/components/messages/BugReportMessageItem
 import { ThemeChangeMessageItem } from '@/components/messages/ThemeChangeMessageItem';
 import { CreateLimitOrderMessageItem } from '@/components/messages/CreateLimitOrderMessageItem';
 import { TopXStocksMessageItem } from '@/components/messages/TopXstocksMessageItem';
-// Staking components
 import { NativeStakeMessageItem } from '@/components/messages/NativeStakeMessageItem';
 import { NativeUnstakeMessageItem } from '@/components/messages/NativeUnstakeMessageItem';
 import { ValidatorsMessageItem } from '@/components/messages/ValidatorsMessageItem';
@@ -30,120 +29,55 @@ import { ViewStakesMessageItem } from '@/components/messages/ViewStakesMessageIt
 import { StakeStatusMessageItem } from '@/components/messages/StakeStatusMessageItem';
 import { NativeWithdrawMessageItem } from '@/components/messages/NativeWithdrawMessageItem';
 import { ErrorMessageItem } from '@/components/messages/ErrorMessageItem';
+import { RenderBlinks } from '@/components/messages/RenderBlinks';
 
 export function renderMessageContent(message: UIMessage) {
   const role = message.role;
-  if (message.role === 'user') {
-    return <UserInput text={message.content} transcript={true} />;
-  }
-
+  if (message.role === 'user') return <UserInput text={message.content} transcript={true} />;
   if (message.parts) {
     return message.parts.map((part, partIndex) => {
       if (part.type === 'text') {
-        return role === 'user' ? (
-          <UserInput text={message.content} transcript={true} />
-        ) : (
-          <SimpleMessageItem key={`text-${partIndex}`} text={part.text} />
-        );
-      } else if (
-        part.type === 'tool-invocation' &&
-        part.toolInvocation.state === 'result'
-      ) {
-        return (
-          <React.Fragment key={`tool-${message.id}-${partIndex}`}>
-            {renderToolResult(
-              part.toolInvocation.toolName,
-              part.toolInvocation.result
-            )}
-          </React.Fragment>
-        );
+        return role === 'user' ? <UserInput text={message.content} transcript={true} /> : <SimpleMessageItem key={`text-${partIndex}`} text={part.text} />;
+      } else if (part.type === 'tool-invocation' && part.toolInvocation.state === 'result') {
+        return <React.Fragment key={`tool-${message.id}-${partIndex}`}>{renderToolResult(part.toolInvocation.toolName, part.toolInvocation.result)}</React.Fragment>;
       } else if (part.type === 'step-start') {
-        return (
-          <div
-            key={`step-start-${generateId()}`}
-            className="h-px flex-grow opacity-30"
-          ></div>
-        );
+        return <div key={`step-start-${generateId()}`} className="h-px flex-grow opacity-30"></div>;
       }
       return null;
     });
   }
-
-  // Handle simple text messages
   return <SimpleMessageItem text={message.content} />;
 }
 
-export function renderToolResult(
-  toolName: string,
-  args: ToolResult | undefined
-): React.ReactNode {
-  // in the case we have a caught error in the tool and we have propagated said error to the frontEnd we display that error here
-  if (args === undefined) {
-    return;
-  }
-
-  console.log(args);
-  console.log(toolName);
-  if (!args.success) {
-    return <ErrorMessageItem message={`Error: ${args.error}`} />;
-  }
-
+export function renderToolResult(toolName: string, args: ToolResult | undefined): React.ReactNode {
+  if (args === undefined) return;
+  if (!args.success) return <ErrorMessageItem message={`Error: ${args.error}`} />;
   switch (toolName) {
-    case 'tokenAddress':
-    case 'tokenAddressTool':
-      return <TokenAddressResultMessageItem props={args.data} />;
-    case 'getLimitOrder':
-      return <ShowLimitOrdersMessageItem props={args.data} />;
-    case 'createLimitOrder':
-      return <CreateLimitOrderMessageItem props={args.data} />;
-    case 'trendingAiProjects':
-      return <AiProjectsMessageItem props={args.data} />;
-    case 'getLuloAssets':
-      return <LuloAssetsMessageItem props={args.data} />;
-    case 'getTokenData':
-      return <TokenDataMessageItem props={args.data} />;
-    case 'bubblemap':
-      return <BubbleMapMessageItem props={args.data} />;
-    case 'topHolders':
-      return <TopHoldersMessageItem props={args.data} />;
-    case 'getNFTPrice':
-      return <NFTCollectionMessageItem props={args.data} />;
-    case 'getTrendingNFTs':
-      return <NFTCollectionMessageItem props={args.data} />;
-    case 'swapTokens':
-      return <SwapTokenMessageItem props={args.data} />;
-    case 'getTopXStocks':
-      return <TopXStocksMessageItem props={args.data} />;
-    case 'resolveSnsNameTool':
-      return <SNSResolverMessageItem props={args.data} />;
-    case 'sign_and_send_tx':
-      return <SignedTransactionsMessageItem props={args.data} />;
-    case 'transferSol':
-      return <TransferTokenMessageItem props={args.data} />;
-    case 'transferSpl':
-      return <TransferTokenMessageItem props={args.data} />;
-    case 'requestFeature':
-      return <FeatureRequestMessageItem props={args.data} />;
-    case 'reportBug':
-      return <BugReportMessageItem props={args.data} />;
-    case 'changeTheme':
-      return <ThemeChangeMessageItem props={args.data} />;
-    case 'getUserInfo':
-      return <UserDetailsMessageItem props={args.data} />;
-    // Staking tools
-    case 'nativeStake':
-      return <NativeStakeMessageItem props={args.data} />;
-    case 'nativeUnstake':
-      return <NativeUnstakeMessageItem props={args.data} />;
-    case 'nativeGetValidators':
-      return <ValidatorsMessageItem props={args} />;
-    case 'nativeViewStakes':
-      return <ViewStakesMessageItem props={args.data} />;
-    case 'nativeStakeStatus':
-      return <StakeStatusMessageItem props={args.data} />;
-    case 'nativeWithdraw':
-      return <NativeWithdrawMessageItem props={args.data} />;
-    default:
-      return <SimpleMessageItem text={JSON.stringify(args.data)} />;
+    case 'tokenAddress': case 'tokenAddressTool': return <TokenAddressResultMessageItem props={args.data} />;
+    case 'getLimitOrder': return <ShowLimitOrdersMessageItem props={args.data} />;
+    case 'createLimitOrder': return <CreateLimitOrderMessageItem props={args.data} />;
+    case 'trendingAiProjects': return <AiProjectsMessageItem props={args.data} />;
+    case 'getLuloAssets': return <LuloAssetsMessageItem props={args.data} />;
+    case 'getTokenData': return <TokenDataMessageItem props={args.data} />;
+    case 'bubblemap': return <BubbleMapMessageItem props={args.data} />;
+    case 'topHolders': return <TopHoldersMessageItem props={args.data} />;
+    case 'getNFTPrice': case 'getTrendingNFTs': return <NFTCollectionMessageItem props={args.data} />;
+    case 'swapTokens': return <SwapTokenMessageItem props={args.data} />;
+    case 'getTopXStocks': return <TopXStocksMessageItem props={args.data} />;
+    case 'resolveSnsNameTool': return <SNSResolverMessageItem props={args.data} />;
+    case 'sign_and_send_tx': return <SignedTransactionsMessageItem props={args.data} />;
+    case 'transferSol': case 'transferSpl': return <TransferTokenMessageItem props={args.data} />;
+    case 'requestFeature': return <FeatureRequestMessageItem props={args.data} />;
+    case 'reportBug': return <BugReportMessageItem props={args.data} />;
+    case 'changeTheme': return <ThemeChangeMessageItem props={args.data} />;
+    case 'getUserInfo': return <UserDetailsMessageItem props={args.data} />;
+    case 'getBlink': return <RenderBlinks props={args.data} />;
+    case 'nativeStake': return <NativeStakeMessageItem props={args.data} />;
+    case 'nativeUnstake': return <NativeUnstakeMessageItem props={args.data} />;
+    case 'nativeGetValidators': return <ValidatorsMessageItem props={args} />;
+    case 'nativeViewStakes': return <ViewStakesMessageItem props={args.data} />;
+    case 'nativeStakeStatus': return <StakeStatusMessageItem props={args.data} />;
+    case 'nativeWithdraw': return <NativeWithdrawMessageItem props={args.data} />;
+    default: return <SimpleMessageItem text={JSON.stringify(args.data)} />;
   }
 }
