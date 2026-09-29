@@ -3,11 +3,12 @@ import { createTokenAddressTool } from './tokenAddress';
 import { openai } from '@ai-sdk/openai';
 import { z } from 'zod';
 import { createGetUserInfoTool } from './getUserInfo';
+import { createGetBlinksTool } from './getBlinks';
 
 export const generalToolSet: ToolSetDescription = {
   slug: 'general',
   name: 'general_tools',
-  description: 'Common tools. To get Token Address',
+  description: 'Common tools. To get Token Address, user info, and interact with Solana Blinks / games handsfree',
 };
 
 export const getGeneralToolSet = (context: ToolContext) => {
@@ -28,6 +29,7 @@ export const getGeneralToolSet = (context: ToolContext) => {
         }),
       },
       getUserInfo: createGetUserInfoTool(),
+      getBlinks: createGetBlinksTool(context),
     },
   };
 };
