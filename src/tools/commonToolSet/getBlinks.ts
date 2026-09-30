@@ -40,9 +40,8 @@ export const createGetBlinksTool = (context: ToolContext) => ({
     autoExecute: z
       .boolean()
       .optional()
-      .default(true)
       .describe(
-        'When true, automatically triggers the matched Blink action handler handsfree upon rendering.'
+        'When true, automatically triggers the matched Blink action handler handsfree upon rendering. Defaults to true only when customTrigger is auto_execute.'
       ),
   }),
   execute: async ({
@@ -50,7 +49,7 @@ export const createGetBlinksTool = (context: ToolContext) => ({
     actionLabel,
     customTrigger = 'auto_execute',
     parameters = {},
-    autoExecute = true,
+    autoExecute,
   }: {
     actionName: string;
     actionLabel?: string;
@@ -73,7 +72,7 @@ export const createGetBlinksTool = (context: ToolContext) => ({
         customTrigger,
         actionLabel,
         parameters,
-        autoExecute: autoExecute || customTrigger === 'auto_execute',
+        autoExecute: typeof autoExecute === 'boolean' ? autoExecute : customTrigger === 'auto_execute',
         walletAddress: context.publicKey ?? null,
       };
 

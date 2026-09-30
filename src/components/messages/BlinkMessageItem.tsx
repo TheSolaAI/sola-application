@@ -188,17 +188,33 @@ export const BlinkMessageItem: React.FC<BlinkMessageItemProps> = ({ props }) => 
     let active = true;
     fetchBlinkMetadata(props.actionUrl).then((data) => {
       if (!active || !data) return;
+      const triggerMode =
+        props.customTrigger ??
+        (props.autoExecute ? 'auto_execute' : 'load');
+      if (triggerMode === 'load' && props.autoExecute !== true) {
+        setStatusMessage('Blink metadata loaded.');
+        return;
+      }
+      const candidate = selectHandsfreeAction(data);
+      if (!candidate) return;
+      if (triggerMode === 'initiate' && props.autoExecute !== true) {
+        setStatusMessage(
+          `Action "${candidate.label}" selected and ready to initiate.`
+        );
+        return;
+      }
+      const shouldAutoExecute =
+        typeof props.autoExecute === 'boolean'
+          ? props.autoExecute
+          : triggerMode === 'auto_execute';
       if (
-        props.autoExecute &&
+        shouldAutoExecute &&
         !autoExecutedRef.current &&
         activeWalletAddress &&
         currentWallet
       ) {
-        const candidate = selectHandsfreeAction(data);
-        if (candidate) {
-          autoExecutedRef.current = true;
-          initiateBlinkAction(candidate);
-        }
+        autoExecutedRef.current = true;
+        initiateBlinkAction(candidate);
       }
     });
     return () => {
@@ -211,6 +227,7 @@ export const BlinkMessageItem: React.FC<BlinkMessageItemProps> = ({ props }) => 
     initiateBlinkAction,
     props.actionUrl,
     props.autoExecute,
+    props.customTrigger,
     selectHandsfreeAction,
   ]);
 
