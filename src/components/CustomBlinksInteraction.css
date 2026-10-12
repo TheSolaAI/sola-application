@@ -1,0 +1,95 @@
+/* Basic styling for CustomBlinksInteraction component */
+
+.custom-blinks-container {
+  padding: 20px;
+  background-color: #f0f2f5;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.custom-blinks-container h2 {
+  color: #333;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.blinks-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.blink-card {
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease-in-out;
+}
+
+.blink-card.active-blink {
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+}
+
+.blink-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.blink-icon {
+  width: 32px;
+  height: 32px;
+  margin-right: 10px;
+  border-radius: 4px;
+}
+
+.blink-card h3 {
+  margin: 0;
+  font-size: 1.2em;
+  color: #333;
+}
+
+.blink-description {
+  font-size: 0.9em;
+  color: #666;
+  flex-grow: 1; /* Allows description to take available space */
+  margin-bottom: 15px;
+}
+
+.blink-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: auto; /* Pushes actions to the bottom */
+}
+
+.blink-action-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 0.85em;
+  transition: background-color 0.2s ease;
+}
+
+.blink-action-button:hover {
+  background-color: #0056b3;
+}
+
+.blink-action-button.active-action {
+  background-color: #28a745; /* Highlight active action */
+  box-shadow: 0 0 0 2px rgba(40, 167, 69, 0.5);
+}
+
+.blink-action-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}

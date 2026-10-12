@@ -1,0 +1,141 @@
+/* Styling for BlinksAIConfigTool component */
+
+.ai-config-tool-container {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 30px;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.ai-config-tool-container h1 {
+  text-align: center;
+  color: #2c3e50;
+  margin-bottom: 30px;
+  font-size: 2.2em;
+}
+
+.ai-controls {
+  background-color: #e8f5e9;
+  border: 1px solid #c8e6c9;
+  padding: 15px 20px;
+  border-radius: 8px;
+  margin-bottom: 25px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.ai-controls label {
+  font-size: 1.1em;
+  color: #388e3c;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.ai-controls input[type="checkbox"] {
+  margin-right: 10px;
+  width: 20px;
+  height: 20px;
+  accent-color: #4caf50;
+}
+
+.ai-status {
+  font-style: italic;
+  color: #5cb85c;
+  margin: 0;
+  font-weight: 500;
+}
+
+.manual-ai-trigger {
+  background-color: #e3f2fd;
+  border: 1px solid #bbdefb;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 25px;
+}
+
+.manual-ai-trigger h3 {
+  color: #2196f3;
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 1.4em;
+}
+
+.manual-ai-trigger select,
+.manual-ai-trigger button {
+  padding: 10px 15px;
+  border-radius: 5px;
+  border: 1px solid #90caf9;
+  margin-right: 10px;
+  font-size: 1em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.manual-ai-trigger select {
+  background-color: #ffffff;
+  color: #333;
+  min-width: 180px;
+}
+
+.manual-ai-trigger select:focus {
+  border-color: #2196f3;
+  box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
+  outline: none;
+}
+
+.manual-ai-trigger button {
+  background-color: #2196f3;
+  color: white;
+  border-color: #2196f3;
+}
+
+.manual-ai-trigger button:hover:not(:disabled) {
+  background-color: #1976d2;
+  border-color: #1976d2;
+}
+
+.manual-ai-trigger button:disabled {
+  background-color: #bbdefb;
+  border-color: #bbdefb;
+  cursor: not-allowed;
+}
+
+.ai-action-log {
+  background-color: #fce4ec;
+  border: 1px solid #f8bbd0;
+  padding: 20px;
+  border-radius: 8px;
+  margin-top: 25px;
+}
+
+.ai-action-log h3 {
+  color: #d81b60;
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 1.4em;
+}
+
+.ai-action-log ul {
+  list-style-type: none;
+  padding: 0;
+  max-height: 200px;
+  overflow-y: auto;
+  border-top: 1px solid #f48fb1;
+  padding-top: 10px;
+}
+
+.ai-action-log li {
+  background-color: #f8e0e6;
+  margin-bottom: 8px;
+  padding: 10px;
+  border-radius: 5px;
+  font-family: 'Cascadia Code', 'Fira Code', monospace;
+  font-size: 0.9em;
+  color: #4a148c;
+  word-break: break-all;
+}
