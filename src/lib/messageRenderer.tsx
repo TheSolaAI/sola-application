@@ -30,6 +30,7 @@ import { ViewStakesMessageItem } from '@/components/messages/ViewStakesMessageIt
 import { StakeStatusMessageItem } from '@/components/messages/StakeStatusMessageItem';
 import { NativeWithdrawMessageItem } from '@/components/messages/NativeWithdrawMessageItem';
 import { ErrorMessageItem } from '@/components/messages/ErrorMessageItem';
+import { BlinkMessageItem } from '@/components/messages/BlinkMessageItem';
 
 export function renderMessageContent(message: UIMessage) {
   const role = message.role;
@@ -89,6 +90,10 @@ export function renderToolResult(
   }
 
   switch (toolName) {
+    case 'getBlinks':
+      return <BlinkMessageItem props={args.data} />;
+    case 'executeBlink':
+      return <SignedTransactionsMessageItem props={args.data} />;
     case 'tokenAddress':
     case 'tokenAddressTool':
       return <TokenAddressResultMessageItem props={args.data} />;
