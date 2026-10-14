@@ -14,6 +14,7 @@ import { updateCurrentUsage } from '@/redux/features/user/tier';
 import { changeThemeTool } from '@/tools/managementToolSet/changeThemeTool';
 import { useLayoutContext } from '@/providers/LayoutProvider';
 import { GetUserInfoType } from '@/tools/commonToolSet/getUserInfo';
+import { handleBlinkToolCall } from '@/tools/blinksToolSet/actions';
 
 export function useChatMessages(
   roomId: string,
@@ -46,7 +47,17 @@ export function useChatMessages(
       try {
         console.log('Tool call:', toolCall);
         console.log('Tool Result:', result);
-        if (toolCall.toolName === 'sign_and_send_tx') {
+        if (
+          toolCall.toolName === 'getBlinks' ||
+          toolCall.toolName === 'executeBlink'
+        ) {
+          result = await handleBlinkToolCall(
+            toolCall.toolName,
+            toolCall.args,
+            useWalletHandler.getState().currentWallet?.address,
+            handleSignTransaction
+          );
+        } else if (toolCall.toolName === 'sign_and_send_tx') {
           result = await handleSignTransaction(toolCall.args);
         } else if (toolCall.toolName === 'changeTheme') {
           result = changeThemeTool(toolCall.args);
