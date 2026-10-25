@@ -3,6 +3,7 @@ import { createTokenAddressTool } from './tokenAddress';
 import { openai } from '@ai-sdk/openai';
 import { z } from 'zod';
 import { createGetUserInfoTool } from './getUserInfo';
+import { createGetBlinksTool } from './getBlinks';
 
 export const generalToolSet: ToolSetDescription = {
   slug: 'general',
@@ -16,6 +17,7 @@ export const getGeneralToolSet = (context: ToolContext) => {
     tools: {
       web_search_preview: openai.tools.webSearchPreview(),
       tokenAddressTool: createTokenAddressTool(context),
+      getBlinks: createGetBlinksTool(),
       sign_and_send_tx: {
         description:
           'Ask the user to sign the transaction and send it to blockchain',
