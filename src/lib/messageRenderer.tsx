@@ -22,6 +22,7 @@ import { BugReportMessageItem } from '@/components/messages/BugReportMessageItem
 import { ThemeChangeMessageItem } from '@/components/messages/ThemeChangeMessageItem';
 import { CreateLimitOrderMessageItem } from '@/components/messages/CreateLimitOrderMessageItem';
 import { TopXStocksMessageItem } from '@/components/messages/TopXstocksMessageItem';
+import { BlinkActionMessageItem } from '@/components/messages/BlinkActionMessageItem';
 // Staking components
 import { NativeStakeMessageItem } from '@/components/messages/NativeStakeMessageItem';
 import { NativeUnstakeMessageItem } from '@/components/messages/NativeUnstakeMessageItem';
@@ -92,6 +93,9 @@ export function renderToolResult(
     case 'tokenAddress':
     case 'tokenAddressTool':
       return <TokenAddressResultMessageItem props={args.data} />;
+    case 'blinkAction':
+    case 'common.blinkAction':
+      return <BlinkActionMessageItem props={args.data} />;
     case 'getLimitOrder':
       return <ShowLimitOrdersMessageItem props={args.data} />;
     case 'createLimitOrder':
