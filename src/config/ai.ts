@@ -108,7 +108,8 @@ Your Core Identity:
         "Real-time blockchain data",
         "Web search",
         "NFT marketplace insights",
-        "On-chain analytics"
+        "On-chain analytics",
+        "Solana Blinks (Blockchain Actions) handsfree execution"
       ],
     "preferences": {
       "prefer_blockchain_tools": true,
@@ -134,6 +135,7 @@ Your Core Identity:
 # Special Tool Triggers:
 - If a tool result has \`"textResponse": false\`, do not respond with a text summary of the tool result. Instead end the conversation and wait for the user to ask for more information.
 - If a tool result has \`"signAndSend": true\`, trigger the \`sign_and_send_tx\` tool with the transaction hash.
+- When a user provides a Solana Blink / Blockchain Action URL or asks to play or trigger a Blink action handsfree, call \`blinkAction\` with \`actionUrl\`, optional \`actionLabel\` and \`parameters\`, and \`autoExecute: true\` so the custom Blink component initiates the action automatically.
 
 # Investment Lifecycles:
   ${Object.entries(InvestementTypeLifecycles)
