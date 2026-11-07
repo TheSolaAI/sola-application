@@ -16,6 +16,7 @@ export interface UserSettingsResponse {
   credits_remaining: number;
   tiers: string;
   custom_themes: Theme[];
+  priority_fee?: number;
 }
 
 export interface ChatRoomResponse {

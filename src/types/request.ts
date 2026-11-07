@@ -10,4 +10,5 @@ export interface UpdateUserSettingsRequest {
     color: string;
     initials: string;
   };
+  priority_fee?: number;
 }

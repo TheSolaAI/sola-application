@@ -4,10 +4,15 @@ import {
   TransactionMessage,
   ComputeBudgetProgram,
 } from '@solana/web3.js';
+import {
+  resolveEffectivePriorityFee,
+  validatePriorityFee,
+} from '@/store/PriorityFeeHandler';
 
 interface CreateTransactionWithPriorityRequest {
   serializedTransaction: string;
   walletAddress: string;
+  priorityFee?: number;
 }
 
 export async function POST(req: Request) {
@@ -42,7 +47,10 @@ export async function POST(req: Request) {
         { status: 500, headers: { 'Content-Type': 'application/json' } }
       );
     }
-    const fee = await getPriorityFee(body.serializedTransaction);
+    const fee =
+      body.priorityFee !== undefined
+        ? validatePriorityFee(body.priorityFee)
+        : await getPriorityFee(body.serializedTransaction);
 
     try {
       const txnBuffer = Buffer.from(body.serializedTransaction, 'base64');
@@ -69,6 +77,7 @@ export async function POST(req: Request) {
         JSON.stringify({
           status: 'success',
           txid: newTxn,
+          priorityFee: Math.floor(fee),
           message: 'Created transaction with priority',
         }),
         { status: 200, headers: { 'Content-Type': 'application/json' } }
@@ -91,7 +100,7 @@ export async function POST(req: Request) {
   }
 }
 
-async function getPriorityFee(transaction: string): Promise<any> {
+async function getPriorityFee(transaction: string): Promise<number> {
   const rpc = process.env.SOLANA_RPC_URL;
 
   const payload = {
@@ -119,10 +128,13 @@ async function getPriorityFee(transaction: string): Promise<any> {
     });
 
     const responseJson = await response.json();
-    const result = responseJson.result;
-    const priorityFee = result.priorityFeeEstimate;
-    return priorityFee;
+    const result = responseJson?.result;
+    const priorityFee = result?.priorityFeeEstimate;
+    if (typeof priorityFee === 'number' && Number.isFinite(priorityFee)) {
+      return validatePriorityFee(priorityFee);
+    }
+    return resolveEffectivePriorityFee();
   } catch (error) {
-    throw new Error(`Failed to get priority fee: ${error}`);
+    return resolveEffectivePriorityFee();
   }
 }
