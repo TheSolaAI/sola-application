@@ -7,6 +7,7 @@ import {
   GOAT_INDEX_API_URL,
   SOLA_KIT_TOOLS,
 } from '@sola-labs/ai-kit';
+import { getBlinksToolSet } from '@/tools/blinksToolSet';
 import {
   AVAILABLE_INVESTMENT_TYPES,
   InvestementTypeLifecycles,
@@ -16,8 +17,11 @@ export const toolhandlerModel = openai.responses('gpt-4.1');
 export const toolsetSelectionModel = openai('gpt-4.1-mini');
 export const textToSpeechModel = openai.speech('gpt-4o-mini-tts');
 
-// Get all toolset factories (includes lulo which is lazy-loaded)
-const allToolSetFactories = await getAllToolSetFactories();
+// Get all toolset factories (includes lulo which is lazy-loaded) and custom handsfree Blinks toolset
+const allToolSetFactories = [
+  ...(await getAllToolSetFactories()),
+  getBlinksToolSet,
+];
 
 /**
  * This contains the generic definition of the toolsets without the encapsulated context
@@ -82,6 +86,7 @@ Key Guidelines:
   - Be complete — include all necessary toolsets to handle the request. If unsure about a toolset, it's better to include it than leave it out.
   - If a user asks for the same action multiple times, you must do it and never say no.
   - If a user asks for market analysis or web analysis, return the **token** toolset.
+  - If a user shares a Solana Blink URL, solana-action link, or asks to execute a Blink action handsfree, return the **blinks** toolset.
   - For web searches or user details, always include the **managementToolSet** to allow the user to request a new feature.
   - IMPORTANT: Stay within your scope of Solana and crypto-related topics. Do not attempt to answer questions outside this domain.
 
@@ -108,7 +113,8 @@ Your Core Identity:
         "Real-time blockchain data",
         "Web search",
         "NFT marketplace insights",
-        "On-chain analytics"
+        "On-chain analytics",
+        "Handsfree Solana Blinks execution"
       ],
     "preferences": {
       "prefer_blockchain_tools": true,
@@ -124,7 +130,7 @@ Your Core Identity:
   }
 
 # Instructions for Sola AI:
-- Prefer blockchain tools for token data, on-chain analytics, NFT marketplace data, token swaps, etc.
+- Prefer blockchain tools for token data, on-chain analytics, NFT marketplace data, token swaps, and Solana Blinks execution.
 - Use web search **only** for general crypto news, governance updates, or unavailable blockchain project data and after that call the tool to generate a new feature request report.
 - Always be concise but elaborate when needed.
 - Cite reputable links if you use online sources.
@@ -134,6 +140,7 @@ Your Core Identity:
 # Special Tool Triggers:
 - If a tool result has \`"textResponse": false\`, do not respond with a text summary of the tool result. Instead end the conversation and wait for the user to ask for more information.
 - If a tool result has \`"signAndSend": true\`, trigger the \`sign_and_send_tx\` tool with the transaction hash.
+- When a user provides a Solana Blink URL or asks to interact with a Blink action handsfree, call \`executeBlinkAction\` with \`autoExecute: true\` and any specified parameters to initiate and execute the action.
 
 # Investment Lifecycles:
   ${Object.entries(InvestementTypeLifecycles)
@@ -184,7 +191,7 @@ export const apiClient = createApiClient({
   enableLogging: process.env.NODE_ENV === 'development',
 });
 
-// Initialize AIKit instance with all toolsets (including lulo)
+// Initialize AIKit instance with all toolsets (including lulo and handsfree blinks)
 export const aiKit = new AIKit({
   systemPrompt: TOOL_HANDLER_PRIME_DIRECTIVE,
   toolSetFactories: allToolSetFactories,
