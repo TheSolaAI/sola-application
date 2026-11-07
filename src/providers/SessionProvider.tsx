@@ -7,6 +7,7 @@ import SessionVerificationModal from '@/app/dashboard/_components/SessionVerific
 import { useSessionManagerHandler } from '@/store/SessionManagerHandler';
 import { setTierVerificationResult } from '@/redux/features/user/tier'; // Ensure this path is correct
 import { useAppDispatch, useAppSelector } from '@/redux/hook';
+import { PictureInPictureManager } from '@/components/common/PictureInPictureManager';
 
 interface SessionProviderProps {
   children: ReactNode;
@@ -97,6 +98,9 @@ export const SessionProvider: FC<SessionProviderProps> = ({ children }) => {
         onVerifyTier={handleVerifyTier}
         tierVerificationResult={tierResult}
       />
+
+      {/* Document Picture-in-Picture Manager */}
+      <PictureInPictureManager />
 
       {children}
     </div>
