@@ -1,3 +1,8 @@
+export const ALPHALINE_WSS_URL =
+  process.env.NEXT_PUBLIC_ALPHALINE_WSS_URL ||
+  process.env.VITE_ALPHALINE_WSS_URL ||
+  'wss://api.alphaline.wtf/ws';
+
 export const API_URLS = {
   AUTH: {
     SETTINGS: {
@@ -13,6 +18,9 @@ export const API_URLS = {
     NFT: {
       SYMBOL: 'data/nft/symbol',
       TOP_NFT: 'data/nft/top_nft',
+    },
+    ALPHALINE: {
+      WSS: ALPHALINE_WSS_URL,
     },
   },
   WALLET: {
