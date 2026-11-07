@@ -8,6 +8,10 @@ import { ApiClient, apiClient } from '@/lib/ApiClient';
 import { API_URLS } from '@/config/api_urls';
 import { ConnectedPhantomWallet } from '@/adapters/ConnectedPhantomWallet';
 import { PhantomWalletService } from '@/services/PhantomWalletService';
+import {
+  PriorityFeeLevel,
+  usePriorityFeeHandler,
+} from '@/store/PriorityFeeHandler';
 
 const connection = new Connection(
   process.env.NEXT_PUBLIC_SOLANA_RPC!,
@@ -21,6 +25,12 @@ interface WalletHandler {
   defaultWallet: ConnectedSolanaWallet | null; // The default wallet that the user has set
   wallets: ConnectedSolanaWallet[]; // All connected wallets
   phantomWallet: ConnectedPhantomWallet | null; // To track the phantom-embedded wallet
+
+  priorityFee: number; // Global priority fee in micro-lamports
+  priorityFeeLevel: PriorityFeeLevel; // Priority fee tier ('low' | 'medium' | 'high' | 'custom')
+  setPriorityFee: (fee: number) => number; // Sets and persists global priority fee
+  setPriorityFeeLevel: (level: PriorityFeeLevel, customFee?: number) => number; // Sets priority fee tier
+  getEffectivePriorityFee: (overrideFee?: number | null) => number; // Resolves effective transaction priority fee
 
   setWallets: (wallets: ConnectedSolanaWallet[]) => void; // Updates available wallets
   setCurrentWallet: (wallet: ConnectedSolanaWallet | null) => void; // Updates current wallet
@@ -149,12 +159,40 @@ export const useWalletHandler = create<WalletHandler>((set, get) => {
     defaultWallet: null,
     wallets: [],
     phantomWallet: null,
+    priorityFee: usePriorityFeeHandler.getState().priorityFee,
+    priorityFeeLevel: usePriorityFeeHandler.getState().priorityFeeLevel,
     walletAssets: {
       totalBalance: null,
       tokens: [],
       nfts: [],
     },
     status: 'initialLoad',
+
+    setPriorityFee: (fee: number) => {
+      const updated = usePriorityFeeHandler.getState().setPriorityFee(fee);
+      set({
+        priorityFee: updated,
+        priorityFeeLevel: usePriorityFeeHandler.getState().priorityFeeLevel,
+      });
+      return updated;
+    },
+
+    setPriorityFeeLevel: (level: PriorityFeeLevel, customFee?: number) => {
+      const updated = usePriorityFeeHandler
+        .getState()
+        .setPriorityFeeLevel(level, customFee);
+      set({
+        priorityFee: updated,
+        priorityFeeLevel: usePriorityFeeHandler.getState().priorityFeeLevel,
+      });
+      return updated;
+    },
+
+    getEffectivePriorityFee: (overrideFee?: number | null) => {
+      return usePriorityFeeHandler
+        .getState()
+        .resolveTransactionPriorityFee(overrideFee);
+    },
 
     setWallets: async (wallets) => {
       set({ wallets });
@@ -285,6 +323,12 @@ export const useWalletHandler = create<WalletHandler>((set, get) => {
      * Initializes the wallet manager by loading the default wallet from localStorage.
      */
     initWalletManager: async () => {
+      usePriorityFeeHandler.getState().hydratePriorityFee();
+      set({
+        priorityFee: usePriorityFeeHandler.getState().priorityFee,
+        priorityFeeLevel: usePriorityFeeHandler.getState().priorityFeeLevel,
+      });
+
       const defaultWalletAddress = localStorage.getItem('defaultWallet');
       if (defaultWalletAddress) {
         const wallet = get().wallets.find(

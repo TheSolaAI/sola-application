@@ -8,6 +8,7 @@ import useThemeManager, { Theme } from '@/store/ThemeManager';
 import { UpdateUserSettingsRequest } from '@/types/request';
 import { useSessionHandler } from '@/store/SessionHandler';
 import { useUserHandler } from '@/store/UserHandler';
+import { usePriorityFeeHandler } from '@/store/PriorityFeeHandler';
 
 interface SettingsHandler {
   getSettings: () => Promise<void>;
@@ -17,7 +18,14 @@ interface SettingsHandler {
    * Returns a boolean indicating if the update was successful. Optionally specify the specific setting that is required to be updated.
    */
   updateSettings: (
-    setting: 'all' | 'voice' | 'emotion' | 'theme' | 'custom_themes' | 'name'
+    setting:
+      | 'all'
+      | 'voice'
+      | 'emotion'
+      | 'theme'
+      | 'custom_themes'
+      | 'name'
+      | 'priority_fee'
   ) => Promise<boolean>;
 }
 
@@ -48,13 +56,27 @@ export const useSettingsHandler = create<SettingsHandler>(() => {
         useUserHandler.getState().setProfilePic(response.data.profile_pic);
         useSessionHandler.getState().setAiEmotion(response.data.emotion_choice);
         useSessionHandler.getState().setAiVoice(response.data.voice_preference);
+        if (typeof response.data.priority_fee === 'number') {
+          usePriorityFeeHandler
+            .getState()
+            .setPriorityFee(response.data.priority_fee);
+        } else {
+          usePriorityFeeHandler.getState().hydratePriorityFee();
+        }
       } else {
         toast.error('Failed to fetch settings.');
       }
     },
 
     updateSettings: async (
-      setting: 'all' | 'voice' | 'emotion' | 'theme' | 'custom_themes' | 'name'
+      setting:
+        | 'all'
+        | 'voice'
+        | 'emotion'
+        | 'theme'
+        | 'custom_themes'
+        | 'name'
+        | 'priority_fee'
     ): Promise<boolean> => {
       const data: UpdateUserSettingsRequest = {};
       if (setting === 'all' || setting === 'theme') {
@@ -74,6 +96,9 @@ export const useSettingsHandler = create<SettingsHandler>(() => {
       if (setting === 'all' || setting === 'name') {
         data['name'] = useUserHandler.getState().name;
         data['profile_pic'] = useUserHandler.getState().profilePic;
+      }
+      if (setting === 'all' || setting === 'priority_fee') {
+        data['priority_fee'] = usePriorityFeeHandler.getState().priorityFee;
       }
       const response = await apiClient.patch(
         API_URLS.AUTH.SETTINGS.UPDATE,
