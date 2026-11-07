@@ -12,6 +12,9 @@ import { useAudioRecorder } from '@/hooks/useAudioRecorder';
 import { useChatRoomHandler } from '@/store/ChatRoomHandler';
 import { useChatMessageHandler } from '@/store/ChatMessageHandler';
 import { useUserHandler } from '@/store/UserHandler';
+import { BotCommandAutocomplete } from '@/components/common/BotCommandAutocomplete';
+import { CreateBotCommandModal } from '@/components/common/CreateBotCommandModal';
+import { expandBotCommand, formatCommandDisplay } from '@/utils/botCommands';
 
 interface SessionControlsProps {
   // Function to process a message (text, speech, etc)
@@ -35,6 +38,7 @@ const SessionControls: React.FC<SessionControlsProps> = ({
   const [inputText, setInputText] = useState('');
   const [isUploading, setIsUploading] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
+  const [isCreateCommandOpen, setIsCreateCommandOpen] = useState(false);
 
   // Reference to track if we're currently processing a recording
   const isProcessingRecording = useRef(false);
@@ -55,7 +59,17 @@ const SessionControls: React.FC<SessionControlsProps> = ({
 
     setIsUploading(true);
     try {
-      await onSendMessage(inputText);
+      let messageToSend = inputText.trim();
+
+      // Check if user input is a bot command (e.g. /update-me, /price SOL)
+      if (messageToSend.startsWith('/')) {
+        const expansion = expandBotCommand(messageToSend);
+        if (expansion.expanded) {
+          messageToSend = expansion.prompt;
+        }
+      }
+
+      await onSendMessage(messageToSend);
 
       // Clear input
       setInputText('');
@@ -129,8 +143,6 @@ const SessionControls: React.FC<SessionControlsProps> = ({
       // Process the transcribed text
       const transcribedText = data.text.trim();
       if (transcribedText) {
-        // toast.success('Audio transcribed successfully!');
-
         // Process the message using parent function
         await onSendMessage(transcribedText);
       } else {
@@ -152,15 +164,43 @@ const SessionControls: React.FC<SessionControlsProps> = ({
 
   return (
     <div className="relative flex items-center justify-center w-full h-full mb-10">
+      {/* Create Custom Command Modal */}
+      <CreateBotCommandModal
+        isOpen={isCreateCommandOpen}
+        onClose={() => setIsCreateCommandOpen(false)}
+      />
+
       {/* Input Controls */}
       <div
         className={`absolute flex items-center justify-center w-full h-full gap-2 px-2 transition-all duration-500 ease-in-out opacity-100 translate-y-0`}
       >
-        {/* Input Field with Pulse Effect */}
+        {/* Input Field with Pulse Effect and Bot Command Autocomplete */}
         <div className="relative flex-1 max-w-full sm:max-w-[600px]">
+          {/* Telegram-style Bot Command Autocomplete Dropdown */}
+          <BotCommandAutocomplete
+            inputValue={inputText}
+            isOpen={inputText.startsWith('/') && !isDisabled}
+            onSelectCommand={(cmd, autoSend) => {
+              const fullCommand = formatCommandDisplay(cmd.name);
+              if (autoSend) {
+                const expansion = expandBotCommand(fullCommand);
+                onSendMessage(expansion.prompt);
+                setInputText('');
+              } else {
+                setInputText(`${fullCommand} `);
+              }
+            }}
+            onClose={() => {}}
+            onOpenCreateModal={() => setIsCreateCommandOpen(true)}
+          />
+
           <input
             type="text"
-            placeholder={isDisabled ? 'Processing...' : 'Start Chatting...'}
+            placeholder={
+              isDisabled
+                ? 'Processing...'
+                : "Start Chatting or type '/' for bot commands..."
+            }
             value={inputText}
             onChange={(e) => {
               // Stop audio if user starts typing
