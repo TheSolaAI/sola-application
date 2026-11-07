@@ -1,13 +1,18 @@
 import {
-  VersionedTransaction,
-  PublicKey,
-  TransactionMessage,
-  ComputeBudgetProgram,
-} from '@solana/web3.js';
+  addPriorityFeeToSerializedTransaction,
+  estimatePriorityFee,
+  PriorityFeeLevel,
+  PriorityFeeOptions,
+  resolvePriorityFeeMicroLamports,
+} from '@/utils/priorityFee';
 
 interface CreateTransactionWithPriorityRequest {
   serializedTransaction: string;
   walletAddress: string;
+  priorityLevel?: PriorityFeeLevel;
+  customPriorityFee?: number;
+  computeUnitLimit?: number;
+  useDynamicEstimate?: boolean;
 }
 
 export async function POST(req: Request) {
@@ -31,98 +36,58 @@ export async function POST(req: Request) {
         { status: 400, headers: { 'Content-Type': 'application/json' } }
       );
     }
-    const rpc = process.env.SOLANA_RPC_URL;
 
-    if (!rpc) {
-      return new Response(
-        JSON.stringify({
-          status: 'error',
-          message: 'Server configuration error',
-        }),
-        { status: 500, headers: { 'Content-Type': 'application/json' } }
-      );
+    let feeOptions: PriorityFeeOptions = {
+      level: body.priorityLevel,
+      customFee: body.customPriorityFee,
+      computeUnitLimit: body.computeUnitLimit,
+    };
+
+    // If dynamic fee estimation is requested, attempt to estimate via RPC
+    if (body.useDynamicEstimate && body.customPriorityFee === undefined) {
+      try {
+        const estimatedFee = await estimatePriorityFee(body.serializedTransaction);
+        feeOptions = {
+          ...feeOptions,
+          level: 'custom',
+          customFee: estimatedFee,
+        };
+      } catch (err) {
+        console.warn(
+          'Dynamic priority fee estimation failed, falling back to configured level:',
+          err
+        );
+      }
     }
-    const fee = await getPriorityFee(body.serializedTransaction);
 
-    try {
-      const txnBuffer = Buffer.from(body.serializedTransaction, 'base64');
-      const txn = VersionedTransaction.deserialize(txnBuffer);
-      const txnIx = TransactionMessage.decompile(txn.message).instructions;
+    const result = addPriorityFeeToSerializedTransaction(
+      body.serializedTransaction,
+      body.walletAddress,
+      feeOptions
+    );
 
-      const computeUnitLimitIx = ComputeBudgetProgram.setComputeUnitLimit({
-        units: 400_000,
-      });
-
-      const computePriceIx = ComputeBudgetProgram.setComputeUnitPrice({
-        microLamports: Math.floor(fee),
-      });
-
-      const newMessage = new TransactionMessage({
-        payerKey: new PublicKey(body.walletAddress),
-        recentBlockhash: txn.message.recentBlockhash,
-        instructions: [computeUnitLimitIx, computePriceIx, ...txnIx],
-      }).compileToV0Message();
-
-      const newTxn = new VersionedTransaction(newMessage);
-
-      return new Response(
-        JSON.stringify({
-          status: 'success',
-          txid: newTxn,
-          message: 'Created transaction with priority',
-        }),
-        { status: 200, headers: { 'Content-Type': 'application/json' } }
-      );
-    } catch (error: any) {
-      console.error('Error in version transaction formation:', error);
-    }
+    return new Response(
+      JSON.stringify({
+        status: 'success',
+        serializedTransaction: result.serializedTransaction,
+        txid: result.serializedTransaction,
+        microLamports: result.microLamports,
+        computeUnitLimit: result.computeUnitLimit,
+        message: 'Created transaction with priority',
+      }),
+      { status: 200, headers: { 'Content-Type': 'application/json' } }
+    );
   } catch (error: unknown) {
     console.error('Error creating transaction with priority:', error);
 
     const errorMessage =
       error instanceof Error
         ? error.message
-        : 'Error sending transaction with priority';
+        : 'Error creating transaction with priority';
 
     return new Response(
       JSON.stringify({ status: 'error', message: errorMessage }),
       { status: 500, headers: { 'Content-Type': 'application/json' } }
     );
-  }
-}
-
-async function getPriorityFee(transaction: string): Promise<any> {
-  const rpc = process.env.SOLANA_RPC_URL;
-
-  const payload = {
-    jsonrpc: '2.0',
-    id: 'sola-priority-fee',
-    method: 'getPriorityFeeEstimate',
-    params: [
-      {
-        transaction: transaction,
-        options: {
-          recommended: true,
-          transactionEncoding: 'base64',
-        },
-      },
-    ],
-  };
-
-  try {
-    const response = await fetch(rpc!, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload),
-    });
-
-    const responseJson = await response.json();
-    const result = responseJson.result;
-    const priorityFee = result.priorityFeeEstimate;
-    return priorityFee;
-  } catch (error) {
-    throw new Error(`Failed to get priority fee: ${error}`);
   }
 }
