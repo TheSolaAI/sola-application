@@ -2,6 +2,9 @@ import { withSentryConfig } from '@sentry/nextjs';
 import type { NextConfig } from 'next';
 import packageInfo from './package.json';
 
+const appVersion = packageInfo.version || '0.0.1';
+const buildDate = new Date().toISOString();
+
 const nextConfig: NextConfig = {
   /* config options here */
   typescript: {
@@ -19,8 +22,87 @@ const nextConfig: NextConfig = {
     ],
   },
   env: {
-    NEXT_PUBLIC_APP_VERSION: packageInfo.version,
-    NEXT_PUBLIC_BUILD_DATE: new Date().toISOString(),
+    NEXT_PUBLIC_APP_VERSION: appVersion,
+    NEXT_PUBLIC_BUILD_DATE: buildDate,
+  },
+  generateBuildId: async () => {
+    return `v${appVersion}-${buildDate.split('T')[0]}`;
+  },
+  headers: async () => {
+    return [
+      // 1. HTML Pages & Documents: Prevent aggressive caching of stale application files
+      {
+        source: '/((?!_next/static|_next/image|favicon.ico|icons|images).*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'no-cache, no-store, must-revalidate, max-age=0',
+          },
+          {
+            key: 'Pragma',
+            value: 'no-cache',
+          },
+          {
+            key: 'Expires',
+            value: '0',
+          },
+          {
+            key: 'X-App-Version',
+            value: appVersion,
+          },
+        ],
+      },
+      // 2. Next.js Static Hashed Assets: Long-term immutable caching
+      {
+        source: '/_next/static/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+          {
+            key: 'X-App-Version',
+            value: appVersion,
+          },
+        ],
+      },
+      // 3. Service Worker: Must never be cached by the browser
+      {
+        source: '/service-worker.js',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'no-cache, no-store, must-revalidate, max-age=0',
+          },
+          {
+            key: 'Pragma',
+            value: 'no-cache',
+          },
+          {
+            key: 'Expires',
+            value: '0',
+          },
+        ],
+      },
+      // 4. API Endpoints: Prevent intermediate and browser caching
+      {
+        source: '/api/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
+          },
+          {
+            key: 'Pragma',
+            value: 'no-cache',
+          },
+          {
+            key: 'X-App-Version',
+            value: appVersion,
+          },
+        ],
+      },
+    ];
   },
   turbopack: {},
 };
@@ -40,12 +122,6 @@ export default withSentryConfig(nextConfig, {
 
   // Upload a larger set of source maps for prettier stack traces (increases build time)
   widenClientFileUpload: true,
-
-  // Uncomment to route browser requests to Sentry through a Next.js rewrite to circumvent ad-blockers.
-  // This can increase your server load as well as your hosting bill.
-  // Note: Check that the configured route will not match with your Next.js middleware, otherwise reporting of client-
-  // side errors will fail.
-  // tunnelRoute: "/monitoring",
 
   // Automatically tree-shake Sentry logger statements to reduce bundle size
   disableLogger: true,
