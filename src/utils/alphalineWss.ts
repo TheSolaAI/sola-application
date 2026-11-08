@@ -66,16 +66,32 @@ export function validateAlphalineWssUrl(
 
 export function resolveAlphalineWssConfig(
   overrides: Partial<AlphalineWssConfig> = {},
-  env: Record<string, string | undefined> = typeof process !== 'undefined' &&
-  process.env
-    ? process.env
-    : {}
+  env?: Record<string, string | undefined>
 ): AlphalineWssConfig {
+  const inlineNextUrl =
+    typeof process !== 'undefined' && process.env
+      ? process.env.NEXT_PUBLIC_ALPHALINE_WSS_URL
+      : undefined;
+  const inlineViteUrl =
+    typeof process !== 'undefined' && process.env
+      ? process.env.VITE_ALPHALINE_WSS_URL
+      : undefined;
+  const inlineNextApiKey =
+    typeof process !== 'undefined' && process.env
+      ? process.env.NEXT_PUBLIC_ALPHALINE_API_KEY
+      : undefined;
+
+  const envUrl = env
+    ? env.NEXT_PUBLIC_ALPHALINE_WSS_URL || env.VITE_ALPHALINE_WSS_URL
+    : inlineNextUrl || inlineViteUrl;
+  const envApiKey = env
+    ? env.NEXT_PUBLIC_ALPHALINE_API_KEY ?? inlineNextApiKey
+    : inlineNextApiKey;
+
   const allowInsecureLocalhost = Boolean(overrides.allowInsecureLocalhost);
   const candidateUrl =
     overrides.url ||
-    env.NEXT_PUBLIC_ALPHALINE_WSS_URL ||
-    env.VITE_ALPHALINE_WSS_URL ||
+    envUrl ||
     ALPHALINE_WSS_URL ||
     DEFAULT_ALPHALINE_WSS_URL;
 
@@ -85,7 +101,7 @@ export function resolveAlphalineWssConfig(
   );
 
   const channels =
-    Array.isArray(overrides.channels) && overrides.channels.length > 0
+    overrides.channels !== undefined && Array.isArray(overrides.channels)
       ? Array.from(new Set(overrides.channels.filter(Boolean)))
       : [...DEFAULT_ALPHALINE_CHANNELS];
 
@@ -102,7 +118,7 @@ export function resolveAlphalineWssConfig(
     heartbeatIntervalMs: Math.max(0, overrides.heartbeatIntervalMs ?? 25000),
     maxItems: Math.max(1, overrides.maxItems ?? 50),
     allowInsecureLocalhost,
-    apiKey: overrides.apiKey || env.NEXT_PUBLIC_ALPHALINE_API_KEY,
+    apiKey: overrides.apiKey || envApiKey,
   };
 }
 
@@ -116,6 +132,46 @@ export function calculateBackoffDelay(
   const safeMax = Math.max(safeBase, maxDelayMs);
   const delay = safeBase * Math.pow(2, safeAttempt);
   return Math.min(safeMax, delay);
+}
+
+function computeStableItemId(
+  channel: string,
+  title: string,
+  raw: Record<string, unknown>
+): string {
+  const fingerprint = [
+    channel,
+    title,
+    typeof raw.protocol === 'string' ? raw.protocol : '',
+    typeof raw.category === 'string' ? raw.category : '',
+    typeof raw.rewardAmount === 'number'
+      ? String(raw.rewardAmount)
+      : typeof raw.reward === 'number'
+        ? String(raw.reward)
+        : typeof raw.amount === 'number'
+          ? String(raw.amount)
+          : '',
+    typeof raw.rewardToken === 'string'
+      ? raw.rewardToken
+      : typeof raw.token === 'string'
+        ? raw.token
+        : '',
+    typeof raw.walletAddress === 'string' ? raw.walletAddress : '',
+    typeof raw.status === 'string' ? raw.status.toLowerCase() : '',
+    typeof raw.timestamp === 'number'
+      ? String(raw.timestamp)
+      : typeof raw.createdAt === 'string'
+        ? raw.createdAt
+        : '',
+    typeof raw.url === 'string' ? raw.url : '',
+  ].join('|');
+
+  let hash = 2166136261;
+  for (let i = 0; i < fingerprint.length; i++) {
+    hash ^= fingerprint.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+  return `alphaline-${(hash >>> 0).toString(36)}`;
 }
 
 function normalizeStreamItem(
@@ -133,15 +189,15 @@ function normalizeStreamItem(
     return null;
   }
 
-  const id =
-    typeof raw.id === 'string' && raw.id.trim()
-      ? raw.id.trim()
-      : `alphaline-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-
   const channel =
     typeof raw.channel === 'string' && raw.channel.trim()
       ? (raw.channel.trim() as AlphalineChannel)
       : fallbackChannel;
+
+  const id =
+    typeof raw.id === 'string' && raw.id.trim()
+      ? raw.id.trim()
+      : computeStableItemId(channel, title, raw);
 
   const rewardAmount =
     typeof raw.rewardAmount === 'number'
@@ -229,7 +285,7 @@ export function parseAlphalineMessage(
     return {
       kind: 'pong',
       timestamp:
-        typeof payload.timestamp === 'number' ? payload.timestamp : Date.now(),
+        typeof payload.timestamp === 'number' ? payload.timestamp : -1,
     };
   }
 
@@ -338,7 +394,7 @@ export class AlphalineWssClient {
   private manualDisconnect = false;
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
   private heartbeatTimer: ReturnType<typeof setInterval> | null = null;
-  private lastPingTimestamp: number | null = null;
+  private pendingPingTimestamps: number[] = [];
   private items: AlphalineStreamItem[] = [];
   private metrics: AlphalineMetrics | null = null;
 
@@ -392,8 +448,23 @@ export class AlphalineWssClient {
       return;
     }
 
+    if (this.socket) {
+      const staleSocket = this.socket;
+      this.socket = null;
+      staleSocket.onopen = null;
+      staleSocket.onmessage = null;
+      staleSocket.onerror = null;
+      staleSocket.onclose = null;
+      try {
+        staleSocket.close(1000, 'Reconnecting');
+      } catch {
+        // Ignore stale socket close errors
+      }
+    }
+
     this.manualDisconnect = false;
     this.clearTimers();
+    this.pendingPingTimestamps = [];
     this.setStatus(this.reconnectAttempts > 0 ? 'reconnecting' : 'connecting');
 
     try {
@@ -401,6 +472,7 @@ export class AlphalineWssClient {
       this.socket = ws;
 
       ws.onopen = () => {
+        if (this.socket !== ws) return;
         this.reconnectAttempts = 0;
         this.setStatus('connected');
         this.sendSubscription(this.config.channels);
@@ -408,6 +480,7 @@ export class AlphalineWssClient {
       };
 
       ws.onmessage = (event) => {
+        if (this.socket !== ws) return;
         const parsed = parseAlphalineMessage(event?.data);
         if (!parsed) return;
 
@@ -419,8 +492,19 @@ export class AlphalineWssClient {
           this.metrics = parsed.metrics;
           this.metricsListeners.forEach((cb) => cb(parsed.metrics));
         } else if (parsed.kind === 'pong') {
-          if (this.lastPingTimestamp !== null) {
-            const rtt = Math.max(0, Date.now() - this.lastPingTimestamp);
+          let matchedPing: number | undefined;
+          if (parsed.timestamp > 0) {
+            const idx = this.pendingPingTimestamps.indexOf(parsed.timestamp);
+            if (idx !== -1) {
+              matchedPing = this.pendingPingTimestamps[idx];
+              this.pendingPingTimestamps.splice(0, idx + 1);
+            }
+          }
+          if (matchedPing === undefined && this.pendingPingTimestamps.length > 0) {
+            matchedPing = this.pendingPingTimestamps.shift();
+          }
+          if (matchedPing !== undefined) {
+            const rtt = Math.max(0, Date.now() - matchedPing);
             this.latencyListeners.forEach((cb) => cb(rtt));
           }
         } else if (parsed.kind === 'error') {
@@ -429,10 +513,12 @@ export class AlphalineWssClient {
       };
 
       ws.onerror = () => {
+        if (this.socket !== ws) return;
         this.emitError('WebSocket transport error');
       };
 
       ws.onclose = () => {
+        if (this.socket !== ws) return;
         this.stopHeartbeat();
         this.socket = null;
         if (this.manualDisconnect) {
@@ -452,9 +538,14 @@ export class AlphalineWssClient {
   public disconnect(): void {
     this.manualDisconnect = true;
     this.clearTimers();
+    this.pendingPingTimestamps = [];
     if (this.socket) {
       const active = this.socket;
       this.socket = null;
+      active.onopen = null;
+      active.onmessage = null;
+      active.onerror = null;
+      active.onclose = null;
       try {
         active.close(1000, 'Client disconnected');
       } catch {
@@ -539,11 +630,13 @@ export class AlphalineWssClient {
   }
 
   private prependItems(incoming: AlphalineStreamItem[]): void {
-    const existingById = new Map(this.items.map((item) => [item.id, item]));
+    const existingByKey = new Map(
+      this.items.map((item) => [`${item.channel}:${item.id}`, item])
+    );
     for (const item of incoming) {
-      existingById.set(item.id, item);
+      existingByKey.set(`${item.channel}:${item.id}`, item);
     }
-    this.items = Array.from(existingById.values())
+    this.items = Array.from(existingByKey.values())
       .sort((a, b) => b.timestamp - a.timestamp)
       .slice(0, this.config.maxItems);
 
@@ -556,8 +649,12 @@ export class AlphalineWssClient {
     if (this.config.heartbeatIntervalMs <= 0) return;
 
     this.heartbeatTimer = setInterval(() => {
-      this.lastPingTimestamp = Date.now();
-      this.send({ type: 'ping', timestamp: this.lastPingTimestamp });
+      const pingTs = Date.now();
+      this.pendingPingTimestamps.push(pingTs);
+      if (this.pendingPingTimestamps.length > 32) {
+        this.pendingPingTimestamps.shift();
+      }
+      this.send({ type: 'ping', timestamp: pingTs });
     }, this.config.heartbeatIntervalMs);
   }
 

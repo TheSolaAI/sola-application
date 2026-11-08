@@ -89,7 +89,7 @@ describe('Alphaline WSS Configuration & Stream Client (#263)', () => {
       assert.strictEqual(cfg.reconnect, true);
     });
 
-    test('prioritizes explicit overrides over environment variables', () => {
+    test('prioritizes explicit overrides over environment variables and preserves empty channels array', () => {
       const cfg = resolveAlphalineWssConfig(
         {
           url: 'wss://custom.alphaline.wtf/stream',
@@ -101,6 +101,9 @@ describe('Alphaline WSS Configuration & Stream Client (#263)', () => {
       );
       assert.strictEqual(cfg.url, 'wss://custom.alphaline.wtf/stream');
       assert.deepStrictEqual(cfg.channels, ['bounties', 'leaderboard']);
+
+      const emptyChannelsCfg = resolveAlphalineWssConfig({ channels: [] }, {});
+      assert.deepStrictEqual(emptyChannelsCfg.channels, []);
     });
 
     test('reads NEXT_PUBLIC_ALPHALINE_WSS_URL and VITE_ALPHALINE_WSS_URL from env', () => {
@@ -153,6 +156,23 @@ describe('Alphaline WSS Configuration & Stream Client (#263)', () => {
       assert.strictEqual(res.item.protocol, 'Jupiter');
       assert.strictEqual(res.item.rewardAmount, 25);
       assert.strictEqual(res.item.rewardToken, 'USDC');
+    });
+
+    test('computes deterministic fallback id when payload omits id', () => {
+      const payload = {
+        type: 'event',
+        channel: 'bounties',
+        data: {
+          title: 'Stake 10 SOL on Jito',
+          protocol: 'Jito',
+          timestamp: 1710000099000,
+        },
+      };
+      const first = parseAlphalineMessage(payload);
+      const second = parseAlphalineMessage(payload);
+      assert.ok(first && first.kind === 'item');
+      assert.ok(second && second.kind === 'item');
+      assert.strictEqual(first.item.id, second.item.id);
     });
 
     test('parses protocol metrics frames', () => {
@@ -233,6 +253,21 @@ describe('Alphaline WSS Configuration & Stream Client (#263)', () => {
       });
       assert.strictEqual(latestItemsCount, 1);
       assert.strictEqual(client.getItems()[0].title, 'Deposit SOL on Marginfi');
+
+      // Same id on a different channel should NOT overwrite the existing item
+      ws.triggerMessage({
+        type: 'event',
+        channel: 'bounties',
+        data: {
+          id: 'q-101',
+          title: 'Bounty with same numeric ID',
+          protocol: 'Kamino',
+          rewardAmount: 20,
+          rewardToken: 'USDC',
+          timestamp: 1710000020000,
+        },
+      });
+      assert.strictEqual(latestItemsCount, 2);
 
       ws.triggerMessage({
         type: 'metrics',

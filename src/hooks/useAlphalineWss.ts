@@ -50,8 +50,9 @@ export function useAlphalineWss(
     apiKey,
   } = options;
 
+  const hasExplicitChannels = Array.isArray(channels);
   const channelsKey = useMemo(
-    () => (Array.isArray(channels) ? channels.join(',') : ''),
+    () => (Array.isArray(channels) ? channels.join(',') : '__default__'),
     [channels]
   );
 
@@ -64,12 +65,18 @@ export function useAlphalineWss(
   const [endpointUrl, setEndpointUrl] = useState<string>('');
 
   useEffect(() => {
+    const resolvedChannels = hasExplicitChannels
+      ? channelsKey
+        ? (channelsKey.split(',') as AlphalineChannel[])
+        : []
+      : undefined;
+
     let client: AlphalineWssClient;
     try {
       client = new AlphalineWssClient(
         {
           url,
-          channels: channelsKey ? (channelsKey.split(',') as AlphalineChannel[]) : undefined,
+          channels: resolvedChannels,
           reconnect,
           maxReconnectAttempts,
           baseReconnectDelayMs,
@@ -83,6 +90,9 @@ export function useAlphalineWss(
       );
     } catch (err) {
       setStatus('error');
+      setItems([]);
+      setMetrics(null);
+      setLatencyMs(null);
       setError(
         err instanceof Error ? err.message : 'Invalid Alphaline WSS configuration'
       );
@@ -90,6 +100,10 @@ export function useAlphalineWss(
     }
 
     clientRef.current = client;
+    setStatus(client.getStatus());
+    setItems(client.getItems());
+    setMetrics(client.getMetrics());
+    setLatencyMs(null);
     setEndpointUrl(client.getConfig().url);
     setError(null);
 
@@ -116,6 +130,7 @@ export function useAlphalineWss(
     autoConnect,
     webSocketFactory,
     url,
+    hasExplicitChannels,
     channelsKey,
     reconnect,
     maxReconnectAttempts,
