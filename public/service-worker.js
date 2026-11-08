@@ -1,10 +1,10 @@
 /* Service Worker for Sola AI — versioned cache management & offline fallback */
-const CACHE_PREFIX = 'sola-ai-v';
+const CACHE_PREFIX = 'sola-ai-';
 const swUrl = new URL(self.location.href);
 const versionParam = (swUrl.searchParams.get('v') || '0.0.1').trim();
 const CACHE_NAME = versionParam.startsWith(CACHE_PREFIX)
   ? versionParam
-  : `${CACHE_PREFIX}${versionParam}`;
+  : `${CACHE_PREFIX}${versionParam.startsWith('v') ? versionParam : `v${versionParam}`}`;
 
 const PRECACHE_ASSETS = [
   '/offline.html',

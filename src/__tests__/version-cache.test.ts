@@ -29,9 +29,10 @@ describe('version and cache control utils', () => {
     });
 
     it('generates versioned cache names for service worker isolation', () => {
+      assert.strictEqual(CACHE_PREFIX, 'sola-ai-');
       assert.strictEqual(getCacheVersion('0.0.1'), 'sola-ai-v0.0.1');
       assert.strictEqual(getCacheVersion('1.2.0'), 'sola-ai-v1.2.0');
-      assert.strictEqual(getCacheVersion(), `${CACHE_PREFIX}${BUILD_ID}`);
+      assert.strictEqual(getCacheVersion(), getCacheVersion(BUILD_ID));
     });
 
     it('returns complete structured app version info', () => {
@@ -39,7 +40,7 @@ describe('version and cache control utils', () => {
       assert.strictEqual(info.version, APP_VERSION);
       assert.strictEqual(info.buildId, BUILD_ID);
       assert.strictEqual(typeof info.buildDate, 'string');
-      assert.strictEqual(info.cacheVersion, `${CACHE_PREFIX}${BUILD_ID}`);
+      assert.strictEqual(info.cacheVersion, getCacheVersion(BUILD_ID));
       assert.strictEqual(typeof info.environment, 'string');
     });
   });

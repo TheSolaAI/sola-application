@@ -1,6 +1,6 @@
 // Get the version from package.json or environment
 // This will be updated by semantic-release during CI/CD
-export const CACHE_PREFIX = 'sola-ai-v';
+export const CACHE_PREFIX = 'sola-ai-';
 
 export const APP_VERSION = process.env.NEXT_PUBLIC_APP_VERSION || '0.0.1';
 
@@ -22,9 +22,11 @@ export const getBuildVersion = () => {
 // Use this for cache versioning in service worker and browser cache storage
 export const getCacheVersion = (version: string = BUILD_ID) => {
   const normalized = version.trim();
-  return normalized.startsWith(CACHE_PREFIX)
-    ? normalized
-    : `${CACHE_PREFIX}${normalized}`;
+  if (normalized.startsWith(CACHE_PREFIX)) {
+    return normalized;
+  }
+  const withV = normalized.startsWith('v') ? normalized : `v${normalized}`;
+  return `${CACHE_PREFIX}${withV}`;
 };
 
 /**
@@ -48,7 +50,7 @@ interface ParsedVersionToken {
 }
 
 function parseVersionToken(input: string): ParsedVersionToken {
-  const trimmed = input.trim().replace(/^sola-ai-v/, '');
+  const trimmed = input.trim().replace(/^sola-ai-v?/, '');
   const semverMatch = trimmed.match(/^v?(\d+)\.(\d+)\.(\d+)(?:-(.+))?$/);
   if (!semverMatch) {
     const directTs = Date.parse(trimmed);
