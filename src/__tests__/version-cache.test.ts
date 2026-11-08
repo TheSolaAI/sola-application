@@ -2,6 +2,9 @@ import assert from 'node:assert';
 import { describe, it } from 'node:test';
 import {
   APP_VERSION,
+  BUILD_ID,
+  CACHE_PREFIX,
+  compareVersionTokens,
   getBuildVersion,
   getCacheVersion,
   isVersionOutdated,
@@ -12,9 +15,11 @@ import {
 
 describe('version and cache control utils', () => {
   describe('APP_VERSION and version getters', () => {
-    it('provides a default or configured APP_VERSION', () => {
+    it('provides a default or configured APP_VERSION and BUILD_ID', () => {
       assert.strictEqual(typeof APP_VERSION, 'string');
       assert.strictEqual(APP_VERSION.length > 0, true);
+      assert.strictEqual(typeof BUILD_ID, 'string');
+      assert.strictEqual(BUILD_ID.length > 0, true);
     });
 
     it('generates a valid formatted build version string', () => {
@@ -26,35 +31,54 @@ describe('version and cache control utils', () => {
     it('generates versioned cache names for service worker isolation', () => {
       assert.strictEqual(getCacheVersion('0.0.1'), 'sola-ai-v0.0.1');
       assert.strictEqual(getCacheVersion('1.2.0'), 'sola-ai-v1.2.0');
-      assert.strictEqual(getCacheVersion(), `sola-ai-v${APP_VERSION}`);
+      assert.strictEqual(getCacheVersion(), `${CACHE_PREFIX}${BUILD_ID}`);
     });
 
     it('returns complete structured app version info', () => {
       const info = getAppVersionInfo();
       assert.strictEqual(info.version, APP_VERSION);
-      assert.strictEqual(typeof info.buildId, 'string');
+      assert.strictEqual(info.buildId, BUILD_ID);
       assert.strictEqual(typeof info.buildDate, 'string');
-      assert.strictEqual(info.cacheVersion, `sola-ai-v${APP_VERSION}`);
+      assert.strictEqual(info.cacheVersion, `${CACHE_PREFIX}${BUILD_ID}`);
       assert.strictEqual(typeof info.environment, 'string');
     });
   });
 
-  describe('isVersionOutdated', () => {
+  describe('isVersionOutdated & compareVersionTokens', () => {
     it('flags null or undefined client versions as outdated', () => {
       assert.strictEqual(isVersionOutdated(null, '1.0.0'), true);
       assert.strictEqual(isVersionOutdated(undefined, '1.0.0'), true);
       assert.strictEqual(isVersionOutdated('', '1.0.0'), true);
     });
 
-    it('flags differing versions as outdated', () => {
+    it('flags newer server versions or newer same-day builds as outdated', () => {
       assert.strictEqual(isVersionOutdated('0.0.1', '0.0.2'), true);
       assert.strictEqual(isVersionOutdated('1.0.0', '1.0.1'), true);
+      assert.strictEqual(
+        isVersionOutdated(
+          'v0.0.1-2026-11-08T08:00:00.000Z',
+          'v0.0.1-2026-11-08T09:00:00.000Z'
+        ),
+        true
+      );
+    });
+
+    it('rejects older server versions to prevent rollback loops', () => {
+      assert.strictEqual(compareVersionTokens('1.0.0', '1.0.1'), -1);
+      assert.strictEqual(isVersionOutdated('1.0.1', '1.0.0'), false);
+      assert.strictEqual(
+        isVersionOutdated(
+          'v0.0.1-2026-11-08T09:00:00.000Z',
+          'v0.0.1-2026-11-08T08:00:00.000Z'
+        ),
+        false
+      );
     });
 
     it('confirms identical versions are not outdated', () => {
       assert.strictEqual(isVersionOutdated('1.0.0', '1.0.0'), false);
       assert.strictEqual(isVersionOutdated(' 1.0.0 ', '1.0.0'), false);
-      assert.strictEqual(isVersionOutdated(APP_VERSION), false);
+      assert.strictEqual(isVersionOutdated(BUILD_ID), false);
     });
   });
 
@@ -103,7 +127,7 @@ describe('version and cache control utils', () => {
   });
 
   describe('getNextCacheHeaders', () => {
-    it('generates Next.js header rules with correct targets and version injection', () => {
+    it('generates Next.js header rules with correct targets and consistent version injection', () => {
       const headers = getNextCacheHeaders('2.0.0');
       assert.strictEqual(headers.length >= 4, true);
 
@@ -123,6 +147,10 @@ describe('version and cache control utils', () => {
         (h) => h.key === 'X-App-Version'
       );
       assert.strictEqual(htmlVersion?.value, '2.0.0');
+      const htmlCacheVersion = htmlRule?.headers.find(
+        (h) => h.key === 'X-Cache-Version'
+      );
+      assert.strictEqual(htmlCacheVersion?.value, 'sola-ai-v2.0.0');
 
       // Rule for static hashed assets
       const staticRule = headers.find((h) => h.source === '/_next/static/:path*');

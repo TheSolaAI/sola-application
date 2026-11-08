@@ -4,6 +4,11 @@ import packageInfo from './package.json';
 
 const appVersion = packageInfo.version || '0.0.1';
 const buildDate = new Date().toISOString();
+const buildId =
+  process.env.BUILD_ID ||
+  process.env.NEXT_PUBLIC_BUILD_ID ||
+  process.env.VERCEL_GIT_COMMIT_SHA ||
+  `v${appVersion}-${buildDate}`;
 
 const nextConfig: NextConfig = {
   /* config options here */
@@ -24,9 +29,10 @@ const nextConfig: NextConfig = {
   env: {
     NEXT_PUBLIC_APP_VERSION: appVersion,
     NEXT_PUBLIC_BUILD_DATE: buildDate,
+    NEXT_PUBLIC_BUILD_ID: buildId,
   },
   generateBuildId: async () => {
-    return `v${appVersion}-${buildDate.split('T')[0]}`;
+    return buildId;
   },
   headers: async () => {
     return [
@@ -50,6 +56,10 @@ const nextConfig: NextConfig = {
             key: 'X-App-Version',
             value: appVersion,
           },
+          {
+            key: 'X-Build-Id',
+            value: buildId,
+          },
         ],
       },
       // 2. Next.js Static Hashed Assets: Long-term immutable caching
@@ -63,6 +73,10 @@ const nextConfig: NextConfig = {
           {
             key: 'X-App-Version',
             value: appVersion,
+          },
+          {
+            key: 'X-Build-Id',
+            value: buildId,
           },
         ],
       },
@@ -99,6 +113,10 @@ const nextConfig: NextConfig = {
           {
             key: 'X-App-Version',
             value: appVersion,
+          },
+          {
+            key: 'X-Build-Id',
+            value: buildId,
           },
         ],
       },

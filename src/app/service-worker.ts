@@ -1,11 +1,16 @@
 /// <reference lib="webworker" />
-import { getCacheVersion } from '@/utils/version';
+import { CACHE_PREFIX, getCacheVersion } from '@/utils/version';
 
 const serviceWorkerExport = null;
 export default serviceWorkerExport;
 
 const worker = self as unknown as ServiceWorkerGlobalScope;
-const CACHE_NAME = getCacheVersion();
+const swUrl =
+  typeof self !== 'undefined' && self.location
+    ? new URL(self.location.href)
+    : null;
+const queryVersion = swUrl?.searchParams.get('v') || undefined;
+const CACHE_NAME = getCacheVersion(queryVersion);
 
 // Pre-cached assets for offline resilience (do NOT cache root HTML document aggressively)
 const PRECACHE_ASSETS = [
@@ -18,6 +23,17 @@ const PRECACHE_ASSETS = [
   '/sola_black_logo.svg',
 ];
 
+async function createOfflineFallbackResponse(): Promise<Response> {
+  const offlinePage = await caches.match('/offline.html');
+  if (offlinePage) return offlinePage;
+
+  return new Response('You are offline and the requested resource is not cached.', {
+    status: 503,
+    statusText: 'Service Unavailable',
+    headers: new Headers({ 'Content-Type': 'text/plain' }),
+  });
+}
+
 // Install event - pre-cache offline assets and activate immediately
 worker.addEventListener('install', (event) => {
   event.waitUntil(
@@ -28,7 +44,7 @@ worker.addEventListener('install', (event) => {
   );
 });
 
-// Activate event - purge old versioned caches and take control of all clients
+// Activate event - purge old versioned caches owned by this app and take control of all clients
 worker.addEventListener('activate', (event) => {
   event.waitUntil(
     caches
@@ -36,9 +52,15 @@ worker.addEventListener('activate', (event) => {
       .then((cacheNames) => {
         return Promise.all(
           cacheNames
-            .filter((cacheName) => cacheName !== CACHE_NAME)
+            .filter(
+              (cacheName) =>
+                cacheName.startsWith(CACHE_PREFIX) && cacheName !== CACHE_NAME
+            )
             .map((cacheName) => {
-              console.log('[ServiceWorker] Removing stale cache version:', cacheName);
+              console.log(
+                '[ServiceWorker] Removing stale cache version:',
+                cacheName
+              );
               return caches.delete(cacheName);
             })
         );
@@ -59,10 +81,21 @@ worker.addEventListener('fetch', (event) => {
     return;
   }
 
+  // Bypass cache for Next.js App Router React Server Component (RSC) / flight / prefetch requests
+  const acceptHeader = request.headers.get('accept') || '';
+  const isRscRequest =
+    request.headers.get('RSC') === '1' ||
+    request.headers.get('Next-Router-Prefetch') === '1' ||
+    request.headers.get('Next-Router-State-Tree') !== null ||
+    url.searchParams.has('_rsc') ||
+    acceptHeader.includes('text/x-component');
+
+  if (isRscRequest) {
+    return;
+  }
+
   const isNavigation =
-    request.mode === 'navigate' ||
-    (request.headers.get('accept') &&
-      request.headers.get('accept')!.includes('text/html'));
+    request.mode === 'navigate' || acceptHeader.includes('text/html');
 
   // 1. Navigation / HTML Document requests: Network-First to guarantee fresh application
   if (isNavigation) {
@@ -82,14 +115,7 @@ worker.addEventListener('fetch', (event) => {
           const cachedHtml = await caches.match(request);
           if (cachedHtml) return cachedHtml;
 
-          const offlinePage = await caches.match('/offline.html');
-          if (offlinePage) return offlinePage;
-
-          return new Response('You are offline and the page is not cached.', {
-            status: 503,
-            statusText: 'Service Unavailable',
-            headers: new Headers({ 'Content-Type': 'text/plain' }),
-          });
+          return createOfflineFallbackResponse();
         })
     );
     return;
@@ -105,15 +131,17 @@ worker.addEventListener('fetch', (event) => {
           return cachedResponse;
         }
 
-        return fetch(request).then((networkResponse) => {
-          if (networkResponse && networkResponse.status === 200) {
-            const responseClone = networkResponse.clone();
-            caches.open(CACHE_NAME).then((cache) => {
-              cache.put(request, responseClone);
-            });
-          }
-          return networkResponse;
-        });
+        return fetch(request)
+          .then((networkResponse) => {
+            if (networkResponse && networkResponse.status === 200) {
+              const responseClone = networkResponse.clone();
+              caches.open(CACHE_NAME).then((cache) => {
+                cache.put(request, responseClone);
+              });
+            }
+            return networkResponse;
+          })
+          .catch(() => createOfflineFallbackResponse());
       })
     );
     return;
@@ -132,7 +160,10 @@ worker.addEventListener('fetch', (event) => {
           }
           return networkResponse;
         })
-        .catch(() => cachedResponse);
+        .catch(async () => {
+          if (cachedResponse) return cachedResponse;
+          return createOfflineFallbackResponse();
+        });
 
       return cachedResponse || fetchPromise;
     })
@@ -146,8 +177,14 @@ worker.addEventListener('message', (event) => {
   }
 
   if (event.data && event.data.type === 'CLEAR_CACHE') {
-    caches.keys().then((names) => {
-      return Promise.all(names.map((name) => caches.delete(name)));
-    });
+    event.waitUntil(
+      caches.keys().then((names) => {
+        return Promise.all(
+          names
+            .filter((name) => name.startsWith(CACHE_PREFIX))
+            .map((name) => caches.delete(name))
+        );
+      })
+    );
   }
 });
