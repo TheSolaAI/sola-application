@@ -4,6 +4,10 @@ import { Tool } from 'ai';
 import { ToolContext, ToolResult } from '@/types/tool';
 import { ApiClient, createServerApiClient } from '@/lib/ApiClient';
 import { API_URLS } from '@/config/api_urls';
+import {
+  addPriorityFeeToSerializedTransaction,
+  PriorityFeeLevel,
+} from '@/utils/priorityFee';
 
 const Parameters = z.object({
   inputTokenAddress: z.string().describe('Token Address to swap from'),
@@ -25,6 +29,14 @@ const Parameters = z.object({
     .describe(
       'The type of asset swapped. TOKEN specifies crypto tokens and XSTOCKS specifies xstock tokens'
     ),
+  priorityFeeLevel: z
+    .enum(['none', 'low', 'medium', 'high', 'veryHigh', 'custom'])
+    .optional()
+    .describe('Optional priority fee preset level for the transaction'),
+  customPriorityFee: z
+    .number()
+    .optional()
+    .describe('Optional custom priority fee in microLamports'),
 });
 
 export function createSwapTokensTool(context: ToolContext) {
@@ -40,6 +52,8 @@ export function createSwapTokensTool(context: ToolContext) {
         amount,
         swapType,
         assetType,
+        priorityFeeLevel,
+        customPriorityFee,
       } = params;
 
       if (!context.authToken) {
@@ -59,6 +73,9 @@ export function createSwapTokensTool(context: ToolContext) {
       }
 
       const serverApiClient = createServerApiClient(context.authToken);
+      const priorityFeeRequested =
+        (priorityFeeLevel !== undefined && priorityFeeLevel !== 'none') ||
+        customPriorityFee !== undefined;
 
       const swapParams: SwapParams = {
         input_mint: inputTokenAddress,
@@ -66,7 +83,7 @@ export function createSwapTokensTool(context: ToolContext) {
         amount,
         swap_mode: swapType,
         public_key: context.publicKey,
-        priority_fee_needed: false,
+        priority_fee_needed: priorityFeeRequested,
       };
 
       try {
@@ -93,9 +110,21 @@ export function createSwapTokensTool(context: ToolContext) {
         }
 
         try {
-          const transactionBuffer = Buffer.from(
+          let transactionBuffer = Buffer.from(
             response.data.transaction
           ).toString('base64');
+
+          if (priorityFeeRequested) {
+            const prioritized = addPriorityFeeToSerializedTransaction(
+              transactionBuffer,
+              context.publicKey,
+              {
+                level: (priorityFeeLevel as PriorityFeeLevel) ?? 'medium',
+                customFee: customPriorityFee,
+              }
+            );
+            transactionBuffer = prioritized.serializedTransaction;
+          }
 
           return {
             success: true,
@@ -122,14 +151,14 @@ export function createSwapTokensTool(context: ToolContext) {
         } catch (error) {
           return {
             success: false,
-            error: 'Error processing transaction data',
+            error: `Transaction error: ${error}`,
             data: undefined,
           };
         }
       } catch (error) {
         return {
           success: false,
-          error: 'Unable to prepare swap transaction',
+          error: `Swap error: ${error}`,
           data: undefined,
         };
       }

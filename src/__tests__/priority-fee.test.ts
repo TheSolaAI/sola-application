@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {
   ComputeBudgetProgram,
   Keypair,
-  PublicKey,
+  MessageV0,
   SystemProgram,
   Transaction,
   TransactionMessage,
@@ -37,9 +37,13 @@ describe('Solana Priority Fee Utilities (#338)', () => {
       assert.strictEqual(resolvePriorityFeeMicroLamports({ level: 'veryHigh' }), 500_000);
     });
 
-    test('resolves custom priority fee correctly', () => {
+    test('resolves custom priority fee correctly and rejects missing customFee when level is custom', () => {
       assert.strictEqual(resolvePriorityFeeMicroLamports({ level: 'custom', customFee: 25_000 }), 25_000);
       assert.strictEqual(resolvePriorityFeeMicroLamports({ customFee: 75_000 }), 75_000);
+      assert.throws(
+        () => resolvePriorityFeeMicroLamports({ level: 'custom' }),
+        /customFee is required/
+      );
     });
 
     test('clamps negative or NaN custom fees to 0', () => {
@@ -49,27 +53,39 @@ describe('Solana Priority Fee Utilities (#338)', () => {
   });
 
   describe('createPriorityFeeInstructions', () => {
-    test('creates both unit limit and unit price instructions by default', () => {
+    test('creates both unit limit and unit price instructions with exact encoded data', () => {
       const instructions = createPriorityFeeInstructions({ level: 'medium' });
       assert.strictEqual(instructions.length, 2);
 
-      // Verify instruction program IDs target ComputeBudgetProgram
+      // Instruction 0: SetComputeUnitLimit (discriminator 2, u32 LE = DEFAULT_COMPUTE_UNIT_LIMIT)
       assert.ok(instructions[0].programId.equals(ComputeBudgetProgram.programId));
+      assert.strictEqual(instructions[0].data[0], 2);
+      assert.strictEqual(instructions[0].data.readUInt32LE(1), DEFAULT_COMPUTE_UNIT_LIMIT);
+
+      // Instruction 1: SetComputeUnitPrice (discriminator 3, u64 LE = 50_000n)
       assert.ok(instructions[1].programId.equals(ComputeBudgetProgram.programId));
+      assert.strictEqual(instructions[1].data[0], 3);
+      assert.strictEqual(instructions[1].data.readBigUInt64LE(1), BigInt(PRIORITY_FEE_LEVELS.medium));
     });
 
     test('omits compute unit price instruction when level is none', () => {
       const instructions = createPriorityFeeInstructions({ level: 'none' });
       assert.strictEqual(instructions.length, 1);
       assert.ok(instructions[0].programId.equals(ComputeBudgetProgram.programId));
+      assert.strictEqual(instructions[0].data[0], 2);
+      assert.strictEqual(instructions[0].data.readUInt32LE(1), DEFAULT_COMPUTE_UNIT_LIMIT);
     });
 
-    test('supports custom compute unit limit', () => {
+    test('supports custom compute unit limit and encodes exact units and price', () => {
       const instructions = createPriorityFeeInstructions({
         level: 'high',
         computeUnitLimit: 200_000,
       });
       assert.strictEqual(instructions.length, 2);
+      assert.strictEqual(instructions[0].data[0], 2);
+      assert.strictEqual(instructions[0].data.readUInt32LE(1), 200_000);
+      assert.strictEqual(instructions[1].data[0], 3);
+      assert.strictEqual(instructions[1].data.readBigUInt64LE(1), BigInt(PRIORITY_FEE_LEVELS.high));
     });
   });
 
@@ -95,9 +111,16 @@ describe('Solana Priority Fee Utilities (#338)', () => {
       assert.ok(updatedTx.instructions[2].programId.equals(SystemProgram.programId));
     });
 
-    test('deduplicates previous compute budget instructions when adding new fee', () => {
+    test('keeps durable nonce advance instruction first and preserves non-fee compute budget instructions', () => {
       const payer = Keypair.generate();
+      const nonceAccount = Keypair.generate();
       const tx = new Transaction().add(
+        SystemProgram.nonceAdvance({
+          noncePubkey: nonceAccount.publicKey,
+          authorizedPubkey: payer.publicKey,
+        }),
+        ComputeBudgetProgram.requestHeapFrame({ bytes: 64 * 1024 }),
+        ComputeBudgetProgram.setComputeUnitLimit({ units: 600_000 }),
         ComputeBudgetProgram.setComputeUnitPrice({ microLamports: 100 }),
         SystemProgram.transfer({
           fromPubkey: payer.publicKey,
@@ -107,8 +130,22 @@ describe('Solana Priority Fee Utilities (#338)', () => {
       );
 
       const updatedTx = addPriorityFeeToLegacyTransaction(tx, { level: 'veryHigh' });
-      // Should have 2 compute budget instructions + 1 transfer instruction
-      assert.strictEqual(updatedTx.instructions.length, 3);
+      // 1 nonceAdvance + 2 compute budget (limit + price) + 1 heapFrame + 1 transfer = 5
+      assert.strictEqual(updatedTx.instructions.length, 5);
+      // First instruction remains nonceAdvance
+      assert.ok(updatedTx.instructions[0].programId.equals(SystemProgram.programId));
+      assert.strictEqual(updatedTx.instructions[0].data.readUInt32LE(0), 4);
+      // Preserves higher 600_000 compute unit limit when caller did not override it
+      assert.strictEqual(updatedTx.instructions[1].data[0], 2);
+      assert.strictEqual(updatedTx.instructions[1].data.readUInt32LE(1), 600_000);
+      // Replaces compute unit price with veryHigh
+      assert.strictEqual(updatedTx.instructions[2].data[0], 3);
+      assert.strictEqual(
+        updatedTx.instructions[2].data.readBigUInt64LE(1),
+        BigInt(PRIORITY_FEE_LEVELS.veryHigh)
+      );
+      // Preserves requestHeapFrame instruction (discriminator 1)
+      assert.strictEqual(updatedTx.instructions[3].data[0], 1);
     });
   });
 
@@ -140,6 +177,42 @@ describe('Solana Priority Fee Utilities (#338)', () => {
       assert.ok(decompiled.instructions[0].programId.equals(ComputeBudgetProgram.programId));
       assert.ok(decompiled.instructions[1].programId.equals(ComputeBudgetProgram.programId));
       assert.ok(decompiled.instructions[2].programId.equals(SystemProgram.programId));
+    });
+
+    test('preserves addressTableLookups when v0 message references lookup tables without accounts', () => {
+      const payer = Keypair.generate();
+      const tableKey = Keypair.generate().publicKey;
+      const msgWithLut = new MessageV0({
+        header: {
+          numRequiredSignatures: 1,
+          numReadonlySignedAccounts: 0,
+          numReadonlyUnsignedAccounts: 1,
+        },
+        staticAccountKeys: [payer.publicKey, SystemProgram.programId],
+        recentBlockhash: Keypair.generate().publicKey.toBase58(),
+        compiledInstructions: [
+          {
+            programIdIndex: 1,
+            accountKeyIndexes: [0, 0],
+            data: Uint8Array.from([2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0]),
+          },
+        ],
+        addressTableLookups: [
+          {
+            accountKey: tableKey,
+            writableIndexes: [0],
+            readonlyIndexes: [1],
+          },
+        ],
+      });
+
+      const vtx = new VersionedTransaction(msgWithLut);
+      const updated = addPriorityFeeToVersionedTransaction(vtx, payer.publicKey, {
+        level: 'high',
+      });
+      assert.strictEqual(updated.message.addressTableLookups.length, 1);
+      assert.ok(updated.message.addressTableLookups[0].accountKey.equals(tableKey));
+      assert.strictEqual(updated.message.compiledInstructions.length, 3);
     });
   });
 
@@ -220,8 +293,8 @@ describe('Solana Priority Fee Utilities (#338)', () => {
       assert.strictEqual(fee, PRIORITY_FEE_LEVELS.medium);
     });
 
-    test('falls back gracefully when RPC call fails', async () => {
-      const fee = await estimatePriorityFee('syntheticBase64Tx', 'http://127.0.0.1:9999');
+    test('falls back gracefully when RPC call fails or times out', async () => {
+      const fee = await estimatePriorityFee('syntheticBase64Tx', 'http://127.0.0.1:9999', 100);
       assert.strictEqual(fee, PRIORITY_FEE_LEVELS.medium);
     });
   });

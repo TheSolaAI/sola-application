@@ -3,7 +3,6 @@ import {
   estimatePriorityFee,
   PriorityFeeLevel,
   PriorityFeeOptions,
-  resolvePriorityFeeMicroLamports,
 } from '@/utils/priorityFee';
 
 interface CreateTransactionWithPriorityRequest {
@@ -32,6 +31,19 @@ export async function POST(req: Request) {
         JSON.stringify({
           status: 'error',
           message: 'Missing wallet address',
+        }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+    if (
+      body.priorityLevel === 'custom' &&
+      body.customPriorityFee === undefined &&
+      !body.useDynamicEstimate
+    ) {
+      return new Response(
+        JSON.stringify({
+          status: 'error',
+          message: 'customPriorityFee is required when priorityLevel is custom',
         }),
         { status: 400, headers: { 'Content-Type': 'application/json' } }
       );

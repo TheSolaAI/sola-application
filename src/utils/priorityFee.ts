@@ -1,6 +1,10 @@
 import {
+  AddressLookupTableAccount,
   ComputeBudgetProgram,
+  MessageCompiledInstruction,
+  MessageV0,
   PublicKey,
+  SystemProgram,
   Transaction,
   TransactionInstruction,
   TransactionMessage,
@@ -29,6 +33,38 @@ export interface PriorityFeeOptions {
   level?: PriorityFeeLevel;
   customFee?: number | bigint;
   computeUnitLimit?: number;
+  addressLookupTableAccounts?: AddressLookupTableAccount[];
+}
+
+const COMPUTE_UNIT_LIMIT_DISCRIMINATOR = 2;
+const COMPUTE_UNIT_PRICE_DISCRIMINATOR = 3;
+const SYSTEM_ADVANCE_NONCE_DISCRIMINATOR = 4;
+
+function isAdvanceNonceInstruction(ix: TransactionInstruction): boolean {
+  if (!ix.programId.equals(SystemProgram.programId)) {
+    return false;
+  }
+  return ix.data.length >= 4 && ix.data.readUInt32LE(0) === SYSTEM_ADVANCE_NONCE_DISCRIMINATOR;
+}
+
+function getComputeUnitLimitFromInstruction(ix: TransactionInstruction): number | null {
+  if (!ix.programId.equals(ComputeBudgetProgram.programId)) {
+    return null;
+  }
+  if (ix.data.length >= 5 && ix.data[0] === COMPUTE_UNIT_LIMIT_DISCRIMINATOR) {
+    return ix.data.readUInt32LE(1);
+  }
+  return null;
+}
+
+function isComputeLimitOrPriceInstruction(ix: TransactionInstruction): boolean {
+  if (!ix.programId.equals(ComputeBudgetProgram.programId) || ix.data.length === 0) {
+    return false;
+  }
+  return (
+    ix.data[0] === COMPUTE_UNIT_LIMIT_DISCRIMINATOR ||
+    ix.data[0] === COMPUTE_UNIT_PRICE_DISCRIMINATOR
+  );
 }
 
 /**
@@ -41,9 +77,16 @@ export function resolvePriorityFeeMicroLamports(options?: PriorityFeeOptions): n
     return 0;
   }
 
+  if (options.level === 'custom' && options.customFee === undefined) {
+    throw new Error('customFee is required when priority fee level is custom');
+  }
+
   if (options.level === 'custom' || options.customFee !== undefined) {
     const feeNum = Number(options.customFee ?? 0);
-    return isNaN(feeNum) || feeNum < 0 ? 0 : Math.floor(feeNum);
+    if (isNaN(feeNum) || feeNum < 0) {
+      return 0;
+    }
+    return Math.floor(feeNum);
   }
 
   if (options.level && options.level in PRIORITY_FEE_LEVELS) {
@@ -80,6 +123,49 @@ export function createPriorityFeeInstructions(options?: PriorityFeeOptions): Tra
   return instructions;
 }
 
+function mergeInstructionsWithPriority(
+  existingInstructions: TransactionInstruction[],
+  options?: PriorityFeeOptions
+): TransactionInstruction[] {
+  let maxExistingUnits = 0;
+  for (const ix of existingInstructions) {
+    const existingLimit = getComputeUnitLimitFromInstruction(ix);
+    if (existingLimit !== null && existingLimit > maxExistingUnits) {
+      maxExistingUnits = existingLimit;
+    }
+  }
+
+  const effectiveOptions: PriorityFeeOptions = {
+    ...options,
+    computeUnitLimit:
+      options?.computeUnitLimit !== undefined
+        ? options.computeUnitLimit
+        : Math.max(DEFAULT_COMPUTE_UNIT_LIMIT, maxExistingUnits),
+  };
+
+  const priorityInstructions = createPriorityFeeInstructions(effectiveOptions);
+  if (priorityInstructions.length === 0) {
+    return existingInstructions;
+  }
+
+  const preservedInstructions = existingInstructions.filter(
+    (ix) => !isComputeLimitOrPriceInstruction(ix)
+  );
+
+  if (
+    preservedInstructions.length > 0 &&
+    isAdvanceNonceInstruction(preservedInstructions[0])
+  ) {
+    return [
+      preservedInstructions[0],
+      ...priorityInstructions,
+      ...preservedInstructions.slice(1),
+    ];
+  }
+
+  return [...priorityInstructions, ...preservedInstructions];
+}
+
 /**
  * Prepends priority fee instructions to a legacy Solana Transaction.
  */
@@ -87,8 +173,8 @@ export function addPriorityFeeToLegacyTransaction(
   transaction: Transaction,
   options?: PriorityFeeOptions
 ): Transaction {
-  const priorityInstructions = createPriorityFeeInstructions(options);
-  if (priorityInstructions.length === 0) return transaction;
+  const merged = mergeInstructionsWithPriority(transaction.instructions, options);
+  if (merged === transaction.instructions) return transaction;
 
   const newTx = new Transaction();
   newTx.feePayer = transaction.feePayer;
@@ -96,15 +182,8 @@ export function addPriorityFeeToLegacyTransaction(
   newTx.lastValidBlockHeight = transaction.lastValidBlockHeight;
   newTx.nonceInfo = transaction.nonceInfo;
 
-  // Compute budget instructions should precede other program instructions
-  for (const ix of priorityInstructions) {
+  for (const ix of merged) {
     newTx.add(ix);
-  }
-  for (const ix of transaction.instructions) {
-    // Filter out existing compute budget instructions to avoid duplicates
-    if (!ix.programId.equals(ComputeBudgetProgram.programId)) {
-      newTx.add(ix);
-    }
   }
   if (transaction.signatures.length > 0) {
     newTx.signatures = transaction.signatures;
@@ -114,31 +193,81 @@ export function addPriorityFeeToLegacyTransaction(
 }
 
 /**
- * Prepends priority fee instructions to a Solana VersionedTransaction.
+ * Prepends priority fee instructions to a Solana VersionedTransaction,
+ * preserving address lookup tables and durable nonce ordering.
  */
 export function addPriorityFeeToVersionedTransaction(
   versionedTx: VersionedTransaction,
   payerKey: PublicKey | string,
   options?: PriorityFeeOptions
 ): VersionedTransaction {
+  const payer = typeof payerKey === 'string' ? new PublicKey(payerKey) : payerKey;
+  const lookupTables = options?.addressLookupTableAccounts;
+  const hasLookupReferences = versionedTx.message.addressTableLookups.length > 0;
+
+  if (!hasLookupReferences || (lookupTables && lookupTables.length > 0)) {
+    const existingInstructions = TransactionMessage.decompile(versionedTx.message, {
+      addressLookupTableAccounts: lookupTables,
+    }).instructions;
+
+    const mergedInstructions = mergeInstructionsWithPriority(existingInstructions, options);
+    if (mergedInstructions === existingInstructions) return versionedTx;
+
+    const newMessage = new TransactionMessage({
+      payerKey: payer,
+      recentBlockhash: versionedTx.message.recentBlockhash,
+      instructions: mergedInstructions,
+    }).compileToV0Message(lookupTables);
+
+    return new VersionedTransaction(newMessage);
+  }
+
+  // Fallback for v0 messages with lookup tables when lookup table accounts are not passed:
+  // preserve staticAccountKeys and addressTableLookups directly on MessageV0.
   const priorityInstructions = createPriorityFeeInstructions(options);
   if (priorityInstructions.length === 0) return versionedTx;
 
-  const payer = typeof payerKey === 'string' ? new PublicKey(payerKey) : payerKey;
-  const existingInstructions = TransactionMessage.decompile(versionedTx.message).instructions;
-
-  // Filter out any pre-existing ComputeBudget instructions to avoid conflicting instructions
-  const filteredInstructions = existingInstructions.filter(
-    (ix) => !ix.programId.equals(ComputeBudgetProgram.programId)
+  const staticKeys = [...versionedTx.message.staticAccountKeys];
+  let computeBudgetIndex = staticKeys.findIndex((k) =>
+    k.equals(ComputeBudgetProgram.programId)
   );
+  if (computeBudgetIndex === -1) {
+    computeBudgetIndex = staticKeys.length;
+    staticKeys.push(ComputeBudgetProgram.programId);
+  }
 
-  const newMessage = new TransactionMessage({
-    payerKey: payer,
+  const compiledPriority: MessageCompiledInstruction[] = priorityInstructions.map((ix) => ({
+    programIdIndex: computeBudgetIndex,
+    accountKeyIndexes: [],
+    data: Uint8Array.from(ix.data),
+  }));
+
+  const existingCompiled = versionedTx.message.compiledInstructions.filter((cix) => {
+    const progKey = staticKeys[cix.programIdIndex];
+    if (!progKey || !progKey.equals(ComputeBudgetProgram.programId)) return true;
+    const disc = cix.data[0];
+    return disc !== COMPUTE_UNIT_LIMIT_DISCRIMINATOR && disc !== COMPUTE_UNIT_PRICE_DISCRIMINATOR;
+  });
+
+  const firstIsNonce =
+    existingCompiled.length > 0 &&
+    staticKeys[existingCompiled[0].programIdIndex]?.equals(SystemProgram.programId) &&
+    existingCompiled[0].data.length >= 4 &&
+    Buffer.from(existingCompiled[0].data).readUInt32LE(0) === SYSTEM_ADVANCE_NONCE_DISCRIMINATOR;
+
+  const finalCompiled = firstIsNonce
+    ? [existingCompiled[0], ...compiledPriority, ...existingCompiled.slice(1)]
+    : [...compiledPriority, ...existingCompiled];
+
+  const updatedMessage = new MessageV0({
+    header: versionedTx.message.header,
+    staticAccountKeys: staticKeys,
     recentBlockhash: versionedTx.message.recentBlockhash,
-    instructions: [...priorityInstructions, ...filteredInstructions],
-  }).compileToV0Message();
+    compiledInstructions: finalCompiled,
+    addressTableLookups: versionedTx.message.addressTableLookups,
+  });
 
-  return new VersionedTransaction(newMessage);
+  return new VersionedTransaction(updatedMessage);
 }
 
 /**
@@ -185,14 +314,18 @@ export function addPriorityFeeToSerializedTransaction(
 }
 
 /**
- * Dynamic priority fee estimation using Solana RPC with resilient fallback.
+ * Dynamic priority fee estimation using Solana RPC with resilient fallback and abort timeout.
  */
 export async function estimatePriorityFee(
   serializedTransaction: string,
-  rpcUrl?: string
+  rpcUrl?: string,
+  timeoutMs = 3000
 ): Promise<number> {
   const rpc = rpcUrl || process.env.SOLANA_RPC_URL;
   if (!rpc) return PRIORITY_FEE_LEVELS.medium;
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
     const payload = {
@@ -214,6 +347,7 @@ export async function estimatePriorityFee(
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
+      signal: controller.signal,
     });
 
     if (!response.ok) return PRIORITY_FEE_LEVELS.medium;
@@ -224,5 +358,7 @@ export async function estimatePriorityFee(
       : PRIORITY_FEE_LEVELS.medium;
   } catch {
     return PRIORITY_FEE_LEVELS.medium;
+  } finally {
+    clearTimeout(timer);
   }
 }
