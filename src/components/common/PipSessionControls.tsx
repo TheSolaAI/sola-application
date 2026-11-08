@@ -21,7 +21,21 @@ export const PipSessionControls: FC<PipSessionControlsProps> = ({ onClosePip }) 
   } = useSessionHandler();
 
   const handleToggleMute = () => {
-    setMuted(!muted);
+    const nextMuted = !muted;
+    if (mediaStream) {
+      try {
+        const audioTracks =
+          typeof mediaStream.getAudioTracks === 'function'
+            ? mediaStream.getAudioTracks()
+            : mediaStream.getTracks();
+        audioTracks.forEach((track) => {
+          track.enabled = !nextMuted;
+        });
+      } catch (e) {
+        console.warn('Error toggling microphone audio tracks:', e);
+      }
+    }
+    setMuted(nextMuted);
   };
 
   const handleEndSession = () => {

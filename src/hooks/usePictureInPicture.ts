@@ -8,7 +8,7 @@ import {
   shouldTriggerAutoPiP,
   DocumentPiPOptions,
 } from '@/utils/pictureInPicture';
-import isMobile from '@/utils/isMobile';
+import useIsMobile from '@/utils/isMobile';
 
 export interface UsePictureInPictureOptions {
   autoPiPOnHidden?: boolean;
@@ -20,6 +20,7 @@ export function usePictureInPicture(options?: UsePictureInPictureOptions) {
   const [isPipOpen, setIsPipOpen] = useState(false);
   const [pipWindow, setPipWindow] = useState<Window | null>(null);
   const isSupported = isDocumentPiPSupported();
+  const isMobileViewport = useIsMobile();
   const sessionState = useSessionHandler((s) => s.state);
 
   const pipWindowRef = useRef<Window | null>(null);
@@ -79,17 +80,20 @@ export function usePictureInPicture(options?: UsePictureInPictureOptions) {
     }
   }, [sessionState, isPipOpen, closePiP]);
 
-  // Handle automatic PiP on document visibility change (Google Meet behavior)
+  // Handle automatic PiP on document visibility change and MediaSession enterpictureinpicture (Google Meet behavior)
   useEffect(() => {
     if (!autoPiPOnHidden || !isSupported || typeof document === 'undefined') {
       return;
     }
 
-    const handleVisibilityChange = async () => {
+    const checkMobile = () =>
+      isMobileViewport || (typeof window !== 'undefined' && window.innerWidth < 640);
+
+    const handleAutoPiP = async (visibilityOverride?: DocumentVisibilityState | string) => {
       const shouldTrigger = shouldTriggerAutoPiP({
-        visibilityState: document.visibilityState,
+        visibilityState: visibilityOverride ?? document.visibilityState,
         sessionState: useSessionHandler.getState().state,
-        isMobile: isMobile(),
+        isMobile: checkMobile(),
         isPipOpen: !!pipWindowRef.current && !pipWindowRef.current.closed,
         autoPipEnabled: autoPiPOnHidden,
       });
@@ -99,11 +103,37 @@ export function usePictureInPicture(options?: UsePictureInPictureOptions) {
       }
     };
 
+    const handleVisibilityChange = () => {
+      void handleAutoPiP(document.visibilityState);
+    };
+
+    const mediaSession =
+      typeof navigator !== 'undefined' && 'mediaSession' in navigator
+        ? navigator.mediaSession
+        : null;
+
+    if (mediaSession && typeof mediaSession.setActionHandler === 'function') {
+      try {
+        mediaSession.setActionHandler('enterpictureinpicture' as MediaSessionAction, () => {
+          void handleAutoPiP('hidden');
+        });
+      } catch {
+        // Ignore if browser does not support enterpictureinpicture action
+      }
+    }
+
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
+      if (mediaSession && typeof mediaSession.setActionHandler === 'function') {
+        try {
+          mediaSession.setActionHandler('enterpictureinpicture' as MediaSessionAction, null);
+        } catch {
+          // Ignore cleanup errors
+        }
+      }
     };
-  }, [autoPiPOnHidden, isSupported, openPiP]);
+  }, [autoPiPOnHidden, isSupported, isMobileViewport, openPiP]);
 
   // Cleanup on unmount
   useEffect(() => {

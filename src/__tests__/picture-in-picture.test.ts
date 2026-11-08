@@ -1,9 +1,8 @@
-import test, { describe, beforeEach, afterEach } from 'node:test';
+import test, { describe, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   closeDocumentPiP,
   copyStylesToPiPWindow,
-  DEFAULT_PIP_DIMENSIONS,
   isDocumentPiPSupported,
   requestDocumentPiP,
   shouldTriggerAutoPiP,
@@ -118,14 +117,19 @@ describe('Document Picture-in-Picture Utilities (#388)', () => {
 
       const fakeStyle = { cloneNode: () => ({ tagName: 'STYLE' }) };
       const fakeLink = { cloneNode: () => ({ tagName: 'LINK' }) };
+      let queriedSelector = '';
 
       (globalThis as any).document = {
         head: {
-          querySelectorAll: (selector: string) => [fakeStyle, fakeLink],
+          querySelectorAll: (selector: string) => {
+            queriedSelector = selector;
+            return selector === 'style, link[rel="stylesheet"]' ? [fakeStyle, fakeLink] : [];
+          },
         },
       };
 
       copyStylesToPiPWindow(mockTargetWindow);
+      assert.strictEqual(queriedSelector, 'style, link[rel="stylesheet"]');
       assert.strictEqual(appendedElements.length, 2);
       assert.strictEqual(mockTargetBody.style.backgroundColor, '#0b0b0e');
       assert.strictEqual(mockTargetBody.style.overflow, 'hidden');
@@ -154,10 +158,17 @@ describe('Document Picture-in-Picture Utilities (#388)', () => {
     });
 
     test('ignores null or already closed windows', () => {
+      let closeCalled = false;
       assert.doesNotThrow(() => {
         closeDocumentPiP(null);
-        closeDocumentPiP({ closed: true, close: () => {} } as any);
+        closeDocumentPiP({
+          closed: true,
+          close: () => {
+            closeCalled = true;
+          },
+        } as any);
       });
+      assert.strictEqual(closeCalled, false);
     });
   });
 
