@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { Message, generateId } from 'ai';
 import { useChat } from '@ai-sdk/react';
 import { toast } from 'sonner';
+import { expandBotCommand } from '@/utils/botCommands';
 import { useChatMessageHandler } from '@/store/ChatMessageHandler';
 import { useWalletHandler } from '@/store/WalletHandler';
 import { useUserHandler } from '@/store/UserHandler';
@@ -164,9 +165,14 @@ export function useChatMessages(
       return;
     }
 
+    const trimmedContent = messageContent.trim();
+    const resolvedContent = trimmedContent.startsWith('/')
+      ? expandBotCommand(trimmedContent).prompt
+      : messageContent;
+
     const currentMessage = {
       id: generateId(),
-      content: messageContent,
+      content: resolvedContent,
       role: 'user',
       createdAt: new Date(),
     } as Message;
