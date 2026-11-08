@@ -3,6 +3,7 @@ import './globals.css';
 import AuthProvider from '@/providers/AuthProvider';
 import React from 'react';
 import ThemeInitializer from '@/app/_components/ThemeInitializer';
+import VersionCacheInitializer from '@/app/_components/VersionCacheInitializer';
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -35,6 +36,7 @@ export default function RootLayout({
       </head>
       <body suppressHydrationWarning={true}>
         <ThemeInitializer />
+        <VersionCacheInitializer />
         <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
