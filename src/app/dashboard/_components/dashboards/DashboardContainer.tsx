@@ -2,6 +2,7 @@ import { FC, ReactNode, useEffect, memo } from 'react';
 import { motion } from 'framer-motion';
 import useIsMobile from '@/utils/isMobile';
 import { useLayoutContext } from '@/providers/LayoutProvider';
+import { AlphalineDataDisplay } from '@/components/common/AlphalineDataDisplay';
 
 interface DashBoardContainerProps {
   children: ReactNode;
@@ -103,7 +104,7 @@ const DashBoardContainer: FC<DashBoardContainerProps> = memo(({ children }) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
           >
-            {children}
+            {children ?? <AlphalineDataDisplay />}
           </motion.div>
         </div>
       )}
