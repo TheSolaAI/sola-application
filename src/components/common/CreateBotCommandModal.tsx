@@ -29,6 +29,10 @@ export const CreateBotCommandModal: FC<CreateBotCommandModalProps> = ({
       toast.error('Please enter a command name (e.g. update-me)');
       return;
     }
+    if (/\s/.test(cleanName)) {
+      toast.error('Command name cannot contain spaces (use hyphens, e.g. update-me)');
+      return;
+    }
     if (!prompt.trim()) {
       toast.error('Please enter the prompt template to execute');
       return;

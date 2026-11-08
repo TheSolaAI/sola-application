@@ -60,7 +60,7 @@ export const DEFAULT_BOT_COMMANDS: BotCommand[] = [
  * Normalizes command name by removing leading slash, trimming whitespace, and converting to lowercase.
  */
 export function normalizeCommandName(name: string): string {
-  return name.trim().replace(/^\/+/, '').toLowerCase();
+  return name.trim().replace(/^\/+/, '').trim().toLowerCase();
 }
 
 /**
@@ -104,7 +104,7 @@ export function parseBotCommand(input: string): ParsedCommand {
   const commandName = normalizeCommandName(commandPart);
 
   return {
-    isCommand: commandName.length > 0,
+    isCommand: commandName.length > 0 && !/\s/.test(commandName),
     commandName,
     args,
     rawInput: input,
@@ -154,6 +154,9 @@ export function saveCustomBotCommand(command: {
   const normalizedName = normalizeCommandName(command.name);
   if (!normalizedName) {
     throw new Error('Command name cannot be empty');
+  }
+  if (/\s/.test(normalizedName)) {
+    throw new Error('Command name cannot contain spaces');
   }
   if (!command.prompt.trim()) {
     throw new Error('Command prompt expansion cannot be empty');
@@ -288,9 +291,17 @@ export function expandBotCommand(
 
   let expandedPrompt = matchedCommand.prompt;
 
+  if (normalizeCommandName(matchedCommand.name) === 'help' && matchedCommand.isDefault) {
+    const catalog = commands
+      .map((c) => `/${normalizeCommandName(c.name)}: ${c.description}`)
+      .join('; ');
+    expandedPrompt = `${expandedPrompt} Available bot commands: ${catalog}`;
+  }
+
   if (expandedPrompt.includes('{args}')) {
-    const effectiveArgs = parsed.args || 'SOL';
-    expandedPrompt = expandedPrompt.replace(/\{args\}/g, effectiveArgs);
+    const defaultFallback = matchedCommand.isDefault ? 'SOL' : '';
+    const effectiveArgs = parsed.args || defaultFallback;
+    expandedPrompt = expandedPrompt.replace(/\{args\}/g, effectiveArgs).trim();
   } else if (parsed.args) {
     expandedPrompt = `${expandedPrompt} Context: ${parsed.args}`;
   }

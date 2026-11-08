@@ -11,7 +11,6 @@ import {
   parseBotCommand,
   resetBotCommandsToDefault,
   saveCustomBotCommand,
-  STORAGE_KEY_BOT_COMMANDS,
 } from '../utils/botCommands.ts';
 
 // Mock localStorage for Node.js test environment
@@ -104,8 +103,32 @@ describe('Telegram-style Bot Commands (#398)', () => {
       const result = expandBotCommand('/price BONK');
       assert.strictEqual(result.expanded, true);
       assert.strictEqual(result.commandName, 'price');
-      assert.ok(result.prompt.includes('BONK'));
-      assert.ok(!result.prompt.includes('{args}'));
+      assert.strictEqual(
+        result.prompt,
+        'What is the current real-time price and 24h price change of BONK?'
+      );
+    });
+
+    test('includes custom commands in /help expansion', () => {
+      saveCustomBotCommand({
+        name: 'alpha-scan',
+        description: 'Scan Solana alpha signals',
+        prompt: 'Scan top Solana alpha signals.',
+      });
+      const result = expandBotCommand('/help');
+      assert.strictEqual(result.expanded, true);
+      assert.ok(result.prompt.includes('/alpha-scan: Scan Solana alpha signals'));
+    });
+
+    test('does not default missing {args} to SOL for custom commands', () => {
+      saveCustomBotCommand({
+        name: 'summarize-topic',
+        description: 'Summarize topic',
+        prompt: 'Summarize {args}',
+      });
+      const result = expandBotCommand('/summarize-topic');
+      assert.strictEqual(result.expanded, true);
+      assert.strictEqual(result.prompt, 'Summarize');
     });
 
     test('returns original input when command is not found', () => {
@@ -149,10 +172,14 @@ describe('Telegram-style Bot Commands (#398)', () => {
       assert.strictEqual(expanded.prompt, 'Show my 30-day trading metrics, PnL, and win rate.');
     });
 
-    test('rejects empty command names or prompts', () => {
+    test('rejects empty or whitespace command names or empty prompts', () => {
       assert.throws(() => {
         saveCustomBotCommand({ name: '', description: '', prompt: 'valid prompt' });
       }, /Command name cannot be empty/);
+
+      assert.throws(() => {
+        saveCustomBotCommand({ name: 'bad name', description: '', prompt: 'valid prompt' });
+      }, /Command name cannot contain spaces/);
 
       assert.throws(() => {
         saveCustomBotCommand({ name: 'valid-name', description: '', prompt: '' });

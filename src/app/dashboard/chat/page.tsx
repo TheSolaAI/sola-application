@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useChatRoomHandler } from '@/store/ChatRoomHandler';
 import { toast } from 'sonner';
+import { expandBotCommand } from '@/utils/botCommands';
 import { RiSendPlaneFill, RiMicFill } from 'react-icons/ri';
 import { BiLoaderAlt } from 'react-icons/bi';
 import { FiMessageSquare } from 'react-icons/fi';
@@ -232,9 +233,14 @@ export default function NewChat() {
 
   // Function to handle text or transcribed audio input
   const handleInitialMessage = async (messageText: string) => {
-    if (!messageText.trim()) {
+    const trimmedMessage = messageText.trim();
+    if (!trimmedMessage) {
       return;
     }
+
+    const expandedMessage = trimmedMessage.startsWith('/')
+      ? expandBotCommand(trimmedMessage).prompt
+      : trimmedMessage;
 
     try {
       toast.loading('Creating your chat...');
@@ -244,7 +250,7 @@ export default function NewChat() {
 
       // Create a new chat room with a title based on the message
       const title =
-        messageText.substring(0, 20) + (messageText.length > 20 ? '...' : '');
+        expandedMessage.substring(0, 20) + (expandedMessage.length > 20 ? '...' : '');
       const newRoom = await createChatRoom({ name: title });
 
       if (!newRoom || !newRoom.id) {
@@ -253,7 +259,7 @@ export default function NewChat() {
       }
 
       // Store the initial message in localStorage
-      localStorage.setItem('pending_message', messageText);
+      localStorage.setItem('pending_message', expandedMessage);
 
       // Navigate to the new chat room
       toast.dismiss();
