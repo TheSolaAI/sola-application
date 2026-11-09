@@ -11,13 +11,17 @@ import {
   AVAILABLE_INVESTMENT_TYPES,
   InvestementTypeLifecycles,
 } from './investmentTypes';
+import { getBlinksToolSet } from '@/tools/blinksToolSet';
 
 export const toolhandlerModel = openai.responses('gpt-4.1');
 export const toolsetSelectionModel = openai('gpt-4.1-mini');
 export const textToSpeechModel = openai.speech('gpt-4o-mini-tts');
 
-// Get all toolset factories (includes lulo which is lazy-loaded)
-const allToolSetFactories = await getAllToolSetFactories();
+// Get all toolset factories (includes lulo and hands-free blinks)
+const allToolSetFactories = [
+  ...(await getAllToolSetFactories()),
+  getBlinksToolSet,
+];
 
 /**
  * This contains the generic definition of the toolsets without the encapsulated context
