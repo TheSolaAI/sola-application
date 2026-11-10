@@ -12,6 +12,8 @@ import { storeToolResultMessage } from '@/lib/db/db';
 import { useDispatch } from 'react-redux';
 import { updateCurrentUsage } from '@/redux/features/user/tier';
 import { changeThemeTool } from '@/tools/managementToolSet/changeThemeTool';
+import { triggerBlinkTool } from '@/tools/blinksToolSet/triggerBlinkTool';
+import { BlinkTriggerRequest } from '@/types/blinks';
 import { useLayoutContext } from '@/providers/LayoutProvider';
 import { GetUserInfoType } from '@/tools/commonToolSet/getUserInfo';
 
@@ -53,6 +55,12 @@ export function useChatMessages(
           // in the case that the theme was not changed open the settings screen
           if (!result.data.autoSwitched) {
             setSettingsIsOpen(true);
+          }
+        } else if (toolCall.toolName === 'triggerBlinkAction') {
+          const blinkArgs = toolCall.args as BlinkTriggerRequest;
+          result = await triggerBlinkTool(blinkArgs);
+          if (result.success && result.data?.transaction) {
+            await handleSignTransaction({ tx: result.data.transaction });
           }
         } else if (toolCall.toolName === 'getUserInfo') {
           const args = toolCall.args as GetUserInfoType;

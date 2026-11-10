@@ -13,6 +13,7 @@ import {
   createErrorResponseFromAuth,
 } from '@/lib/server/authAndUsage';
 import { getManagementToolSet } from '@/tools/managementToolSet';
+import { getBlinksToolSet } from '@/tools/blinksToolSet';
 
 /**
  * Handles POST requests for chat processing with tools
@@ -98,10 +99,15 @@ export async function POST(req: Request) {
       authToken: accessToken,
       publicKey: walletPublicKey,
     }).tools;
+    const blinksTools = getBlinksToolSet({
+      authToken: accessToken,
+      publicKey: walletPublicKey,
+    }).tools;
 
     const tools: Record<string, Tool<any, any>> = {
       ...generalTools,
       ...managementTools,
+      ...blinksTools,
       ...(aiKitTools === Symbol.for('NO_TOOLS_NEEDED')
         ? {}
         : (aiKitTools as Record<string, Tool<any, any>>)),
