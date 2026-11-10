@@ -11,6 +11,7 @@ import {
   AVAILABLE_INVESTMENT_TYPES,
   InvestementTypeLifecycles,
 } from './investmentTypes';
+import { blinksToolSet } from '@/tools/blinksToolSet';
 
 export const toolhandlerModel = openai.responses('gpt-4.1');
 export const toolsetSelectionModel = openai('gpt-4.1-mini');
@@ -23,20 +24,23 @@ const allToolSetFactories = await getAllToolSetFactories();
  * This contains the generic definition of the toolsets without the encapsulated context
  */
 export const availableToolsetsDescription: Record<string, ToolSetDescription> =
-  Object.fromEntries(
-    allToolSetFactories.map((toolsetFactory: (arg0: any) => any) => {
-      // Create an empty context since we only need the metadata
-      const toolset = toolsetFactory({} as any);
-      return [
-        toolset.slug,
-        {
-          slug: toolset.slug,
-          name: toolset.name,
-          description: toolset.description,
-        },
-      ];
-    })
-  );
+  {
+    ...Object.fromEntries(
+      allToolSetFactories.map((toolsetFactory: (arg0: any) => any) => {
+        // Create an empty context since we only need the metadata
+        const toolset = toolsetFactory({} as any);
+        return [
+          toolset.slug,
+          {
+            slug: toolset.slug,
+            name: toolset.name,
+            description: toolset.description,
+          },
+        ];
+      })
+    ),
+    [blinksToolSet.slug]: blinksToolSet,
+  };
 
 export const TOOLSET_SLUGS = Object.keys(availableToolsetsDescription);
 export type ToolsetSlug = (typeof TOOLSET_SLUGS)[number];
@@ -134,6 +138,7 @@ Your Core Identity:
 # Special Tool Triggers:
 - If a tool result has \`"textResponse": false\`, do not respond with a text summary of the tool result. Instead end the conversation and wait for the user to ask for more information.
 - If a tool result has \`"signAndSend": true\`, trigger the \`sign_and_send_tx\` tool with the transaction hash.
+- When a user shares or interacts with a Solana Blink (Blockchain Action) or Blink game, use \`inspectBlink\` to load its actions or \`executeBlinkAction\` to trigger the requested Blink action hands-free.
 
 # Investment Lifecycles:
   ${Object.entries(InvestementTypeLifecycles)

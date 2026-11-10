@@ -29,6 +29,7 @@ import { ValidatorsMessageItem } from '@/components/messages/ValidatorsMessageIt
 import { ViewStakesMessageItem } from '@/components/messages/ViewStakesMessageItem';
 import { StakeStatusMessageItem } from '@/components/messages/StakeStatusMessageItem';
 import { NativeWithdrawMessageItem } from '@/components/messages/NativeWithdrawMessageItem';
+import { BlinkMessageItem } from '@/components/messages/BlinkMessageItem';
 import { ErrorMessageItem } from '@/components/messages/ErrorMessageItem';
 
 export function renderMessageContent(message: UIMessage) {
@@ -143,6 +144,9 @@ export function renderToolResult(
       return <StakeStatusMessageItem props={args.data} />;
     case 'nativeWithdraw':
       return <NativeWithdrawMessageItem props={args.data} />;
+    case 'inspectBlink':
+    case 'executeBlinkAction':
+      return <BlinkMessageItem props={args.data} />;
     default:
       return <SimpleMessageItem text={JSON.stringify(args.data)} />;
   }

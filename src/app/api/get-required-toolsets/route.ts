@@ -20,7 +20,15 @@ import {
 
 const ToolsetSelectionSchema = z.object({
   selectedToolset: z.array(
-    z.enum(['token', 'aiProjects', 'lulo', 'nftAnalyst', 'onChain', 'staking'])
+    z.enum([
+      'token',
+      'aiProjects',
+      'lulo',
+      'nftAnalyst',
+      'onChain',
+      'staking',
+      'blinks',
+    ])
   ),
   fallbackResponse: z
     .string()
