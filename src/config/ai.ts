@@ -1,3 +1,4 @@
+import { blinksToolSetFactory } from '@/tools/blinksToolSet';
 import { openai } from '@ai-sdk/openai';
 import { ToolSetDescription } from '@/types/tool';
 import {
@@ -17,7 +18,7 @@ export const toolsetSelectionModel = openai('gpt-4.1-mini');
 export const textToSpeechModel = openai.speech('gpt-4o-mini-tts');
 
 // Get all toolset factories (includes lulo which is lazy-loaded)
-const allToolSetFactories = await getAllToolSetFactories();
+const allToolSetFactories = [...(await getAllToolSetFactories()), blinksToolSetFactory];
 
 /**
  * This contains the generic definition of the toolsets without the encapsulated context
