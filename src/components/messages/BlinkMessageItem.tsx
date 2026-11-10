@@ -1,6 +1,6 @@
 'use client';
 
-import { FC, useCallback, useEffect, useState } from 'react';
+import { FC, useCallback, useEffect, useRef, useState } from 'react';
 import { LuExternalLink, LuPlay, LuRefreshCw, LuZap } from 'react-icons/lu';
 import { toast } from 'sonner';
 import { VersionedTransaction } from '@solana/web3.js';
@@ -67,6 +67,7 @@ export const BlinkMessageItem: FC<BlinkMessageItemProps> = ({
     props.message || null
   );
   const [txSignature, setTxSignature] = useState<string | null>(null);
+  const autoExecutedKeyRef = useRef<string | null>(null);
 
   // Custom function to refresh Blink metadata from the action endpoint
   const refreshBlinkMetadata = useCallback(async () => {
@@ -136,6 +137,12 @@ export const BlinkMessageItem: FC<BlinkMessageItemProps> = ({
         const signedTx = await currentWallet.signTransaction(versionedTx);
         const rawTx = signedTx.serialize();
 
+        const firstSigBytes = signedTx.signatures?.[0];
+        const derivedSignatureHex =
+          firstSigBytes && firstSigBytes.some((byte) => byte !== 0)
+            ? Buffer.from(firstSigBytes).toString('hex')
+            : undefined;
+
         const sendResponse = await fetch('/api/wallet/sendTransaction', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -147,10 +154,20 @@ export const BlinkMessageItem: FC<BlinkMessageItemProps> = ({
 
         let signature: string | undefined;
         if (sendResponse.ok) {
-          const responseData = await sendResponse.json();
-          signature = responseData?.signature || responseData?.txid;
+          try {
+            const responseData = await sendResponse.json();
+            signature = responseData?.signature || responseData?.txid;
+          } catch {
+            // Response body could not be parsed after RPC accepted the submission; retain derived signature
+            signature = derivedSignatureHex;
+          }
           if (signature) {
             setTxSignature(signature);
+          } else {
+            setStatusMessage(
+              execution.message ||
+                'Transaction accepted by RPC (awaiting confirmation).'
+            );
           }
           toast.success(`Executed Blink action: ${execution.actionLabel}`);
         } else {
@@ -175,13 +192,20 @@ export const BlinkMessageItem: FC<BlinkMessageItemProps> = ({
     [metadata, onActionInitiated, paramState, props.actionUrl]
   );
 
-  // Hands-free auto-trigger when an explicit autoExecuteAction selector is provided
+  // Hands-free auto-trigger guarded by ref so it executes only once per trigger
   useEffect(() => {
-    if (props.autoExecuteAction && !props.transaction) {
-      initiateAction(props.autoExecuteAction, props.parameters);
+    if (!props.autoExecuteAction || props.transaction) {
+      return;
     }
+    const triggerKey = `${props.actionUrl}::${props.autoExecuteAction}`;
+    if (autoExecutedKeyRef.current === triggerKey) {
+      return;
+    }
+    autoExecutedKeyRef.current = triggerKey;
+    initiateAction(props.autoExecuteAction, props.parameters);
   }, [
     initiateAction,
+    props.actionUrl,
     props.autoExecuteAction,
     props.parameters,
     props.transaction,
@@ -353,7 +377,6 @@ export const BlinkMessageItem: FC<BlinkMessageItemProps> = ({
       compactContent={compactContent}
       expandedContent={expandedContent}
       footer={compactFooter}
-      maxWidth="max-w-lg"
     />
   );
 };
