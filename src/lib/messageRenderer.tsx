@@ -1,3 +1,4 @@
+import { HandsfreeBlinkMessageItem } from '@/components/messages/HandsfreeBlinkMessageItem';
 import React from 'react';
 import { UIMessage } from 'ai';
 import { ToolResult } from '@/types/tool';
@@ -118,6 +119,11 @@ export function renderToolResult(
       return <SNSResolverMessageItem props={args.data} />;
     case 'sign_and_send_tx':
       return <SignedTransactionsMessageItem props={args.data} />;
+    case 'executeBlinkAction':
+    case 'resolveBlinkMetadata':
+    case 'blinks_executeAction':
+    case 'blinks_resolveMetadata':
+      return <HandsfreeBlinkMessageItem props={args.data} />;
     case 'transferSol':
       return <TransferTokenMessageItem props={args.data} />;
     case 'transferSpl':
