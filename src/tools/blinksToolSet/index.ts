@@ -175,3 +175,14 @@ export const getBlinksToolSet = (context: ToolContext) => {
     },
   };
 };
+
+
+export const blinksToolSetFactory = (context: ToolContext) => ({
+  slug: blinksToolSet.slug,
+  name: blinksToolSet.name,
+  description: blinksToolSet.description,
+  tools: {
+    executeBlinkAction: createExecuteBlinkActionTool(context),
+    resolveBlinkMetadata: createResolveBlinkMetadataTool(context),
+  },
+});
