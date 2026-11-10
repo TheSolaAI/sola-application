@@ -48,6 +48,28 @@ export function useChatMessages(
         console.log('Tool Result:', result);
         if (toolCall.toolName === 'sign_and_send_tx') {
           result = await handleSignTransaction(toolCall.args);
+        } else if (
+          toolCall.toolName === 'executeBlinkAction' &&
+          (toolCall.args as any)?.transaction
+        ) {
+          const expectedAccount = (toolCall.args as any)?.account;
+          const activeWallet =
+            useWalletHandler.getState().currentWallet?.address;
+          if (
+            expectedAccount &&
+            activeWallet &&
+            expectedAccount !== activeWallet
+          ) {
+            result = {
+              success: false,
+              error: `Active wallet (${activeWallet}) does not match Blink transaction account (${expectedAccount})`,
+              data: undefined,
+            };
+          } else {
+            result = await handleSignTransaction({
+              transactionHash: (toolCall.args as any).transaction,
+            });
+          }
         } else if (toolCall.toolName === 'changeTheme') {
           result = changeThemeTool(toolCall.args);
           // in the case that the theme was not changed open the settings screen
@@ -257,7 +279,12 @@ export function useChatMessages(
           role: 'user',
           content: text,
         },
-        { body: { requiredToolSets: toolsets } }
+        {
+          body: {
+            requiredToolSets: toolsets,
+            walletPublicKey: useWalletHandler.getState().currentWallet?.address,
+          },
+        }
       );
 
       setLoadingMessage('Processing your request...');
