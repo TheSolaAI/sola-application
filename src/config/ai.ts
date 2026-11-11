@@ -11,6 +11,7 @@ import {
   AVAILABLE_INVESTMENT_TYPES,
   InvestementTypeLifecycles,
 } from './investmentTypes';
+import { blinksToolSet } from '@/tools/blinksToolSet';
 
 export const toolhandlerModel = openai.responses('gpt-4.1');
 export const toolsetSelectionModel = openai('gpt-4.1-mini');
@@ -23,20 +24,23 @@ const allToolSetFactories = await getAllToolSetFactories();
  * This contains the generic definition of the toolsets without the encapsulated context
  */
 export const availableToolsetsDescription: Record<string, ToolSetDescription> =
-  Object.fromEntries(
-    allToolSetFactories.map((toolsetFactory: (arg0: any) => any) => {
-      // Create an empty context since we only need the metadata
-      const toolset = toolsetFactory({} as any);
-      return [
-        toolset.slug,
-        {
-          slug: toolset.slug,
-          name: toolset.name,
-          description: toolset.description,
-        },
-      ];
-    })
-  );
+  {
+    ...Object.fromEntries(
+      allToolSetFactories.map((toolsetFactory: (arg0: any) => any) => {
+        // Create an empty context since we only need the metadata
+        const toolset = toolsetFactory({} as any);
+        return [
+          toolset.slug,
+          {
+            slug: toolset.slug,
+            name: toolset.name,
+            description: toolset.description,
+          },
+        ];
+      })
+    ),
+    [blinksToolSet.slug]: blinksToolSet,
+  };
 
 export const TOOLSET_SLUGS = Object.keys(availableToolsetsDescription);
 export type ToolsetSlug = (typeof TOOLSET_SLUGS)[number];
