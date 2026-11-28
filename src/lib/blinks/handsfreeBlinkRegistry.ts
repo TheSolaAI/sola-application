@@ -119,19 +119,26 @@ export function matchBlinkAction(
 }
 
 export class HandsfreeBlinkRegistry {
-  private readonly handlers = new Map<string, HandsfreeBlinkHandler>();
+  private readonly handlers = new Map<string, HandsfreeBlinkHandler[]>();
 
   register(blinkId: string, handler: HandsfreeBlinkHandler): () => void {
-    this.handlers.set(blinkId, handler);
+    const stack = this.handlers.get(blinkId) || [];
+    stack.push(handler);
+    this.handlers.set(blinkId, stack);
     return () => {
-      if (this.handlers.get(blinkId) === handler) {
+      const current = this.handlers.get(blinkId);
+      if (!current) return;
+      const idx = current.lastIndexOf(handler);
+      if (idx !== -1) current.splice(idx, 1);
+      if (current.length === 0) {
         this.handlers.delete(blinkId);
       }
     };
   }
 
   has(blinkId: string): boolean {
-    return this.handlers.has(blinkId);
+    const stack = this.handlers.get(blinkId);
+    return Boolean(stack && stack.length > 0);
   }
 
   listRegisteredIds(): string[] {
@@ -142,7 +149,8 @@ export class HandsfreeBlinkRegistry {
     blinkId: string,
     req: BlinkExecutionRequest
   ): Promise<BlinkExecutionResponse> {
-    const handler = this.handlers.get(blinkId);
+    const stack = this.handlers.get(blinkId);
+    const handler = stack && stack.length > 0 ? stack[stack.length - 1] : undefined;
     if (!handler) {
       return {
         ok: false,
