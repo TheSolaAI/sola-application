@@ -40,6 +40,8 @@ export const HandsfreeBlinkCard: React.FC<HandsfreeBlinkCardProps> = ({
   useEffect(() => {
     let active = true;
     setLoading(true);
+    setParamValues({});
+    setStatusMessage('');
     setErrorMessage('');
     fetch(actionUrl, { headers: { Accept: 'application/json' } })
       .then((res) => {
@@ -128,12 +130,17 @@ export const HandsfreeBlinkCard: React.FC<HandsfreeBlinkCardProps> = ({
           actionLabel: matched.label,
           resolvedHref: targetHref,
           transaction: body.transaction,
+          signAndSend: !onSignTransaction,
           message:
             body.message ||
             (txSignature ? `Confirmed: ${txSignature}` : 'Transaction prepared.'),
         };
         setStatusMessage(result.message || 'Action completed.');
-        onActionResult?.(result);
+        try {
+          onActionResult?.(result);
+        } catch {
+          // Do not mark a succeeded Blink transaction as failed if consumer callback throws
+        }
         return result;
       } catch (err) {
         const msg = err instanceof Error ? err.message : String(err);
