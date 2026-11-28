@@ -4,6 +4,7 @@ import { ToolContext, ToolResult } from '@/types/tool';
 import {
   BlinkMetadata,
   handsfreeBlinkRegistry,
+  isSafePublicHttpsUrl,
   matchBlinkAction,
   resolveBlinkActionHref,
 } from '@/lib/blinks/handsfreeBlinkRegistry';
@@ -12,30 +13,23 @@ const HandsfreeBlinkParameters = z.object({
   blinkId: z
     .string()
     .optional()
-    .describe('Optional mounted HandsfreeBlinkCard ID to trigger directly in the UI.'),
-  actionUrl: z
-    .string()
-    .url()
-    .describe('Solana Action / Blink endpoint URL.'),
+    .describe('Optional mounted HandsfreeBlinkCard ID to invoke directly.'),
+  actionUrl: z.string().url().describe('Public HTTPS Solana Action / Blink URL.'),
   actionLabel: z
     .string()
     .optional()
-    .describe('Label of the Blink action to trigger handsfree (e.g., "Play", "Donate 0.1 SOL").'),
+    .describe('Action button label to run handsfree (e.g., "Play", "Donate 0.1 SOL").'),
   parameters: z
     .record(z.string())
     .optional()
     .describe('Key-value parameters required by the selected Blink action.'),
 });
 
-/**
- * Extends Sola AI's toolset so voice/chat commands can trigger custom
- * Handsfree Blink actions without manual button clicks (#157).
- */
 export function createHandsfreeBlinkTool(context: ToolContext) {
   const handsfreeBlinkTool: Tool<typeof HandsfreeBlinkParameters, ToolResult> = {
     id: 'onChain.triggerHandsfreeBlink' as const,
     description:
-      'Triggers a Solana Blink (Blockchain Action) handsfree via the custom HandsfreeBlinkCard handler or directly via the Solana Actions protocol.',
+      'Executes a Solana Blink action handsfree via a mounted HandsfreeBlinkCard handler or directly through the Solana Actions protocol.',
     parameters: HandsfreeBlinkParameters,
     execute: async (params) => {
       const { blinkId, actionUrl, actionLabel, parameters = {} } = params;
@@ -43,12 +37,19 @@ export function createHandsfreeBlinkTool(context: ToolContext) {
       if (!context.publicKey) {
         return {
           success: false,
-          error: 'No wallet public key available for handsfree Blink execution.',
+          error: 'No wallet public key available for Blink execution.',
           data: undefined,
         };
       }
 
-      // 1. If a mounted HandsfreeBlinkCard is registered, trigger its custom handler directly
+      if (!isSafePublicHttpsUrl(actionUrl)) {
+        return {
+          success: false,
+          error: 'Only public HTTPS Blink URLs are allowed.',
+          data: undefined,
+        };
+      }
+
       if (blinkId && handsfreeBlinkRegistry.has(blinkId)) {
         const uiRes = await handsfreeBlinkRegistry.trigger(blinkId, {
           blinkUrl: actionUrl,
@@ -63,7 +64,6 @@ export function createHandsfreeBlinkTool(context: ToolContext) {
         };
       }
 
-      // 2. Otherwise execute headlessly against the Solana Action endpoint
       try {
         const metaResp = await fetch(actionUrl, {
           headers: { Accept: 'application/json' },
@@ -76,6 +76,14 @@ export function createHandsfreeBlinkTool(context: ToolContext) {
           };
         }
         const metadata = (await metaResp.json()) as BlinkMetadata;
+        if (metadata.disabled) {
+          return {
+            success: false,
+            error: `Blink "${metadata.title}" is currently disabled.`,
+            data: undefined,
+          };
+        }
+
         const matched = matchBlinkAction(metadata, actionLabel);
         if (!matched) {
           return {
@@ -95,10 +103,13 @@ export function createHandsfreeBlinkTool(context: ToolContext) {
           body: JSON.stringify({ account: context.publicKey }),
         });
         const txPayload = await postResp.json();
-        if (!postResp.ok) {
+        if (!postResp.ok || !txPayload?.transaction) {
           return {
             success: false,
-            error: txPayload?.error || `Blink POST failed (HTTP ${postResp.status})`,
+            error:
+              txPayload?.error ||
+              txPayload?.message ||
+              `Blink action did not return a valid transaction (HTTP ${postResp.status}).`,
             data: undefined,
           };
         }
@@ -109,7 +120,8 @@ export function createHandsfreeBlinkTool(context: ToolContext) {
             actionLabel: matched.label,
             resolvedHref,
             transaction: txPayload.transaction,
-            message: txPayload.message || `Handsfree action "${matched.label}" prepared.`,
+            signAndSend: true,
+            message: txPayload.message || `Action "${matched.label}" prepared for signing.`,
           },
         };
       } catch (err) {
