@@ -70,6 +70,14 @@ export const HandsfreeBlinkCard: React.FC<HandsfreeBlinkCardProps> = ({
           error: 'Blink metadata is not loaded yet.',
         };
       }
+      if (metadata.disabled) {
+        return {
+          ok: false,
+          actionLabel: req.actionLabel || '',
+          resolvedHref: actionUrl,
+          error: `Blink "${metadata.title}" is currently disabled.`,
+        };
+      }
       const matched = matchBlinkAction(metadata, req.actionLabel);
       if (!matched) {
         return {
