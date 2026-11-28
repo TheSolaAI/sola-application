@@ -1,5 +1,6 @@
 import { openai } from '@ai-sdk/openai';
 import { ToolSetDescription } from '@/types/tool';
+import { createHandsfreeBlinkTool } from '@/tools/onChainToolSet/handsfreeBlinkTool';
 import {
   AIKit,
   createApiClient,
@@ -17,7 +18,19 @@ export const toolsetSelectionModel = openai('gpt-4.1-mini');
 export const textToSpeechModel = openai.speech('gpt-4o-mini-tts');
 
 // Get all toolset factories (includes lulo which is lazy-loaded)
-const allToolSetFactories = await getAllToolSetFactories();
+const baseToolSetFactories = await getAllToolSetFactories();
+
+const handsfreeBlinksToolSetFactory = (context: any) => ({
+  slug: 'blinks',
+  name: 'Handsfree Blinks',
+  description:
+    'Tools for triggering Solana Blinks (Blockchain Actions) handsfree via custom action handlers.',
+  tools: {
+    triggerHandsfreeBlink: createHandsfreeBlinkTool(context),
+  },
+});
+
+const allToolSetFactories = [...baseToolSetFactories, handsfreeBlinksToolSetFactory];
 
 /**
  * This contains the generic definition of the toolsets without the encapsulated context
