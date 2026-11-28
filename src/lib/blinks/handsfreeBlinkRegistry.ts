@@ -1,9 +1,3 @@
-/**
- * Handsfree Solana Blinks Registry & Action Resolver for Sola AI (#157).
- * Allows AI tools / voice commands to programmatically trigger custom Blink
- * actions registered by mounted <HandsfreeBlinkCard /> components.
- */
-
 export interface BlinkActionParameter {
   name: string;
   label?: string;
@@ -39,6 +33,7 @@ export interface BlinkExecutionResponse {
   actionLabel: string;
   resolvedHref: string;
   transaction?: string;
+  signAndSend?: boolean;
   message?: string;
   error?: string;
 }
@@ -47,9 +42,35 @@ export type HandsfreeBlinkHandler = (
   req: BlinkExecutionRequest
 ) => Promise<BlinkExecutionResponse>;
 
+const PRIVATE_HOST_PATTERNS = [
+  /^localhost$/i,
+  /^127\./,
+  /^10\./,
+  /^192\.168\./,
+  /^169\.254\./,
+  /^172\.(1[6-9]|2\d|3[0-1])\./,
+  /^0\.0\.0\.0$/,
+  /^\[?::1\]?$/,
+  /\.local$/i,
+  /\.internal$/i,
+];
+
 /**
- * Resolves a Solana Action href (relative or absolute) and substitutes `{param}` placeholders.
+ * Validates that a Blink URL is public HTTPS to prevent SSRF against internal services.
  */
+export function isSafePublicHttpsUrl(rawUrl: string): boolean {
+  try {
+    const parsed = new URL(rawUrl);
+    if (parsed.protocol !== 'https:') {
+      return false;
+    }
+    const host = parsed.hostname.toLowerCase();
+    return !PRIVATE_HOST_PATTERNS.some((rx) => rx.test(host));
+  } catch {
+    return false;
+  }
+}
+
 export function resolveBlinkActionHref(
   baseUrl: string,
   href: string,
@@ -62,20 +83,23 @@ export function resolveBlinkActionHref(
       encodeURIComponent(String(value))
     );
   }
-  if (/^https?:\/\//i.test(resolved)) {
-    return resolved;
+  const finalUrl = /^https?:\/\//i.test(resolved)
+    ? resolved
+    : new URL(resolved, new URL(baseUrl).origin).toString();
+
+  if (!isSafePublicHttpsUrl(finalUrl)) {
+    throw new Error('Blocked unsafe or non-HTTPS Blink action URL.');
   }
-  const base = new URL(baseUrl);
-  return new URL(resolved, base.origin).toString();
+  return finalUrl;
 }
 
-/**
- * Matches a user/AI spoken or typed action label against a Blink's available actions.
- */
 export function matchBlinkAction(
   metadata: BlinkMetadata,
   requestedLabel?: string
 ): BlinkLinkedAction | null {
+  if (metadata.disabled) {
+    return null;
+  }
   const actions = metadata.links?.actions;
   if (!actions || actions.length === 0) {
     return { label: metadata.label || 'Execute', href: '' };
@@ -94,9 +118,6 @@ export function matchBlinkAction(
   return partial || null;
 }
 
-/**
- * In-memory registry bridging AI config tools and mounted HandsfreeBlinkCard components.
- */
 export class HandsfreeBlinkRegistry {
   private readonly handlers = new Map<string, HandsfreeBlinkHandler>();
 
@@ -127,7 +148,7 @@ export class HandsfreeBlinkRegistry {
         ok: false,
         actionLabel: req.actionLabel || '',
         resolvedHref: req.blinkUrl,
-        error: `No active HandsfreeBlinkCard registered for "${blinkId}".`,
+        error: `No active Blink handler registered for "${blinkId}".`,
       };
     }
     return await handler(req);
